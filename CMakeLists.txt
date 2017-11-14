@@ -266,13 +266,19 @@ add_custom_target(${PLUGIN_NAME}DataFolderCopy ALL
 set_target_properties(${PLUGIN_NAME}DataFolderCopy PROPERTIES FOLDER ZZ_COPY_FILES)
 
 #-------------------------------------------------------------------------------
-#- This installs all the Example Pipeline files.
-install(DIRECTORY ${${PLUGIN_NAME}_SOURCE_DIR}/ExamplePipelines/${PLUGIN_NAME}
-        DESTINATION ${DREAM3D_PACKAGE_DEST_PREFIX}/PrebuiltPipelines/Examples
-        COMPONENT Applications )
+#- This installs all the prebuilt pipeline files.
+if(APPLE)
+  install(DIRECTORY ${${PLUGIN_NAME}_SOURCE_DIR}/ExamplePipelines/${PLUGIN_NAME}
+          DESTINATION ${DREAM3D_PACKAGE_DEST_PREFIX}/Resources/PrebuiltPipelines/Examples
+          COMPONENT Applications )
+else()
+  install(DIRECTORY ${${PLUGIN_NAME}_SOURCE_DIR}/ExamplePipelines/${PLUGIN_NAME}
+          DESTINATION ${DREAM3D_PACKAGE_DEST_PREFIX}/PrebuiltPipelines/Examples
+          COMPONENT Applications )
+endif()
 
 #-------------------------------------------------------------------------------
-#- This installs all the Example Pipeline files.
+#- This installs all the Data files.
 install(DIRECTORY ${${PLUGIN_NAME}_SOURCE_DIR}/Data/
         DESTINATION Data
         COMPONENT Applications )
