@@ -186,7 +186,9 @@ private:
   DEFINE_DATAARRAY_VARIABLE(int32_t, FeatureIds)
   DEFINE_DATAARRAY_VARIABLE(double, SilhouetteArray)
 
-  Silhouette(const Silhouette&);     // Copy Constructor Not Implemented
+public:
+  Silhouette(const Silhouette&) = delete;            // Copy Constructor Not Implemented
+  Silhouette(Silhouette&&) = delete;                 // Move Constructor Not Implemented
   Silhouette& operator=(const Silhouette&) = delete; // Copy Assignment Not Implemented
   Silhouette& operator=(Silhouette&&) = delete;      // Move Assignment Not Implemented
 };

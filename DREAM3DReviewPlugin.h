@@ -158,6 +158,6 @@ private:
   bool m_DidLoad;
 
   DREAM3DReviewPlugin(const DREAM3DReviewPlugin&) = delete; // Copy Constructor Not Implemented
-  void operator=(const DREAM3DReviewPlugin&);               // Move assignment Not Implemented
+  void operator=(const DREAM3DReviewPlugin&) = delete;      // Move assignment Not Implemented
 };
 

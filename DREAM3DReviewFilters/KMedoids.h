@@ -195,7 +195,9 @@ private:
   DEFINE_DATAARRAY_VARIABLE(bool, Mask)
   DEFINE_DATAARRAY_VARIABLE(int32_t, FeatureIds)
 
-  KMedoids(const KMedoids&);       // Copy Constructor Not Implemented
+public:
+  KMedoids(const KMedoids&) = delete;            // Copy Constructor Not Implemented
+  KMedoids(KMedoids&&) = delete;                 // Move Constructor Not Implemented
   KMedoids& operator=(const KMedoids&) = delete; // Copy Assignment Not Implemented
   KMedoids& operator=(KMedoids&&) = delete;      // Move Assignment Not Implemented
 };

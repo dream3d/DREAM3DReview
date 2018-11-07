@@ -173,7 +173,9 @@ private:
   DEFINE_IDATAARRAY_VARIABLE(InArray)
   DEFINE_DATAARRAY_VARIABLE(float, Norm)
 
-  FindNorm(const FindNorm&);       // Copy Constructor Not Implemented
+public:
+  FindNorm(const FindNorm&) = delete;            // Copy Constructor Not Implemented
+  FindNorm(FindNorm&&) = delete;                 // Move Constructor Not Implemented
   FindNorm& operator=(const FindNorm&) = delete; // Copy Assignment Not Implemented
   FindNorm& operator=(FindNorm&&) = delete;      // Move Assignment Not Implemented
 };
