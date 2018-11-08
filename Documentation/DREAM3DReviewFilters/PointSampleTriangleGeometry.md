@@ -1,5 +1,4 @@
-Point Sample Triangle Geometry 
-=============
+# Point Sample Triangle Geometry #
 
 ## Group (Subgroup) ##
 
@@ -21,13 +20,10 @@ This **Filter** randomly samples point locations on **Triangles** in a **Triangl
 
 In order to ensure an even sampling of the total surface are of the **Triangle Geometry**, the average number of points sampled per triangle is made proportional to the area of the triangle.  Within a given **Triangle**, a point is chosen using the following approach:
 
-\f[
-p_{i} = \left(1 - \sqrt{r_{1}}\right) a_{i} +
-\left(\sqrt{r_{1}}\left(1 - r_{2}\right)\right) b_{i} +
-\left(\sqrt{r_{1}} r_{2}\right) c_{i}  
-\f]
 
-where \f$ p_{i} \f$ are the coordinates of the sampled point; \f$ a_{i} \f$, \f$ b_{i} \f$, and \f$ c_{i} \f$ are the coordinates of the vertices beloning to the **Triangle**; and \f$ r_{1} \f$ and \f$ r_{2} \f$ are random real numbers on the interval \f$ [0, 1) \f$.  This approach has the benefit of uniform sampling within the **Triangle** area, and functions correctly regardless of the dimensionality of the space embedding (i.e., whether the **Triangle** is in the plane or embedded in 3D).
+![Equation 1](Images/PointSampleTriangleGeometry_Eqn1.png)
+
+where ![](Images/PSTG_2.png) are the coordinates of the sampled point; ![](Images/PSTG_3.png), ![](Images/PSTG_4.png), and ![](Images/PSTG_5.png) are the coordinates of the vertices beloning to the **Triangle**; and ![](Images/PSTG_6.png) and ![](Images/PSTG_7.png) are random real numbers on the interval ![](Images/PSTG_8.png).  This approach has the benefit of uniform sampling within the **Triangle** area, and functions correctly regardless of the dimensionality of the space embedding (i.e., whether the **Triangle** is in the plane or embedded in 3D).
 
 The user may opt to use a mask to prevent certain **Triangles** from being sampled; where the mask is _false_, the **Triangle** will not be sampled.  Additionally, the user may choose any number of **Face Attribute Arrays** to transfer to the created **Vertex Geometry**. The vertices in the new **Vertex Geometry** will gain the values of the **Faces** from which they were sampled.
 
@@ -60,8 +56,6 @@ Triangle
 | **Vertex Attribute Matrix** | VertexData | Vertex | N/A | **Vertex Attribute Matrix** for the created **Vertex Data Container** |
 
 ## Example Pipelines ##
-
-
 
 ## License & Copyright ##
 
