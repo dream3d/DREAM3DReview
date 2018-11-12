@@ -141,7 +141,7 @@ void RobustAutomaticThreshold::dataCheck()
     dataArrayPaths.push_back(getGradientMagnitudeArrayPath());
   }
 
-  m_FeatureIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<bool>, AbstractFilter, bool>(this, getFeatureIdsArrayPath(), 0, cDims);
+  m_FeatureIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<bool>, AbstractFilter, bool>(this, getFeatureIdsArrayPath(), false, cDims);
   if(m_FeatureIdsPtr.lock())
   {
     m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);

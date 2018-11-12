@@ -488,7 +488,6 @@ void standardizeDataByIndex<bool>(IDataArray::Pointer dataPtr, FloatArrayType::P
                                   IDataArray::Pointer stdPtr)
 {
   // Standardization of a boolean array is a no-op
-  return;
 }
 
 // -----------------------------------------------------------------------------
@@ -529,7 +528,6 @@ template <typename T> void standardizeData(IDataArray::Pointer dataPtr, FloatArr
 template <> void standardizeData<bool>(IDataArray::Pointer dataPtr, FloatArrayType::Pointer standardized, bool useMask, bool* mask, IDataArray::Pointer meanPtr, IDataArray::Pointer stdPtr)
 {
   // Standardization of a boolean array is a no-op
-  return;
 }
 
 // -----------------------------------------------------------------------------
@@ -552,9 +550,7 @@ public:
   {
   }
 
-  virtual ~FindStatisticsByIndexImpl()
-  {
-  }
+  virtual ~FindStatisticsByIndexImpl() = default;
 
   void compute(size_t start, size_t end) const
   {

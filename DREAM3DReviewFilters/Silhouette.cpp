@@ -174,7 +174,7 @@ void Silhouette::dataCheck()
   if(m_UseMask)
   {
     m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<BoolArrayType, AbstractFilter>(this, getMaskArrayPath(), cDims);
-    if(m_MaskPtr.lock().get() != nullptr)
+    if(m_MaskPtr.lock() != nullptr)
     {
       m_Mask = m_MaskPtr.lock()->getPointer(0);
     }

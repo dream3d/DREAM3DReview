@@ -58,8 +58,7 @@
 //
 // -----------------------------------------------------------------------------
 ApplyTransformationToGeometry::ApplyTransformationToGeometry()
-: m_ManualTransformationMatrix()
-, m_ComputedTransformationMatrix("", "", "TransformationMatrix")
+: m_ComputedTransformationMatrix("", "", "TransformationMatrix")
 , m_GeometryToTransform("")
 , m_TransformationMatrixType(1)
 , m_TransformationMatrix(nullptr)

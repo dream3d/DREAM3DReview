@@ -159,7 +159,7 @@ void NormalizeArrays::dataCheck()
     return;
   }
 
-  if(getSelectedDataArrayPaths().size() < 1)
+  if(getSelectedDataArrayPaths().empty())
   {
     setErrorCondition(-11001);
     QString ss = QObject::tr("At least one Attribute Array must be selected");
