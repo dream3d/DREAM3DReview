@@ -52,9 +52,6 @@ RobustAutomaticThreshold::RobustAutomaticThreshold()
 : m_InputArrayPath("", "", "")
 , m_FeatureIdsArrayPath("", "", "Mask")
 , m_GradientMagnitudeArrayPath("", "", "")
-, m_InputArray(nullptr)
-, m_GradientMagnitude(nullptr)
-, m_FeatureIds(nullptr)
 {
   initialize();
 }

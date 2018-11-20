@@ -70,7 +70,6 @@ NormalizeArrays::NormalizeArrays()
 , m_UseMask(false)
 , m_MaskArrayPath("", "", "")
 , m_DefaultValue(0.0)
-, m_Mask(nullptr)
 {
 }
 

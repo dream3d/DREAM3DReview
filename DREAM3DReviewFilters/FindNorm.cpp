@@ -54,8 +54,6 @@ FindNorm::FindNorm()
 : m_SelectedArrayPath("", "", "")
 , m_NormArrayPath("", "", "Norm")
 , m_PSpace(2.0f)
-, m_InArray(nullptr)
-, m_Norm(nullptr)
 {
 }
 

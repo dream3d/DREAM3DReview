@@ -90,17 +90,6 @@ FindArrayStatistics::FindArrayStatistics()
 , m_StandardizedArrayName("Standardized")
 , m_SelectedArrayPath("", "", "")
 , m_FeatureIdsArrayPath("", "", "")
-, m_Length(nullptr)
-, m_Minimum(nullptr)
-, m_Maximum(nullptr)
-, m_Mean(nullptr)
-, m_Median(nullptr)
-, m_StandardDeviation(nullptr)
-, m_Summation(nullptr)
-, m_Standardized(nullptr)
-, m_InputArray(nullptr)
-, m_FeatureIds(nullptr)
-, m_Mask(nullptr)
 {
 }
 

@@ -61,10 +61,6 @@ Silhouette::Silhouette()
 , m_FeatureIdsArrayPath("", "", "ClusterIds")
 , m_SilhouetteArrayPath("", "", "Silhouette")
 , m_DistanceMetric(0)
-, m_InData(nullptr)
-, m_Mask(nullptr)
-, m_FeatureIds(nullptr)
-, m_SilhouetteArray(nullptr)
 {
 }
 

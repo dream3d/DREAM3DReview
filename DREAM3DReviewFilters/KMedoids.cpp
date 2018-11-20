@@ -61,10 +61,6 @@ KMedoids::KMedoids()
 , m_FeatureAttributeMatrixName("ClusterData")
 , m_InitClusters(1)
 , m_DistanceMetric(0)
-, m_InData(nullptr)
-, m_MedoidsArray(nullptr)
-, m_Mask(nullptr)
-, m_FeatureIds(nullptr)
 {
 }
 

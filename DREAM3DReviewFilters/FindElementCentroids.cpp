@@ -56,7 +56,6 @@ FindElementCentroids::FindElementCentroids()
 , m_CreateVertexDataContainer(false)
 , m_NewDataContainerName(SIMPL::Defaults::VertexDataContainerName)
 , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_CellCentroidsArray(nullptr)
 {
 }
 

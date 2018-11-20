@@ -58,8 +58,6 @@ AverageVertexArrayToEdgeFaceCellArray::AverageVertexArrayToEdgeFaceCellArray()
 : m_SelectedArrayPath("", "", "")
 , m_AverageCellArrayPath("", "", "")
 , m_WeightedAverage(false)
-, m_InVertexArray(nullptr)
-, m_AverageCellArray(nullptr)
 {
 }
 

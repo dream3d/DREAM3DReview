@@ -65,8 +65,6 @@ PrincipalComponentAnalysis::PrincipalComponentAnalysis()
 , m_ProjectDataSpace(false)
 , m_NumberOfDimensionsForProjection(0)
 , m_ProjectedDataSpaceArrayPath("", "", "ProjectedDataSpace")
-, m_PCEigenvalues(nullptr)
-, m_PCEigenvectors(nullptr)
 {
 }
 

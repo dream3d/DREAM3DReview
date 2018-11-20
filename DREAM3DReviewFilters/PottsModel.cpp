@@ -364,8 +364,6 @@ PottsModel::PottsModel()
 , m_UseMask(false)
 , m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
 , m_MaskArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Mask)
-, m_FeatureIds(nullptr)
-, m_Mask(nullptr)
 {
   initialize();
 }

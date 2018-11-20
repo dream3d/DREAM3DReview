@@ -62,9 +62,6 @@ DBSCAN::DBSCAN()
 , m_Epsilon(0.01f)
 , m_MinPnts(50)
 , m_DistanceMetric(0)
-, m_InData(nullptr)
-, m_Mask(nullptr)
-, m_FeatureIds(nullptr)
 {
 }
 

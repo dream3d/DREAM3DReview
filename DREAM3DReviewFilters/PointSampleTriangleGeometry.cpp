@@ -73,8 +73,6 @@ PointSampleTriangleGeometry::PointSampleTriangleGeometry()
 , m_UseMask(false)
 , m_MaskArrayPath("", "", "")
 , m_SelectedDataArrayPaths(QVector<DataArrayPath>())
-, m_TriangleAreas(nullptr)
-, m_Mask(nullptr)
 , m_NumSamples(0)
 {
 }

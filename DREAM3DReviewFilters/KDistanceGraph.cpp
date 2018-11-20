@@ -58,7 +58,6 @@ KDistanceGraph::KDistanceGraph()
 , m_KDistanceArrayPath("", "", "KDistance")
 , m_MinDist(1)
 , m_DistanceMetric(0)
-, m_KDistanceArray(nullptr)
 {
 }
 

@@ -61,7 +61,6 @@ ApplyTransformationToGeometry::ApplyTransformationToGeometry()
 : m_ComputedTransformationMatrix("", "", "TransformationMatrix")
 , m_GeometryToTransform("")
 , m_TransformationMatrixType(1)
-, m_TransformationMatrix(nullptr)
 {
   m_RotationAngle = 0.0f;
   m_RotationAxis.x = 0.0f;

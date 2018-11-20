@@ -61,10 +61,6 @@ KMeans::KMeans()
 , m_InitClusters(1)
 , m_FeatureAttributeMatrixName("ClusterData")
 , m_DistanceMetric(0)
-, m_InData(nullptr)
-, m_Mask(nullptr)
-, m_FeatureIds(nullptr)
-, m_MeansArray(nullptr)
 {
 }
 
