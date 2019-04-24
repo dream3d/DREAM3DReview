@@ -734,7 +734,7 @@ void InterpolateMeshToRegularGrid::execute()
 AbstractFilter::Pointer InterpolateMeshToRegularGrid::newFilterInstance(bool copyFilterParameters) const
 {
   InterpolateMeshToRegularGrid::Pointer filter = InterpolateMeshToRegularGrid::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

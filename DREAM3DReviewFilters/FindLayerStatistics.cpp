@@ -141,13 +141,6 @@ FindLayerStatistics::FindLayerStatistics()
 , m_LayerAvgArrayName("LayerAvg")
 , m_LayerStdArrayName("LayerStd")
 , m_LayerVarArrayName("LayerVar")
-, m_InData(nullptr)
-, m_LayerIDs(nullptr)
-, m_LayerMin(nullptr)
-, m_LayerMax(nullptr)
-, m_LayerAvg(nullptr)
-, m_LayerStd(nullptr)
-, m_LayerVar(nullptr)
 {
 }
 
@@ -283,7 +276,7 @@ void FindLayerStatistics::dataCheck()
   tempPath.update(getSelectedArrayPath().getDataContainerName(), getSelectedArrayPath().getAttributeMatrixName(), getLayerIDsArrayName());
   m_LayerIDsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter, int32_t>(this, tempPath, 0,
                                                                                                                      cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_LayerIDsPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_LayerIDsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_LayerIDs = m_LayerIDsPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -291,7 +284,7 @@ void FindLayerStatistics::dataCheck()
   tempPath.update(getSelectedArrayPath().getDataContainerName(), getLayerAttributeMatrixName(), getLayerMinArrayName());
   m_LayerMinPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>, AbstractFilter, float>(this, tempPath, 0,
                                                                                                                  cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_LayerMinPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_LayerMinPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_LayerMin = m_LayerMinPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -299,7 +292,7 @@ void FindLayerStatistics::dataCheck()
   tempPath.update(getSelectedArrayPath().getDataContainerName(), getLayerAttributeMatrixName(), getLayerMaxArrayName());
   m_LayerMaxPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>, AbstractFilter, float>(this, tempPath, 0,
                                                                                                                  cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_LayerMaxPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_LayerMaxPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_LayerMax = m_LayerMaxPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -307,7 +300,7 @@ void FindLayerStatistics::dataCheck()
   tempPath.update(getSelectedArrayPath().getDataContainerName(), getLayerAttributeMatrixName(), getLayerAvgArrayName());
   m_LayerAvgPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>, AbstractFilter, float>(this, tempPath, 0,
                                                                                                                  cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_LayerAvgPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_LayerAvgPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_LayerAvg = m_LayerAvgPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -315,7 +308,7 @@ void FindLayerStatistics::dataCheck()
   tempPath.update(getSelectedArrayPath().getDataContainerName(), getLayerAttributeMatrixName(), getLayerStdArrayName());
   m_LayerStdPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>, AbstractFilter, float>(this, tempPath, 0,
                                                                                                                  cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_LayerStdPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_LayerStdPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_LayerStd = m_LayerStdPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -323,7 +316,7 @@ void FindLayerStatistics::dataCheck()
   tempPath.update(getSelectedArrayPath().getDataContainerName(), getLayerAttributeMatrixName(), getLayerVarArrayName());
   m_LayerVarPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>, AbstractFilter, float>(this, tempPath, 0,
                                                                                                                  cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_LayerVarPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_LayerVarPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_LayerVar = m_LayerVarPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -362,8 +355,7 @@ void FindLayerStatistics::execute()
   bool doParallel = true;
 #endif
 
-  size_t xP = 0, yP = 0, zP = 0;
-  std::tie(xP, yP, zP) = m->getGeometryAs<ImageGeom>()->getDimensions();
+  SizeVec3Type dimsP = m->getGeometryAs<ImageGeom>()->getDimensions();
 
   Int32ArrayType::Pointer startingPoints = Int32ArrayType::CreateArray(0, "_INTERNAL_USE_ONLY_startingPoints");
   int32_t* startPoints = nullptr;
@@ -373,42 +365,42 @@ void FindLayerStatistics::execute()
   size_t depth = 0;
   if(m_Plane == 0)
   {
-    startingPoints->resizeTuples(zP);
+    startingPoints->resizeTuples(dimsP[2]);
     startPoints = startingPoints->getPointer(0);
     stride[0] = 1;
-    stride[1] = xP;
-    dims[0] = xP;
-    dims[1] = yP;
-    depth = zP;
-    for(size_t i = 0; i < zP; i++)
+    stride[1] = dimsP[0];
+    dims[0] = dimsP[0];
+    dims[1] = dimsP[1];
+    depth = dimsP[2];
+    for(size_t i = 0; i < dimsP[2]; i++)
     {
-      startPoints[i] = i * (xP * yP);
+      startPoints[i] = i * (dimsP[0] * dimsP[1]);
     }
   }
   if(m_Plane == 1)
   {
-    startingPoints->resizeTuples(yP);
+    startingPoints->resizeTuples(dimsP[1]);
     startPoints = startingPoints->getPointer(0);
     stride[0] = 1;
-    stride[1] = (xP * yP);
-    dims[0] = xP;
-    dims[1] = zP;
-    depth = yP;
-    for(size_t i = 0; i < yP; i++)
+    stride[1] = (dimsP[0] * dimsP[1]);
+    dims[0] = dimsP[0];
+    dims[1] = dimsP[2];
+    depth = dimsP[1];
+    for(size_t i = 0; i < dimsP[1]; i++)
     {
-      startPoints[i] = i * xP;
+      startPoints[i] = i * dimsP[0];
     }
   }
   if(m_Plane == 2)
   {
-    startingPoints->resizeTuples(xP);
+    startingPoints->resizeTuples(dimsP[0]);
     startPoints = startingPoints->getPointer(0);
-    stride[0] = xP;
-    stride[1] = (xP * yP);
-    dims[0] = yP;
-    dims[1] = zP;
-    depth = xP;
-    for(size_t i = 0; i < xP; i++)
+    stride[0] = dimsP[0];
+    stride[1] = (dimsP[0] * dimsP[1]);
+    dims[0] = dimsP[1];
+    dims[1] = dimsP[2];
+    depth = dimsP[0];
+    for(size_t i = 0; i < dimsP[0]; i++)
     {
       startPoints[i] = i;
     }
@@ -607,7 +599,7 @@ void FindLayerStatistics::execute()
 AbstractFilter::Pointer FindLayerStatistics::newFilterInstance(bool copyFilterParameters) const
 {
   FindLayerStatistics::Pointer filter = FindLayerStatistics::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

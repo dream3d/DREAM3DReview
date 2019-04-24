@@ -226,7 +226,7 @@ void LaplacianSmoothPointCloud::execute()
 AbstractFilter::Pointer LaplacianSmoothPointCloud::newFilterInstance(bool copyFilterParameters) const
 {
   LaplacianSmoothPointCloud::Pointer filter = LaplacianSmoothPointCloud::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

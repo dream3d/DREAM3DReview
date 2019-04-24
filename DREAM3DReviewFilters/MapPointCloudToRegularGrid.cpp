@@ -289,8 +289,7 @@ void MapPointCloudToRegularGrid::createRegularGrid()
     }
   }
 
-  size_t iDims[3] = {0, 0, 0};
-  std::tie(iDims[0], iDims[1], iDims[2]) = image->getDimensions();
+  SizeVec3Type iDims = image->getDimensions();
 
   QVector<float> iRes(3, 0.0f);
   QVector<float> iOrigin(3, 0.0f);
@@ -412,12 +411,9 @@ void MapPointCloudToRegularGrid::execute()
   VertexGeom::Pointer vertices = getDataContainerArray()->getDataContainer(getDataContainerName())->getGeometryAs<VertexGeom>();
 
   int64_t numVerts = vertices->getNumberOfVertices();
-  size_t dims[3] = {0, 0, 0};
-  FloatVec3Type res;
-  FloatVec3Type origin;
-  std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
-  image->getSpacing(res);
-  image->getOrigin(origin);
+  SizeVec3Type dims = image->getDimensions();
+  FloatVec3Type res = image->getSpacing();
+  FloatVec3Type origin = image->getOrigin();
   float coords[3] = {0.0f, 0.0f, 0.0f};
   size_t idxs[3] = {0, 0, 0};
   int64_t progIncrement = numVerts / 100;
@@ -471,7 +467,7 @@ void MapPointCloudToRegularGrid::execute()
 AbstractFilter::Pointer MapPointCloudToRegularGrid::newFilterInstance(bool copyFilterParameters) const
 {
   MapPointCloudToRegularGrid::Pointer filter = MapPointCloudToRegularGrid::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

@@ -412,7 +412,7 @@ void FindDynamicArrayStatistics::execute()
 AbstractFilter::Pointer FindDynamicArrayStatistics::newFilterInstance(bool copyFilterParameters) const
 {
   FindDynamicArrayStatistics::Pointer filter = FindDynamicArrayStatistics::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

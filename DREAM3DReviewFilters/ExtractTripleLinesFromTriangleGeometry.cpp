@@ -647,7 +647,7 @@ void ExtractTripleLinesFromTriangleGeometry::smoothTripleLines()
   std::vector<int32_t> tmpTripleLineIds;
   int64_t vertCounter = 0;
   int64_t edgeCounter = 0;
-  int32_t tripleLineCounter = 1;
+  // int32_t tripleLineCounter = 1;
   int64_t seedVert = -1;
 
   // for(int64_t i = 0; i < numVerts; i++)
@@ -878,7 +878,7 @@ void ExtractTripleLinesFromTriangleGeometry::execute()
 AbstractFilter::Pointer ExtractTripleLinesFromTriangleGeometry::newFilterInstance(bool copyFilterParameters) const
 {
   ExtractTripleLinesFromTriangleGeometry::Pointer filter = ExtractTripleLinesFromTriangleGeometry::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

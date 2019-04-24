@@ -162,8 +162,7 @@ void ReadBinaryCTNorthStar::dataCheck()
 
   m->setGeometry(image);
 
-  size_t dims[3] = {0, 0, 0};
-  std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
+  SizeVec3Type dims = image->getDimensions();
 
   QVector<size_t> tDims = {dims[0], dims[1], dims[2]};
   QVector<size_t> cDims(1, 1);
@@ -478,11 +477,9 @@ void ReadBinaryCTNorthStar::execute()
 
   ImageGeom::Pointer image = getDataContainerArray()->getDataContainer(getDataContainerName())->getGeometryAs<ImageGeom>();
 
-  size_t dims[3] = {0, 0, 0};
+  SizeVec3Type dims = image->getDimensions();
 
-  std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
-
-  err = readBinaryCTFiles(dims);
+  err = readBinaryCTFiles(dims.data());
 
   if(err < 0)
   {
@@ -499,7 +496,7 @@ void ReadBinaryCTNorthStar::execute()
 AbstractFilter::Pointer ReadBinaryCTNorthStar::newFilterInstance(bool copyFilterParameters) const
 {
   ReadBinaryCTNorthStar::Pointer filter = ReadBinaryCTNorthStar::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

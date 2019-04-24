@@ -317,7 +317,7 @@ void ApproximatePointCloudHull::execute()
 AbstractFilter::Pointer ApproximatePointCloudHull::newFilterInstance(bool copyFilterParameters) const
 {
   ApproximatePointCloudHull::Pointer filter = ApproximatePointCloudHull::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

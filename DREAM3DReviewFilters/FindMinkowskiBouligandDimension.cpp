@@ -80,8 +80,7 @@ void FindMinkowskiBouligandDimension::dataCheck()
     return;
   }
 
-  FloatVec3Type res;
-  image->getSpacing(res);
+  FloatVec3Type res = image->getSpacing();
   if(std::adjacent_find(std::begin(res), std::end(res), std::not_equal_to<float>()) != std::end(res))
   {
     QString ss = QObject::tr("The input Image Geometry must have isotropic resolution");
@@ -163,10 +162,9 @@ void FindMinkowskiBouligandDimension::execute()
   }
 
   ImageGeom::Pointer image = getDataContainerArray()->getDataContainer(m_MaskArrayPath.getDataContainerName())->getGeometryAs<ImageGeom>();
-  size_t dims[3] = {0, 0, 0};
-  FloatVec3Type res;
-  image->getSpacing(res);
-  std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
+  SizeVec3Type dims = image->getDimensions();
+  // FloatVec3Type res = image->getSpacing();
+
   size_t maxDim = std::max({dims[0], dims[1], dims[2]});
   size_t imageDim = 3;
 
@@ -358,7 +356,7 @@ void FindMinkowskiBouligandDimension::execute()
 AbstractFilter::Pointer FindMinkowskiBouligandDimension::newFilterInstance(bool copyFilterParameters) const
 {
   FindMinkowskiBouligandDimension::Pointer filter = FindMinkowskiBouligandDimension::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

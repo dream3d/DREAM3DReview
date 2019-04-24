@@ -157,8 +157,7 @@ void ImportVolumeGraphicsFile::dataCheck()
 
   m->setGeometry(image);
 
-  size_t dims[3] = {0, 0, 0};
-  std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
+  SizeVec3Type dims = image->getDimensions();
 
   QVector<size_t> tDims = {dims[0], dims[1], dims[2]};
   QVector<size_t> cDims(1, 1);
@@ -399,10 +398,9 @@ void ImportVolumeGraphicsFile::execute()
 
   ImageGeom::Pointer image = getDataContainerArray()->getDataContainer(getDataContainerName())->getGeometryAs<ImageGeom>();
 
-  size_t dims[3] = {0, 0, 0};
-  std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
+  SizeVec3Type dims = image->getDimensions();
 
-  err = readBinaryCTFile(dims);
+  err = readBinaryCTFile(dims.data());
 
   if(err < 0)
   {
@@ -419,7 +417,7 @@ void ImportVolumeGraphicsFile::execute()
 AbstractFilter::Pointer ImportVolumeGraphicsFile::newFilterInstance(bool copyFilterParameters) const
 {
   ImportVolumeGraphicsFile::Pointer filter = ImportVolumeGraphicsFile::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

@@ -300,7 +300,7 @@ void LabelTriangleGeometry::execute()
 AbstractFilter::Pointer LabelTriangleGeometry::newFilterInstance(bool copyFilterParameters) const
 {
   LabelTriangleGeometry::Pointer filter = LabelTriangleGeometry::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

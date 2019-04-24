@@ -359,7 +359,7 @@ void ImportCLIFile::execute()
 AbstractFilter::Pointer ImportCLIFile::newFilterInstance(bool copyFilterParameters) const
 {
   ImportCLIFile::Pointer filter = ImportCLIFile::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

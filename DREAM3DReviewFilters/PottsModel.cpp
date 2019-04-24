@@ -281,8 +281,7 @@ private:
 
   void determine_dimensionality()
   {
-    size_t dims[3] = {0, 0, 0};
-    std::tie(dims[0], dims[1], dims[2]) = image_->getDimensions();
+    SizeVec3Type dims = image_->getDimensions();
     dims_[0] = dims[0];
     dims_[1] = dims[1];
     dims_[2] = dims[2];

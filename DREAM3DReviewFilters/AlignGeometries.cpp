@@ -1,16 +1,16 @@
 /* ============================================================================
-* Software developed by US federal government employees (including military personnel) 
-* as part of their official duties is not subject to copyright protection and is 
-* considered “public domain” (see 17 USC Section 105). Public domain software can be used 
-* by anyone for any purpose, and cannot be released under a copyright license 
-* (including typical open source software licenses).
-* 
-* This source code file was originally written by United States DoD employees. The
-* original source code files are released into the Public Domain.
-* 
-* Subsequent changes to the codes by others may elect to add a copyright and license
-* for those changes.
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Software developed by US federal government employees (including military personnel)
+ * as part of their official duties is not subject to copyright protection and is
+ * considered “public domain” (see 17 USC Section 105). Public domain software can be used
+ * by anyone for any purpose, and cannot be released under a copyright license
+ * (including typical open source software licenses).
+ *
+ * This source code file was originally written by United States DoD employees. The
+ * original source code files are released into the Public Domain.
+ *
+ * Subsequent changes to the codes by others may elect to add a copyright and license
+ * for those changes.
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "AlignGeometries.h"
 
 #include "SIMPLib/Common/Constants.h"
@@ -114,21 +114,18 @@ void AlignGeometries::preflight()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void extractOrigin(IGeometry::Pointer geometry, FloatVec3Type origin)
+FloatVec3Type extractOrigin(const IGeometry::Pointer& geometry)
 {
   if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(geometry))
   {
-    image->getOrigin(origin);
-    return;
+    return image->getOrigin();
   }
-  else if(RectGridGeom::Pointer rectGrid = std::dynamic_pointer_cast<RectGridGeom>(geometry))
+  if(RectGridGeom::Pointer rectGrid = std::dynamic_pointer_cast<RectGridGeom>(geometry))
   {
     FloatArrayType::Pointer xBounds = rectGrid->getXBounds();
     FloatArrayType::Pointer yBounds = rectGrid->getYBounds();
     FloatArrayType::Pointer zBounds = rectGrid->getZBounds();
-    origin[0] = std::numeric_limits<float>::max();
-    origin[1] = std::numeric_limits<float>::max();
-    origin[2] = std::numeric_limits<float>::max();
+    FloatVec3Type origin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
     for(size_t i = 0; i < xBounds->getNumberOfTuples(); i++)
     {
       if(xBounds->getValue(i) < origin[0])
@@ -150,14 +147,13 @@ void extractOrigin(IGeometry::Pointer geometry, FloatVec3Type origin)
         origin[2] = zBounds->getValue(i);
       }
     }
-    return;
+    return origin;
   }
-  else if(VertexGeom::Pointer vertex = std::dynamic_pointer_cast<VertexGeom>(geometry))
+  if(VertexGeom::Pointer vertex = std::dynamic_pointer_cast<VertexGeom>(geometry))
   {
     float* vertices = vertex->getVertexPointer(0);
-    origin[0] = std::numeric_limits<float>::max();
-    origin[1] = std::numeric_limits<float>::max();
-    origin[2] = std::numeric_limits<float>::max();
+    FloatVec3Type origin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+
     for(int64_t i = 0; i < vertex->getNumberOfVertices(); i++)
     {
       for(size_t j = 0; j < 3; j++)
@@ -168,15 +164,14 @@ void extractOrigin(IGeometry::Pointer geometry, FloatVec3Type origin)
         }
       }
     }
-    return;
+    return origin;
   }
-  else if(EdgeGeom::Pointer edge = std::dynamic_pointer_cast<EdgeGeom>(geometry))
+  if(EdgeGeom::Pointer edge = std::dynamic_pointer_cast<EdgeGeom>(geometry))
   {
     float* vertices = edge->getVertexPointer(0);
-    origin[0] = std::numeric_limits<float>::max();
-    origin[1] = std::numeric_limits<float>::max();
-    origin[2] = std::numeric_limits<float>::max();
-    for(int64_t i = 0; i < vertex->getNumberOfVertices(); i++)
+    FloatVec3Type origin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+
+    for(int64_t i = 0; i < edge->getNumberOfVertices(); i++)
     {
       for(size_t j = 0; j < 3; j++)
       {
@@ -186,15 +181,14 @@ void extractOrigin(IGeometry::Pointer geometry, FloatVec3Type origin)
         }
       }
     }
-    return;
+    return origin;
   }
-  else if(IGeometry2D::Pointer geometry2d = std::dynamic_pointer_cast<IGeometry2D>(geometry))
+  if(IGeometry2D::Pointer geometry2d = std::dynamic_pointer_cast<IGeometry2D>(geometry))
   {
     float* vertices = geometry2d->getVertexPointer(0);
-    origin[0] = std::numeric_limits<float>::max();
-    origin[1] = std::numeric_limits<float>::max();
-    origin[2] = std::numeric_limits<float>::max();
-    for(int64_t i = 0; i < vertex->getNumberOfVertices(); i++)
+    FloatVec3Type origin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+
+    for(int64_t i = 0; i < geometry2d->getNumberOfVertices(); i++)
     {
       for(size_t j = 0; j < 3; j++)
       {
@@ -204,15 +198,14 @@ void extractOrigin(IGeometry::Pointer geometry, FloatVec3Type origin)
         }
       }
     }
-    return;
+    return origin;
   }
-  else if(IGeometry3D::Pointer geometry3d = std::dynamic_pointer_cast<IGeometry3D>(geometry))
+  if(IGeometry3D::Pointer geometry3d = std::dynamic_pointer_cast<IGeometry3D>(geometry))
   {
     float* vertices = geometry3d->getVertexPointer(0);
-    origin[0] = std::numeric_limits<float>::max();
-    origin[1] = std::numeric_limits<float>::max();
-    origin[2] = std::numeric_limits<float>::max();
-    for(int64_t i = 0; i < vertex->getNumberOfVertices(); i++)
+    FloatVec3Type origin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+
+    for(int64_t i = 0; i < geometry3d->getNumberOfVertices(); i++)
     {
       for(size_t j = 0; j < 3; j++)
       {
@@ -222,33 +215,30 @@ void extractOrigin(IGeometry::Pointer geometry, FloatVec3Type origin)
         }
       }
     }
-    return;
+    return origin;
   }
-  else
-  {
-    return;
-  }
+  FloatVec3Type origin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+  return origin;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void extractCentroid(IGeometry::Pointer geometry, FloatVec3Type centroid)
+FloatVec3Type extractCentroid(const IGeometry::Pointer& geometry)
 {
+  FloatVec3Type centroid(0.0f, 0.0f, 0.0f);
   if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(geometry))
   {
-    size_t dims[3] = {0, 0, 0};
-    FloatVec3Type origin;
-    FloatVec3Type res;
-    std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
-    image->getOrigin(origin);
-    image->getSpacing(res);
+    SizeVec3Type dims = image->getDimensions();
+    FloatVec3Type origin = image->getOrigin();
+    FloatVec3Type res = image->getSpacing();
+
     centroid[0] = (static_cast<float>(dims[0]) * res[0] / 2.0f) + origin[0];
     centroid[1] = (static_cast<float>(dims[1]) * res[1] / 2.0f) + origin[1];
     centroid[2] = (static_cast<float>(dims[2]) * res[2] / 2.0f) + origin[2];
-    return;
+    return centroid;
   }
-  else if(RectGridGeom::Pointer rectGrid = std::dynamic_pointer_cast<RectGridGeom>(geometry))
+  if(RectGridGeom::Pointer rectGrid = std::dynamic_pointer_cast<RectGridGeom>(geometry))
   {
     FloatArrayType::Pointer xBounds = rectGrid->getXBounds();
     FloatArrayType::Pointer yBounds = rectGrid->getYBounds();
@@ -291,9 +281,9 @@ void extractCentroid(IGeometry::Pointer geometry, FloatVec3Type centroid)
     centroid[0] = (max[0] - min[0]) / 2.0f;
     centroid[1] = (max[1] - min[1]) / 2.0f;
     centroid[2] = (max[2] - min[2]) / 2.0f;
-    return;
+    return centroid;
   }
-  else if(VertexGeom::Pointer vertex = std::dynamic_pointer_cast<VertexGeom>(geometry))
+  if(VertexGeom::Pointer vertex = std::dynamic_pointer_cast<VertexGeom>(geometry))
   {
     float* vertices = vertex->getVertexPointer(0);
     centroid[0] = 0.0f;
@@ -308,9 +298,9 @@ void extractCentroid(IGeometry::Pointer geometry, FloatVec3Type centroid)
     centroid[0] /= static_cast<float>(vertex->getNumberOfVertices());
     centroid[1] /= static_cast<float>(vertex->getNumberOfVertices());
     centroid[2] /= static_cast<float>(vertex->getNumberOfVertices());
-    return;
+    return centroid;
   }
-  else if(EdgeGeom::Pointer edge = std::dynamic_pointer_cast<EdgeGeom>(geometry))
+  if(EdgeGeom::Pointer edge = std::dynamic_pointer_cast<EdgeGeom>(geometry))
   {
     float* vertices = edge->getVertexPointer(0);
     centroid[0] = 0.0f;
@@ -325,9 +315,9 @@ void extractCentroid(IGeometry::Pointer geometry, FloatVec3Type centroid)
     centroid[0] /= static_cast<float>(edge->getNumberOfVertices());
     centroid[1] /= static_cast<float>(edge->getNumberOfVertices());
     centroid[2] /= static_cast<float>(edge->getNumberOfVertices());
-    return;
+    return centroid;
   }
-  else if(IGeometry2D::Pointer geometry2d = std::dynamic_pointer_cast<IGeometry2D>(geometry))
+  if(IGeometry2D::Pointer geometry2d = std::dynamic_pointer_cast<IGeometry2D>(geometry))
   {
     float* vertices = geometry2d->getVertexPointer(0);
     centroid[0] = 0.0f;
@@ -342,9 +332,9 @@ void extractCentroid(IGeometry::Pointer geometry, FloatVec3Type centroid)
     centroid[0] /= static_cast<float>(geometry2d->getNumberOfVertices());
     centroid[1] /= static_cast<float>(geometry2d->getNumberOfVertices());
     centroid[2] /= static_cast<float>(geometry2d->getNumberOfVertices());
-    return;
+    return centroid;
   }
-  else if(IGeometry3D::Pointer geometry3d = std::dynamic_pointer_cast<IGeometry3D>(geometry))
+  if(IGeometry3D::Pointer geometry3d = std::dynamic_pointer_cast<IGeometry3D>(geometry))
   {
     float* vertices = geometry3d->getVertexPointer(0);
     centroid[0] = 0.0f;
@@ -359,30 +349,27 @@ void extractCentroid(IGeometry::Pointer geometry, FloatVec3Type centroid)
     centroid[0] /= static_cast<float>(geometry3d->getNumberOfVertices());
     centroid[1] /= static_cast<float>(geometry3d->getNumberOfVertices());
     centroid[2] /= static_cast<float>(geometry3d->getNumberOfVertices());
-    return;
+    return centroid;
+    ;
   }
-  else
-  {
-    return;
-  }
+  return centroid;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void translateGeometry(IGeometry::Pointer geometry, float translation[3])
+void translateGeometry(const IGeometry::Pointer& geometry, const FloatVec3Type& translation)
 {
   if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(geometry))
   {
-    FloatVec3Type origin;
-    image->getOrigin(origin);
+    FloatVec3Type origin = image->getOrigin();
     origin[0] += translation[0];
     origin[1] += translation[1];
     origin[2] += translation[2];
     image->setOrigin(origin);
     return;
   }
-  else if(RectGridGeom::Pointer rectGrid = std::dynamic_pointer_cast<RectGridGeom>(geometry))
+  if(RectGridGeom::Pointer rectGrid = std::dynamic_pointer_cast<RectGridGeom>(geometry))
   {
     float* xBounds = rectGrid->getXBounds()->getPointer(0);
     float* yBounds = rectGrid->getYBounds()->getPointer(0);
@@ -401,7 +388,7 @@ void translateGeometry(IGeometry::Pointer geometry, float translation[3])
     }
     return;
   }
-  else if(VertexGeom::Pointer vertex = std::dynamic_pointer_cast<VertexGeom>(geometry))
+  if(VertexGeom::Pointer vertex = std::dynamic_pointer_cast<VertexGeom>(geometry))
   {
     float* vertices = vertex->getVertexPointer(0);
     for(int64_t i = 0; i < vertex->getNumberOfVertices(); i++)
@@ -412,7 +399,7 @@ void translateGeometry(IGeometry::Pointer geometry, float translation[3])
     }
     return;
   }
-  else if(EdgeGeom::Pointer edge = std::dynamic_pointer_cast<EdgeGeom>(geometry))
+  if(EdgeGeom::Pointer edge = std::dynamic_pointer_cast<EdgeGeom>(geometry))
   {
     float* vertices = edge->getVertexPointer(0);
     for(int64_t i = 0; i < edge->getNumberOfVertices(); i++)
@@ -423,7 +410,7 @@ void translateGeometry(IGeometry::Pointer geometry, float translation[3])
     }
     return;
   }
-  else if(IGeometry2D::Pointer geometry2d = std::dynamic_pointer_cast<IGeometry2D>(geometry))
+  if(IGeometry2D::Pointer geometry2d = std::dynamic_pointer_cast<IGeometry2D>(geometry))
   {
     float* vertices = geometry2d->getVertexPointer(0);
     for(int64_t i = 0; i < geometry2d->getNumberOfVertices(); i++)
@@ -434,7 +421,7 @@ void translateGeometry(IGeometry::Pointer geometry, float translation[3])
     }
     return;
   }
-  else if(IGeometry3D::Pointer geometry3d = std::dynamic_pointer_cast<IGeometry3D>(geometry))
+  if(IGeometry3D::Pointer geometry3d = std::dynamic_pointer_cast<IGeometry3D>(geometry))
   {
     float* vertices = geometry3d->getVertexPointer(0);
     for(int64_t i = 0; i < geometry3d->getNumberOfVertices(); i++)
@@ -443,10 +430,6 @@ void translateGeometry(IGeometry::Pointer geometry, float translation[3])
       vertices[3 * i + 1] += translation[1];
       vertices[3 * i + 2] += translation[2];
     }
-    return;
-  }
-  else
-  {
     return;
   }
 }
@@ -468,20 +451,16 @@ void AlignGeometries::execute()
 
   if(m_AlignmentType == 0)
   {
-    FloatVec3Type movingOrigin;
-    FloatVec3Type targetOrigin;
-    extractOrigin(moving, movingOrigin);
-    extractOrigin(target, targetOrigin);
+    FloatVec3Type movingOrigin = extractOrigin(moving);
+    FloatVec3Type targetOrigin = extractOrigin(target);
 
     float translation[3] = {targetOrigin[0] - movingOrigin[0], targetOrigin[1] - movingOrigin[1], targetOrigin[2] - movingOrigin[2]};
     translateGeometry(moving, translation);
   }
   else if(m_AlignmentType == 1)
   {
-    FloatVec3Type movingCentroid;
-    FloatVec3Type targetCentroid;
-    extractCentroid(moving, movingCentroid);
-    extractCentroid(target, targetCentroid);
+    FloatVec3Type movingCentroid = extractCentroid(moving);
+    FloatVec3Type targetCentroid = extractCentroid(target);
 
     float translation[3] = {targetCentroid[0] - movingCentroid[0], targetCentroid[0] - movingCentroid[0], targetCentroid[0] - movingCentroid[0]};
     translateGeometry(moving, translation);
@@ -501,7 +480,7 @@ void AlignGeometries::execute()
 AbstractFilter::Pointer AlignGeometries::newFilterInstance(bool copyFilterParameters) const
 {
   AlignGeometries::Pointer filter = AlignGeometries::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

@@ -134,10 +134,8 @@ void FindSurfaceRoughness::execute()
   }
 
   ImageGeom::Pointer image = getDataContainerArray()->getDataContainer(m_BoundaryCellsArrayPath.getDataContainerName())->getGeometryAs<ImageGeom>();
-  size_t dims[3] = {0, 0, 0};
-  FloatVec3Type res;
-  image->getSpacing(res);
-  std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
+  SizeVec3Type dims = image->getDimensions();
+  // FloatVec3Type res = image->getSpacing();
   std::vector<double> xs;
   std::vector<double> ys;
   double coords[3] = {0.0, 0.0, 0.0};
@@ -210,7 +208,7 @@ void FindSurfaceRoughness::execute()
 AbstractFilter::Pointer FindSurfaceRoughness::newFilterInstance(bool copyFilterParameters) const
 {
   FindSurfaceRoughness::Pointer filter = FindSurfaceRoughness::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

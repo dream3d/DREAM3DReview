@@ -1,16 +1,16 @@
 /* ============================================================================
-* Software developed by US federal government employees (including military personnel) 
-* as part of their official duties is not subject to copyright protection and is 
-* considered “public domain” (see 17 USC Section 105). Public domain software can be used 
-* by anyone for any purpose, and cannot be released under a copyright license 
-* (including typical open source software licenses).
-* 
-* This source code file was originally written by United States DoD employees. The
-* original source code files are released into the Public Domain.
-* 
-* Subsequent changes to the codes by others may elect to add a copyright and license
-* for those changes.
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Software developed by US federal government employees (including military personnel)
+ * as part of their official duties is not subject to copyright protection and is
+ * considered “public domain” (see 17 USC Section 105). Public domain software can be used
+ * by anyone for any purpose, and cannot be released under a copyright license
+ * (including typical open source software licenses).
+ *
+ * This source code file was originally written by United States DoD employees. The
+ * original source code files are released into the Public Domain.
+ *
+ * Subsequent changes to the codes by others may elect to add a copyright and license
+ * for those changes.
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "InterpolatePointCloudToRegularGrid.h"
 
 #include <QtCore/QDateTime>
@@ -230,8 +230,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getDataContainerName());
   DataContainer::Pointer interpolatedDC = getDataContainerArray()->getDataContainer(getInterpolatedDataContainerName());
   m_AttrMatList = m->getAttributeMatrixNames();
-  size_t dims[3] = {0, 0, 0};
-  std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
+  SizeVec3Type dims = image->getDimensions();
   QVector<size_t> tDims = {dims[0], dims[1], dims[2]};
   QList<QString> tempDataArrayList;
   DataArrayPath tempPath;
@@ -553,11 +552,10 @@ void InterpolatePointCloudToRegularGrid::execute()
 
   VertexGeom::Pointer vertices = m->getGeometryAs<VertexGeom>();
   ImageGeom::Pointer image = interpolatedDC->getGeometryAs<ImageGeom>();
-  size_t dims[3] = {0, 0, 0};
-  FloatVec3Type res;
+  SizeVec3Type dims = image->getDimensions();
+  FloatVec3Type res = image->getSpacing();
   int64_t kernelNumVoxels[3] = {0, 0, 0};
-  std::tie(dims[0], dims[1], dims[2]) = image->getDimensions();
-  image->getSpacing(res);
+
   int64_t numVerts = vertices->getNumberOfVertices();
   size_t index = 0;
   size_t x = 0;
@@ -612,7 +610,7 @@ void InterpolatePointCloudToRegularGrid::execute()
 
   for(int64_t i = 0; i < numVerts; i++)
   {
-    if(getCancel() == true)
+    if(getCancel())
     {
       break;
     }
@@ -635,12 +633,12 @@ void InterpolatePointCloudToRegularGrid::execute()
     y = (index / dims[0]) % dims[1];
     z = index / (dims[0] * dims[1]);
 
-    if(m_SourceArraysToInterpolate.size() > 0)
+    if(!m_SourceArraysToInterpolate.empty())
     {
       for(std::vector<IDataArray::WeakPointer>::size_type j = 0; j < m_SourceArraysToInterpolate.size(); j++)
       {
         EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(this, mapPointCloudDataByKernel, m_SourceArraysToInterpolate[j].lock(), m_SourceArraysToInterpolate[j].lock(), m_DynamicArraysToInterpolate[j].lock(),
-                                          m_Kernel, kernelNumVoxels, dims, x, y, z, i)
+                                          m_Kernel, kernelNumVoxels, dims.data(), x, y, z, i)
       }
     }
 
@@ -649,13 +647,13 @@ void InterpolatePointCloudToRegularGrid::execute()
       for(std::vector<IDataArray::WeakPointer>::size_type j = 0; j < m_SourceArraysToCopy.size(); j++)
       {
         EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(this, mapPointCloudDataByKernel, m_SourceArraysToCopy[j].lock(), m_SourceArraysToCopy[j].lock(), m_DynamicArraysToCopy[j].lock(), uniformKernel,
-                                          kernelNumVoxels, dims, x, y, z, i)
+                                          kernelNumVoxels, dims.data(), x, y, z, i)
       }
     }
 
     if(m_StoreKernelDistances)
     {
-      mapKernelDistances(kernelNumVoxels, dims, x, y, z);
+      mapKernelDistances(kernelNumVoxels, dims.data(), x, y, z);
     }
 
     if(i > prog)
@@ -676,7 +674,7 @@ void InterpolatePointCloudToRegularGrid::execute()
 AbstractFilter::Pointer InterpolatePointCloudToRegularGrid::newFilterInstance(bool copyFilterParameters) const
 {
   InterpolatePointCloudToRegularGrid::Pointer filter = InterpolatePointCloudToRegularGrid::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }
