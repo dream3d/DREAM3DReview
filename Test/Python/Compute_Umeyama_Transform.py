@@ -21,7 +21,7 @@ def compute_umeyama_transform_test():
         print("DataContainer ErrorCondition: %d" % err)
 
     # Import ASCII Data - #1 - Vertex Coordinates
-    import_file = sd.GetBuildDirectory() + "/Debug/Data/DREAM3DReview/VertexCoordinates.csv"
+    import_file = sd.GetBuildDirectory() + "/Data/SIMPL/VertexCoordinates.csv"
     wizard_data = {
         "inputFilePath": import_file,
         "beginIndex": 2,
@@ -40,7 +40,7 @@ def compute_umeyama_transform_test():
         print("Import ASCII Data #1 -  ErrorCondition: %d" % err)
 
     # Import ASCII Data - #2 - Edge Connectivity
-    import_file = sd.GetBuildDirectory() + "/Debug/Data/DREAM3DReview/QuadConnectivity.csv"
+    import_file = sd.GetBuildDirectory() + "/Data/SIMPL/QuadConnectivity.csv"
     wizard_data = {
         "inputFilePath": import_file,
         "beginIndex": 2,
@@ -68,11 +68,11 @@ def compute_umeyama_transform_test():
 
     # Delete Data # 1
     dcap = simpl.DataContainerArrayProxy()
-    dcap.getDataContainerProxy("DataContainer").flag = 0
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").flag = 0
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("x").flag = 2
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("y").flag = 2
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("z").flag = 2
+    dcap.getDataContainerProxy("DataContainer").Flag = 0
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").Flag = 0
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("x").Flag = 2
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("y").Flag = 2
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("z").Flag = 2
     err = simplpy.remove_arrays(dca, dcap)
     if err < 0:
         print("Remove Arrays #1 -  ErrorCondition: %d" % err)
@@ -88,12 +88,12 @@ def compute_umeyama_transform_test():
 
     # Delete Data # 2
     dcap = simpl.DataContainerArrayProxy()
-    dcap.getDataContainerProxy("DataContainer").flag = 0
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").flag = 0
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").getDataArrayProxy("V0").flag = 2
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").getDataArrayProxy("V1").flag = 2
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").getDataArrayProxy("V2").flag = 2
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").getDataArrayProxy("V3").flag = 2
+    dcap.getDataContainerProxy("DataContainer").Flag = 0
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").Flag = 0
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").getDataArrayProxy("V0").Flag = 2
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").getDataArrayProxy("V1").Flag = 2
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").getDataArrayProxy("V2").Flag = 2
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("QuadList").getDataArrayProxy("V3").Flag = 2
     err = simplpy.remove_arrays(dca, dcap)
     if err < 0:
         print("Remove Arrays #2 -  ErrorCondition: %d" % err)
@@ -119,10 +119,10 @@ def compute_umeyama_transform_test():
                                                        [0, 0, 0, 1]])
     err = dream3dreviewpy.apply_transformation_to_geometry(dca, transformation_matrix,
                                                            simpl.DataArrayPath("", "", ""),
-                                                           "DataContainer",
-                                                           2, simpl.FloatVec3Type(0.0, 0.0, 0.0),
-                                                           0, simpl.FloatVec3Type(0.0, 0.0, 0.0),
-                                                           simpl.FloatVec3Type(0.0, 0.0, 0.0))
+                                                           simpl.DataArrayPath("DataContainer","",""),
+                                                           2, simpl.FloatVec3Type([0.0, 0.0, 0.0]),
+                                                           0, simpl.FloatVec3Type([0.0, 0.0, 0.0]),
+                                                           simpl.FloatVec3Type([0.0, 0.0, 0.0]))
     if err < 0:
         print("ApplyTransformationToGeometry #1 -  ErrorCondition: %d" % err)
 
@@ -143,9 +143,9 @@ def compute_umeyama_transform_test():
                                                                                "TransformationData",
                                                                                "TransformationMatrix"),
                                                            "DataContainer",
-                                                           1, simpl.FloatVec3Type(0.0, 0.0, 0.0),
-                                                           0, simpl.FloatVec3Type(0.0, 0.0, 0.0),
-                                                           simpl.FloatVec3Type(0.0, 0.0, 0.0))
+                                                           1, simpl.FloatVec3Type([0.0, 0.0, 0.0]),
+                                                           0, simpl.FloatVec3Type([0.0, 0.0, 0.0]),
+                                                           simpl.FloatVec3Type([0.0, 0.0, 0.0]))
     if err < 0:
         print("ApplyTransformationToGeometry #2 -  ErrorCondition: %d" % err)
 

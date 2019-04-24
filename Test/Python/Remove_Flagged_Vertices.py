@@ -19,7 +19,7 @@ def remove_flagged_vertices_test():
         print("DataContainer ErrorCondition: %d" % err)
 
     # Import ASCII Data - #1 - Vertex Coordinates
-    import_file = sd.GetBuildDirectory() + "/Debug/Data/DREAM3DReview/VertexCoordinates.csv"
+    import_file = sd.GetBuildDirectory() + "/Data/SIMPL/VertexCoordinates.csv"
     wizard_data = {
         "inputFilePath": import_file,
         "beginIndex": 2,
@@ -47,11 +47,11 @@ def remove_flagged_vertices_test():
 
     # Delete Data # 1
     dcap = simpl.DataContainerArrayProxy()
-    dcap.getDataContainerProxy("DataContainer").flag = 0
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").flag = 0
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("x").flag = 2
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("y").flag = 2
-    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("z").flag = 2
+    dcap.getDataContainerProxy("DataContainer").Flag = 0
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").Flag = 0
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("x").Flag = 2
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("y").Flag = 2
+    dcap.getDataContainerProxy("DataContainer").getAttributeMatrixProxy("Bounds").getDataArrayProxy("z").Flag = 2
     err = simplpy.remove_arrays(dca, dcap)
     if err < 0:
         print("Remove Arrays #1 -  ErrorCondition: %d" % err)

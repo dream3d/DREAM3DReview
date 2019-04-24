@@ -22,8 +22,9 @@ def find_array_statistics_test():
         print("DataContainer ErrorCondition: %d" % err)
 
     # Create Image Geometry
-    err = simplpy.create_image_geometry(dca, "ImageDataContainer", simpl.IntVec3Type(101, 101, 1), simpl.FloatVec3Type(0, 0, 0),
-                                        simpl.FloatVec3Type(1, 1, 1))
+    err = simplpy.create_image_geometry(dca, "ImageDataContainer", simpl.IntVec3Type([101, 101, 1]),
+                                        simpl.FloatVec3Type([0, 0, 0]),
+                                        simpl.FloatVec3Type([1, 1, 1]))
     if err < 0:
         print("ImageGeometry ErrorCondition: %d" % err)
 
@@ -103,9 +104,11 @@ def find_array_statistics_test():
                                  simpl.DataArrayPath("QuadDataContainer",
                                                      "StatisticsAttributeMatrix",
                                                      "Summation")]
+    outStyle = 0 
     err = simplpy.write_ascii_data(dca, selected_data_array_paths,
-                                   sd.GetBuildDirectory() + "/Data/Output/DREAM3DReview/Statistics",
-                                   simpl.DelimiterTypes.Comma, ".csv", 10)
+                                   sd.GetBuildDirectory() + "/Data/Output/DREAM3DReview", # Only needed for Multi-File output
+                                   sd.GetBuildDirectory() + "/Data/Output/DREAM3DReview/Statistics.csv", # Only needed for Single File Style
+                                   simpl.DelimiterTypes.Comma, ".csv", 10, outStyle)
     if err < 0:
         print("WriteAsciiData ErrorCondition: %d" % err)
 

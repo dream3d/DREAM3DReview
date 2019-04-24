@@ -51,7 +51,7 @@ class DREAM3DReview_EXPORT ApplyTransformationToGeometry : public AbstractFilter
   PYB11_CREATE_BINDINGS(ApplyTransformationToGeometry SUPERCLASS AbstractFilter)
   PYB11_PROPERTY(DynamicTableData ManualTransformationMatrix READ getManualTransformationMatrix WRITE setManualTransformationMatrix)
   PYB11_PROPERTY(DataArrayPath ComputedTransformationMatrix READ getComputedTransformationMatrix WRITE setComputedTransformationMatrix)
-  PYB11_PROPERTY(QString GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
+  PYB11_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
   PYB11_PROPERTY(int TransformationMatrixType READ getTransformationMatrixType WRITE setTransformationMatrixType)
   PYB11_PROPERTY(FloatVec3Type RotationAxis READ getRotationAxis WRITE setRotationAxis)
   PYB11_PROPERTY(float RotationAngle READ getRotationAngle WRITE setRotationAngle)

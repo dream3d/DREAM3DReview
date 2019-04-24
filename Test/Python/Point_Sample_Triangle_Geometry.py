@@ -20,119 +20,116 @@ def point_sample_triangle_geom():
     # Read DREAM3D File
     dcap = simpl.DataContainerArrayProxy()
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "Confidence Index").flag = 2
+        "Confidence Index").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "CriticalField").flag = 2
+        "CriticalField").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "EulerAngles").flag = 2
+        "EulerAngles").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "FeatureIds").flag = 2
+        "FeatureIds").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "FeatureReferenceMisorientations").flag = 2
+        "FeatureReferenceMisorientations").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "Fit").flag = 2
+        "Fit").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "GBManhattanDistances").flag = 2
+        "GBManhattanDistances").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "IPFColor").flag = 2
+        "IPFColor").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "Image Quality").flag = 2
+        "Image Quality").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "KernelAverageMisorientations").flag = 2
+        "KernelAverageMisorientations").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "Mask").flag = 2
+        "Mask").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "ParentIds").flag = 2
+        "ParentIds").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "Phases").flag = 2
+        "Phases").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "QPManhattanDistances").flag = 2
+        "QPManhattanDistances").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "Quats").flag = 2
+        "Quats").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "SEM Signal").flag = 2
+        "SEM Signal").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("EBSD Scan Data").getDataArrayProxy(
-        "TJManhattanDistances").flag = 2
+        "TJManhattanDistances").Flag = 2
 
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Phase Data").getDataArrayProxy(
-        "CrystalStructures").flag = 2
+        "CrystalStructures").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Phase Data").getDataArrayProxy(
-        "LatticeConstants").flag = 2
+        "LatticeConstants").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Phase Data").getDataArrayProxy(
-        "MaterialName").flag = 2
+        "MaterialName").Flag = 2
 
-    dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy("Active").flag = 2
+    dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy("Active").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "AspectRatios").flag = 2
+        "AspectRatios").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "AvgEuler").flag = 2
+        "AvgEuler").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "AvgEulerAngles").flag = 2
+        "AvgEulerAngles").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "AvgQuats").flag = 2
+        "AvgQuats").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "AxisEulerAngles").flag = 2
+        "AxisEulerAngles").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "AxisLengths").flag = 2
+        "AxisLengths").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "Centroids").flag = 2
+        "Centroids").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "CriticalFields").flag = 2
+        "CriticalFields").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "EquivalentDiameters").flag = 2
+        "EquivalentDiameters").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "FeatureAvgMisorientations").flag = 2
+        "FeatureAvgMisorientations").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "MisorientationList").flag = 2
+        "MisorientationList").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "NeighborList").flag = 2
+        "NeighborList").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "NeighborhoodList").flag = 2
+        "NeighborhoodList").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "Neighborhoods").flag = 2
+        "Neighborhoods").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "NumElements").flag = 2
+        "NumElements").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "NumNeighbors").flag = 2
+        "NumNeighbors").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "NumNeighbors2").flag = 2
+        "NumNeighbors2").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "Omega3s").flag = 2
+        "Omega3s").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "ParentIds").flag = 2
-    dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy("Poles").flag = 2
-    dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy("Phases").flag = 2
+        "ParentIds").Flag = 2
+    dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy("Poles").Flag = 2
+    dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy("Phases").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "Schmids").flag = 2
+        "Schmids").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "Shape Volumes").flag = 2
+        "Shape Volumes").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "SharedSurfaceAreaList").flag = 2
+        "SharedSurfaceAreaList").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "Size Volumes").flag = 2
+        "Size Volumes").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "SlipSystems").flag = 2
+        "SlipSystems").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "Sphericity").flag = 2
+        "Sphericity").Flag = 2
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("Grain Data").getDataArrayProxy(
-        "SurfaceAreaVolumeRatio").flag = 2
+        "SurfaceAreaVolumeRatio").Flag = 2
 
     dcap.getDataContainerProxy("Small IN100").getAttributeMatrixProxy("NewGrain Data").getDataArrayProxy(
-        "Active").flag = 2
+        "Active").Flag = 2
 
     dcap.getDataContainerProxy("TriangleDataContainer").getAttributeMatrixProxy("FaceData").getDataArrayProxy(
-        "FaceLabels").flag = 2
-    dcap.getDataContainerProxy("TriangleDataContainer").getAttributeMatrixProxy("FaceFeatureData").flag = 2
+        "FaceLabels").Flag = 2
+    dcap.getDataContainerProxy("TriangleDataContainer").getAttributeMatrixProxy("FaceFeatureData").Flag = 2
     dcap.getDataContainerProxy("TriangleDataContainer").getAttributeMatrixProxy("VertexData").getDataArrayProxy(
-        "NodeType").flag = 2
+        "NodeType").Flag = 2
 
-    now_time = datetime.datetime.now()
-    now_time_seconds = now_time.hour * 3600 + now_time.minute * 60 + now_time.second
-    dt = simpl.DateTime(now_time.year, now_time.month, now_time.day, now_time_seconds)
     err = simplpy.data_container_reader(dca,
                                         sd.GetBuildDirectory() +
                                         "/Data/Output/SurfaceMesh/SmallIN100_Smoothed.dream3d",
-                                        False, "", dt, dcap)
+                                        False, dcap)
     if err < 0:
         print("DataContainerReader ErrorCondition %d" % err)
 

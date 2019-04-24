@@ -52,11 +52,6 @@ if(SIMPL_ENABLE_PYTHON)
         Average_EdgeFaceCell_Array_To_Vertex_Array
         Average_Vertex_Array_To_EdgeFaceCell_Array
         Compute_Umeyama_Transform
-        Create_Edge_Geometry
-        Create_Quad_Geometry
-        Create_RectilinearGrid
-        Create_Triangle_Geometry
-        Create_Vertex_Geometry
         DBSCAN
         Extract_Internal_Surfaces_From_Triangle_Geometry
         Find_Attribute_Array_Statistics
@@ -79,7 +74,7 @@ if(SIMPL_ENABLE_PYTHON)
         configure_file(${SIMPL_PYTHON_TEST_SCRIPT}
                         "${SIMPL_PYTHON_TEST_DRIVER}" @ONLY)
 
-        add_test(NAME ${PLUGIN_NAME}_${test} COMMAND "${SIMPL_PYTHON_TEST_DRIVER}" )
+        add_test(NAME PY_${PLUGIN_NAME}_${test} COMMAND "${SIMPL_PYTHON_TEST_DRIVER}" )
     endforeach(test ${PLUGIN_PYTHON_TESTS})
     #------------------------------
     # Also setup a unit test for the base python unit test file that is generated as part
@@ -88,6 +83,6 @@ if(SIMPL_ENABLE_PYTHON)
     set(SIMPL_PYTHON_TEST_DRIVER "${SIMPL_ANACONDA_OUTPUT_DIR}/UnitTest/${PLUGIN_NAME}/${PLUGIN_NAME}.sh")
     set(test "${PLUGIN_NAME}_UnitTest")
     configure_file(${SIMPL_PYTHON_TEST_SCRIPT}  "${SIMPL_PYTHON_TEST_DRIVER}" @ONLY)
-    add_test(NAME ${PLUGIN_NAME}_Python_UnitTest COMMAND "${SIMPL_PYTHON_TEST_DRIVER}" )
+    add_test(NAME PY_${PLUGIN_NAME}_UnitTest COMMAND "${SIMPL_PYTHON_TEST_DRIVER}" )
 endif()
 
