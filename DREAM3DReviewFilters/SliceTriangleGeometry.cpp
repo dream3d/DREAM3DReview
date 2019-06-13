@@ -401,10 +401,13 @@ void SliceTriangleGeometry::execute()
   float minDim = std::numeric_limits<float>::max();
   float maxDim = -minDim;
   determineBoundsAndNumSlices(minDim, maxDim, numTris, tris, triVerts);
+  int64_t minSlice = static_cast<int64_t>(minDim / m_SliceResolution);
+  int64_t maxSlice = static_cast<int64_t>(maxDim / m_SliceResolution);
 
   float q[3] = {0.0f, 0.0f, 0.0f};
   float r[3] = {0.0f, 0.0f, 0.0f};
   float p[3] = {0.0f, 0.0f, 0.0f};
+  float corner[3] = {0.0f, 0.0f, 0.0f};
   float d = 0;
 
   std::vector<float> slicedVerts;
@@ -447,8 +450,16 @@ void SliceTriangleGeometry::execute()
     {
       maxTriDim = maxDim;
     }
-    size_t firstSlice = (minTriDim - minDim) / m_SliceResolution;
-    size_t lastSlice = ((maxTriDim - minDim) / m_SliceResolution) + 1;
+    size_t firstSlice = static_cast<size_t>(minTriDim / m_SliceResolution);
+    size_t lastSlice = static_cast<size_t>(maxTriDim / m_SliceResolution);
+    if(firstSlice < minSlice)
+    {
+      firstSlice = minSlice;
+    }
+    if(lastSlice > maxSlice)
+    {
+      lastSlice = maxSlice;
+    }
     // get cross product of triangle vectors to get normals
     float vecAB[3];
     float vecAC[3];
@@ -465,8 +476,8 @@ void SliceTriangleGeometry::execute()
     for(size_t j = firstSlice; j <= lastSlice; j++)
     {
       int cut = 0;
-      d = minDim + (m_SliceResolution * float(j)) + min_shift;
-      //	  d = minDim + (m_SliceResolution * float(j));
+      bool cornerHit = false;
+      d = (m_SliceResolution * float(j));
       q[0] = triVerts[3 * tris[3 * i]];
       q[1] = triVerts[3 * tris[3 * i] + 1];
       q[2] = triVerts[3 * tris[3 * i] + 2];
@@ -481,6 +492,13 @@ void SliceTriangleGeometry::execute()
         slicedVerts.push_back(p[2]);
         cut++;
       }
+      else if (val == 'q' || val == 'r')
+      {
+        cornerHit = true;
+        corner[0] = p[0];
+        corner[1] = p[1];
+        corner[2] = p[2];
+      }
       r[0] = triVerts[3 * tris[3 * i + 2]];
       r[1] = triVerts[3 * tris[3 * i + 2] + 1];
       r[2] = triVerts[3 * tris[3 * i + 2] + 2];
@@ -491,6 +509,13 @@ void SliceTriangleGeometry::execute()
         slicedVerts.push_back(p[1]);
         slicedVerts.push_back(p[2]);
         cut++;
+      }
+      else if(val == 'q' || val == 'r')
+      {
+        cornerHit = true;
+        corner[0] = p[0];
+        corner[1] = p[1];
+        corner[2] = p[2];
       }
       q[0] = triVerts[3 * tris[3 * i + 1]];
       q[1] = triVerts[3 * tris[3 * i + 1] + 1];
@@ -503,12 +528,26 @@ void SliceTriangleGeometry::execute()
         slicedVerts.push_back(p[2]);
         cut++;
       }
-      if(cut == 1)
+      else if(val == 'q' || val == 'r')
+      {
+        cornerHit = true;
+        corner[0] = p[0];
+        corner[1] = p[1];
+        corner[2] = p[2];
+      }
+      if(cut == 1 && !cornerHit)
       {
         for(int k = 0; k < 3; k++)
         {
           slicedVerts.pop_back();
         }
+      }
+      if(cut == 1 && cornerHit)
+      {
+        slicedVerts.push_back(corner[0]);
+        slicedVerts.push_back(corner[1]);
+        slicedVerts.push_back(corner[2]);
+        cut++;
       }
       if(cut == 3)
       {
@@ -523,8 +562,6 @@ void SliceTriangleGeometry::execute()
         // get delta x for the current ordering of the segment
         float delX = slicedVerts[size - 6] - slicedVerts[size - 3];
         // get cross product of vec with 001 slicing direction
-        slicedVerts[size - 1] -= min_shift;
-        slicedVerts[size - 4] -= min_shift;
         if((triCross[1] > 0 && delX < 0) || (triCross[1] < 0 && delX > 0))
         {
           float temp[3] = {slicedVerts[size - 3], slicedVerts[size - 2], slicedVerts[size - 1]};
@@ -546,6 +583,13 @@ void SliceTriangleGeometry::execute()
 
   size_t numVerts = slicedVerts.size() / 3;
   size_t numEdges = slicedVerts.size() / 6;
+
+  if(numVerts != (2 * numEdges))
+  {
+    QString message = QObject::tr("Number of sectioned vertices and edges do not make sense.  Number of Vertices: %1 and Number of Edges: %2").arg(numVerts).arg(numEdges);
+    setErrorCondition(-00003, message);
+    return;
+  }
 
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getSliceDataContainerName());
   SharedVertexList::Pointer vertices = EdgeGeom::CreateSharedVertexList(numVerts);
