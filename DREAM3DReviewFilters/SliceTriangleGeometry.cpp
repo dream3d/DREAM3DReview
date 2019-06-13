@@ -360,7 +360,8 @@ void SliceTriangleGeometry::determineBoundsAndNumSlices(float& minDim, float& ma
     }
   }
 
-  m_NumberOfSlices = static_cast<MeshIndexType>((maxDim - minDim) / m_SliceResolution) + 1;
+  m_NumberOfSlices = static_cast<MeshIndexType>((maxDim - 0.0) / m_SliceResolution) + 1;
+//  m_NumberOfSlices = static_cast<MeshIndexType>((maxDim - minDim) / m_SliceResolution) + 1;
 }
 
     // -----------------------------------------------------------------------------
