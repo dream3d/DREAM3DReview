@@ -29,6 +29,32 @@ cmpRevisionString( GENERATED_HEADER_FILE_PATH "${VERSION_HEADER_FILE_NAME}"
 set(${PLUGIN_NAME}_Project_SRCS "")
 
 include(${SIMPLProj_SOURCE_DIR}/Source/SIMPLib/SIMPLibMacros.cmake)
+
+# This line needs to go first, so we can get the version of ITK that is being used
+get_property(ITK_VERSION_MAJOR GLOBAL PROPERTY ITK_VERSION_MAJOR)
+
+## YOU MUST INCLUDE THIS FILE TO USE ITK !!!
+# Then do not forget to add "${ITK_LIBRARIES}" to the target_link_libraries below
+# SIMPL Itself has ITK (at least it should if we are doing this) which means by
+# this point ITK is actually found. So let's add some additional Modules that are
+# going to be needed.
+
+
+  # Put ITK 4 Specific Modules in here
+  set_property(GLOBAL PROPERTY ADDITIONAL_ITK_MODULES 	
+                ITKOptimizersv4
+                ITKMetricsv4
+                ITKRegistrationMethodsv4
+                ITKIOTransformBase
+  )
+
+include( ${CMP_SOURCE_DIR}/ITKSupport/IncludeITK.cmake)
+
+
+
+
+
+
 #-------
 # Start writing this header file
 set(AllFiltersHeaderFile ${${PLUGIN_NAME}_BINARY_DIR}/${PLUGIN_NAME}Filters/${PLUGIN_NAME}Filters.h_tmp)
@@ -218,6 +244,7 @@ target_link_libraries(${plug_target_name}
                     SIMPLib
                     EbsdLib
                     OrientationLib
+                    ${ITK_LIBRARIES}
 )
 
 

@@ -33,6 +33,11 @@ set(_PublicFilters
   RemoveFlaggedVertices
   RobustAutomaticThreshold
   Silhouette
+
+  # Registration 
+  ITKPairwiseImageRegistration
+  ITKResampleImage
+  FindMaskNeighbors
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)
@@ -73,6 +78,11 @@ ADD_SIMPL_SUPPORT_HEADER_SUBDIR(${${PLUGIN_NAME}_SOURCE_DIR} ${_filterGroupName}
 ADD_SIMPL_SUPPORT_HEADER_SUBDIR(${${PLUGIN_NAME}_SOURCE_DIR} ${_filterGroupName} SilhouetteTemplate.hpp util/EvaluationAlgorithms)
 ADD_SIMPL_SUPPORT_HEADER_SUBDIR(${${PLUGIN_NAME}_SOURCE_DIR} ${_filterGroupName} KDistanceTemplate.hpp util/EvaluationAlgorithms)
 ADD_SIMPL_SUPPORT_HEADER_SUBDIR(${${PLUGIN_NAME}_SOURCE_DIR} ${_filterGroupName} DistanceTemplate.hpp util)
+ADD_SIMPL_SUPPORT_HEADER_SUBDIR(${${PLUGIN_NAME}_SOURCE_DIR} ${_filterGroupName} ITKTransformHelpers.h util)
+
+
+ADD_SIMPL_SUPPORT_HEADER(${${PLUGIN_NAME}_SOURCE_DIR} ${_filterGroupName} util/EBSDWriterFactory.h)
+ADD_SIMPL_SUPPORT_SOURCE(${${PLUGIN_NAME}_SOURCE_DIR} ${_filterGroupName} util/EBSDWriterFactory.cpp)
 
 #---------------------
 # This macro must come last after we are done adding all the filters and support files.
