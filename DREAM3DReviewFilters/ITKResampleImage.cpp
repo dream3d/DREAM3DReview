@@ -647,7 +647,7 @@ void ITKResampleImage::SeriesResampling()
     itkImageReader->setDataContainerArray(getDataContainerArray());
 
     QVariant dcName;
-    DataArrayPath pathname("_INTERNAL_USE_ONLY_MovingImageDataContainerName", "", "");
+    QString pathname = "_INTERNAL_USE_ONLY_MovingImageDataContainerName";
     dcName.setValue(pathname);
     itkImageReader->setProperty("DataContainerName", dcName);
 
@@ -870,7 +870,7 @@ void ITKResampleImage::EBSDSeriesResampling()
     ctfReader->setDataContainerArray(getDataContainerArray());
 
     QVariant dcName;
-    DataArrayPath pathname("_INTERNAL_USE_ONLY_MovingEBSDDataContainerName", "", "");
+    QString pathname = "_INTERNAL_USE_ONLY_MovingEBSDDataContainerName";
     dcName.setValue(pathname);
     ctfReader->setProperty("DataContainerName", dcName);
 
