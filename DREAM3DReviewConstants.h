@@ -307,6 +307,23 @@ static const float CSLAxisAngle[21][5] = {{3.0f, 60.0f, 1.0f, 1.0f, 1.0f},   {5.
                                           {29.5f, 46.39f, 2.0f, 2.0f, 1.0f}};
 } // namespace TransformationPhaseConstants
 
+namespace UUtahDMREFConstants
+{
+const QString UUtahDMREFPluginFile("UUtahDMREFPlugin");
+const QString UUtahDMREFPluginDisplayName("UUtahDMREF");
+const QString UUtahDMREFBaseName("UUtahDMREF");
+
+namespace FilterGroups
+{
+const QString UUtahDMREFFilters("UUtah DMREF");
+}
+
+namespace FilterSubGroups
+{
+const QString PackingFilters("Packing");
+}
+} // namespace UUtahDMREFConstants
+
 /**
 * @brief Use this namespace to define any custom GUI widgets that collect FilterParameters
 * for a filter. Do NOT define general reusable widgets here.
