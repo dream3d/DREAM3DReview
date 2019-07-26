@@ -255,7 +255,7 @@ protected:
    * proper size and morphological statistics are maintained
    * @param featureOwnersPtr Array of Feature Ids for each packing point
    */
-  void place_features(Int32ArrayType::Pointer featureOwnersPtr);
+  void place_features(const Int32ArrayType::Pointer& featureOwnersPtr);
 
   /**
    * @brief generate_feature Creates a Feature by sampling the size and morphological statistical distributions

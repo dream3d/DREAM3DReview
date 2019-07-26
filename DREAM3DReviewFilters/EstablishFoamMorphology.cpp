@@ -25,27 +25,22 @@
 #include "SIMPLib/DataArrays/IDataArray.h"
 #include "SIMPLib/DataArrays/NeighborList.hpp"
 #include "SIMPLib/DataContainers/DataContainer.h"
-#include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
-#include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
+//#include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
+//#include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DoubleFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
-#include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
-#include "SIMPLib/FilterParameters/IntFilterParameter.h"
+//#include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
+//#include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
-#include "SIMPLib/Filtering/FilterFactory.hpp"
-#include "SIMPLib/Filtering/FilterManager.h"
-#include "SIMPLib/Filtering/FilterPipeline.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Math/SIMPLibRandom.h"
-#include "SIMPLib/Plugin/ISIMPLibPlugin.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/StatsData/PrecipitateStatsData.h"
 #include "SIMPLib/Utilities/TimeUtilities.h"
@@ -84,7 +79,7 @@ class FindEuclideanMap2
 	int32_t mapType;
 
 public:
-  FindEuclideanMap2(DataContainer::Pointer datacontainer, int32_t* fIds, int32_t* nearNeighs, float* gbDists, float* tjDists, float* qpDists, int32_t type)
+  FindEuclideanMap2(const DataContainer::Pointer& datacontainer, int32_t* fIds, int32_t* nearNeighs, float* gbDists, float* tjDists, float* qpDists, int32_t type)
   : m(datacontainer)
   , m_FeatureIds(fIds)
   , m_NearestNeighbors(nearNeighs)
@@ -280,41 +275,45 @@ public:
 };
 
 /**
-* @brief The AssignVoxelsGapsImpl class implements a threaded algorithm that assigns all the voxels
-* in the volume to a unique Feature.
-*/
-class AssignVoxelsGapsImpl
+ * @brief The FoamAssignVoxelsGapsImpl class implements a threaded algorithm that assigns all the voxels
+ * in the volume to a unique Feature.
+ */
+class FoamAssignVoxelsGapsImpl
 {
-  int64_t dims[3];
-  float Invradcur[3];
-  float res[3];
-  int32_t* m_FeatureIds;
-  float xc;
-  float yc;
-  float zc;
-  ShapeOps* m_ShapeOps;
+  std::array<size_t, 3> m_UDims;
+  std::array<float, 3> m_Invradcur;
+  std::array<float, 3> m_Spacing;
+
   float ga[3][3];
-  int32_t curFeature;
-  Int32ArrayType::Pointer newownersPtr;
-  FloatArrayType::Pointer ellipfuncsPtr;
+  int32_t curFeature = 0;
+
+  float xc = 0.0f;
+  float yc = 0.0f;
+  float zc = 0.0f;
+  int32_t* m_FeatureIds = nullptr;
+  ShapeOps* m_ShapeOps = nullptr;
+
+  Int32ArrayType::Pointer m_NewOwnersPtr;
+  FloatArrayType::Pointer mEllipFuncsPtr;
 
 public:
-  AssignVoxelsGapsImpl(int64_t* dimensions, FloatVec3Type resolution, int32_t* featureIds, float* radCur, float* xx, ShapeOps* shapeOps, float gA[3][3], float* size, int32_t cur_feature,
-                       Int32ArrayType::Pointer newowners, FloatArrayType::Pointer ellipfuncs)
-  : m_FeatureIds(featureIds)
+  FoamAssignVoxelsGapsImpl(SizeVec3Type& dimensions, FloatVec3Type& resolution, int32_t* featureIds, const float* radCur, const float* xx, ShapeOps* shapeOps, float gA[3][3], const float* size,
+                           int32_t cur_feature, const Int32ArrayType::Pointer& newowners, const FloatArrayType::Pointer& ellipfuncs)
+  : curFeature(cur_feature)
+  , m_FeatureIds(featureIds)
   , m_ShapeOps(shapeOps)
-  , curFeature(cur_feature)
   {
-    dims[0] = dimensions[0];
-    dims[1] = dimensions[1];
-    dims[2] = dimensions[2];
-    Invradcur[0] = 1.0 / radCur[0];
-    Invradcur[1] = 1.0 / radCur[1];
-    Invradcur[2] = 1.0 / radCur[2];
+    m_UDims[0] = dimensions[0];
+    m_UDims[1] = dimensions[1];
+    m_UDims[2] = dimensions[2];
 
-    res[0] = resolution[0];
-    res[1] = resolution[1];
-    res[2] = resolution[2];
+    m_Invradcur[0] = 1.0 / radCur[0];
+    m_Invradcur[1] = 1.0 / radCur[1];
+    m_Invradcur[2] = 1.0 / radCur[2];
+
+    m_Spacing[0] = resolution[0];
+    m_Spacing[1] = resolution[1];
+    m_Spacing[2] = resolution[2];
 
     xc = xx[0];
     yc = xx[1];
@@ -330,11 +329,11 @@ public:
     ga[2][1] = gA[2][1];
     ga[2][2] = gA[2][2];
 
-    newownersPtr = newowners;
-    ellipfuncsPtr = ellipfuncs;
+    m_NewOwnersPtr = newowners;
+    mEllipFuncsPtr = ellipfuncs;
   }
 
-  ~AssignVoxelsGapsImpl() = default;
+  ~FoamAssignVoxelsGapsImpl() = default;
 
   // -----------------------------------------------------------------------------
   //
@@ -348,20 +347,20 @@ public:
     float coords[3] = {0.0f, 0.0f, 0.0f};
     float inside = 0.0f;
     float coordsRotated[3] = {0.0f, 0.0f, 0.0f};
-    int32_t* newowners = newownersPtr->getPointer(0);
-    float* ellipfuncs = ellipfuncsPtr->getPointer(0);
+    int32_t* newowners = m_NewOwnersPtr->getPointer(0);
+    float* ellipfuncs = mEllipFuncsPtr->getPointer(0);
 
-    int64_t dim0_dim_1 = dims[0] * dims[1];
+    int64_t dim0_dim_1 = m_UDims[0] * m_UDims[1];
     for(int64_t iter1 = xStart; iter1 < xEnd; iter1++)
     {
       column = iter1;
       if(iter1 < 0)
       {
-        column = iter1 + dims[0];
+        column = iter1 + m_UDims[0];
       }
-      else if(iter1 > dims[0] - 1)
+      else if(iter1 > m_UDims[0] - 1)
       {
-        column = iter1 - dims[0];
+        column = iter1 - m_UDims[0];
       }
 
       for(int64_t iter2 = yStart; iter2 < yEnd; iter2++)
@@ -369,48 +368,46 @@ public:
         row = iter2;
         if(iter2 < 0)
         {
-          row = iter2 + dims[1];
+          row = iter2 + m_UDims[1];
         }
-        else if(iter2 > dims[1] - 1)
+        else if(iter2 > m_UDims[1] - 1)
         {
-          row = iter2 - dims[1];
+          row = iter2 - m_UDims[1];
         }
-        size_t row_dim = row * dims[0];
+        size_t row_dim = row * m_UDims[0];
 
         for(int64_t iter3 = zStart; iter3 < zEnd; iter3++)
         {
           plane = iter3;
           if(iter3 < 0)
           {
-            plane = iter3 + dims[2];
+            plane = iter3 + m_UDims[2];
           }
-          else if(iter3 > dims[2] - 1)
+          else if(iter3 > m_UDims[2] - 1)
           {
-            plane = iter3 - dims[2];
+            plane = iter3 - m_UDims[2];
           }
 
           index = static_cast<int64_t>((plane * dim0_dim_1) + (row_dim) + column);
 
           inside = -1.0f;
-          coords[0] = float(iter1) * res[0];
-          coords[1] = float(iter2) * res[1];
-          coords[2] = float(iter3) * res[2];
+          coords[0] = float(iter1) * m_Spacing[0];
+          coords[1] = float(iter2) * m_Spacing[1];
+          coords[2] = float(iter3) * m_Spacing[2];
 
           coords[0] = coords[0] - xc;
           coords[1] = coords[1] - yc;
           coords[2] = coords[2] - zc;
           MatrixMath::Multiply3x3with3x1(ga, coords, coordsRotated);
-          float axis1comp = coordsRotated[0] * Invradcur[0];
-          float axis2comp = coordsRotated[1] * Invradcur[1];
-          float axis3comp = coordsRotated[2] * Invradcur[2];
+          float axis1comp = coordsRotated[0] * m_Invradcur[0];
+          float axis2comp = coordsRotated[1] * m_Invradcur[1];
+          float axis3comp = coordsRotated[2] * m_Invradcur[2];
           inside = m_ShapeOps->inside(axis1comp, axis2comp, axis3comp);
-          // if (inside >= 0 && newowners[index] > 0)
+
           if(inside >= 0 && newowners[index] > 0 && inside > ellipfuncs[index])
           {
             newowners[index] = curFeature;
             ellipfuncs[index] = inside;
-            // newowners[index] = -2;
-            // ellipfuncs[index] = inside;
           }
           else if(inside >= 0 && newowners[index] == -1)
           {
@@ -428,8 +425,6 @@ public:
     convert(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
   }
 #endif
-
-private:
 };
 
 // Include the MOC generated file for this class
@@ -771,7 +766,7 @@ void EstablishFoamMorphology::dataCheck()
   {
     tempPath.update(getOutputCellAttributeMatrixPath().getDataContainerName(), getOutputCellAttributeMatrixPath().getAttributeMatrixName(), getFeatureIdsArrayName());
     m_FeatureIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter, int32_t>(
-        this, tempPath, -1, cDims); /* Assigns the shared_ptr<>(this, tempPath, -1, dims); Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+        this, tempPath, -1, cDims); /* Assigns the shared_ptr<>(this, tempPath, -1, udims); Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureIdsPtr.lock())
     {
       m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
@@ -780,7 +775,7 @@ void EstablishFoamMorphology::dataCheck()
 
   tempPath.update(getOutputCellAttributeMatrixPath().getDataContainerName(), getOutputCellAttributeMatrixPath().getAttributeMatrixName(), getMaskArrayName());
   m_MaskPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<bool>, AbstractFilter, bool>(
-      this, tempPath, false, cDims); /* Assigns the shared_ptr<>(this, tempPath, -1, dims); Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+      this, tempPath, false, cDims); /* Assigns the shared_ptr<>(this, tempPath, -1, udims); Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_MaskPtr.lock())
   {
     m_Mask = m_MaskPtr.lock()->getPointer(0);
@@ -788,7 +783,7 @@ void EstablishFoamMorphology::dataCheck()
 
   tempPath.update(getOutputCellAttributeMatrixPath().getDataContainerName(), getOutputCellAttributeMatrixPath().getAttributeMatrixName(), getCellPhasesArrayName());
   m_CellPhasesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter, int32_t>(
-      this, tempPath, 0, cDims); /* Assigns the shared_ptr<>(this, tempPath, 0, dims); Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+      this, tempPath, 0, cDims); /* Assigns the shared_ptr<>(this, tempPath, 0, udims); Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_CellPhasesPtr.lock())
   {
     m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
@@ -1109,11 +1104,11 @@ void EstablishFoamMorphology::execute()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EstablishFoamMorphology::place_features(Int32ArrayType::Pointer featureOwnersPtr)
+void EstablishFoamMorphology::place_features(const Int32ArrayType::Pointer& featureOwnersPtr)
 {
   bool writeErrorFile = false;
   std::ofstream outFile;
-  if(m_ErrorOutputFile.isEmpty() == false)
+  if(!m_ErrorOutputFile.isEmpty())
   {
     outFile.open(m_ErrorOutputFile.toLatin1().data(), std::ios_base::binary);
     writeErrorFile = outFile.is_open();
@@ -1134,22 +1129,16 @@ void EstablishFoamMorphology::place_features(Int32ArrayType::Pointer featureOwne
 
   SizeVec3Type udims = m->getGeometryAs<ImageGeom>()->getDimensions();
 
-  int64_t dims[3] = {
-      static_cast<int64_t>(udims[0]),
-      static_cast<int64_t>(udims[1]),
-      static_cast<int64_t>(udims[2]),
-  };
-
   FloatVec3Type res = m->getGeometryAs<ImageGeom>()->getSpacing();
 
-  m_SizeX = static_cast<float>(dims[0] * res[0]);
-  m_SizeY = static_cast<float>(dims[1] * res[1]);
-  m_SizeZ = static_cast<float>(dims[2] * res[2]);
+  m_SizeX = static_cast<float>(udims[0] * res[0]);
+  m_SizeY = static_cast<float>(udims[1] * res[1]);
+  m_SizeZ = static_cast<float>(udims[2] * res[2]);
   m_TotalVol = m_SizeX * m_SizeY * m_SizeZ;
 
   // Making a double to prevent float overflow on incrementing
   double totalprecipitatevolTEMP = 0;
-  size_t totalVox = static_cast<size_t>(dims[0] * dims[1] * dims[2]);
+  size_t totalVox = udims[0] * udims[1] * udims[2];
   for(size_t i = 0; i < totalVox; i++)
   {
     if(m_FeatureIds[i] <= 0)
@@ -1194,9 +1183,9 @@ void EstablishFoamMorphology::place_features(Int32ArrayType::Pointer featureOwne
     }
   }
   // scale the precipitate phase fractions to total to 1
-  for(size_t i = 0; i < m_PrecipitatePhaseFractions.size(); i++)
+  for(auto& precipPhaseFraction : m_PrecipitatePhaseFractions)
   {
-    m_PrecipitatePhaseFractions[i] = m_PrecipitatePhaseFractions[i] / totalprecipitatefractions;
+    precipPhaseFraction = precipPhaseFraction / totalprecipitatefractions;
   }
 
   std::vector<size_t> cDim(1, 1);
@@ -1394,42 +1383,6 @@ void EstablishFoamMorphology::place_features(Int32ArrayType::Pointer featureOwne
     PrecipitateStatsData::Pointer pp = std::dynamic_pointer_cast<PrecipitateStatsData>(statsDataArray[phase]);
     m_NeighborDist[i].resize(pp->getBinNumbers()->getSize());
     m_SimNeighborDist[i].resize(pp->getBinNumbers()->getSize());
-    //		VectorOfFloatArray Neighdist = pp->getFeatureSize_Neighbors();
-    // float normalizer = 0.0f;
-    //		size_t numNeighborDistBins = m_NeighborDist[i].size();
-    //		for (size_t j = 0; j < numNeighborDistBins; j++)
-    //		{
-    //			m_NeighborDist[i][j].resize(40);
-    //			float input = 0.0f;
-    //			float previoustotal = 0.0f;
-    //			float avg = Neighdist[0]->getValue(j);
-    //			float stdev = Neighdist[1]->getValue(j);
-    //			m_NeighborDistStep[i] = 2.0f;
-    //			float denominatorConst = 1.0 / sqrtf(2.0f * stdev * stdev); // Calculate it here rather than calculating the same thing multiple times below
-    //			for (size_t k = 0; k < 40; k++)
-    //			{
-    //				input = (float(k + 1) * m_NeighborDistStep[i]);
-    //				float logInput = logf(input);
-    //				if (logInput <= avg)
-    //				{
-    //					m_NeighborDist[i][j][k] = 0.5f - 0.5f * (SIMPLibMath::erf((avg - logInput) * denominatorConst)) - previoustotal;
-    //				}
-    //				if (logInput > avg)
-    //				{
-    //					m_NeighborDist[i][j][k] = 0.5f + 0.5f * (SIMPLibMath::erf((logInput - avg) * denominatorConst)) - previoustotal;
-    //				}
-    //				previoustotal = previoustotal + m_NeighborDist[i][j][k];
-    //			}
-    //			normalizer = normalizer + previoustotal;
-    //		}
-    //		normalizer = 1.0f / normalizer;
-    //		for (size_t j = 0; j < numNeighborDistBins; j++)
-    //		{
-    //			for (size_t k = 0; k < 40; k++)
-    //			{
-    //				m_NeighborDist[i][j][k] = m_NeighborDist[i][j][k] * normalizer;
-    //			}
-    //		}
   }
 
   if(getCancel())
@@ -1518,24 +1471,6 @@ void EstablishFoamMorphology::place_features(Int32ArrayType::Pointer featureOwne
   uint64_t estimatedTime = 0;
   float timeDiff = 0.0f;
 
-  // determine neighborhoods and initial neighbor distribution errors
-  //	for (size_t i = m_FirstFoamFeature; i < totalFeatures; i++)
-  //	{
-  //		currentMillis = QDateTime::currentMSecsSinceEpoch();
-  //		if (currentMillis - millis > 1000)
-  //		{
-  //			QString ss = QObject::tr("Determining Neighbors Feature %1/%2").arg(i).arg(totalFeatures);
-  //			timeDiff = ((float)i / (float)(currentMillis - startMillis));
-  //			estimatedTime = (float)(totalFeatures - i) / timeDiff;
-  //			ss += QObject::tr(" || Est. Time Remain: %1 || Iterations/Sec: %2").arg(DREAM3D::convertMillisToHrsMinSecs(estimatedTime)).arg(timeDiff * 1000);
-  //			notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
-  //
-  //			millis = QDateTime::currentMSecsSinceEpoch();
-  //		}
-  //		determine_neighbors(i, true);
-  //	}
-  //	m_OldNeighborhoodError = check_neighborhooderror(-1000, -1000);
-
   // begin swaping/moving/adding/removing features to try to improve packing
   int32_t totalAdjustments = static_cast<int32_t>(100 * (totalFeatures - 1));
 
@@ -1595,7 +1530,7 @@ void EstablishFoamMorphology::place_features(Int32ArrayType::Pointer featureOwne
       randomfeature = m_FirstFoamFeature + int32_t(rg.genrand_res53() * (totalFeatures - m_FirstFoamFeature));
       good = false;
       count = 0;
-      while(good == false && count < static_cast<int32_t>((totalFeatures - m_FirstFoamFeature)))
+      while(!good && count < static_cast<int32_t>((totalFeatures - m_FirstFoamFeature)))
       {
         xc = m_Centroids[3 * randomfeature];
         yc = m_Centroids[3 * randomfeature + 1];
@@ -1644,13 +1579,7 @@ void EstablishFoamMorphology::place_features(Int32ArrayType::Pointer featureOwne
       m_FillingError = check_fillingerror(-1000, static_cast<int32_t>(randomfeature), featureOwnersPtr, exclusionOwnersPtr);
       move_feature(randomfeature, xc, yc, zc);
       m_FillingError = check_fillingerror(static_cast<int32_t>(randomfeature), -1000, featureOwnersPtr, exclusionOwnersPtr);
-      //			m_CurrentNeighborhoodError = check_neighborhooderror(-1000, randomfeature);
-      //			if (m_FillingError <= m_OldFillingError)
-      //			{
-      //				m_OldNeighborhoodError = m_CurrentNeighborhoodError;
-      //				update_availablepoints(availablePoints, availablePointsInv);
-      //				acceptedmoves++;
-      //			}
+
       if(m_FillingError > m_OldFillingError)
       {
         m_FillingError = check_fillingerror(-1000, static_cast<int32_t>(randomfeature), featureOwnersPtr, exclusionOwnersPtr);
@@ -1725,16 +1654,7 @@ void EstablishFoamMorphology::place_features(Int32ArrayType::Pointer featureOwne
       m_FillingError = check_fillingerror(-1000, static_cast<int32_t>(randomfeature), featureOwnersPtr, exclusionOwnersPtr);
       move_feature(randomfeature, xc, yc, zc);
       m_FillingError = check_fillingerror(static_cast<int32_t>(randomfeature), -1000, featureOwnersPtr, exclusionOwnersPtr);
-      //			m_CurrentNeighborhoodError = check_neighborhooderror(-1000, randomfeature);
-      //      change2 = (currentneighborhooderror * currentneighborhooderror) - (oldneighborhooderror * oldneighborhooderror);
-      //      if(fillingerror <= oldfillingerror && currentneighborhooderror >= oldneighborhooderror)
-      //			if (m_FillingError <= m_OldFillingError)
-      //			{
-      //				m_OldNeighborhoodError = m_CurrentNeighborhoodError;
-      //				update_availablepoints(availablePoints, availablePointsInv);
-      //				acceptedmoves++;
-      //			}
-      //      else if(fillingerror > oldfillingerror || currentneighborhooderror < oldneighborhooderror)
+
       if(m_FillingError > m_OldFillingError)
       {
         m_FillingError = check_fillingerror(-1000, static_cast<int>(randomfeature), featureOwnersPtr, exclusionOwnersPtr);
@@ -2538,9 +2458,9 @@ void EstablishFoamMorphology::insert_feature(size_t gnum)
 
   // init any values for each of the Shape Ops
   // init any values for each of the Shape Ops
-  for(size_t iter = 0; iter < m_ShapeOps.size(); iter++)
+  for(auto& shapeOp : m_ShapeOps)
   {
-    m_ShapeOps[iter]->init();
+    shapeOp->init();
   }
   // Create our Argument Map
   QMap<ShapeOps::ArgName, float> shapeArgMap;
@@ -2652,11 +2572,6 @@ void EstablishFoamMorphology::assign_voxels()
       static_cast<int64_t>(udims[2]),
   };
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
-  tbb::task_scheduler_init init;
-  bool doParallel = true;
-#endif
-
   int64_t column = 0, row = 0, plane = 0;
   float xc = 0.0f, yc = 0.0f, zc = 0.0f;
   float size[3] = {m_SizeX, m_SizeY, m_SizeZ};
@@ -2748,25 +2663,25 @@ void EstablishFoamMorphology::assign_voxels()
       {
         xmin = -dims[0];
       }
-      if(xmax > 2 * dims[0] - 1)
+      if(xmax > 2 * udims[0] - 1)
       {
-        xmax = (2 * dims[0] - 1);
+        xmax = (2 * udims[0] - 1);
       }
       if(ymin < -dims[1])
       {
         ymin = -dims[1];
       }
-      if(ymax > 2 * dims[1] - 1)
+      if(ymax > 2 * udims[1] - 1)
       {
-        ymax = (2 * dims[1] - 1);
+        ymax = (2 * udims[1] - 1);
       }
       if(zmin < -dims[2])
       {
         zmin = -dims[2];
       }
-      if(zmax > 2 * dims[2] - 1)
+      if(zmax > 2 * udims[2] - 1)
       {
-        zmax = (2 * dims[2] - 1);
+        zmax = (2 * udims[2] - 1);
       }
     }
     else
@@ -2775,42 +2690,45 @@ void EstablishFoamMorphology::assign_voxels()
       {
         xmin = 0;
       }
-      if(xmax > dims[0] - 1)
+      if(xmax > udims[0] - 1)
       {
-        xmax = dims[0] - 1;
+        xmax = udims[0] - 1;
       }
       if(ymin < 0)
       {
         ymin = 0;
       }
-      if(ymax > dims[1] - 1)
+      if(ymax > udims[1] - 1)
       {
-        ymax = dims[1] - 1;
+        ymax = udims[1] - 1;
       }
       if(zmin < 0)
       {
         zmin = 0;
       }
-      if(zmax > dims[2] - 1)
+      if(zmax > udims[2] - 1)
       {
-        zmax = dims[2] - 1;
+        zmax = udims[2] - 1;
       }
     }
 
     float radCur[3] = {radcur1, radcur2, radcur3};
     float xx[3] = {xc, yc, zc};
     ShapeOps* shapeOps = m_ShapeOps[shapeclass].get();
-    //#if 0
+
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
-    if(doParallel == true)
+    tbb::task_scheduler_init init;
+    bool doParallel = true;
+
+    if(doParallel)
     {
       tbb::parallel_for(tbb::blocked_range3d<int64_t, int64_t, int64_t>(zmin, zmax + 1, ymin, ymax + 1, xmin, xmax + 1),
-                        AssignVoxelsGapsImpl(dims, res, m_FeatureIds, radCur, xx, shapeOps, ga, size, i, newownersPtr, ellipfuncsPtr), tbb::auto_partitioner());
+                        FoamAssignVoxelsGapsImpl(udims, res, m_FeatureIds, radCur, xx, shapeOps, ga, size, i, newownersPtr, ellipfuncsPtr), tbb::auto_partitioner());
     }
     else
 #endif
     {
-      AssignVoxelsGapsImpl serial(dims, res, m_FeatureIds, radCur, xx, shapeOps, ga, size, i, newownersPtr, ellipfuncsPtr);
+      FoamAssignVoxelsGapsImpl serial(udims, res, m_FeatureIds, radCur, xx, shapeOps, ga, size, i, newownersPtr, ellipfuncsPtr);
       serial.convert(zmin, zmax + 1, ymin, ymax + 1, xmin, xmax + 1);
     }
   }
@@ -3022,7 +2940,7 @@ void EstablishFoamMorphology::assign_gaps_only()
       QString ss = QObject::tr("Assign Gaps || Cycle#: %1 || Remaining Unassigned Voxel Count: %2").arg(iterationCounter).arg(gapVoxelCount);
       notifyStatusMessage(ss);
     }
-    if(getCancel() == true)
+    if(getCancel())
     {
       return;
     }
@@ -3105,9 +3023,9 @@ int32_t EstablishFoamMorphology::estimate_numfeatures(size_t xpoints, size_t ypo
   }
 
   // scale the precipitate phase fractions to total to 1
-  for(size_t i = 0; i < precipitatePhaseFractionsLocal.size(); i++)
+  for(auto& precipPhaseFraction : precipitatePhaseFractionsLocal)
   {
-    precipitatePhaseFractionsLocal[i] = precipitatePhaseFractionsLocal[i] / totalprecipitatefractions;
+    precipPhaseFraction = precipPhaseFraction / totalprecipitatefractions;
   }
 
   // generate the features
@@ -3124,10 +3042,10 @@ int32_t EstablishFoamMorphology::estimate_numfeatures(size_t xpoints, size_t ypo
     float curphasetotalvol = m_TotalVol * precipitatePhaseFractionsLocal[j];
     while(currentvol < curphasetotalvol)
     {
-      volgood = 0;
+      volgood = false;
       phase = precipitatePhasesLocal[j];
       PrecipitateStatsData::Pointer pp = std::dynamic_pointer_cast<PrecipitateStatsData>(statsDataArray[phase]);
-      while(volgood == false)
+      while(!volgood)
       {
         volgood = true;
         if(pp->getFeatureSize_DistType() == SIMPL::DistributionType::LogNormal)
@@ -3199,21 +3117,22 @@ void EstablishFoamMorphology::write_goal_attributes()
   // Print the FeatureIds Header before the rest of the headers
   dStream << SIMPL::FeatureData::FeatureID;
   // Loop throught the list and print the rest of the headers, ignoring those we don't want
-  for(QList<QString>::iterator iter = headers.begin(); iter != headers.end(); ++iter)
+  // for(QList<QString>::iterator iter = headers.begin(); iter != headers.end(); ++iter)
+  for(const auto& header : headers)
   {
     // Only get the array if the name does NOT match those listed
-    IDataArray::Pointer p = m->getAttributeMatrix(getOutputCellFeatureAttributeMatrixName())->getAttributeArray(*iter);
+    IDataArray::Pointer p = m->getAttributeMatrix(getOutputCellFeatureAttributeMatrixName())->getAttributeArray(header);
     if(p->getNameOfClass().compare(neighborlistPtr->getNameOfClass()) != 0)
     {
       if(p->getNumberOfComponents() == 1)
       {
-        dStream << space << (*iter);
+        dStream << space << header;
       }
       else // There are more than a single component so we need to add multiple header values
       {
         for(int32_t k = 0; k < p->getNumberOfComponents(); ++k)
         {
-          dStream << space << (*iter) << "_" << k;
+          dStream << space << header << "_" << k;
         }
       }
       // Get the IDataArray from the DataContainer
@@ -3245,10 +3164,10 @@ void EstablishFoamMorphology::write_goal_attributes()
     // Print the feature id
     dStream << i;
     // Print a row of data
-    for(qint32 p = 0; p < data.size(); ++p)
+    for(const auto& d : data)
     {
       dStream << space;
-      data[p]->printTuple(dStream, i, space);
+      d->printTuple(dStream, i, space);
     }
     dStream << "\n";
   }
@@ -3261,18 +3180,11 @@ void EstablishFoamMorphology::form_struts()
 {
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getOutputCellAttributeMatrixPath().getDataContainerName());
 
-  // size_t totalPoints = m->getAttributeMatrix(m_OutputCellAttributeMatrixPath.getAttributeMatrixName())->getNumberOfTuples();
-
   SizeVec3Type udims = m->getGeometryAs<ImageGeom>()->getDimensions();
 
-  int64_t dims[3] = {
-      static_cast<int64_t>(udims[0]),
-      static_cast<int64_t>(udims[1]),
-      static_cast<int64_t>(udims[2]),
-  };
-
-  int64_t point = 0;
-  int64_t kstride = 0, jstride = 0;
+  size_t point = 0;
+  size_t kstride = 0;
+  size_t jstride = 0;
 
   float QPpoint = 0.0f;
   float TJpoint = 0.0f;
@@ -3281,13 +3193,13 @@ void EstablishFoamMorphology::form_struts()
   float TJGBpoint = 0.0f;
 
   // index into the flat array of points
-  for(int64_t k = 0; k < dims[2]; k++)
+  for(size_t k = 0; k < udims[2]; k++)
   {
-    kstride = dims[0] * dims[1] * k;
-    for(int64_t j = 0; j < dims[1]; j++)
+    kstride = udims[0] * udims[1] * k;
+    for(size_t j = 0; j < udims[1]; j++)
     {
-      jstride = dims[0] * j;
-      for(int64_t i = 0; i < dims[0]; i++)
+      jstride = udims[0] * j;
+      for(size_t i = 0; i < udims[0]; i++)
       {
         point = kstride + jstride + i;
         QPpoint = m_QPEuclideanDistances[point];
@@ -3357,8 +3269,8 @@ void EstablishFoamMorphology::find_euclideandistmap()
   neighbors[1] = -dims[0];
   neighbors[2] = -1;
   neighbors[3] = 1;
-  neighbors[4] = dims[0];
-  neighbors[5] = dims[0] * dims[1];
+  neighbors[4] = udims[0];
+  neighbors[5] = udims[0] * udims[1];
 
   int64_t xPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getXPoints());
   int64_t yPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getYPoints());
@@ -3403,9 +3315,9 @@ void EstablishFoamMorphology::find_euclideandistmap()
         if(good && m_FeatureIds[neighbor] != feature && m_FeatureIds[neighbor] >= 0)
         {
           add = true;
-          for(size_t i = 0; i < coordination.size(); i++)
+          for(const auto& coordinationValue : coordination)
           {
-            if(m_FeatureIds[neighbor] == coordination[i])
+            if(m_FeatureIds[neighbor] == coordinationValue)
             {
               add = false;
             }
@@ -3416,7 +3328,7 @@ void EstablishFoamMorphology::find_euclideandistmap()
           }
         }
       }
-      if(coordination.size() == 0)
+      if(coordination.empty())
       {
         m_NearestNeighbors[a * 3 + 0] = -1, m_NearestNeighbors[a * 3 + 1] = -1, m_NearestNeighbors[a * 3 + 2] = -1;
       }
@@ -3439,10 +3351,8 @@ void EstablishFoamMorphology::find_euclideandistmap()
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
   tbb::task_scheduler_init init;
   bool doParallel = true;
-#endif
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
-  if(doParallel == true)
+  if(doParallel)
   {
     tbb::task_group* g = new tbb::task_group;
     g->run(FindEuclideanMap2(m, m_FeatureIds, m_NearestNeighbors, m_GBEuclideanDistances, m_TJEuclideanDistances, m_QPEuclideanDistances, 0));
@@ -3491,7 +3401,7 @@ const QString EstablishFoamMorphology::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 const QString EstablishFoamMorphology::getBrandingString() const
 {
-	return "UUtahDMREF";
+  return "Univ. of Utah DMREF";
 }
 
 // -----------------------------------------------------------------------------
