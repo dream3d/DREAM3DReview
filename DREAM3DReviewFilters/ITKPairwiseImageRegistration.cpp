@@ -608,8 +608,8 @@ void ITKPairwiseImageRegistration::registerImagePair2D(DataContainerArray::Point
   else
   {
     ImageType::PointType itkfixedorigin;
-    itkfixedorigin[0] = m_FixedOrigin.x; 
-    itkfixedorigin[1] = m_FixedOrigin.y; 
+    itkfixedorigin[0] = m_FixedOrigin.x;
+    itkfixedorigin[1] = m_FixedOrigin.y;
     ImageType::PointType itkmovingorigin;
     itkmovingorigin[0] = m_MovingOrigin.x;
     itkmovingorigin[1] = m_MovingOrigin.y;

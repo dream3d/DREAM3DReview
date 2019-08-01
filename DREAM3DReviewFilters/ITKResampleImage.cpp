@@ -32,7 +32,6 @@
 //#include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
 //#include "SIMPLib/FilterParameters/AttributeMatrixCreationFilterParameter.h"
 //#include "SIMPLib/FilterParamters/DataArrayCreationFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
@@ -52,7 +51,7 @@
 #include "DREAM3DReview/DREAM3DReviewFilters/util/ITKTransformHelpers.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
-//enum createdPathID : RenameDataPath::DataID_t
+// enum createdPathID : RenameDataPath::DataID_t
 //{
 //  AttributeMatrixID21 = 21,
 //
@@ -223,7 +222,6 @@ int32_t ITKResampleImage::checkInputFileList(FileListInfo_t inputFileListInfo)
     ss = QObject::tr("The moving image input directory must be set");
     setErrorCondition(-64500);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
   }
 
   bool orderAscending = false;
@@ -266,7 +264,6 @@ int32_t ITKResampleImage::checkInputFileList(FileListInfo_t inputFileListInfo)
       QString errorMessage = QString("File does not exist: %1").arg(filePath);
       setErrorCondition(-64502);
       notifyErrorMessage(getHumanLabel(), errorMessage, getErrorCondition());
-
     }
   }
   if(getErrorCondition() < 0)
@@ -286,7 +283,6 @@ int32_t ITKResampleImage::checkInputFileList(FileListInfo_t inputFileListInfo)
                                "The 'ITKImageReader' Filter is needed to import the image");
       setErrorCondition(-1);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
     }
     AbstractFilter::Pointer itkImageReader = factory->create();
     DataContainerArray::Pointer dca = DataContainerArray::New();
@@ -378,7 +374,6 @@ void ITKResampleImage::dataCheck()
     {
       setErrorCondition(-64505);
       notifyErrorMessage(getHumanLabel(), "The number of images to transform and transform objects in the HDF5 file are required to be the same", getErrorCondition());
-
     }
   }
   else if(m_OperationMode == 2)
@@ -394,7 +389,6 @@ void ITKResampleImage::dataCheck()
     {
       setErrorCondition(-64506);
       notifyErrorMessage(getHumanLabel(), "The number of images to transform and transform objects in the HDF5 file are required to be the same", getErrorCondition());
-
     }
   }
 }
@@ -522,7 +516,7 @@ void ITKResampleImage::createCompatibleArrays()
   typename ToD3DType::Pointer movedD3D = ToD3DType::New();                                                                                                                                             \
   DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getDataContainerName());                                                                                                       \
   AttributeMatrix::Pointer am = dc->getAttributeMatrix(m_CellAttributeMatrixName);                                                                                                                     \
-  QVector<size_t> tdims = {size[0], size[1], 1};                                                                                                                                                   \
+  QVector<size_t> tdims = {size[0], size[1], 1};                                                                                                                                                       \
   am->setTupleDimensions(tdims);                                                                                                                                                                       \
   movedD3D->SetDataContainer(dc);                                                                                                                                                                      \
   movedD3D->SetDataArrayName(m_ImageDataArrayName.toStdString());                                                                                                                                      \
@@ -625,7 +619,6 @@ void ITKResampleImage::SeriesResampling()
                              "The 'ITKImageReader' Filter is needed to import the image");
     setErrorCondition(-1);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
   }
   if(factory2.get() == nullptr)
   {
@@ -633,7 +626,6 @@ void ITKResampleImage::SeriesResampling()
                              "The 'ITKImageWriter' Filter is needed to import the image");
     setErrorCondition(-1);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
   }
   AbstractFilter::Pointer itkImageReader = factory->create();
   AbstractFilter::Pointer itkImageWriter = factory2->create();
@@ -860,7 +852,6 @@ void ITKResampleImage::EBSDSeriesResampling()
                              "The 'ReadCtfData' Filter is needed to import EBSD data");
     setErrorCondition(-1);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
   }
   AbstractFilter::Pointer ctfReader = factory->create();
 
@@ -1002,8 +993,6 @@ void ITKResampleImage::execute()
     QString ss = QObject::tr("Some warning message");
     setWarningCondition(-88888888);
     notifyWarningMessage(getHumanLabel(), ss, getErrorCondition());
-
-
   }
 
   if(getErrorCondition() < 0)

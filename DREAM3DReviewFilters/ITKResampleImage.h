@@ -8,11 +8,11 @@
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/FilterParameters/FileListInfoFilterParameter.h"
+#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Geometry/TransformContainer.h"
 #include "SIMPLib/ITK/itkInPlaceDream3DDataToImageFilter.h"
 #include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 
 #include "DREAM3DReview/DREAM3DReviewFilters/util/ITKTransformHelpers.h"
 #include "DREAM3DReview/DREAM3DReviewPlugin.h"
