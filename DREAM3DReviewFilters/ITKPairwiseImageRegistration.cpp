@@ -272,7 +272,6 @@ QVector<QString> ITKPairwiseImageRegistration::getFileList(FileListInfo_t inputF
     orderAscending = false;
   }
 
-
   // Now generate all the file names the user is asking for and populate the table
   return FilePathGenerator::GenerateFileList(inputFileListInfo.StartIndex, inputFileListInfo.EndIndex, inputFileListInfo.IncrementIndex, hasMissingFiles, orderAscending, inputFileListInfo.InputPath,
                                              inputFileListInfo.FilePrefix, inputFileListInfo.FileSuffix, inputFileListInfo.FileExtension, inputFileListInfo.PaddingDigits);
@@ -289,7 +288,6 @@ int ITKPairwiseImageRegistration::checkInputFileList(FileListInfo_t inputFileLis
     ss = QObject::tr("The moving image input directory must be set");
     setErrorCondition(-64500);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
   }
 
   bool orderAscending = false;
@@ -404,7 +402,6 @@ void ITKPairwiseImageRegistration::dataCheck()
     QString ss = QObject::tr("The largest B-spline order is 3rd Order");
     setErrorCondition(-5555);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
   }
 
   if(m_MeshSize < m_BSplineOrder)
@@ -412,7 +409,6 @@ void ITKPairwiseImageRegistration::dataCheck()
     QString ss = QObject::tr("The mesh size cannot be smaller than the B-spline order");
     setErrorCondition(-5556);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
   }
 
   if(m_TransformType == 1)
@@ -422,7 +418,6 @@ void ITKPairwiseImageRegistration::dataCheck()
       QString ss = QObject::tr("The spacing must be the same for fixed and moving to initialize with FFT");
       setErrorCondition(-5557);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
     }
 
     if(m_InitializeRigidWithFFT && (m_ReqFracOverlapPxlsRigid > 1 || m_ReqFracOverlapPxlsRigid < 0))
@@ -430,7 +425,6 @@ void ITKPairwiseImageRegistration::dataCheck()
       QString ss = QObject::tr("The pixel fraction overlap must be between 0 and 1");
       setErrorCondition(-5559);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
     }
   }
 
@@ -441,7 +435,6 @@ void ITKPairwiseImageRegistration::dataCheck()
       QString ss = QObject::tr("The spacing must be the same for fixed and moving to initialize with FFT");
       setErrorCondition(-5558);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
     }
 
     if(m_InitializeAffineWithFFT && (m_ReqFracOverlapPxlsAffine > 1 || m_ReqFracOverlapPxlsAffine < 0))
@@ -449,7 +442,6 @@ void ITKPairwiseImageRegistration::dataCheck()
       QString ss = QObject::tr("The pixel fraction overlap must be between 0 and 1");
       setErrorCondition(-5559);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
     }
   }
 }
@@ -615,11 +607,19 @@ void ITKPairwiseImageRegistration::registerImagePair2D(DataContainerArray::Point
   }
   else
   {
-    ImageType::PointType itkfixedorigin = (m_FixedOrigin.x, m_FixedOrigin.y);
-    ImageType::PointType itkmovingorigin = (m_MovingOrigin.x, m_MovingOrigin.y);
+    ImageType::PointType itkfixedorigin;
+    itkfixedorigin[0] = m_FixedOrigin.x; 
+    itkfixedorigin[1] = m_FixedOrigin.y; 
+    ImageType::PointType itkmovingorigin;
+    itkmovingorigin[0] = m_MovingOrigin.x;
+    itkmovingorigin[1] = m_MovingOrigin.y;
 
-    ImageType::SpacingType itkfixedspacing = (m_FixedSpacing.x, m_FixedSpacing.y);
-    ImageType::SpacingType itkmovingspacing = (m_MovingSpacing.x, m_MovingSpacing.y);
+    ImageType::SpacingType itkfixedspacing;
+    itkfixedspacing[0] = m_FixedSpacing.x;
+    itkfixedspacing[1] = m_FixedSpacing.y;
+    ImageType::SpacingType itkmovingspacing;
+    itkmovingspacing[0] = m_MovingSpacing.x;
+    itkmovingspacing[1] = m_MovingSpacing.y;
 
     itkFixedImage->SetSpacing(itkfixedspacing);
     itkFixedImage->SetOrigin(itkfixedorigin);
@@ -918,7 +918,6 @@ void ITKPairwiseImageRegistration::SeriesPairRegistration()
                              "The 'ITKImageReader' Filter is needed to import the image");
     setErrorCondition(-1);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-
   }
   AbstractFilter::Pointer itkImageReader = factory->create();
 
