@@ -1077,7 +1077,7 @@ const QString ITKPairwiseImageRegistration::getFilterVersion() const
 // -----------------------------------------------------------------------------
 const QString ITKPairwiseImageRegistration::getGroupName() const
 {
-  return SIMPL::FilterGroups::Unsupported;
+  return SIMPL::FilterGroups::ReconstructionFilters;
 }
 
 // -----------------------------------------------------------------------------
@@ -1093,7 +1093,7 @@ const QString ITKPairwiseImageRegistration::getSubGroupName() const
 // -----------------------------------------------------------------------------
 const QString ITKPairwiseImageRegistration::getHumanLabel() const
 {
-  return "ITKPairwiseImageRegistration";
+  return "ITK::Pairwise Image Registration";
 }
 
 // -----------------------------------------------------------------------------

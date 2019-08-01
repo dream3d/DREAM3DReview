@@ -1,77 +1,72 @@
-Find Attribute Array Statistics 
+ITK Pairwise Image Registration 
 =============
 
 ## Group (Subgroup) ##
 
-DREAM3D Review (Statistics)
+DREAM3D Review (Registration)
 
 ## Description ##
 
-This **Filter** computes a variety of statistics for a given scalar array.  The currently available statistics are array length, minimum, maximum, (arithmetic) mean, median, standard deviation, and summation; any combination of these statistics may be computed by this **Filter**.  Any scalar array, of any primitive type, may be used as input.  The type of the output arrays depends on the kind of statistic computed:
+This **Filter** operates on a pair of images or a series of paired images. Specifically, it finds the transform that best aligns a *moving* image to a *fixed* image. This **Filter** uses [ITK's Image Registration Framework](https://itk.org/Doxygen/html/RegistrationPage.html), although only the options shown below are exposed to the user in this **Filter**. The user can select which transformation type, which evaluation metric and which optimizer to use. This **Filter** will output a transformation file in the HDF5 file format. The inputs need to be scalars on an **Image Geometry**. Currently, this filter only works on 2D images. 
 
-| Statistic | Primitive Type |
-|----------|-----------|
-| Length | signed 64-bit integer |
-| Minimum | same type as input |
-| Maximum | same type as input |
-| Mean | double |
-| Median | double |
-| Standard Deviation | double |
-| Summation | double |
-| Standardized | double |
+If the user selects *Single Pair of Images* for Operation Mode to find the transforms for, the images should be already be in the **Data Container Array** as **Attribute Arrays**, though they do not need to be in the same data container or have the same **Image Geometry**. If the user selects 'Series of Pairs', the user will have to point to the location of both the fixed and moving series of images. In this case, each fixed image must have a moving image counterpart. The images will be paired up by the order they appear in the list. 
 
-The user may optionally use a mask to specify points to be ignored when computing the statistics; only points where the supplied mask is _true_ will be considered when computing statistics.  Additionally, the user may select to have the statistics computed per **Feature** or **Ensemble** by supplying an Ids array.  For example, if the user opts to compute statistics per **Feature** and selects an array that has 10 unique **Feature** Ids, then this **Filter** will compute 10 sets of statistics (e.g., find the mean of the supplied array for each **Feature**, find the total number of points in each **Feature** (the length), etc.).  
+A *rigid* transform allows for rotation and translation only. An *affine* transform allows for rotation, translation, scaling and shearing. A *b-spline* transform breaks up the image into polynomial patches defined by the mesh size. The number of control points is the mesh size plus the order of the *b-spline* transform. More information about the *b-spline* transfomration can be found [here](https://itk.org/Doxygen/html/classitk_1_1BSplineTransform.html). 
 
-The input array may also be _standardized_, meaning that the array values will be adjusted such that they have a mean of 0 and unit variance.  This _Standardize Data_ option requires the selection of both the _Find Mean_ and _Find Standard Deviation_ options.  The standardized data will be saved as a new array object stored in the same **Attribute Matrix** as the input array.  Note that if the _Standardize Data_ option is selected, the mean and standard deviation values created by this **Filter** reflect the mean and standard deviation of the _original_ array; the new standardized array has a mean of 0 and unit variance.  The standardized array will be computed in double precision.  If the statistics are being computed per **Feature** or **Ensemble**, then the array values are standardized according to the mean and standard deviation _for each **Feature/Ensemble**_.  For example, if 5 unique **Features** were being analyzed and _Standardize Data_ was selected, then the array values for **Feature** 1 would be standardized according to the mean and standard deviation for **Feature** 1, then the array values for **Feature** 2 would be standardized according to the mean and standard deviation for **Feature** 2, and so on for the remaining **Features**.  
+The evaulation metric provides a measure of how similar the two images being registered to each other are. The options for the metric are Mattes Mutual Information, Mean Squares, or Normalized Cross Correlation.
 
-The user must select a destination **Attribute Matrix** in which the computed statistics will be stored.  If electing to _Compute Statistics Per Feature/Ensemble_, then a reasonable selection for this array is the **Feature/Ensemble** **Attribute Matrix** associated with the supplied **Feature/Ensemble** Ids.  However, the only requirement is that the number of columns in the selected destination **Attribute Matrix** match the number of **Features/Ensembles** specified by the supplied Id array.  This requirement is enforced at run time.  If computing statistics for the entire input array, then only one value is computed per statistic; therefore, the arrays produced only contain one value.  In this case, the destination **Attribute Matrix** should only contain 1 tuple.  If such a **Generic Attribute Matrix** does not exist, it [can be created](@ref createattributematrix).
+The optimizers available are LBFGS (Limited Memory Broyden, Fletcher, Goldfarb and Shannon minimization), Gradient Descent and Amoeba (Downhill Simplex). 
 
-Special operations occur for certain statistics if the supplied array is of type _bool_ (for example, a mask array produced [when thresholding](@ref multithresholdobjects)).  The length, minimum, maximum, median, and summation are computed as normal (although the resulting values may be platform dependent).  The mean and standard deviation for a boolean array will be true if there are more instances of true in the array than false.  If _Standardize Data_ is chosen for a boolean array, no actual modifications will be made to the input.  These operations for boolean inputs are chosen as a basic convention, and are not intended be representative of true boolean logic.
+This filter currently uses multi-resolution, but does not expose any options to the user to change the paramters. The multi-resolution method performs the registration at a coarse resolution first and then uses finer resolutions up to to original resolution intended to help with speed and accuracy. 
+
+The interpolation method for the registration is currently set to linear. This is only for the registration. The user is free to select linear or nearest-neighbor when actually resampling the data using the ITKResampleImage **Filter**.
+
+The transformation found by this filter is the inverse transformation. That is, for each point on the fixed image, the transformation indicates which moving image point to put in that location. If there isn't an exact moving point to put in that location, the value is determined by the type of interpolation selected. 
+
+The transformation file that is written out contains either one or multiple transforms depending on whether a single image or series of images were selected. Figure 1 shows an image in HDFView of the data structure of the transform file. The name of the file is at the very top. Underneath, groups are numbered starting at 0, which represent each pair of images that the registration was run for. If the user only selected 'Single Pair of Images', there would only be one group, titled '0'. Under each group, a number of paramters are stored in datasets. The datasets are described below. The information stored in the Transform HDF5 file is enough to resample an image using the ITKResampleImage **Filter**. 
+
+## Datasets in the Transform HDF5 file
+| Name | Type | Description |
+|------|------|-------------|
+| TransformFixedParameters | Double | The Fixed transform parameters |
+| TransformParameters | Double | The learned transform parameters | 
+| TransformType | String | The string of the transform type: either *rigid*, *affine*, or *b-spline* |  
+| fixedDirection | Double | The direction of the fixed image??  | 
+| fixedOrigin |  Double | The origin of the fixed image | 
+| fixedSize | Int64 | The size in pixels of the fixed image | 
+| fixedSpacing | Double | The resolution in length (determined by the user) of the fixed image | 
+
+
+
+![transformFileImage](Images/HDFViewTransformFile.png) 
+
+*Figure 1. An image in HDFView of the data structure of the transform file generated by this filter*
+
+
 
 ## Parameters ##
 
 | Name | Type | Description |
-|------|------|------|
-| Find Length | bool | Whether to compute the length of the input array |
-| Find Minimum | bool | Whether to compute the minimum of the input array |
-| Find Maximum | bool | Whether to compute the maximum of the input array |
-| Find Mean | bool | Whether to compute the arithmetic mean of the input array |
-| Find Median | bool | Whether to compute the median of the input array |
-| Find Standard Deviation | bool | Whether to compute the standard deviation of the input array |
-| Find Summation | bool | Whether to compute the summation of the input array |
-| Use Mask | bool | Whether to use a boolean mask array to ignore certain points flagged as _false_ from the statistics |
-| Compute Statistics Per Feature/Ensemble | bool | Whether the statistics should be computed on a **Feature/Ensemble** basis |
-| Standardize Data | bool | Whether the input array should be standardized to have mean of 0 and unit variance; _Find Mean_ and _Find Standard Deviation_ must be selected to use this option |
-
-## Required Geometry ##
-
-None
-
-## Required Objects ##
-
-| Kind | Default Name | Type | Component Dimensions | Description |
-|------|--------------|-------------|---------|-----|
-| Any **Attribute Array** | None | Any | (1) | Input **Attribute Array** for which to compute statistics |
-| **Attribute Array** | None | int32_t | (1) | Specifies to which **Feature/Ensemble** each point in the input **Attribute Array** belongs, if _Compute Statistics Per Feature/Ensemble_ is checked |
-| **Attribute Array** | Mask | bool | (1) | Specifies if the point is to be counted in the statistics, if _Use Mask_ is checked |
-| Destination **Attribute Matrix** | None | Any | N/A | **Attribute Matrix** in which to store the computed statistics |
-
-## Created Objects ##
-
-| Kind | Default Name | Type | Component Dimensions | Description |
-|------|--------------|-------------|---------|-----|
-| **Attribute Array** | Length | int64_t | (1) | Length of the input array, if _Find Length_ is checked |
-| **Attribute Array** | Minimum | same as input **Attribute Array** | (1) | Minimum of the input array, if _Find Minimum_ is checked |
-| **Attribute Array** | Maximum | same as input **Attribute Array** | (1) | Maximum of the input array, if _Find Maximum_ is checked |
-| **Attribute Array** | Mean | double | (1) | Arithmetic mean of the input array, if _Find Mean_ is checked |
-| **Attribute Array** | Median | double | (1) | Median of the input array, if _Find Median_ is checked |
-| **Attribute Array** | Standard Deviation | double | (1) | Standard deviation of the input array, if _Find Standard Deviation_ is checked |
-| **Attribute Array** | Summation | double | (1) | Summation of the input array, if _Find Summation_ is checked |
-| **Attribute Array** | Standardized | double | (1) | Standardized version of the input array, if _Standardize Data_ is checked |
-
+|------|------|-------------|
+| Operation Mode  | int | Whether to find the transform for a single pair of images or a series of images |
+| Transfomration Type | int | Whether to use a *rigid*, *affine*, or *b-spline* transform |
+| Evaluation Metric | int | Whether to use *Mattes Mutual Information*, *Mean Squares*, or *Normalized Cross Correlation* as the similarity metric when registering images|
+| Optimizer | int | Choose between *LBFGS*, *Amoeba*, or *Gradient Descent* for the optimizer | 
+| Origin/Resolution for Moving and Fixed are Different | bool | If the origin and resolution are the same, they will be set internally. Otherwise, the user must supply the origin and resolution values for each image| 
+| B-Spline Order | int | If the *b-spline* registration is chosen, the order of the *b-spline* must be chosen. The values can be either 0, 1, 2 or 3| 
+| Mesh Size | int | If the *b-spline* registration is chosen, the mesh size must be set to an integer value. This value is the same in each spatial dimension of the data array. The Mesh Size sets the number of control points. Control Points = Mesh Size + Spline Order| 
+| Gradient Convergence Tolerance | float | | 
+| Num Max Function Evaluations | int | | 
+| Num Iterations | int | | 
+| Learning Rate | float | This is only an option for the 'Gradient Descent' choice of Optimizer | 
+| Output Transform File | path | The path of the file that the transformation will be written to. It must have a '.hdf5' extension| 
+| Initialize Translation With FFT | bool | This option is only available for *rigid* and *affine* transformations. If selected, the translation initial conditions will be found using normalized cross correlation. | 
+| Required Fraction of Overlapping Pixels for FFT | float | This option is only available for *rigid* and *affine* transformations if 'Initialize Translation With FFT' is True. This value must be between 0 and 1, and represents the fraction of pixels that, at minimum, must overlap when finding the location of the best normalized cross correlation match for seeding initial conditions for translation. |  
+| Fixed Image | **Attribute Array** | If the 'Single Pair of Images' is selected as the Operation Mode, the user must supply the **Attribute Array** that contains the fixed image| 
+| Moving Image | **Attribute Array** | If the 'Series of Pairs' option is selected as the Operation Mode, the user must supply the **Attribute Array** that contains the moving image|
+| Fixed Image List | | | 
+| Moving Image List | | | 
 ## Example Pipelines ##
-
-
 
 ## License & Copyright ##
 

@@ -1,73 +1,47 @@
-Find Attribute Array Statistics 
+ITK Resample Image
 =============
 
 ## Group (Subgroup) ##
 
-DREAM3D Review (Statistics)
+DREAM3D Review (Registration)
 
 ## Description ##
 
-This **Filter** computes a variety of statistics for a given scalar array.  The currently available statistics are array length, minimum, maximum, (arithmetic) mean, median, standard deviation, and summation; any combination of these statistics may be computed by this **Filter**.  Any scalar array, of any primitive type, may be used as input.  The type of the output arrays depends on the kind of statistic computed:
+This **Filter** resamples a single data array, series of images, or series of CTF files according to a transformation file provided by the user. The transformation file is an .hdf5 file that contains information about the transformation. More information can be found [here](ITKPairwiseRegistration.md). The transformation file should contain the information about the type of transformation
 
-| Statistic | Primitive Type |
-|----------|-----------|
-| Length | signed 64-bit integer |
-| Minimum | same type as input |
-| Maximum | same type as input |
-| Mean | double |
-| Median | double |
-| Standard Deviation | double |
-| Summation | double |
-| Standardized | double |
+If the user selects 'Single Data Array' as the Opeartion Mode, the user will be required to set the moving image as an **Attribute Array** that has somehow been already read in using another filer. 
 
-The user may optionally use a mask to specify points to be ignored when computing the statistics; only points where the supplied mask is _true_ will be considered when computing statistics.  Additionally, the user may select to have the statistics computed per **Feature** or **Ensemble** by supplying an Ids array.  For example, if the user opts to compute statistics per **Feature** and selects an array that has 10 unique **Feature** Ids, then this **Filter** will compute 10 sets of statistics (e.g., find the mean of the supplied array for each **Feature**, find the total number of points in each **Feature** (the length), etc.).  
+If the user selects 'Series of Images' the user will have to point to a folder on their file system where the moving images are located and where the resampled images should be output to. The images must be somehow numerically ordered, but the user can select a subset of images by selecting the start and end index of the image numbering. The total number of images must equal the total number of transforms (number of HDF5 groups) in the transform HDF5 file specified by the user. 
 
-The input array may also be _standardized_, meaning that the array values will be adjusted such that they have a mean of 0 and unit variance.  This _Standardize Data_ option requires the selection of both the _Find Mean_ and _Find Standard Deviation_ options.  The standardized data will be saved as a new array object stored in the same **Attribute Matrix** as the input array.  Note that if the _Standardize Data_ option is selected, the mean and standard deviation values created by this **Filter** reflect the mean and standard deviation of the _original_ array; the new standardized array has a mean of 0 and unit variance.  The standardized array will be computed in double precision.  If the statistics are being computed per **Feature** or **Ensemble**, then the array values are standardized according to the mean and standard deviation _for each **Feature/Ensemble**_.  For example, if 5 unique **Features** were being analyzed and _Standardize Data_ was selected, then the array values for **Feature** 1 would be standardized according to the mean and standard deviation for **Feature** 1, then the array values for **Feature** 2 would be standardized according to the mean and standard deviation for **Feature** 2, and so on for the remaining **Features**.  
-
-The user must select a destination **Attribute Matrix** in which the computed statistics will be stored.  If electing to _Compute Statistics Per Feature/Ensemble_, then a reasonable selection for this array is the **Feature/Ensemble** **Attribute Matrix** associated with the supplied **Feature/Ensemble** Ids.  However, the only requirement is that the number of columns in the selected destination **Attribute Matrix** match the number of **Features/Ensembles** specified by the supplied Id array.  This requirement is enforced at run time.  If computing statistics for the entire input array, then only one value is computed per statistic; therefore, the arrays produced only contain one value.  In this case, the destination **Attribute Matrix** should only contain 1 tuple.  If such a **Generic Attribute Matrix** does not exist, it [can be created](@ref createattributematrix).
-
-Special operations occur for certain statistics if the supplied array is of type _bool_ (for example, a mask array produced [when thresholding](@ref multithresholdobjects)).  The length, minimum, maximum, median, and summation are computed as normal (although the resulting values may be platform dependent).  The mean and standard deviation for a boolean array will be true if there are more instances of true in the array than false.  If _Standardize Data_ is chosen for a boolean array, no actual modifications will be made to the input.  These operations for boolean inputs are chosen as a basic convention, and are not intended be representative of true boolean logic.
+If the user selects 'Series of CTFs' as the Operation mode, it will work similarly as above except instead of resampling images, the CTF files will be resampled and written out to the specified folder.
 
 ## Parameters ##
 
 | Name | Type | Description |
-|------|------|------|
-| Find Length | bool | Whether to compute the length of the input array |
-| Find Minimum | bool | Whether to compute the minimum of the input array |
-| Find Maximum | bool | Whether to compute the maximum of the input array |
-| Find Mean | bool | Whether to compute the arithmetic mean of the input array |
-| Find Median | bool | Whether to compute the median of the input array |
-| Find Standard Deviation | bool | Whether to compute the standard deviation of the input array |
-| Find Summation | bool | Whether to compute the summation of the input array |
-| Use Mask | bool | Whether to use a boolean mask array to ignore certain points flagged as _false_ from the statistics |
-| Compute Statistics Per Feature/Ensemble | bool | Whether the statistics should be computed on a **Feature/Ensemble** basis |
-| Standardize Data | bool | Whether the input array should be standardized to have mean of 0 and unit variance; _Find Mean_ and _Find Standard Deviation_ must be selected to use this option |
+|------|------|-------------|
+| Operation Mode  | int | Whether to resample a Single Data Array, a Series of Images, or a Series of CTF files|
+| Transform File Name | Path | Location of HDF5 Transform file that describes the transformation to apply | 
+| Interpolation Type | int | Choose either linear or or nearest-neighbor for the type of interpolation when resampling the image | 
+| Output Image File Name Prefix | string | Choose the prefix for the output file name if 'Series of Images' was selected | 
+| Output EBSD File Name Prefix | string | Chose the prefix for the output EBSD file name if 'Series of CTFs' was selected | 
+| Output Path for Resampled Images | Path | Choose the path for the output images if 'Series of Images' was selected | 
+| Output Path for Resampled Orientation Data | Path | Choose the path for the output images if 'Series of CTFs' was selected | 
 
-## Required Geometry ##
 
-None
-
-## Required Objects ##
-
+## Required Objects 
 | Kind | Default Name | Type | Component Dimensions | Description |
-|------|--------------|-------------|---------|-----|
-| Any **Attribute Array** | None | Any | (1) | Input **Attribute Array** for which to compute statistics |
-| **Attribute Array** | None | int32_t | (1) | Specifies to which **Feature/Ensemble** each point in the input **Attribute Array** belongs, if _Compute Statistics Per Feature/Ensemble_ is checked |
-| **Attribute Array** | Mask | bool | (1) | Specifies if the point is to be counted in the statistics, if _Use Mask_ is checked |
-| Destination **Attribute Matrix** | None | Any | N/A | **Attribute Matrix** in which to store the computed statistics |
+|------|--------------|------|----------------------|-------------|
+| Moving Image | |**Attribute Array** | Any | The **Attribute Array** to be resampled if 'Single Data Array' was selected | 
 
-## Created Objects ##
 
+## Created Objects 
 | Kind | Default Name | Type | Component Dimensions | Description |
-|------|--------------|-------------|---------|-----|
-| **Attribute Array** | Length | int64_t | (1) | Length of the input array, if _Find Length_ is checked |
-| **Attribute Array** | Minimum | same as input **Attribute Array** | (1) | Minimum of the input array, if _Find Minimum_ is checked |
-| **Attribute Array** | Maximum | same as input **Attribute Array** | (1) | Maximum of the input array, if _Find Maximum_ is checked |
-| **Attribute Array** | Mean | double | (1) | Arithmetic mean of the input array, if _Find Mean_ is checked |
-| **Attribute Array** | Median | double | (1) | Median of the input array, if _Find Median_ is checked |
-| **Attribute Array** | Standard Deviation | double | (1) | Standard deviation of the input array, if _Find Standard Deviation_ is checked |
-| **Attribute Array** | Summation | double | (1) | Summation of the input array, if _Find Summation_ is checked |
-| **Attribute Array** | Standardized | double | (1) | Standardized version of the input array, if _Standardize Data_ is checked |
+|------|--------------|------|----------------------|-------------|
+| Data Container | ResampledDataDC | **Data Container** | N/A | The newly created data container for the resampled image if 'Single Data Array' was selected | 
+| Cell Attribute Matrix | ResampledDataAM | **Attribute Matrix** | N/A | The newly created cell attribute matrix for the resampled image if 'Single Data Array' was selected| 
+| Image Data | ResampledData | **Attribute Array** | Same as Moving Image  | The resampled image data if 'Single Data Array' was selected| 
+
+ 
 
 ## Example Pipelines ##
 
