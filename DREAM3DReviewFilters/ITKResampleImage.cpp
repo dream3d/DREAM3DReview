@@ -127,7 +127,7 @@ void ITKResampleImage::setupFilterParameters()
     QVector<QString> choices;
     choices.push_back("Single Data Array");
     choices.push_back("Series of Images");
-    choices.push_back("Series of Orientation Files (.ctf or .ang)");
+    choices.push_back("Series of CTFs");
 
     parameter->setChoices(choices);
 
@@ -1065,7 +1065,7 @@ const QString ITKResampleImage::getFilterVersion() const
 // -----------------------------------------------------------------------------
 const QString ITKResampleImage::getGroupName() const
 {
-  return SIMPL::FilterGroups::Unsupported;
+  return SIMPL::FilterGroups::ReconstructionFilters;
 }
 
 // -----------------------------------------------------------------------------
@@ -1073,7 +1073,7 @@ const QString ITKResampleImage::getGroupName() const
 // -----------------------------------------------------------------------------
 const QString ITKResampleImage::getSubGroupName() const
 {
-  return "DREAM3DReview";
+  return DREAM3DReviewConstants::FilterSubGroups::RegistrationFilters;
 }
 
 // -----------------------------------------------------------------------------
@@ -1081,7 +1081,7 @@ const QString ITKResampleImage::getSubGroupName() const
 // -----------------------------------------------------------------------------
 const QString ITKResampleImage::getHumanLabel() const
 {
-  return "ITKResampleImage";
+  return "ITK::Resample Image";
 }
 
 // -----------------------------------------------------------------------------

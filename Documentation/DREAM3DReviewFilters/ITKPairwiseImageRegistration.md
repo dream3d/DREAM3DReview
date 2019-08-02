@@ -23,6 +23,8 @@ The interpolation method for the registration is currently set to linear. This i
 
 The transformation found by this filter is the inverse transformation. That is, for each point on the fixed image, the transformation indicates which moving image point to put in that location. If there isn't an exact moving point to put in that location, the value is determined by the type of interpolation selected. 
 
+The origin and resolution should be set in physical units (microns, mm, anything as long as it's consistent between the two images). If the origin and resolution are the same for the pair (or series of pairs) of images, the user can just leave the box unchecked, and the origin and resolution will be set internally consistent. The resolution is the same as the spacing (i.e. physical units per pixel). 
+
 The transformation file that is written out contains either one or multiple transforms depending on whether a single image or series of images were selected. Figure 1 shows an image in HDFView of the data structure of the transform file. The name of the file is at the very top. Underneath, groups are numbered starting at 0, which represent each pair of images that the registration was run for. If the user only selected 'Single Pair of Images', there would only be one group, titled '0'. Under each group, a number of paramters are stored in datasets. The datasets are described below. The information stored in the Transform HDF5 file is enough to resample an image using the ITKResampleImage **Filter**. 
 
 ## Datasets in the Transform HDF5 file
@@ -31,8 +33,8 @@ The transformation file that is written out contains either one or multiple tran
 | TransformFixedParameters | Double | The Fixed transform parameters |
 | TransformParameters | Double | The learned transform parameters | 
 | TransformType | String | The string of the transform type: either *rigid*, *affine*, or *b-spline* |  
-| fixedDirection | Double | The direction of the fixed image??  | 
-| fixedOrigin |  Double | The origin of the fixed image | 
+| fixedDirection | Double | The direction of the fixed image. More information [here](https://itk.org/Doxygen413/html/classitk_1_1ImageBase.html) | 
+| fixedOrigin |  Double |  The origin of the fixed image. More information [here](https://itk.org/Doxygen413/html/classitk_1_1ImageBase.html)  | 
 | fixedSize | Int64 | The size in pixels of the fixed image | 
 | fixedSpacing | Double | The resolution in length (determined by the user) of the fixed image | 
 

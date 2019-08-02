@@ -1,4 +1,4 @@
-ITK Resample Image
+ITK::Resample Image
 =============
 
 ## Group (Subgroup) ##
@@ -7,13 +7,15 @@ DREAM3D Review (Registration)
 
 ## Description ##
 
-This **Filter** resamples a single data array, series of images, or series of CTF files according to a transformation file provided by the user. The transformation file is an .hdf5 file that contains information about the transformation. More information can be found [here](ITKPairwiseRegistration.md). The transformation file should contain the information about the type of transformation
+This **Filter** resamples a single data array, series of images, or series of CTF files according to a transformation file provided by the user. The transformation file is an .hdf5 file that contains information about the transformation. More information can be found [here](ITKPairwiseRegistration.md). It is expected that the user will use this **Filter** after using the [ITK Pairwise Registration](ITKPairwiseRegistration.md) **Filter**, although it is possible for the user to construct the transformation hdf5 file elsewhere and use it in this **Filter**. The transformation file should contain the information about the type of transformation (either *rigid*, *affine* or *b-spline*), along with the fixed parameters (TransformFixedParamters) and learned parameters (TransformParameters). Additionally, the file should contain information about the fixed image direction, origin, size and spacing (resolution). 
 
 If the user selects 'Single Data Array' as the Opeartion Mode, the user will be required to set the moving image as an **Attribute Array** that has somehow been already read in using another filer. 
 
 If the user selects 'Series of Images' the user will have to point to a folder on their file system where the moving images are located and where the resampled images should be output to. The images must be somehow numerically ordered, but the user can select a subset of images by selecting the start and end index of the image numbering. The total number of images must equal the total number of transforms (number of HDF5 groups) in the transform HDF5 file specified by the user. 
 
-If the user selects 'Series of CTFs' as the Operation mode, it will work similarly as above except instead of resampling images, the CTF files will be resampled and written out to the specified folder.
+If the user selects 'Series of CTFs' as the Operation mode, it will work similarly as above except instead of resampling images, the CTF files will be resampled and written out to the specified folder. 
+
+The transformation used by this filter is the inverse transformation. That is, for each grid point on the fixed image, the transformation indicates which moving image point to put in that location. If there isn't an exact moving point to put in that location, the value is determined by the type of interpolation selected. The transformation Points in the new resampled image that require a pixel outside the original moving image domain will be set to a value of 0. 
 
 ## Parameters ##
 

@@ -158,13 +158,41 @@ void FindMaskNeighbors::preflight()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+bool FindMaskNeighbors::validNeighbor(int64_t dims[3], int64_t neighborhood[78], size_t index, int64_t x, int64_t y, int64_t z)
+{
+  int64_t modX = x + neighborhood[3 * index + 0];
+  int64_t modY = y + neighborhood[3 * index + 1];
+  int64_t modZ = z + neighborhood[3 * index + 2];
+
+  return (modX >= 0 && modX < dims[0]) && (modY >= 0 && modY < dims[1]) && (modZ >= 0 && modZ < dims[2]);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+bool FindMaskNeighbors::validNeighbor2D(int64_t dims[2], int64_t neighborhood[16], size_t index, int64_t x, int64_t y)
+{
+  int64_t modX = x + neighborhood[2 * index + 0];
+  int64_t modY = y + neighborhood[2 * index + 1];
+
+  return (modX >= 0 && modX < dims[0]) && (modY >= 0 && modY < dims[1]);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 void FindMaskNeighbors::find_surfacefeatures()
 {
+  int64_t neighborhood[78] = { 1,  0, 0,  -1, 0, 0, 0, 1, 0,  0, -1, 0, 0, 0,  1,  0, 0, -1, 1, 1, 0,  -1, 1,  0, 1, -1, 0,  -1, -1, 0, 1,  0, 1,  1,  0,  -1, -1, 0,  1,
+                            -1, 0, -1, 0,  1, 1, 0, 1, -1, 0, -1, 1, 0, -1, -1, 1, 1, 1,  1, 1, -1, 1,  -1, 1, 1, -1, -1, -1, 1,  1, -1, 1, -1, -1, -1, 1,  -1, -1, -1 };
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
 
   int64_t xPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getXPoints());
   int64_t yPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getYPoints());
   int64_t zPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getZPoints());
+
+  int64_t dims[3] = {xPoints, yPoints, zPoints};
+
 
   int64_t zStride = 0, yStride = 0;
   for(int64_t i = 0; i < zPoints; i++)
@@ -178,31 +206,21 @@ void FindMaskNeighbors::find_surfacefeatures()
         int32_t gnum = m_FeatureIds[zStride + yStride + k];
         if(!m_MaskNeighbors[gnum])
         {
-          if(!m_MaskNeighbors[gnum])
+          if (!m_Mask[yStride + k])
           {
-            if(m_Mask[zStride + yStride + k - 1])
+
+            std::vector<int> validNeighborIndicies;
+
+            for (size_t n = 0; n < 8; n++)
             {
-              m_MaskNeighbors[gnum] = true;
-            }
-            if(m_Mask[zStride + yStride + k + 1])
-            {
-              m_MaskNeighbors[gnum] = true;
-            }
-            if(m_Mask[zStride + yStride + k - xPoints])
-            {
-              m_MaskNeighbors[gnum] = true;
-            }
-            if(m_Mask[zStride + yStride + k + xPoints])
-            {
-              m_MaskNeighbors[gnum] = true;
-            }
-            if(m_Mask[zStride + yStride + k - (xPoints * yPoints)])
-            {
-              m_MaskNeighbors[gnum] = true;
-            }
-            if(m_Mask[zStride + yStride + k + (xPoints * yPoints)])
-            {
-              m_MaskNeighbors[gnum] = true;
+              if (validNeighbor(dims, neighborhood, n, k, j, i))
+              {
+                int64_t neighbor = ((j + neighborhood[2 * n + 1]) * dims[0]) + (k + neighborhood[2 * n + 0]);
+                if (m_Mask[neighbor])
+                {
+                  m_MaskNeighbors[gnum] = true;
+                }
+              }
             }
           }
         }
@@ -216,53 +234,61 @@ void FindMaskNeighbors::find_surfacefeatures()
 // -----------------------------------------------------------------------------
 void FindMaskNeighbors::find_surfacefeatures2D()
 {
+  int64_t neighborhood[16] = { 1, 0, -1, 0, 0, 1, 0, -1, 1, 1, -1, 1, 1, -1, -1, -1 };
+
+
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
 
   int64_t xPoints = 0, yPoints = 0;
 
-  if(m->getGeometryAs<ImageGeom>()->getXPoints() == 1)
+  if (m->getGeometryAs<ImageGeom>()->getXPoints() == 1)
   {
     xPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getYPoints());
     yPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getZPoints());
   }
-  if(m->getGeometryAs<ImageGeom>()->getYPoints() == 1)
+  if (m->getGeometryAs<ImageGeom>()->getYPoints() == 1)
   {
     xPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getXPoints());
     yPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getZPoints());
   }
-  if(m->getGeometryAs<ImageGeom>()->getZPoints() == 1)
+  if (m->getGeometryAs<ImageGeom>()->getZPoints() == 1)
   {
     xPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getXPoints());
     yPoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getYPoints());
   }
 
+  int64_t dims[2] = { xPoints, yPoints };
+
   int64_t yStride;
-  for(int64_t j = 0; j < yPoints; j++)
+  for (int64_t j = 0; j < yPoints; j++)
   {
     yStride = j * xPoints;
-    for(int64_t k = 0; k < xPoints; k++)
+    for (int64_t k = 0; k < xPoints; k++)
     {
       int32_t gnum = m_FeatureIds[yStride + k];
-      if(!m_MaskNeighbors[gnum])
+
+      if (gnum > 0)
       {
-        if(!m_MaskNeighbors[gnum])
+        if (!m_MaskNeighbors[gnum])
         {
-          if(m_Mask[yStride + k - 1])
+          if (!m_Mask[yStride + k])
           {
-            m_MaskNeighbors[gnum] = true;
+
+            std::vector<int> validNeighborIndicies;
+
+            for (size_t n = 0; n < 8; n++)
+            {
+              if (validNeighbor2D(dims, neighborhood, n, j, k))
+              {
+                int64_t neighbor = ((j + neighborhood[2 * n + 1]) * dims[0]) + (k + neighborhood[2 * n + 0]);
+                if (m_Mask[neighbor])
+                {
+                  m_MaskNeighbors[gnum] = true;
+                }
+              }
+            }
           }
-          if(m_Mask[yStride + k + 1])
-          {
-            m_MaskNeighbors[gnum] = true;
-          }
-          if(m_Mask[yStride + k - static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getXPoints())])
-          {
-            m_MaskNeighbors[gnum] = true;
-          }
-          if(m_Mask[yStride + k + static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getXPoints())])
-          {
-            m_MaskNeighbors[gnum] = true;
-          }
+
         }
       }
     }
@@ -346,7 +372,7 @@ const QString FindMaskNeighbors::getGroupName() const
 // -----------------------------------------------------------------------------
 const QUuid FindMaskNeighbors::getUuid()
 {
-  return QUuid("{d2b0ae3d-686a-5dc0-a844-66bc0dc8f3cb}");
+  return QUuid("{9dc209a4-c6d2-50d0-bcba-ce765aeb7d4f}");
 }
 
 // -----------------------------------------------------------------------------

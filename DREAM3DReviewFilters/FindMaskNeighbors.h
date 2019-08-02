@@ -177,10 +177,17 @@ protected:
    */
   void find_surfacefeatures2D();
 
+  bool validNeighbor2D(int64_t dims[2], int64_t neighborhood[16], size_t index, int64_t x, int64_t y);
+  bool validNeighbor(int64_t dims[3], int64_t neighborhood[78], size_t index, int64_t x, int64_t y, int64_t z);
+
+
+
 private:
   DEFINE_DATAARRAY_VARIABLE(int32_t, FeatureIds)
-  DEFINE_DATAARRAY_VARIABLE(bool, MaskNeighbors)
-  DEFINE_DATAARRAY_VARIABLE(bool, Mask)
+    DEFINE_DATAARRAY_VARIABLE(bool, MaskNeighbors)
+    DEFINE_DATAARRAY_VARIABLE(bool, Mask)
+
+    
 
 public:
   FindMaskNeighbors(const FindMaskNeighbors&) = delete;            // Copy Constructor Not Implemented

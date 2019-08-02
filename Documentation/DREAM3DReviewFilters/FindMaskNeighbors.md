@@ -7,7 +7,7 @@ DREAM3D Review (Spatial)
 
 ## Description ##
 
-This **Filter** determines whether a **Feature** touches a masked **Cell**, where the mask is supplied by the user. (FIXME) This is accomplished by simply querying the **Feature** owners of the **Cells** that sit at either. Any **Feature** that owns one of those **Cells** is said to touch an outer surface and all other **Features** are said to not touch an outer surface of the sample.
+This **Filter** determines whether a **Feature** touches a masked **Cell**, where the mask is supplied by the user. (FIXME) This is accomplished by simply querying the **Feature** owners of the **Cells** and determining if an adjacent cell is a masked cell. If so, the feature is flagged as a mask neighor.
 
 This **Filter** determines whether a **Feature** touches a masked **Cell**. A **Feature** is considered touching a masked **Cell** if the following condition is met:
 
