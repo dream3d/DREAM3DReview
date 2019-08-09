@@ -215,7 +215,7 @@ void FindMaskNeighbors::find_surfacefeatures()
             {
               if (validNeighbor(dims, neighborhood, n, k, j, i))
               {
-                int64_t neighbor = ((j + neighborhood[2 * n + 1]) * dims[0]) + (k + neighborhood[2 * n + 0]);
+                int64_t neighbor = ((i + neighborhood[3 * n + 2]) * dims[1] * dims[0]) + ((j + neighborhood[3 * n + 1]) * dims[0]) + (k + neighborhood[3 * n + 0]);
                 if (m_Mask[neighbor])
                 {
                   m_MaskNeighbors[gnum] = true;
