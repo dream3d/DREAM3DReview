@@ -753,7 +753,7 @@ void InsertTransformationPhases::insertTransformationPhases()
 
       FOrientArrayType quat(4);
       FOrientTransformsType::eu2qu(eOut, quat);
-      q2 = quat.toQuaternion();
+      q2 = quat.toQuaternion<float>();
 
       // define plate = user input fraction of eq dia centered at centroid
       // NOTE: we multiply by 0.5 because the transformation phase thickness will be established by

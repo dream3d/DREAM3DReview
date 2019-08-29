@@ -865,7 +865,7 @@ void TesselateFarFieldGrains::load_features()
         MatrixMath::Multiply3x3with3x3(epsT, eps, epsMult);
         MatrixMath::Add3x3s(eps, epsT, epsAdd);
         MatrixMath::Add3x3s(epsAdd, epsMult, flst);
-        MatrixMath::Multiply3x3withConstant(flst, 0.5);
+        MatrixMath::Multiply3x3withConstant(flst, 0.5f);
 
         m_ElasticStrains[9 * currentFeature + 0] = flst[0][0];
         m_ElasticStrains[9 * currentFeature + 1] = flst[0][1];

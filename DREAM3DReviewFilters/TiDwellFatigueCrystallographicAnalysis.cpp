@@ -899,7 +899,7 @@ float TiDwellFatigueCrystallographicAnalysis::find_angle(float g[3][3], float pl
   MatrixMath::Normalize3x1(v);
   if(v[2] < 0)
   {
-    MatrixMath::Multiply3x1withConstant(v, -1);
+    MatrixMath::Multiply3x1withConstant(v, -1.0f);
   }
   w = GeometryMath::CosThetaBetweenVectors(v, sampleLoading);
   w = acos(w);
