@@ -249,11 +249,11 @@ void AdaptiveAlignmentMisorientation::find_shifts(std::vector<int64_t>& xshifts,
   uint64_t slice = 0;
   float w = 0.0f;
   float n1 = 0.0f, n2 = 0.0f, n3 = 0.0f;
-  QuatF q1 = QuaternionMathF::New();
-  QuatF q2 = QuaternionMathF::New();
+  //  QuatF q1 = QuaternionMathF::New();
+  //  QuatF q2 = QuaternionMathF::New();
   uint64_t refposition = 0;
   uint64_t curposition = 0;
-  QuatF* quats = reinterpret_cast<QuatF*>(m_Quats);
+  // QuatF* quats = reinterpret_cast<QuatF*>(m_Quats);
 
   uint32_t phase1 = 0, phase2 = 0;
   uint64_t progInt = 0;
@@ -314,9 +314,9 @@ void AdaptiveAlignmentMisorientation::find_shifts(std::vector<int64_t>& xshifts,
                     w = std::numeric_limits<float>::max();
                     if(m_CellPhases[refposition] > 0 && m_CellPhases[curposition] > 0)
                     {
-                      QuaternionMathF::Copy(quats[refposition], q1);
+                      QuatF q1(m_Quats + refposition * 4);
                       phase1 = m_CrystalStructures[m_CellPhases[refposition]];
-                      QuaternionMathF::Copy(quats[curposition], q2);
+                      QuatF q2(m_Quats + curposition * 4);
                       phase2 = m_CrystalStructures[m_CellPhases[curposition]];
                       if(phase1 == phase2 && phase1 < static_cast<uint32_t>(m_OrientationOps.size()))
                       {
