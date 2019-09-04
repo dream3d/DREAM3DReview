@@ -173,7 +173,7 @@ public:
 
               OrientationTransformation::qu2ax<QuatType, OrientationD>(s2_misq).toAxisAngle(n1, n2, n3, w);
               w = w * 180.0 / SIMPLib::Constants::k_Pi;
-              axisdiffCSL = std::acosf(fabs(n1) * cslAxisNorm[0] + std::fabs(n2) * cslAxisNorm[1] + std::fabs(n3) * cslAxisNorm[2]);
+              axisdiffCSL = std::acos(std::fabs(n1) * cslAxisNorm[0] + std::fabs(n2) * cslAxisNorm[1] + std::fabs(n3) * cslAxisNorm[2]);
               angdiffCSL = std::fabs(w - TransformationPhaseConstants::CSLAxisAngle[m_CSLIndex][1]);
               if(axisdiffCSL < m_AxisTol && angdiffCSL < m_AngTol)
               {
@@ -181,7 +181,7 @@ public:
                 n[1] = n2;
                 n[2] = n3;
                 m_CSLBoundary[i] = true;
-                incoherence = 180.0 * acos(GeometryMath::CosThetaBetweenVectors(n, s_xstl_norm.data())) / SIMPLib::Constants::k_Pi;
+                incoherence = 180.0 * std::acos(GeometryMath::CosThetaBetweenVectors(n, s_xstl_norm.data())) / SIMPLib::Constants::k_Pi;
                 if(incoherence > 90.0)
                 {
                   incoherence = 180.0 - incoherence;
