@@ -638,8 +638,6 @@ void InsertTransformationPhases::insertTransformationPhases()
   {
     if(m_FeaturePhases[curFeature] == m_ParentPhase)
     {
-      QuatF* avgQuats = reinterpret_cast<QuatF*>(m_AvgQuats);
-
       // set the grain Id to the parent Id for if/when the features get uniquely renumbered
       m_FeatureParentIds[curFeature] = static_cast<int32_t>(curFeature);
 
