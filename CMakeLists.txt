@@ -38,7 +38,7 @@ include(${SIMPLProj_SOURCE_DIR}/Source/SIMPLib/SIMPLibMacros.cmake)
 # SIMPL Itself has ITK (at least it should if we are doing this) which means by
 # this point ITK is actually found. So let's add some additional Modules that are
 # going to be needed.
-
+get_property(ITK_VERSION_MAJOR GLOBAL PROPERTY ITK_VERSION_MAJOR)
 if(ITK_VERSION_MAJOR EQUAL 4)
   # Put ITK 4 Specific Modules in here
   set_property(GLOBAL PROPERTY ADDITIONAL_ITK_MODULES ""
@@ -46,10 +46,7 @@ if(ITK_VERSION_MAJOR EQUAL 4)
 elseif(ITK_VERSION_MAJOR EQUAL 5)
   # Put ITK 5 Specific Modules in here
   set_property(GLOBAL PROPERTY ADDITIONAL_ITK_MODULES 	
-                          ITKOptimizersv4
-                          ITKMetricsv4
-                          ITKRegistrationMethodsv4
-                          ITKIOTransformBase
+                ITKTransform
   )
 endif()
 
