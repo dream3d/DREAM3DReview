@@ -49,7 +49,9 @@
 #include "SIMPLib/Geometry/IGeometry3D.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
 
-#include "OrientationLib/OrientationMath/OrientationTransforms.hpp"
+#include "OrientationLib/Core/Orientation.hpp"
+#include "OrientationLib/Core/OrientationTransformation.hpp"
+#include "OrientationLib/Core/Quaternion.hpp"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -228,8 +230,7 @@ void ApplyTransformationToGeometry::dataCheck()
   case 3: // Rotation via axis-angle
   {
     float rotAngle = m_RotationAngle * SIMPLib::Constants::k_Pi / 180.0;
-    FOrientArrayType om(9);
-    FOrientTransformsType::ax2om(FOrientArrayType(m_RotationAxis[0], m_RotationAxis[1], m_RotationAxis[2], rotAngle), om);
+    OrientationF om = OrientationTransformation::ax2om<OrientationF, OrientationF>(OrientationF(m_RotationAxis[0], m_RotationAxis[1], m_RotationAxis[2], rotAngle));
 
     m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
     m_TransformationReference->initializeWithZeros();
@@ -339,7 +340,7 @@ void ApplyTransformationToGeometry::applyTransformation()
     return;
   }
 
-  typedef Eigen::Matrix<float, 4, 4, Eigen::RowMajor> ProjectiveMatrix;
+  using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
   Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
 
   int64_t progIncrement = numVertices / 100;

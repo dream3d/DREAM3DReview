@@ -39,13 +39,6 @@
 #include <algorithm>
 #include <fstream>
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
-#include <tbb/blocked_range3d.h>
-#include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
-#include <tbb/task_scheduler_init.h>
-#endif
-
 
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/CoreFilters/DataContainerWriter.h"
@@ -66,8 +59,17 @@
 #include "SIMPLib/Utilities/FilePathGenerator.h"
 #include "SIMPLib/Utilities/TimeUtilities.h"
 
-#include "OrientationLib/OrientationMath/OrientationMath.h"
-#include "OrientationLib/OrientationMath/OrientationTransforms.hpp"
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+#include <tbb/blocked_range3d.h>
+#include <tbb/parallel_for.h>
+#include <tbb/partitioner.h>
+#include <tbb/task_scheduler_init.h>
+#endif
+
+#include "OrientationLib/Core/Orientation.hpp"
+#include "OrientationLib/Core/OrientationMath.h"
+#include "OrientationLib/Core/OrientationTransformation.hpp"
+#include "OrientationLib/Core/Quaternion.hpp"
 
 #include "EbsdLib/EbsdConstants.h"
 
@@ -851,8 +853,8 @@ void TesselateFarFieldGrains::load_features()
 
         m_FeaturePhases[currentFeature] = phase;
 
-        FOrientArrayType eu(m_FeatureEulerAngles + (3 * i), 3);
-        FOrientTransformsType::om2eu(FOrientArrayType(mat), eu);
+        OrientationF eu(m_FeatureEulerAngles + (3 * i), 3);
+        eu = OrientationTransformation::om2eu<OrientationF, OrientationF>(OrientationF(mat));
 
         alpha *= SIMPLib::Constants::k_PiOver180;
         beta *= SIMPLib::Constants::k_PiOver180;
@@ -865,7 +867,7 @@ void TesselateFarFieldGrains::load_features()
         MatrixMath::Multiply3x3with3x3(epsT, eps, epsMult);
         MatrixMath::Add3x3s(eps, epsT, epsAdd);
         MatrixMath::Add3x3s(epsAdd, epsMult, flst);
-        MatrixMath::Multiply3x3withConstant(flst, 0.5);
+        MatrixMath::Multiply3x3withConstant(flst, 0.5f);
 
         m_ElasticStrains[9 * currentFeature + 0] = flst[0][0];
         m_ElasticStrains[9 * currentFeature + 1] = flst[0][1];
@@ -933,7 +935,6 @@ void TesselateFarFieldGrains::assign_voxels()
   uint64_t millis = QDateTime::currentMSecsSinceEpoch();
   uint64_t currentMillis = millis;
 
-  FOrientArrayType om(9, 0.0);
   int64_t totalFeatures = m->getAttributeMatrix(m_OutputCellFeatureAttributeMatrixName)->getNumberOfTuples();
   for(int64_t i = 1; i < totalFeatures; i++)
   {
@@ -972,9 +973,7 @@ void TesselateFarFieldGrains::assign_voxels()
     float radcur2 = (radcur1 * bovera);
     float radcur3 = (radcur1 * covera);
     float ga[3][3];
-    FOrientArrayType om(9, 0.0);
-    FOrientTransformsType::eu2om(FOrientArrayType(&(m_AxisEulerAngles[3 * i]), 3), om);
-    om.toGMatrix(ga);
+    OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(&(m_AxisEulerAngles[3 * i]), 3)).toGMatrix(ga);
     column = static_cast<int64_t>(xc / spacing[0]);
     row = static_cast<int64_t>(yc / spacing[1]);
     plane = static_cast<int64_t>(zc / spacing[2]);

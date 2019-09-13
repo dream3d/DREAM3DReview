@@ -26,8 +26,11 @@
 #include "SIMPLib/Geometry/EdgeGeom.h"
 #include "SIMPLib/Geometry/TriangleGeom.h"
 #include "SIMPLib/Math/GeometryMath.h"
+#include "SIMPLib/Math/MatrixMath.h"
 
-#include "OrientationLib/OrientationMath/OrientationTransforms.hpp"
+#include "OrientationLib/Core/Orientation.hpp"
+#include "OrientationLib/Core/OrientationTransformation.hpp"
+#include "OrientationLib/Core/Quaternion.hpp"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -304,9 +307,7 @@ void SliceTriangleGeometry::rotateVertices(unsigned int direction, float* n, int
     crossDirection[1] = -m_SliceDirection[0];
     crossDirection[2] = 0;
     MatrixMath::Normalize3x1(crossDirection);
-    FOrientArrayType om(9);
-    FOrientTransformsType::ax2om(FOrientArrayType(crossDirection[0], crossDirection[1], crossDirection[2], angle), om);
-    om.toGMatrix(rotMat);
+    OrientationTransformation::ax2om<OrientationF, OrientationF>(OrientationF(crossDirection[0], crossDirection[1], crossDirection[2], angle)).toGMatrix(rotMat);
 
     if (direction == rotBackward)
     {

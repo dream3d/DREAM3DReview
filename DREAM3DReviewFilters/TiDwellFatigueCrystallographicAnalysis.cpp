@@ -58,9 +58,9 @@
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 #include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 
+#include "OrientationLib/Core/Orientation.hpp"
+#include "OrientationLib/Core/OrientationTransformation.hpp"
 #include "OrientationLib/LaueOps/LaueOps.h"
-#include "OrientationLib/OrientationMath/OrientationArray.hpp"
-#include "OrientationLib/OrientationMath/OrientationTransforms.hpp"
 
 #include "Plugins/Statistics/StatisticsFilters/FindNeighbors.h"
 
@@ -723,9 +723,7 @@ bool TiDwellFatigueCrystallographicAnalysis::determine_hardfeatures(int index)
     hardfeaturePlaneNormal[j][2] = hardfeaturePlane[j][3] * m_OneOverC;
   }
 
-  FOrientArrayType om(9, 0.0);
-  FOrientTransformsType::eu2om(FOrientArrayType(&(m_FeatureEulerAngles[3 * index + 0]), 3), om);
-  om.toGMatrix(g);
+  OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(m_FeatureEulerAngles + 3 * index, 3)).toGMatrix(g);
   if(m_FeaturePhases[index] == m_MTRPhase)
   {
     for(int j = 0; j < 12; ++j)
@@ -754,9 +752,7 @@ void TiDwellFatigueCrystallographicAnalysis::determine_initiators(int index)
 
   if(m_FeaturePhases[index] == m_AlphaGlobPhase)
   {
-    FOrientArrayType om(9, 0.0);
-    FOrientTransformsType::eu2om(FOrientArrayType(&(m_FeatureEulerAngles[3 * index + 0]), 3), om);
-    om.toGMatrix(g);
+    OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(m_FeatureEulerAngles + 3 * index, 3)).toGMatrix(g);
 
     w = find_angle(g, caxis[0], caxis[1], caxis[2]);
     if(w >= m_InitiatorLowerThreshold && w <= m_InitiatorUpperThreshold)
@@ -779,9 +775,7 @@ void TiDwellFatigueCrystallographicAnalysis::determine_softfeatures(int index)
 
   if(m_FeaturePhases[index] == m_MTRPhase)
   {
-    FOrientArrayType om(9, 0.0);
-    FOrientTransformsType::eu2om(FOrientArrayType(&(m_FeatureEulerAngles[3 * index + 0]), 3), om);
-    om.toGMatrix(g);
+    OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(m_FeatureEulerAngles + 3 * index, 3)).toGMatrix(g);
 
     w = find_angle(g, caxis[0], caxis[1], caxis[2]);
     if(w >= m_SoftFeatureLowerThreshold && w <= m_SoftFeatureUpperThreshold)
@@ -899,7 +893,7 @@ float TiDwellFatigueCrystallographicAnalysis::find_angle(float g[3][3], float pl
   MatrixMath::Normalize3x1(v);
   if(v[2] < 0)
   {
-    MatrixMath::Multiply3x1withConstant(v, -1);
+    MatrixMath::Multiply3x1withConstant(v, -1.0f);
   }
   w = GeometryMath::CosThetaBetweenVectors(v, sampleLoading);
   w = acos(w);

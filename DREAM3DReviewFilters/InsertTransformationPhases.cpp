@@ -59,9 +59,9 @@
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Math/SIMPLibRandom.h"
 
+#include "OrientationLib/Core/Orientation.hpp"
 #include "OrientationLib/LaueOps/LaueOps.h"
-#include "OrientationLib/OrientationMath/OrientationArray.hpp"
-#include "OrientationLib/OrientationMath/OrientationTransforms.hpp"
+
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -638,8 +638,6 @@ void InsertTransformationPhases::insertTransformationPhases()
   {
     if(m_FeaturePhases[curFeature] == m_ParentPhase)
     {
-      QuatF* avgQuats = reinterpret_cast<QuatF*>(m_AvgQuats);
-
       // set the grain Id to the parent Id for if/when the features get uniquely renumbered
       m_FeatureParentIds[curFeature] = static_cast<int32_t>(curFeature);
 
@@ -703,10 +701,8 @@ void InsertTransformationPhases::insertTransformationPhases()
         }
       }
       // find where the habit plane points
-      QuaternionMathF::Copy(avgQuats[curFeature], q1);
-      FOrientArrayType om(9);
-      FOrientTransformsType::qu2om(FOrientArrayType(q1), om);
-      om.toGMatrix(g);
+      QuatF q1(m_AvgQuats + curFeature * 4);
+      OrientationTransformation::qu2om<QuatF, OrientationF>(q1).toGMatrix(g);
       MatrixMath::Transpose3x3(g, gT);
       MatrixMath::Multiply3x3with3x1(gT, crystalHabitPlane, sampleHabitPlane);
 
@@ -721,8 +717,7 @@ void InsertTransformationPhases::insertTransformationPhases()
       //    rotMat[2][2]=0;
 
       // generate transformation phase orientation with a user-defined rotation about the habit plane
-      FOrientTransformsType::ax2om(FOrientArrayType(crystalHabitPlane[0], crystalHabitPlane[1], crystalHabitPlane[2], sig3), om);
-      om.toGMatrix(rotMat);
+      OrientationTransformation::ax2om<OrientationF, OrientationF>(OrientationF(crystalHabitPlane[0], crystalHabitPlane[1], crystalHabitPlane[2], sig3)).toGMatrix(rotMat);
       MatrixMath::Multiply3x3with3x3(rotMat, g, newMat);
 
       // find the minimum angle
@@ -748,12 +743,9 @@ void InsertTransformationPhases::insertTransformationPhases()
       // assign our symmetry matrix to that which produced the minimum angle
       orientOps->getMatSymOp(minPos, symMat);
       MatrixMath::Multiply3x3with3x3(symMat, newMatCopy, newMat);
-      FOrientArrayType eOut(e, 3);
-      FOrientTransformsType::om2eu(FOrientArrayType(newMat), eOut);
+      OrientationF eOut = OrientationTransformation::om2eu<OrientationF, OrientationF>(OrientationF(symMat));
 
-      FOrientArrayType quat(4);
-      FOrientTransformsType::eu2qu(eOut, quat);
-      q2 = quat.toQuaternion();
+      QuatF q2 = OrientationTransformation::eu2qu<OrientationF, QuatF>(eOut);
 
       // define plate = user input fraction of eq dia centered at centroid
       // NOTE: we multiply by 0.5 because the transformation phase thickness will be established by
@@ -1066,7 +1058,7 @@ size_t InsertTransformationPhases::transferAttributes(size_t totalFeatures, Quat
   m_AvgQuats[4 * totalFeatures + 0] = q[0];
   m_AvgQuats[4 * totalFeatures + 1] = q[1];
   m_AvgQuats[4 * totalFeatures + 2] = q[2];
-  m_AvgQuats[4 * totalFeatures + 3] = q.w;
+  m_AvgQuats[4 * totalFeatures + 3] = q[3];
   m_Centroids[3 * totalFeatures + 0] = 1.0f;
   m_Centroids[3 * totalFeatures + 1] = 2.0f;
   m_Centroids[3 * totalFeatures + 2] = 3.0f;
