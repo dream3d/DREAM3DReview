@@ -45,7 +45,10 @@
 #include "SIMPLib/StatsData/PrecipitateStatsData.h"
 #include "SIMPLib/Utilities/TimeUtilities.h"
 
-#include "OrientationLib/OrientationMath/OrientationTransforms.hpp"
+#include "OrientationLib/Core/Orientation.hpp"
+#include "OrientationLib/Core/OrientationTransformation.hpp"
+#include "OrientationLib/Core/Quaternion.hpp"
+#include "OrientationLib/LaueOps/OrthoRhombicOps.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -1803,7 +1806,7 @@ void EstablishFoamMorphology::generate_feature(int32_t phase, Feature_t* feature
       break;
     }
   }
-  FOrientArrayType eulers = m_OrthoOps->determineEulerAngles(m_Seed, bin);
+  OrientationD eulers = m_OrthoOps->determineEulerAngles(m_Seed, bin);
   VectorOfFloatArray omega3 = pp->getFeatureSize_Omegas();
   float mf = omega3[0]->getValue(diameter);
   float s = omega3[1]->getValue(diameter);
@@ -2477,8 +2480,8 @@ void EstablishFoamMorphology::insert_feature(size_t gnum)
   float PHI = m_AxisEulerAngles[3 * gnum + 1];
   float phi2 = m_AxisEulerAngles[3 * gnum + 2];
   float ga[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  FOrientArrayType om(9, 0.0);
-  FOrientTransformsType::eu2om(FOrientArrayType(phi1, PHI, phi2), om);
+  OrientationF om(9, 0.0);
+  OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(phi1, PHI, phi2)).toGMatrix(ga);
   om.toGMatrix(ga);
 
   xc = m_Centroids[3 * gnum];
@@ -2644,8 +2647,8 @@ void EstablishFoamMorphology::assign_voxels()
     float PHI = m_AxisEulerAngles[3 * i + 1];
     float phi2 = m_AxisEulerAngles[3 * i + 2];
     float ga[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-    FOrientArrayType om(9, 0.0);
-    FOrientTransformsType::eu2om(FOrientArrayType(phi1, PHI, phi2), om);
+    OrientationF om(9, 0.0);
+    OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(phi1, PHI, phi2)).toGMatrix(ga);
     om.toGMatrix(ga);
     column = static_cast<int64_t>(xc / res[0]);
     row = static_cast<int64_t>(yc / res[1]);
