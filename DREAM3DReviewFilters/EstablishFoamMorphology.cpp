@@ -20,20 +20,15 @@
 #include <QtCore/QFileInfo>
 
 #include "SIMPLib/Common/Constants.h"
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Common/ShapeType.h"
 #include "SIMPLib/DataArrays/IDataArray.h"
 #include "SIMPLib/DataArrays/NeighborList.hpp"
 #include "SIMPLib/DataContainers/DataContainer.h"
-//#include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
-//#include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DoubleFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
-//#include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
-//#include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
@@ -103,7 +98,7 @@ public:
     size_t changed = 1;
     size_t neighpoint = 0;
     int64_t nearestneighbor;
-    int64_t neighbors[6] = {0, 0, 0, 0, 0, 0};
+    std::array<int64_t, 6> neighbors = {0, 0, 0, 0, 0, 0};
     int64_t xpoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getXPoints());
     int64_t ypoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getYPoints());
     int64_t zpoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getZPoints());
@@ -156,8 +151,9 @@ public:
     changed = 1;
     int64_t i = 0;
     int64_t zBlock = xpoints * ypoints;
-    int64_t zStride = 0, yStride = 0;
-    char mask[6] = {0, 0, 0, 0, 0, 0};
+    int64_t zStride = 0;
+    int64_t yStride = 0;
+    std::array<char, 6> mask = {0, 0, 0, 0, 0, 0};
     while(count > 0 && changed > 0)
     {
       count = 0;
@@ -230,7 +226,12 @@ public:
         }
       }
     }
-    double x1 = 0.0, x2 = 0.0, y1 = 0.0, y2 = 0.0, z1 = 0.0, z2 = 0.0;
+    double x1 = 0.0;
+    double x2 = 0.0;
+    double y1 = 0.0;
+    double y2 = 0.0;
+    double z1 = 0.0;
+    double z2 = 0.0;
     double dist = 0.0;
     double oneOverzBlock = 1.0 / double(zBlock);
     double oneOverxpoints = 1.0 / double(xpoints);
@@ -293,7 +294,7 @@ class FoamAssignVoxelsGapsImpl
   float xc = 0.0f;
   float yc = 0.0f;
   float zc = 0.0f;
-  int32_t* m_FeatureIds = nullptr;
+  // int32_t* m_FeatureIds = nullptr;
   ShapeOps* m_ShapeOps = nullptr;
 
   Int32ArrayType::Pointer m_NewOwnersPtr;
@@ -303,7 +304,6 @@ public:
   FoamAssignVoxelsGapsImpl(SizeVec3Type& dimensions, FloatVec3Type& resolution, int32_t* featureIds, const float* radCur, const float* xx, ShapeOps* shapeOps, float gA[3][3], const float* size,
                            int32_t cur_feature, const Int32ArrayType::Pointer& newowners, const FloatArrayType::Pointer& ellipfuncs)
   : curFeature(cur_feature)
-  , m_FeatureIds(featureIds)
   , m_ShapeOps(shapeOps)
   {
     m_UDims[0] = dimensions[0];
@@ -347,9 +347,9 @@ public:
     int64_t row = 0;
     int64_t plane = 0;
     int64_t index = 0;
-    float coords[3] = {0.0f, 0.0f, 0.0f};
+    std::array<float, 3> coords = {0.0f, 0.0f, 0.0f};
     float inside = 0.0f;
-    float coordsRotated[3] = {0.0f, 0.0f, 0.0f};
+    std::array<float, 3> coordsRotated = {0.0f, 0.0f, 0.0f};
     int32_t* newowners = m_NewOwnersPtr->getPointer(0);
     float* ellipfuncs = mEllipFuncsPtr->getPointer(0);
 
@@ -401,7 +401,7 @@ public:
           coords[0] = coords[0] - xc;
           coords[1] = coords[1] - yc;
           coords[2] = coords[2] - zc;
-          MatrixMath::Multiply3x3with3x1(ga, coords, coordsRotated);
+          MatrixMath::Multiply3x3with3x1(ga, coords.data(), coordsRotated.data());
           float axis1comp = coordsRotated[0] * m_Invradcur[0];
           float axis2comp = coordsRotated[1] * m_Invradcur[1];
           float axis3comp = coordsRotated[2] * m_Invradcur[2];
@@ -816,7 +816,7 @@ void EstablishFoamMorphology::dataCheck()
   tempPath = getOutputCellAttributeMatrixPath();
   tempPath.setAttributeMatrixName(getOutputCellEnsembleAttributeMatrixName());
   tempPath.setDataArrayName(SIMPL::EnsembleData::PhaseName);
-  m_PhaseNamesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<StringDataArray, AbstractFilter, QString>(this, tempPath, 0,
+  m_PhaseNamesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<StringDataArray, AbstractFilter, QString>(this, tempPath, nullptr,
                                                                                                                     cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
 
   tempPath.update(getOutputCellAttributeMatrixPath().getDataContainerName(), getOutputCellAttributeMatrixPath().getAttributeMatrixName(), m_GBEuclideanDistancesArrayName);
@@ -1056,7 +1056,8 @@ void EstablishFoamMorphology::execute()
   }
 
   size_t totalPoints = m_FeatureIdsPtr.lock()->getNumberOfTuples();
-  int32_t featurename = 0, feature = 0;
+  int32_t featurename = 0;
+  int32_t feature = 0;
   for(size_t i = 0; i < totalPoints; i++)
   {
     featurename = m_FeatureIds[i];
@@ -1155,8 +1156,12 @@ void EstablishFoamMorphology::place_features(const Int32ArrayType::Pointer& feat
   float change = 0.0f;
   int32_t phase = 0;
   int32_t randomfeature = 0;
-  float xc = 0.0f, yc = 0.0f, zc = 0.0f;
-  float oldxc = 0.0f, oldyc = 0.0f, oldzc = 0.0f;
+  float xc = 0.0f;
+  float yc = 0.0f;
+  float zc = 0.0f;
+  float oldxc = 0.0f;
+  float oldyc = 0.0f;
+  float oldzc = 0.0f;
   m_OldFillingError = 0.0f;
   //	m_CurrentNeighborhoodError = 0.0f, m_OldNeighborhoodError = 0.0f;
   //	m_CurrentSizeDistError = 0.0f, m_OldSizeDistError = 0.0f;
@@ -1321,7 +1326,9 @@ void EstablishFoamMorphology::place_features(const Int32ArrayType::Pointer& feat
   if(m_PeriodicBoundaries)
   {
     iter = 0;
-    int32_t xfeatures = 0, yfeatures = 0, zfeatures = 0;
+    int32_t xfeatures = 0;
+    int32_t yfeatures = 0;
+    int32_t zfeatures = 0;
     xfeatures = static_cast<int32_t>(powf((m->getAttributeMatrix(getOutputCellFeatureAttributeMatrixName())->getNumberOfTuples() * (m_SizeX / m_SizeY) * (m_SizeX / m_SizeZ)), (1.0f / 3.0f)) + 1);
     yfeatures = static_cast<int32_t>(xfeatures * (m_SizeY / m_SizeX) + 1);
     zfeatures = static_cast<int32_t>(xfeatures * (m_SizeZ / m_SizeX) + 1);
@@ -1401,7 +1408,9 @@ void EstablishFoamMorphology::place_features(const Int32ArrayType::Pointer& feat
   m_FillingError = 1.0f;
 
   int64_t count = 0;
-  int64_t column = 0, row = 0, plane = 0;
+  int64_t column = 0;
+  int64_t row = 0;
+  int64_t plane = 0;
   int32_t progFeature = 0;
   int32_t progFeatureInc = static_cast<int32_t>(totalFeatures * 0.01f);
   for(size_t i = m_FirstFoamFeature; i < totalFeatures; i++)
@@ -1497,7 +1506,9 @@ void EstablishFoamMorphology::place_features(const Int32ArrayType::Pointer& feat
   startMillis = millis;
   bool good = false;
   size_t key = 0;
-  float xshift = 0.0f, yshift = 0.0f, zshift = 0.0f;
+  float xshift = 0.0f;
+  float yshift = 0.0f;
+  float zshift = 0.0f;
   int32_t lastIteration = 0;
   for(int32_t iteration = 0; iteration < totalAdjustments; ++iteration)
   {
@@ -1724,8 +1735,10 @@ void EstablishFoamMorphology::generate_feature(int32_t phase, Feature_t* feature
   StatsDataArray& statsDataArray = *(m_StatsDataArray.lock());
 
   float r1 = 1.0f;
-  float a2 = 0.0f, a3 = 0.0f;
-  float b2 = 0.0f, b3 = 0.0f;
+  float a2 = 0.0f;
+  float a3 = 0.0f;
+  float b2 = 0.0f;
+  float b3 = 0.0f;
   float diam = 0.0f;
   float vol = 0.0f;
   bool volgood = false;
@@ -1750,7 +1763,8 @@ void EstablishFoamMorphology::generate_feature(int32_t phase, Feature_t* feature
     vol = fourThirdsPiOverEight * (diam * diam * diam);
   }
   int32_t diameter = int32_t((diam - pp->getMinFeatureDiameter()) / pp->getBinStepSize());
-  float r2 = 0.0f, r3 = 1.0f;
+  float r2 = 0.0f;
+  float r3 = 1.0f;
   VectorOfFloatArray bovera = pp->getFeatureSize_BOverA();
   VectorOfFloatArray covera = pp->getFeatureSize_COverA();
   if(diameter >= static_cast<int32_t>(bovera[0]->getSize()))
@@ -1852,35 +1866,41 @@ void EstablishFoamMorphology::transfer_attributes(int32_t gnum, Feature_t* featu
 // -----------------------------------------------------------------------------
 void EstablishFoamMorphology::move_feature(size_t gnum, float xc, float yc, float zc)
 {
-	int64_t occolumn = 0, ocrow = 0, ocplane = 0;
-	int64_t nccolumn = 0, ncrow = 0, ncplane = 0;
-	int64_t shiftcolumn = 0, shiftrow = 0, shiftplane = 0;
-	float oxc = m_Centroids[3 * gnum];
-	float oyc = m_Centroids[3 * gnum + 1];
-	float ozc = m_Centroids[3 * gnum + 2];
-	occolumn = static_cast<int64_t>((oxc - (m_HalfPackingRes[0])) * m_OneOverPackingRes[0]);
-	ocrow = static_cast<int64_t>((oyc - (m_HalfPackingRes[1])) * m_OneOverPackingRes[1]);
-	ocplane = static_cast<int64_t>((ozc - (m_HalfPackingRes[2])) * m_OneOverPackingRes[2]);
-	nccolumn = static_cast<int64_t>((xc - (m_HalfPackingRes[0])) * m_OneOverPackingRes[0]);
-	ncrow = static_cast<int64_t>((yc - (m_HalfPackingRes[1])) * m_OneOverPackingRes[1]);
-	ncplane = static_cast<int64_t>((zc - (m_HalfPackingRes[2])) * m_OneOverPackingRes[2]);
-	shiftcolumn = nccolumn - occolumn;
-	shiftrow = ncrow - ocrow;
-	shiftplane = ncplane - ocplane;
-	m_Centroids[3 * gnum] = xc;
-	m_Centroids[3 * gnum + 1] = yc;
-	m_Centroids[3 * gnum + 2] = zc;
-	size_t size = m_ColumnList[gnum].size();
+  int64_t occolumn = 0;
+  int64_t ocrow = 0;
+  int64_t ocplane = 0;
+  int64_t nccolumn = 0;
+  int64_t ncrow = 0;
+  int64_t ncplane = 0;
+  int64_t shiftcolumn = 0;
+  int64_t shiftrow = 0;
+  int64_t shiftplane = 0;
+  float oxc = m_Centroids[3 * gnum];
+  float oyc = m_Centroids[3 * gnum + 1];
+  float ozc = m_Centroids[3 * gnum + 2];
+  occolumn = static_cast<int64_t>((oxc - (m_HalfPackingRes[0])) * m_OneOverPackingRes[0]);
+  ocrow = static_cast<int64_t>((oyc - (m_HalfPackingRes[1])) * m_OneOverPackingRes[1]);
+  ocplane = static_cast<int64_t>((ozc - (m_HalfPackingRes[2])) * m_OneOverPackingRes[2]);
+  nccolumn = static_cast<int64_t>((xc - (m_HalfPackingRes[0])) * m_OneOverPackingRes[0]);
+  ncrow = static_cast<int64_t>((yc - (m_HalfPackingRes[1])) * m_OneOverPackingRes[1]);
+  ncplane = static_cast<int64_t>((zc - (m_HalfPackingRes[2])) * m_OneOverPackingRes[2]);
+  shiftcolumn = nccolumn - occolumn;
+  shiftrow = ncrow - ocrow;
+  shiftplane = ncplane - ocplane;
+  m_Centroids[3 * gnum] = xc;
+  m_Centroids[3 * gnum + 1] = yc;
+  m_Centroids[3 * gnum + 2] = zc;
+  size_t size = m_ColumnList[gnum].size();
 
-	for (size_t i = 0; i < size; i++)
-	{
-		int64_t& cl = m_ColumnList[gnum][i];
-		cl += shiftcolumn;
-		int64_t& rl = m_RowList[gnum][i];
-		rl += shiftrow;
-		int64_t& pl = m_PlaneList[gnum][i];
-		pl += shiftplane;
-	}
+  for(size_t i = 0; i < size; i++)
+  {
+    int64_t& cl = m_ColumnList[gnum][i];
+    cl += shiftcolumn;
+    int64_t& rl = m_RowList[gnum][i];
+    rl += shiftrow;
+    int64_t& pl = m_PlaneList[gnum][i];
+    pl += shiftplane;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -1890,10 +1910,17 @@ void EstablishFoamMorphology::determine_neighbors(size_t gnum, bool add)
 {
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getOutputCellAttributeMatrixPath().getDataContainerName());
 
-  float x = 0.0f, y = 0.0f, z = 0.0f;
-  float xn = 0.0f, yn = 0.0f, zn = 0.0f;
-  float dia = 0.0f, dia2 = 0.0f;
-  float dx = 0.0f, dy = 0.0f, dz = 0.0f;
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
+  float xn = 0.0f;
+  float yn = 0.0f;
+  float zn = 0.0f;
+  float dia = 0.0f;
+  float dia2 = 0.0f;
+  float dx = 0.0f;
+  float dy = 0.0f;
+  float dz = 0.0f;
   x = m_Centroids[3 * gnum];
   y = m_Centroids[3 * gnum + 1];
   z = m_Centroids[3 * gnum + 2];
@@ -2226,13 +2253,17 @@ float EstablishFoamMorphology::check_sizedisterror(Feature_t* feature)
 // -----------------------------------------------------------------------------
 float EstablishFoamMorphology::check_fillingerror(int32_t gadd, int32_t gremove, const Int32ArrayType::Pointer& featureOwnersPtr, const Int32ArrayType::Pointer& exclusionOwnersPtr)
 {
-	size_t featureOwnersIdx = 0;
-	int32_t* featureOwners = featureOwnersPtr->getPointer(0);
-	int32_t* exclusionOwners = exclusionOwnersPtr->getPointer(0);
+  size_t featureOwnersIdx = 0;
+  int32_t* featureOwners = featureOwnersPtr->getPointer(0);
+  int32_t* exclusionOwners = exclusionOwnersPtr->getPointer(0);
 
-	m_FillingError = m_FillingError * float(m_TotalPackingPoints);
-	int64_t col = 0, row = 0, plane = 0;
-	int32_t k1 = 0, k2 = 0, k3 = 0;
+  m_FillingError = m_FillingError * float(m_TotalPackingPoints);
+  int64_t col = 0;
+  int64_t row = 0;
+  int64_t plane = 0;
+  int32_t k1 = 0;
+  int32_t k2 = 0;
+  int32_t k3 = 0;
   if(gadd > 0)
   {
     k1 = 2;
@@ -2401,33 +2432,34 @@ float EstablishFoamMorphology::check_fillingerror(int32_t gadd, int32_t gremove,
 // -----------------------------------------------------------------------------
 void EstablishFoamMorphology::update_availablepoints(std::map<size_t, size_t>& availablePoints, std::map<size_t, size_t>& availablePointsInv)
 {
-	size_t removeSize = m_PointsToRemove.size();
-	size_t addSize = m_PointsToAdd.size();
-	size_t featureOwnersIdx = 0;
-	size_t key = 0, val = 0;
-	for (size_t i = 0; i < removeSize; i++)
-	{
-		featureOwnersIdx = m_PointsToRemove[i];
-		key = availablePoints[featureOwnersIdx];
-		//  availablePoints.erase(featureOwnersIdx);
-		val = availablePointsInv[m_AvailablePointsCount - 1];
-		//  availablePointsInv.erase(availablePointsCount-1);
-		if (key < m_AvailablePointsCount - 1)
-		{
-			availablePointsInv[key] = val;
-			availablePoints[val] = key;
-		}
-		m_AvailablePointsCount--;
-	}
-	for (size_t i = 0; i < addSize; i++)
-	{
-		featureOwnersIdx = m_PointsToAdd[i];
-		availablePoints[featureOwnersIdx] = m_AvailablePointsCount;
-		availablePointsInv[m_AvailablePointsCount] = featureOwnersIdx;
-		m_AvailablePointsCount++;
-	}
-	m_PointsToRemove.clear();
-	m_PointsToAdd.clear();
+  size_t removeSize = m_PointsToRemove.size();
+  size_t addSize = m_PointsToAdd.size();
+  size_t featureOwnersIdx = 0;
+  size_t key = 0;
+  size_t val = 0;
+  for(size_t i = 0; i < removeSize; i++)
+  {
+    featureOwnersIdx = m_PointsToRemove[i];
+    key = availablePoints[featureOwnersIdx];
+    //  availablePoints.erase(featureOwnersIdx);
+    val = availablePointsInv[m_AvailablePointsCount - 1];
+    //  availablePointsInv.erase(availablePointsCount-1);
+    if(key < m_AvailablePointsCount - 1)
+    {
+      availablePointsInv[key] = val;
+      availablePoints[val] = key;
+    }
+    m_AvailablePointsCount--;
+  }
+  for(size_t i = 0; i < addSize; i++)
+  {
+    featureOwnersIdx = m_PointsToAdd[i];
+    availablePoints[featureOwnersIdx] = m_AvailablePointsCount;
+    availablePointsInv[m_AvailablePointsCount] = featureOwnersIdx;
+    m_AvailablePointsCount++;
+  }
+  m_PointsToRemove.clear();
+  m_PointsToAdd.clear();
 }
 
 // -----------------------------------------------------------------------------
@@ -2438,12 +2470,23 @@ void EstablishFoamMorphology::insert_feature(size_t gnum)
   SIMPL_RANDOMNG_NEW();
 
   float inside = -1.0f;
-  int64_t column = 0, row = 0, plane = 0;
-  int64_t centercolumn = 0, centerrow = 0, centerplane = 0;
-  int64_t xmin = 0, xmax = 0, ymin = 0, ymax = 0, zmin = 0, zmax = 0;
-  float xc = 0.0f, yc = 0.0f, zc = 0.0f;
-  float coordsRotated[3] = {0.0f, 0.0f, 0.0f};
-  float coords[3] = {0.0f, 0.0f, 0.0f};
+  int64_t column = 0;
+  int64_t row = 0;
+  int64_t plane = 0;
+  int64_t centercolumn = 0;
+  int64_t centerrow = 0;
+  int64_t centerplane = 0;
+  int64_t xmin = 0;
+  int64_t xmax = 0;
+  int64_t ymin = 0;
+  int64_t ymax = 0;
+  int64_t zmin = 0;
+  int64_t zmax = 0;
+  float xc = 0.0f;
+  float yc = 0.0f;
+  float zc = 0.0f;
+  std::array<float, 3> coordsRotated = {0.0f, 0.0f, 0.0f};
+  std::array<float, 3> coords = {0.0f, 0.0f, 0.0f};
   float volcur = m_Volumes[gnum];
   float bovera = m_AxisLengths[3 * gnum + 1];
   float covera = m_AxisLengths[3 * gnum + 2];
@@ -2480,9 +2523,8 @@ void EstablishFoamMorphology::insert_feature(size_t gnum)
   float PHI = m_AxisEulerAngles[3 * gnum + 1];
   float phi2 = m_AxisEulerAngles[3 * gnum + 2];
   float ga[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  OrientationF om(9, 0.0);
+
   OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(phi1, PHI, phi2)).toGMatrix(ga);
-  om.toGMatrix(ga);
 
   xc = m_Centroids[3 * gnum];
   yc = m_Centroids[3 * gnum + 1];
@@ -2540,7 +2582,7 @@ void EstablishFoamMorphology::insert_feature(size_t gnum)
         coords[0] = coords[0] - xc;
         coords[1] = coords[1] - yc;
         coords[2] = coords[2] - zc;
-        MatrixMath::Multiply3x3with3x1(ga, coords, coordsRotated);
+        MatrixMath::Multiply3x3with3x1(ga, coords.data(), coordsRotated.data());
         float axis1comp = coordsRotated[0] * OneOverRadcur1;
         float axis2comp = coordsRotated[1] * OneOverRadcur2;
         float axis3comp = coordsRotated[2] * OneOverRadcur3;
@@ -2569,17 +2611,26 @@ void EstablishFoamMorphology::assign_voxels()
 
   SizeVec3Type udims = m->getGeometryAs<ImageGeom>()->getDimensions();
 
-  int64_t dims[3] = {
+  std::array<int64_t, 3> dims = {
       static_cast<int64_t>(udims[0]),
       static_cast<int64_t>(udims[1]),
       static_cast<int64_t>(udims[2]),
   };
 
-  int64_t column = 0, row = 0, plane = 0;
-  float xc = 0.0f, yc = 0.0f, zc = 0.0f;
-  float size[3] = {m_SizeX, m_SizeY, m_SizeZ};
+  int64_t column = 0;
+  int64_t row = 0;
+  int64_t plane = 0;
+  float xc = 0.0f;
+  float yc = 0.0f;
+  float zc = 0.0f;
+  std::array<float, 3> size = {m_SizeX, m_SizeY, m_SizeZ};
 
-  int64_t xmin = 0, xmax = 0, ymin = 0, ymax = 0, zmin = 0, zmax = 0;
+  int64_t xmin = 0;
+  int64_t xmax = 0;
+  int64_t ymin = 0;
+  int64_t ymax = 0;
+  int64_t zmin = 0;
+  int64_t zmax = 0;
 
   FloatVec3Type res = m->getGeometryAs<ImageGeom>()->getSpacing();
 
@@ -2647,9 +2698,7 @@ void EstablishFoamMorphology::assign_voxels()
     float PHI = m_AxisEulerAngles[3 * i + 1];
     float phi2 = m_AxisEulerAngles[3 * i + 2];
     float ga[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-    OrientationF om(9, 0.0);
     OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(phi1, PHI, phi2)).toGMatrix(ga);
-    om.toGMatrix(ga);
     column = static_cast<int64_t>(xc / res[0]);
     row = static_cast<int64_t>(yc / res[1]);
     plane = static_cast<int64_t>(zc / res[2]);
@@ -2715,8 +2764,8 @@ void EstablishFoamMorphology::assign_voxels()
       }
     }
 
-    float radCur[3] = {radcur1, radcur2, radcur3};
-    float xx[3] = {xc, yc, zc};
+    std::array<float, 3> radCur = {radcur1, radcur2, radcur3};
+    std::array<float, 3> xx = {xc, yc, zc};
     ShapeOps* shapeOps = m_ShapeOps[shapeclass].get();
 
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
@@ -2726,12 +2775,12 @@ void EstablishFoamMorphology::assign_voxels()
     if(doParallel)
     {
       tbb::parallel_for(tbb::blocked_range3d<int64_t, int64_t, int64_t>(zmin, zmax + 1, ymin, ymax + 1, xmin, xmax + 1),
-                        FoamAssignVoxelsGapsImpl(udims, res, m_FeatureIds, radCur, xx, shapeOps, ga, size, i, newownersPtr, ellipfuncsPtr), tbb::auto_partitioner());
+                        FoamAssignVoxelsGapsImpl(udims, res, m_FeatureIds, radCur.data(), xx.data(), shapeOps, ga, size.data(), i, newownersPtr, ellipfuncsPtr), tbb::auto_partitioner());
     }
     else
 #endif
     {
-      FoamAssignVoxelsGapsImpl serial(udims, res, m_FeatureIds, radCur, xx, shapeOps, ga, size, i, newownersPtr, ellipfuncsPtr);
+      FoamAssignVoxelsGapsImpl serial(udims, res, m_FeatureIds, radCur.data(), xx.data(), shapeOps, ga, size.data(), i, newownersPtr, ellipfuncsPtr);
       serial.convert(zmin, zmax + 1, ymin, ymax + 1, xmin, xmax + 1);
     }
   }
@@ -2794,7 +2843,8 @@ void EstablishFoamMorphology::assign_gaps_only()
 {
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getOutputCellAttributeMatrixPath().getDataContainerName());
 
-  int32_t featurename = 0, feature = 0;
+  int32_t featurename = 0;
+  int32_t feature = 0;
   int32_t current = 0;
   int32_t most = 0;
   int64_t gapVoxelCount = 1;
@@ -2810,7 +2860,7 @@ void EstablishFoamMorphology::assign_gaps_only()
   size_t totalPoints = m->getAttributeMatrix(m_OutputCellAttributeMatrixPath.getAttributeMatrixName())->getNumberOfTuples();
   size_t totalFeatures = m->getAttributeMatrix(getOutputCellFeatureAttributeMatrixName())->getNumberOfTuples();
 
-  int64_t neighpoints[6] = {0, 0, 0, 0, 0, 0};
+  std::array<int64_t, 6> neighpoints = {0, 0, 0, 0, 0, 0};
   neighpoints[0] = -xPoints * yPoints;
   neighpoints[1] = -xPoints;
   neighpoints[2] = -1;
@@ -2829,7 +2879,8 @@ void EstablishFoamMorphology::assign_gaps_only()
     iterationCounter++;
     previousGapVoxelCount = gapVoxelCount;
     gapVoxelCount = 0;
-    int64_t zStride, yStride;
+    int64_t zStride;
+    int64_t yStride;
     for(int64_t i = 0; i < zPoints; i++)
     {
       zStride = i * xPoints * yPoints;
@@ -3253,21 +3304,24 @@ void EstablishFoamMorphology::find_euclideandistmap()
     m_QPEuclideanDistances[i] = -1;
   }
 
-  int64_t column = 0, row = 0, plane = 0;
-  bool good = false, add = true;
+  int64_t column = 0;
+  int64_t row = 0;
+  int64_t plane = 0;
+  bool good = false;
+  bool add = true;
   int32_t feature = 0;
   std::vector<int32_t> coordination;
 
   SizeVec3Type udims = m->getGeometryAs<ImageGeom>()->getDimensions();
 
-  int64_t dims[3] = {
+  std::array<int64_t, 3> dims = {
       static_cast<int64_t>(udims[0]),
       static_cast<int64_t>(udims[1]),
       static_cast<int64_t>(udims[2]),
   };
 
   int64_t neighbor = 0;
-  int64_t neighbors[6] = {0, 0, 0, 0, 0, 0};
+  std::array<int64_t, 6> neighbors = {0, 0, 0, 0, 0, 0};
   neighbors[0] = -dims[0] * dims[1];
   neighbors[1] = -dims[0];
   neighbors[2] = -1;

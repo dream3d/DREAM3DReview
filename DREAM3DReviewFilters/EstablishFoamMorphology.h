@@ -66,8 +66,8 @@ public:
   {
     float m_Volumes;
     float m_EquivalentDiameters;
-    float m_AxisLengths[3];
-    float m_AxisEulerAngles[3];
+    std::array<float, 3> m_AxisLengths;
+    std::array<float, 3> m_AxisEulerAngles;
     float m_Omega3s;
     int32_t m_FeaturePhases;
     int32_t m_Neighborhoods;
