@@ -80,6 +80,7 @@ set(_PublicFilters
   FindCSLBoundaries
   InsertTransformationPhases
   TiDwellFatigueCrystallographicAnalysis
+  SurfaceMeshToWaveFront
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)
