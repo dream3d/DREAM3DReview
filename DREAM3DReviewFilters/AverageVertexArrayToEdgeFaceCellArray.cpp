@@ -235,7 +235,7 @@ void AverageVertexArrayToEdgeFaceCellArray::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
-  IGeometry::Pointer igeom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry, AbstractFilter>(this, getSelectedArrayPath().getDataContainerName());
+  IGeometry::Pointer igeom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getSelectedArrayPath().getDataContainerName());
 
   if(getErrorCode() < 0)
   {
@@ -257,8 +257,8 @@ void AverageVertexArrayToEdgeFaceCellArray::dataCheck()
     setErrorCondition(-11000, ss);
   }
 
-  AttributeMatrix::Pointer vertAttrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath<AbstractFilter>(this, getSelectedArrayPath(), -301);
-  AttributeMatrix::Pointer cellAttrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath<AbstractFilter>(this, getAverageCellArrayPath(), -301);
+  AttributeMatrix::Pointer vertAttrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getSelectedArrayPath(), -301);
+  AttributeMatrix::Pointer cellAttrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getAverageCellArrayPath(), -301);
 
   if(getErrorCode() < 0)
   {
@@ -299,7 +299,7 @@ void AverageVertexArrayToEdgeFaceCellArray::dataCheck()
     setErrorCondition(-11001, ss);
   }
 
-  m_InVertexArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray, AbstractFilter>(this, getSelectedArrayPath());
+  m_InVertexArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getSelectedArrayPath());
 
   if(getErrorCode() < 0)
   {
@@ -328,7 +328,7 @@ void AverageVertexArrayToEdgeFaceCellArray::dataCheck()
   std::vector<size_t> cDims = m_InVertexArrayPtr.lock()->getComponentDimensions();
   size_t numVertexTuples = m_InVertexArrayPtr.lock()->getNumberOfTuples();
 
-  m_AverageCellArrayPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>, AbstractFilter, float>(
+  m_AverageCellArrayPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(
       this, getAverageCellArrayPath(), 0, cDims);   /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_AverageCellArrayPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {

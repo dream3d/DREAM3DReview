@@ -130,7 +130,7 @@ void ExtractTripleLinesFromTriangleGeometry::dataCheck()
 
   QVector<IDataArray::Pointer> dataArrays;
 
-  TriangleGeom::Pointer triangle = getDataContainerArray()->getPrereqGeometryFromDataContainer<TriangleGeom, AbstractFilter>(this, getNodeTypesArrayPath().getDataContainerName());
+  TriangleGeom::Pointer triangle = getDataContainerArray()->getPrereqGeometryFromDataContainer<TriangleGeom>(this, getNodeTypesArrayPath().getDataContainerName());
 
   if(getErrorCode() < 0)
   {
@@ -140,7 +140,7 @@ void ExtractTripleLinesFromTriangleGeometry::dataCheck()
   dataArrays.push_back(triangle->getVertices());
 
   std::vector<size_t> cDims(1, 1);
-  m_NodeTypesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>, AbstractFilter>(this, getNodeTypesArrayPath(),
+  m_NodeTypesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>>(this, getNodeTypesArrayPath(),
                                                                                                       cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_NodeTypesPtr.lock().get())                                                                  /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
@@ -151,9 +151,9 @@ void ExtractTripleLinesFromTriangleGeometry::dataCheck()
     dataArrays.push_back(m_NodeTypesPtr.lock());
   }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrays);
+  getDataContainerArray()->validateNumberOfTuples(this, dataArrays);
 
-  DataContainer::Pointer edc = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getEdgeGeometry());
+  DataContainer::Pointer edc = getDataContainerArray()->createNonPrereqDataContainer(this, getEdgeGeometry());
 
   if(getErrorCode() < 0)
   {
@@ -169,7 +169,7 @@ void ExtractTripleLinesFromTriangleGeometry::dataCheck()
   edc->createNonPrereqAttributeMatrix(this, getEdgeAttributeMatrixName(), tDims, AttributeMatrix::Type::Edge);
 
   DataArrayPath path(getEdgeGeometry(), getVertexAttributeMatrixName(), getNodeTypesArrayName());
-  m_TripleLineNodeTypesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<Int8ArrayType, AbstractFilter, int8_t>(this, path, 0, cDims);
+  m_TripleLineNodeTypesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<Int8ArrayType>(this, path, 0, cDims);
 }
 
 // -----------------------------------------------------------------------------

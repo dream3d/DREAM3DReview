@@ -78,7 +78,7 @@ void FindSurfaceRoughness::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
-  ImageGeom::Pointer image = getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getBoundaryCellsArrayPath().getDataContainerName());
+  ImageGeom::Pointer image = getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom>(this, getBoundaryCellsArrayPath().getDataContainerName());
 
   if(getErrorCode() < 0)
   {
@@ -87,13 +87,13 @@ void FindSurfaceRoughness::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
 
-  m_BoundaryCellsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>, AbstractFilter>(this, getBoundaryCellsArrayPath(), cDims);
+  m_BoundaryCellsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>>(this, getBoundaryCellsArrayPath(), cDims);
   if(nullptr != m_BoundaryCellsPtr.lock().get())
   {
     m_BoundaryCells = m_BoundaryCellsPtr.lock()->getPointer(0);
   }
 
-  DataContainer::Pointer dc = getDataContainerArray()->getPrereqDataContainer<AbstractFilter>(this, getBoundaryCellsArrayPath().getDataContainerName());
+  DataContainer::Pointer dc = getDataContainerArray()->getPrereqDataContainer(this, getBoundaryCellsArrayPath().getDataContainerName());
 
   if(getErrorCode() < 0)
   {
@@ -106,7 +106,7 @@ void FindSurfaceRoughness::dataCheck()
 
   cDims[0] = 3;
 
-  m_RoughnessParamsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>, AbstractFilter, double>(this, path, 0, cDims);
+  m_RoughnessParamsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>>(this, path, 0, cDims);
   if(nullptr != m_RoughnessParamsPtr.lock().get())
   {
     m_RoughnessParams = m_RoughnessParamsPtr.lock()->getPointer(0);

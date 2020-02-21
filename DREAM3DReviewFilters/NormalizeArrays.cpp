@@ -203,7 +203,7 @@ void NormalizeArrays::dataCheck()
 
   for(auto&& path : paths)
   {
-    IDataArray::WeakPointer ptr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray, AbstractFilter>(this, path);
+    IDataArray::WeakPointer ptr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, path);
     if(ptr.lock())
     {
       m_SelectedWeakPtrVector.push_back(ptr);
@@ -219,7 +219,7 @@ void NormalizeArrays::dataCheck()
         DataArrayPath tempPath(dcName, amName, arrayName);
         double defaultValue = m_UseMask ? getDefaultValue() : 0.0;
 
-        DoubleArrayType::WeakPointer ptr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>, AbstractFilter>(this, tempPath, defaultValue, cDims, "", DataArrayID31);
+        DoubleArrayType::WeakPointer ptr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>>(this, tempPath, defaultValue, cDims, "", DataArrayID31);
         if(getErrorCode() >= 0)
         {
           m_NormalizedArraysPtrVector.push_back(ptr.lock());
@@ -230,7 +230,7 @@ void NormalizeArrays::dataCheck()
 
   if(getUseMask())
   {
-    m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<bool>, AbstractFilter>(this, getMaskArrayPath(), cDims);
+    m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<bool>>(this, getMaskArrayPath(), cDims);
     if(m_MaskPtr.lock())
     {
       m_Mask = m_MaskPtr.lock()->getPointer(0);
@@ -241,7 +241,7 @@ void NormalizeArrays::dataCheck()
     }
   }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, paths);
+  getDataContainerArray()->validateNumberOfTuples(this, paths);
 }
 
 // -----------------------------------------------------------------------------

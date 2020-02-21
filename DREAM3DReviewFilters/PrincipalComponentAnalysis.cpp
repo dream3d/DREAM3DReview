@@ -177,7 +177,7 @@ void PrincipalComponentAnalysis::dataCheck()
 
   for(auto&& path : paths)
   {
-    IDataArray::WeakPointer ptr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray, AbstractFilter>(this, path);
+    IDataArray::WeakPointer ptr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, path);
     if(ptr.lock())
     {
       m_SelectedWeakPtrVector.push_back(ptr);
@@ -204,7 +204,7 @@ void PrincipalComponentAnalysis::dataCheck()
   std::vector<size_t> cDims(1, 1);
 
   tempPath.update(getSelectedDataArrayPaths()[0].getDataContainerName(), getPCAttributeMatrixName(), getPCEigenvaluesName());
-  m_PCEigenvaluesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>, AbstractFilter, double>(this, tempPath, 0, cDims, "", DataArrayID31);
+  m_PCEigenvaluesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>>(this, tempPath, 0, cDims, "", DataArrayID31);
   if(m_PCEigenvaluesPtr.lock())
   {
     m_PCEigenvalues = m_PCEigenvaluesPtr.lock()->getPointer(0);
@@ -213,7 +213,7 @@ void PrincipalComponentAnalysis::dataCheck()
   cDims[0] = paths.size();
 
   tempPath.update(getSelectedDataArrayPaths()[0].getDataContainerName(), getPCAttributeMatrixName(), getPCEigenvectorsName());
-  m_PCEigenvectorsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>, AbstractFilter, double>(this, tempPath, 0, cDims, "", DataArrayID32);
+  m_PCEigenvectorsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>>(this, tempPath, 0, cDims, "", DataArrayID32);
   if(m_PCEigenvectorsPtr.lock())
   {
     m_PCEigenvectors = m_PCEigenvectorsPtr.lock()->getPointer(0);
@@ -237,7 +237,7 @@ void PrincipalComponentAnalysis::dataCheck()
 
     cDims[0] = getNumberOfDimensionsForProjection();
 
-    m_ProjectedDataSpacePtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>, AbstractFilter, double>(this, getProjectedDataSpaceArrayPath(), 0, cDims, "", DataArrayID33);
+    m_ProjectedDataSpacePtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>>(this, getProjectedDataSpaceArrayPath(), 0, cDims, "", DataArrayID33);
     if(m_ProjectedDataSpacePtr.lock())
     {
       m_ProjectedDataSpace = m_ProjectedDataSpacePtr.lock()->getPointer(0);
@@ -248,7 +248,7 @@ void PrincipalComponentAnalysis::dataCheck()
     }
   }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, paths);
+  getDataContainerArray()->validateNumberOfTuples(this, paths);
 }
 
 // -----------------------------------------------------------------------------

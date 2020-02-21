@@ -178,7 +178,7 @@ void AdaptiveAlignment::dataCheck()
   clearWarningCode();
   DataArrayPath tempPath;
 
-  ImageGeom::Pointer image = getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getDataContainerName());
+  ImageGeom::Pointer image = getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom>(this, getDataContainerName());
   if(getErrorCode() < 0)
   {
     return;
@@ -192,7 +192,7 @@ void AdaptiveAlignment::dataCheck()
   }
 
   tempPath.update(getDataContainerName(), getCellAttributeMatrixName(), "");
-  getDataContainerArray()->getPrereqAttributeMatrixFromPath<AbstractFilter>(this, tempPath, -301);
+  getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, tempPath, -301);
 
   if(getWriteAlignmentShifts())
   {
@@ -203,7 +203,7 @@ void AdaptiveAlignment::dataCheck()
   {
     int32_t numImageComp = 1;
     QVector<DataArrayPath> imageDataArrayPaths;
-    IDataArray::Pointer iDataArray = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray, AbstractFilter>(this, getImageDataArrayPath());
+    IDataArray::Pointer iDataArray = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getImageDataArrayPath());
     if(getErrorCode() < 0)
     {
       return;
@@ -213,7 +213,7 @@ void AdaptiveAlignment::dataCheck()
       numImageComp = iDataArray->getNumberOfComponents();
     }
     std::vector<size_t> cDims(1, numImageComp);
-    m_ImageDataPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<uint8_t>, AbstractFilter>(this, getImageDataArrayPath(),
+    m_ImageDataPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<uint8_t>>(this, getImageDataArrayPath(),
                                                                                                          cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_ImageDataPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
@@ -224,7 +224,7 @@ void AdaptiveAlignment::dataCheck()
       imageDataArrayPaths.push_back(getImageDataArrayPath());
     }
 
-    getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, imageDataArrayPaths);
+    getDataContainerArray()->validateNumberOfTuples(this, imageDataArrayPaths);
 
     DataContainer::Pointer m1 = getDataContainerArray()->getDataContainer(getDataContainerName());
     SizeVec3Type udims1 = m1->getGeometryAs<ImageGeom>()->getDimensions();
@@ -258,7 +258,7 @@ void AdaptiveAlignment::create_array_for_flattened_image()
   std::vector<size_t> cDims(1, 1);
   DataArrayPath tempPath;
   tempPath.update(getImageDataArrayPath().getDataContainerName(), getImageDataArrayPath().getAttributeMatrixName(), "tempFlatImageDataName");
-  m_FlatImageDataPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<AnisotropyConstants::DefaultPixelType>, AbstractFilter, AnisotropyConstants::DefaultPixelType>(
+  m_FlatImageDataPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<AnisotropyConstants::DefaultPixelType>>(
       this, tempPath, 0, cDims);           /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_FlatImageDataPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {

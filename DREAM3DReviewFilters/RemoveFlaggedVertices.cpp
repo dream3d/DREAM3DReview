@@ -128,7 +128,7 @@ void RemoveFlaggedVertices::dataCheck()
 
   QVector<IDataArray::Pointer> dataArrays;
 
-  VertexGeom::Pointer vertex = getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom, AbstractFilter>(this, getVertexGeometry());
+  VertexGeom::Pointer vertex = getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom>(this, getVertexGeometry());
 
   if(getErrorCode() < 0)
   {
@@ -139,7 +139,7 @@ void RemoveFlaggedVertices::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
 
-  m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<bool>, AbstractFilter>(this, getMaskArrayPath(), cDims);
+  m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<bool>>(this, getMaskArrayPath(), cDims);
   if(m_MaskPtr.lock())
   {
     m_Mask = m_MaskPtr.lock()->getPointer(0);
@@ -149,7 +149,7 @@ void RemoveFlaggedVertices::dataCheck()
     dataArrays.push_back(m_MaskPtr.lock());
   }
 
-  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getReducedVertexGeometry(), DataContainerID);
+  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer(this, getReducedVertexGeometry(), DataContainerID);
 
   if(getErrorCode() < 0)
   {
@@ -159,7 +159,7 @@ void RemoveFlaggedVertices::dataCheck()
   VertexGeom::Pointer reduced = VertexGeom::CreateGeometry(0, SIMPL::Geometry::VertexGeometry, !getInPreflight());
   dc->setGeometry(reduced);
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrays);
+  getDataContainerArray()->validateNumberOfTuples(this, dataArrays);
 
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getVertexGeometry());
   m_AttrMatList = m->getAttributeMatrixNames();
@@ -191,7 +191,7 @@ void RemoveFlaggedVertices::dataCheck()
         for(auto&& data_array : tempDataArrayList)
         {
           tempPath.update(getReducedVertexGeometry(), tmpAttrMat->getName(), data_array);
-          IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray<IDataArray, AbstractFilter>(this, data_array, -90002);
+          IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray<IDataArray>(this, data_array, -90002);
           if(getErrorCode() >= 0)
           {
             std::vector<size_t> cDims = tmpDataArray->getComponentDimensions();

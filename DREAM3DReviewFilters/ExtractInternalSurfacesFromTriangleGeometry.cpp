@@ -131,7 +131,7 @@ void ExtractInternalSurfacesFromTriangleGeometry::dataCheck()
 
   QVector<IDataArray::Pointer> arrays;
 
-  TriangleGeom::Pointer tris = getDataContainerArray()->getPrereqGeometryFromDataContainer<TriangleGeom, AbstractFilter>(this, getTriangleDataContainerName());
+  TriangleGeom::Pointer tris = getDataContainerArray()->getPrereqGeometryFromDataContainer<TriangleGeom>(this, getTriangleDataContainerName());
 
   if(getErrorCode() < 0)
   {
@@ -142,7 +142,7 @@ void ExtractInternalSurfacesFromTriangleGeometry::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
 
-  m_NodeTypesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>, AbstractFilter>(this, getNodeTypesArrayPath(), cDims);
+  m_NodeTypesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>>(this, getNodeTypesArrayPath(), cDims);
   if(m_NodeTypesPtr.lock())
   {
     m_NodeTypes = m_NodeTypesPtr.lock()->getPointer(0);
@@ -152,9 +152,9 @@ void ExtractInternalSurfacesFromTriangleGeometry::dataCheck()
     arrays.push_back(m_NodeTypesPtr.lock());
   }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, arrays);
+  getDataContainerArray()->validateNumberOfTuples(this, arrays);
 
-  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getInternalTrianglesName(), DataContainerID);
+  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer(this, getInternalTrianglesName(), DataContainerID);
 
   if(getErrorCode() < 0)
   {
@@ -185,7 +185,7 @@ void ExtractInternalSurfacesFromTriangleGeometry::dataCheck()
         for(auto&& data_array : tempDataArrayList)
         {
           tempPath.update(getInternalTrianglesName(), tmpAttrMat->getName(), data_array);
-          IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray<IDataArray, AbstractFilter>(this, data_array, -90002);
+          IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray<IDataArray>(this, data_array, -90002);
           if(getErrorCode() >= 0)
           {
             std::vector<size_t> cDims = tmpDataArray->getComponentDimensions();

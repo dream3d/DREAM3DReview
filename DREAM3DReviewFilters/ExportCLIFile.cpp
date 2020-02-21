@@ -136,7 +136,7 @@ void ExportCLIFile::dataCheck()
     setErrorCondition(-392, ss);
   }
 
-  EdgeGeom::Pointer edge = getDataContainerArray()->getPrereqGeometryFromDataContainer<EdgeGeom, AbstractFilter>(this, getEdgeGeometry());
+  EdgeGeom::Pointer edge = getDataContainerArray()->getPrereqGeometryFromDataContainer<EdgeGeom>(this, getEdgeGeometry());
 
   QVector<IDataArray::Pointer> dataArrays;
 
@@ -146,7 +146,7 @@ void ExportCLIFile::dataCheck()
   }
 
   std::vector<size_t> cDims(1, 1);
-  m_LayerIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<Int32ArrayType, AbstractFilter>(this, getLayerIdsArrayPath(), cDims);
+  m_LayerIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<Int32ArrayType>(this, getLayerIdsArrayPath(), cDims);
   if(m_LayerIdsPtr.lock())
   {
     m_LayerIds = m_LayerIdsPtr.lock()->getPointer(0);
@@ -159,7 +159,7 @@ void ExportCLIFile::dataCheck()
 
   if(getSplitByGroup())
   {
-    m_GroupIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<Int32ArrayType, AbstractFilter>(this, getGroupIdsArrayPath(), cDims);
+    m_GroupIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<Int32ArrayType>(this, getGroupIdsArrayPath(), cDims);
     if(m_GroupIdsPtr.lock())
     {
       m_GroupIds = m_GroupIdsPtr.lock()->getPointer(0);
@@ -171,7 +171,7 @@ void ExportCLIFile::dataCheck()
     }
   }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrays);
+  getDataContainerArray()->validateNumberOfTuples(this, dataArrays);
 }
 
 // -----------------------------------------------------------------------------
