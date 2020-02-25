@@ -231,7 +231,7 @@ void AverageEdgeFaceCellArrayToVertexArray::dataCheck()
     setErrorCondition(-11001, ss);
   }
 
-  m_InCellArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getSelectedArrayPath());
+  m_InCellArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getSelectedArrayPath());
 
   if(getErrorCode() < 0)
   {

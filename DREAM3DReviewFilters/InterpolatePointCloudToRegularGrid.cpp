@@ -314,7 +314,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
           for(int32_t i = 0; i < interpolatePaths.size(); i++)
           {
             tempPath.update(getInterpolatedDataContainerName().getDataContainerName(), getInterpolatedAttributeMatrixName(), interpolatePaths[i].getDataArrayName() + "Interpolation");
-            IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray<IDataArray>(this, interpolatePaths[i].getDataArrayName(), -90002);
+            IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray(this, interpolatePaths[i].getDataArrayName(), -90002);
             if(getErrorCode() >= 0)
             {
               m_SourceArraysToInterpolate.push_back(tmpDataArray);
@@ -333,7 +333,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
           for(int32_t i = 0; i < copyPaths.size(); i++)
           {
             tempPath.update(getInterpolatedDataContainerName().getDataContainerName(), getInterpolatedAttributeMatrixName(), copyPaths[i].getDataArrayName() + "Copy");
-            IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray<IDataArray>(this, copyPaths[i].getDataArrayName(), -90002);
+            IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray(this, copyPaths[i].getDataArrayName(), -90002);
             if(getErrorCode() >= 0)
             {
               m_SourceArraysToCopy.push_back(tmpDataArray);

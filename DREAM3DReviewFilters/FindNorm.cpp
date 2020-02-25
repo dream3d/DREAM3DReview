@@ -126,7 +126,7 @@ void FindNorm::dataCheck()
 
   QVector<DataArrayPath> dataArrayPaths;
 
-  m_InArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getSelectedArrayPath());
+  m_InArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getSelectedArrayPath());
   if(getErrorCode() >= 0)
   {
     dataArrayPaths.push_back(getSelectedArrayPath());

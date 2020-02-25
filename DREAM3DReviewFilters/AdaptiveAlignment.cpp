@@ -203,7 +203,7 @@ void AdaptiveAlignment::dataCheck()
   {
     int32_t numImageComp = 1;
     QVector<DataArrayPath> imageDataArrayPaths;
-    IDataArray::Pointer iDataArray = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getImageDataArrayPath());
+    IDataArray::Pointer iDataArray = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getImageDataArrayPath());
     if(getErrorCode() < 0)
     {
       return;

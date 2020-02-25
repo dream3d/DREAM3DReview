@@ -185,7 +185,7 @@ void ExtractInternalSurfacesFromTriangleGeometry::dataCheck()
         for(auto&& data_array : tempDataArrayList)
         {
           tempPath.update(getInternalTrianglesName(), tmpAttrMat->getName(), data_array);
-          IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray<IDataArray>(this, data_array, -90002);
+          IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray(this, data_array, -90002);
           if(getErrorCode() >= 0)
           {
             std::vector<size_t> cDims = tmpDataArray->getComponentDimensions();

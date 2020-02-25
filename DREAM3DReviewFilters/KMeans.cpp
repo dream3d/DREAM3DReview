@@ -244,7 +244,7 @@ void KMeans::dataCheck()
   std::vector<size_t> cDims;
   QVector<DataArrayPath> dataArrayPaths;
 
-  m_InDataPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getSelectedArrayPath());
+  m_InDataPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getSelectedArrayPath());
   if(getErrorCode() >= 0)
   {
     dataArrayPaths.push_back(getSelectedArrayPath());

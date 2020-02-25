@@ -303,7 +303,7 @@ void PointSampleTriangleGeometry::dataCheck()
 
   for(auto&& path : paths)
   {
-    IDataArray::WeakPointer ptr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, path);
+    IDataArray::WeakPointer ptr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, path);
     if(getErrorCode() >= 0)
     {
       dataArrays.push_back(ptr.lock());

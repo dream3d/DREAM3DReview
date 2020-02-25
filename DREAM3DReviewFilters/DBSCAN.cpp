@@ -248,7 +248,7 @@ void DBSCAN::dataCheck()
   QVector<DataArrayPath> dataArrayPaths;
 
   m_InDataPtr =
-      getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getSelectedArrayPath()); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+      getDataContainerArray()->getPrereqIDataArrayFromPath(this, getSelectedArrayPath()); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(getErrorCode() >= 0)
   {
     dataArrayPaths.push_back(getSelectedArrayPath());

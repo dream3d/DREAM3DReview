@@ -177,7 +177,7 @@ void PrincipalComponentAnalysis::dataCheck()
 
   for(auto&& path : paths)
   {
-    IDataArray::WeakPointer ptr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, path);
+    IDataArray::WeakPointer ptr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, path);
     if(ptr.lock())
     {
       m_SelectedWeakPtrVector.push_back(ptr);

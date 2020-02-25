@@ -198,7 +198,7 @@ void FindArrayStatistics::dataCheck()
 
   QVector<DataArrayPath> dataArrayPaths;
 
-  m_InputArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getSelectedArrayPath());
+  m_InputArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getSelectedArrayPath());
 
   if(getErrorCode() < 0)
   {

@@ -124,7 +124,7 @@ void RobustAutomaticThreshold::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
 
-  m_InputArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getInputArrayPath());
+  m_InputArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getInputArrayPath());
   if(getErrorCode() < 0)
   {
     return;
