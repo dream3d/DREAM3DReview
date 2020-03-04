@@ -169,7 +169,7 @@ void ApplyTransformationToGeometry::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
-  IGeometry::Pointer igeom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry, AbstractFilter>(this, getGeometryToTransform());
+  IGeometry::Pointer igeom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getGeometryToTransform());
 
   if(getErrorCode() < 0)
   {
@@ -194,7 +194,7 @@ void ApplyTransformationToGeometry::dataCheck()
   }
   case 1: // Transformation matrix from array
   {
-    m_TransformationMatrixPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getComputedTransformationMatrix(), cDims);
+    m_TransformationMatrixPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getComputedTransformationMatrix(), cDims);
     if(m_TransformationMatrixPtr.lock())
     {
       m_TransformationMatrix = m_TransformationMatrixPtr.lock()->getPointer(0);

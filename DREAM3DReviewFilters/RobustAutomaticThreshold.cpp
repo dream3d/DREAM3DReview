@@ -124,7 +124,7 @@ void RobustAutomaticThreshold::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
 
-  m_InputArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray, AbstractFilter>(this, getInputArrayPath());
+  m_InputArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getInputArrayPath());
   if(getErrorCode() < 0)
   {
     return;
@@ -140,7 +140,7 @@ void RobustAutomaticThreshold::dataCheck()
     dataArrayPaths.push_back(getInputArrayPath());
   }
 
-  m_GradientMagnitudePtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getGradientMagnitudeArrayPath(), cDims);
+  m_GradientMagnitudePtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getGradientMagnitudeArrayPath(), cDims);
   if(m_GradientMagnitudePtr.lock())
   {
     m_GradientMagnitude = m_GradientMagnitudePtr.lock()->getPointer(0);
@@ -150,7 +150,7 @@ void RobustAutomaticThreshold::dataCheck()
     dataArrayPaths.push_back(getGradientMagnitudeArrayPath());
   }
 
-  m_FeatureIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<bool>, AbstractFilter, bool>(this, getFeatureIdsArrayPath(), false, cDims, "", DataArrayID31);
+  m_FeatureIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<bool>>(this, getFeatureIdsArrayPath(), false, cDims, "", DataArrayID31);
   if(m_FeatureIdsPtr.lock())
   {
     m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
@@ -160,7 +160,7 @@ void RobustAutomaticThreshold::dataCheck()
     dataArrayPaths.push_back(getFeatureIdsArrayPath());
   }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+  getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
 }
 
 // -----------------------------------------------------------------------------

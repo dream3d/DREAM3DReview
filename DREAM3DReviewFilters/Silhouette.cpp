@@ -154,7 +154,7 @@ void Silhouette::dataCheck()
   QVector<DataArrayPath> dataArrayPaths;
   std::vector<size_t> cDims(1, 1);
 
-  m_SilhouetteArrayPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>, AbstractFilter>(this, getSilhouetteArrayPath(), 0, cDims, "", DataArrayID31);
+  m_SilhouetteArrayPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>>(this, getSilhouetteArrayPath(), 0, cDims, "", DataArrayID31);
   if(m_SilhouetteArrayPtr.lock())
   {
     m_SilhouetteArray = m_SilhouetteArrayPtr.lock()->getPointer(0);
@@ -164,7 +164,7 @@ void Silhouette::dataCheck()
     dataArrayPaths.push_back(getSilhouetteArrayPath());
   }
 
-  m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeatureIdsArrayPath(), cDims);
+  m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getFeatureIdsArrayPath(), cDims);
   if(m_FeatureIdsPtr.lock())
   {
     m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
@@ -174,7 +174,7 @@ void Silhouette::dataCheck()
     dataArrayPaths.push_back(getFeatureIdsArrayPath());
   }
 
-  m_InDataPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray, AbstractFilter>(this, getSelectedArrayPath());
+  m_InDataPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getSelectedArrayPath());
   if(getErrorCode() >= 0)
   {
     dataArrayPaths.push_back(getSelectedArrayPath());
@@ -182,7 +182,7 @@ void Silhouette::dataCheck()
 
   if(m_UseMask)
   {
-    m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<BoolArrayType, AbstractFilter>(this, getMaskArrayPath(), cDims);
+    m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<BoolArrayType>(this, getMaskArrayPath(), cDims);
     if(m_MaskPtr.lock() != nullptr)
     {
       m_Mask = m_MaskPtr.lock()->getPointer(0);
@@ -193,7 +193,7 @@ void Silhouette::dataCheck()
     }
   }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+  getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
 }
 
 // -----------------------------------------------------------------------------

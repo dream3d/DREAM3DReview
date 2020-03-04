@@ -95,9 +95,9 @@ void ApproximatePointCloudHull::dataCheck()
     setErrorCondition(-11001, ss);
   }
 
-  getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom, AbstractFilter>(this, getVertexDataContainerName());
+  getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom>(this, getVertexDataContainerName());
 
-  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getHullDataContainerName());
+  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer(this, getHullDataContainerName());
 
   if(getErrorCode() < 0)
   {

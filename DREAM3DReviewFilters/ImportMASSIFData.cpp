@@ -174,7 +174,7 @@ void ImportMASSIFData::dataCheck()
     return;
   }
 
-  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, MASSIFUtilitiesConstants::ImportMassifData::MassifDC);
+  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer(this, MASSIFUtilitiesConstants::ImportMassifData::MassifDC);
   ImageGeom::Pointer image = ImageGeom::CreateGeometry(SIMPL::Geometry::ImageGeometry);
   image->setSpacing(FloatVec3Type(res[0], res[1], res[2]));
   image->setOrigin(FloatVec3Type(origin[0], origin[1], origin[2]));

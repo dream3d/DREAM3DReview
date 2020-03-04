@@ -93,8 +93,8 @@ void AlignGeometries::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
-  getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry, AbstractFilter>(this, getMovingGeometry());
-  getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry, AbstractFilter>(this, getTargetGeometry());
+  getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getMovingGeometry());
+  getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getTargetGeometry());
 
   if(getAlignmentType() != 0 && getAlignmentType() != 1)
   {

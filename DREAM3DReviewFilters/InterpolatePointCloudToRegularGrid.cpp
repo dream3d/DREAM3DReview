@@ -153,7 +153,7 @@ void InterpolatePointCloudToRegularGrid::readFilterParameters(AbstractFilterPara
 template <typename T>
 void createCompatibleNeighborList(AbstractFilter* filter, DataArrayPath path, std::vector<size_t> cDims, std::vector<IDataArray::WeakPointer>& dynamicArrays)
 {
-  IDataArray::WeakPointer ptr = filter->getDataContainerArray()->createNonPrereqArrayFromPath<NeighborList<T>, AbstractFilter, T>(filter, path, 0, cDims);
+  IDataArray::WeakPointer ptr = filter->getDataContainerArray()->createNonPrereqArrayFromPath<NeighborList<T>>(filter, path, 0, cDims);
   dynamicArrays.push_back(ptr);
 }
 
@@ -184,8 +184,8 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
 
   QVector<IDataArray::Pointer> dataArrays;
 
-  VertexGeom::Pointer vertices = getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom, AbstractFilter>(this, getDataContainerName());
-  ImageGeom::Pointer image = getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getInterpolatedDataContainerName());
+  VertexGeom::Pointer vertices = getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom>(this, getDataContainerName());
+  ImageGeom::Pointer image = getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom>(this, getInterpolatedDataContainerName());
 
   if(getErrorCode() < 0)
   {
@@ -314,7 +314,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
           for(int32_t i = 0; i < interpolatePaths.size(); i++)
           {
             tempPath.update(getInterpolatedDataContainerName().getDataContainerName(), getInterpolatedAttributeMatrixName(), interpolatePaths[i].getDataArrayName() + "Interpolation");
-            IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray<IDataArray, AbstractFilter>(this, interpolatePaths[i].getDataArrayName(), -90002);
+            IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray(this, interpolatePaths[i].getDataArrayName(), -90002);
             if(getErrorCode() >= 0)
             {
               m_SourceArraysToInterpolate.push_back(tmpDataArray);
@@ -333,7 +333,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
           for(int32_t i = 0; i < copyPaths.size(); i++)
           {
             tempPath.update(getInterpolatedDataContainerName().getDataContainerName(), getInterpolatedAttributeMatrixName(), copyPaths[i].getDataArrayName() + "Copy");
-            IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray<IDataArray, AbstractFilter>(this, copyPaths[i].getDataArrayName(), -90002);
+            IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray(this, copyPaths[i].getDataArrayName(), -90002);
             if(getErrorCode() >= 0)
             {
               m_SourceArraysToCopy.push_back(tmpDataArray);
@@ -353,7 +353,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
     }
   }
 
-  m_VoxelIndicesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<size_t>, AbstractFilter>(this, getVoxelIndicesArrayPath(),
+  m_VoxelIndicesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<size_t>>(this, getVoxelIndicesArrayPath(),
                                                                                                          cDims);  /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_VoxelIndicesPtr.lock().get())                                                                   /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
@@ -367,7 +367,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
   if(getUseMask())
   {
     m_MaskPtr =
-        getDataContainerArray()->getPrereqArrayFromPath<DataArray<bool>, AbstractFilter>(this, getMaskArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+        getDataContainerArray()->getPrereqArrayFromPath<DataArray<bool>>(this, getMaskArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_MaskPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
       m_Mask = m_MaskPtr.lock()->getPointer(0);
@@ -382,10 +382,10 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
 
   if(getStoreKernelDistances())
   {
-    m_KernelDistances = getDataContainerArray()->createNonPrereqArrayFromPath<NeighborList<float>, AbstractFilter, float>(this, path, 0, cDims);
+    m_KernelDistances = getDataContainerArray()->createNonPrereqArrayFromPath<NeighborList<float>>(this, path, 0, cDims);
   }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrays);
+  getDataContainerArray()->validateNumberOfTuples(this, dataArrays);
 }
 
 // -----------------------------------------------------------------------------

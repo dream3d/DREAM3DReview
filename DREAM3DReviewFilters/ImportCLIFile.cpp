@@ -127,11 +127,11 @@ void ImportCLIFile::dataCheck()
   DataArrayPath path(getEdgeDataContainerName(), getEdgeAttributeMatrixName(), getLayerIdsArrayName());
   std::vector<size_t> cDims(1, 1);
 
-  getDataContainerArray()->createNonPrereqArrayFromPath<Int32ArrayType, AbstractFilter, int32_t>(this, path, 0, cDims);
+  getDataContainerArray()->createNonPrereqArrayFromPath<Int32ArrayType>(this, path, 0, cDims);
 
   path.setDataArrayName(getFeatureIdsArrayName());
 
-  getDataContainerArray()->createNonPrereqArrayFromPath<Int32ArrayType, AbstractFilter, int32_t>(this, path, 0, cDims);
+  getDataContainerArray()->createNonPrereqArrayFromPath<Int32ArrayType>(this, path, 0, cDims);
 }
 
 // -----------------------------------------------------------------------------

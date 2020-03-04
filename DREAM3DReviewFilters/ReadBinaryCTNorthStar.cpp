@@ -161,7 +161,7 @@ void ReadBinaryCTNorthStar::dataCheck()
     }
   }
 
-  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerName());
 
   if(getErrorCode() < 0)
   {
@@ -180,7 +180,7 @@ void ReadBinaryCTNorthStar::dataCheck()
   DataArrayPath path(getDataContainerName(), getCellAttributeMatrixName(), getDensityArrayName());
 
   m_DensityPtr =
-      getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>, AbstractFilter, float>(this, path, 0, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+      getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_DensityPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_Density = m_DensityPtr.lock()->getPointer(0);

@@ -130,7 +130,7 @@ void FindElementCentroids::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
-  IGeometry::Pointer geom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry, AbstractFilter>(this, getCellCentroidsArrayPath().getDataContainerName());
+  IGeometry::Pointer geom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getCellCentroidsArrayPath().getDataContainerName());
 
   if(getErrorCode() < 0)
   {
@@ -140,7 +140,7 @@ void FindElementCentroids::dataCheck()
   IGeometry::Type geomType = geom->getGeometryType();
   size_t numElements = geom->getNumberOfElements();
 
-  AttributeMatrix::Pointer attrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath<AbstractFilter>(this, getCellCentroidsArrayPath(), -301);
+  AttributeMatrix::Pointer attrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getCellCentroidsArrayPath(), -301);
   if(getErrorCode() < 0)
   {
     return;
@@ -180,7 +180,7 @@ void FindElementCentroids::dataCheck()
 
   if(getCreateVertexDataContainer())
   {
-    DataContainer::Pointer vm = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getNewDataContainerName(), DataContainerID);
+    DataContainer::Pointer vm = getDataContainerArray()->createNonPrereqDataContainer(this, getNewDataContainerName(), DataContainerID);
     if(getErrorCode() < 0)
     {
       return;
@@ -194,7 +194,7 @@ void FindElementCentroids::dataCheck()
 
   std::vector<size_t> cDims(1, 3);
 
-  m_CellCentroidsArrayPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>, AbstractFilter, float>(this, getCellCentroidsArrayPath(), 0, cDims, "", DataArrayID31);
+  m_CellCentroidsArrayPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, getCellCentroidsArrayPath(), 0, cDims, "", DataArrayID31);
   if(m_CellCentroidsArrayPtr.lock())
   {
     m_CellCentroidsArray = m_CellCentroidsArrayPtr.lock()->getPointer(0);

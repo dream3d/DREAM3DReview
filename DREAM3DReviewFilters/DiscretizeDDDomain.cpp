@@ -170,7 +170,7 @@ void DiscretizeDDDomain::dataCheck()
     return;
   }
 
-  EdgeGeom::Pointer edges = m->getPrereqGeometry<EdgeGeom, AbstractFilter>(this);
+  EdgeGeom::Pointer edges = m->getPrereqGeometry<EdgeGeom>(this);
   if(getErrorCode() < 0)
   {
     return;
@@ -188,7 +188,7 @@ void DiscretizeDDDomain::dataCheck()
   }
 
   // Create a new DataContainer
-  DataContainer::Pointer m2 = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getOutputDataContainerName(), DataContainerID);
+  DataContainer::Pointer m2 = getDataContainerArray()->createNonPrereqDataContainer(this, getOutputDataContainerName(), DataContainerID);
   if(getErrorCode() < 0)
   {
     return;
@@ -209,7 +209,7 @@ void DiscretizeDDDomain::dataCheck()
   // Get the name and create the array in the new data attrMat
   std::vector<size_t> dims(1, 1);
   tempPath.update(getOutputDataContainerName().getDataContainerName(), getOutputAttributeMatrixName(), getOutputArrayName());
-  m_OutputArrayPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter, int32_t>(this, tempPath, 0, dims, "", DataArrayID31);
+  m_OutputArrayPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, tempPath, 0, dims, "", DataArrayID31);
   if(nullptr != m_OutputArrayPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_OutputArray = m_OutputArrayPtr.lock()->getPointer(0);
