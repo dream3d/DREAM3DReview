@@ -350,12 +350,6 @@ public:
 public slots:
   void flushCache();
 
-signals:
-  void updateFilterParameters(AbstractFilter* filter);
-  void parametersChanged();
-  void preflightAboutToExecute();
-  void preflightExecuted();
-
 protected:
   ReadMicData();
 

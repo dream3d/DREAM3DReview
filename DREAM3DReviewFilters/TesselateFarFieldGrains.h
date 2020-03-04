@@ -409,12 +409,6 @@ public:
    */
   void execute() override;
 
-signals:
-  void updateFilterParameters(AbstractFilter* filter);
-  void parametersChanged();
-  void preflightAboutToExecute();
-  void preflightExecuted();
-
 protected:
   TesselateFarFieldGrains();
 
