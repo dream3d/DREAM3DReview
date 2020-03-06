@@ -32,21 +32,20 @@
 *    United States Prime Contract Navy N00173-07-C-2068
 *
 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+#include "RobustAutomaticThreshold.h"
 
 #include <memory>
-
-#include "RobustAutomaticThreshold.h"
 
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
-
 #include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArrayCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/ITK/Dream3DTemplateAliasMacro.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -72,8 +71,7 @@ RobustAutomaticThreshold::RobustAutomaticThreshold()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-RobustAutomaticThreshold::~RobustAutomaticThreshold()
-= default;
+RobustAutomaticThreshold::~RobustAutomaticThreshold() = default;
 
 // -----------------------------------------------------------------------------
 //

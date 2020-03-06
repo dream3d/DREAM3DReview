@@ -2,63 +2,21 @@
 
 #include <QtCore/QString>
 
+#include "itkConfigure.h"
+
+#if defined(ITK_VERSION_MAJOR) && ITK_VERSION_MAJOR == 4
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-field"
+#endif
+#endif
+
 #include "itkImage.h"
 #include "itkRGBPixel.h"
 
 #include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/DataArrays/DataArray.hpp"
 
 #include "DREAM3DReview/DREAM3DReviewConfig.h"
-
-#define EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(observableObj, templateName, inputData, ...)                                                                                                                 \
-  if(TemplateHelpers::CanDynamicCast<FloatArrayType>()(inputData))                                                                                                                                     \
-  {                                                                                                                                                                                                    \
-    templateName<float>(__VA_ARGS__);                                                                                                                                                                  \
-  }                                                                                                                                                                                                    \
-  else if(TemplateHelpers::CanDynamicCast<DoubleArrayType>()(inputData))                                                                                                                               \
-  {                                                                                                                                                                                                    \
-    templateName<double>(__VA_ARGS__);                                                                                                                                                                 \
-  }                                                                                                                                                                                                    \
-  else if(TemplateHelpers::CanDynamicCast<Int8ArrayType>()(inputData))                                                                                                                                 \
-  {                                                                                                                                                                                                    \
-    templateName<int8_t>(__VA_ARGS__);                                                                                                                                                                 \
-  }                                                                                                                                                                                                    \
-  else if(TemplateHelpers::CanDynamicCast<UInt8ArrayType>()(inputData))                                                                                                                                \
-  {                                                                                                                                                                                                    \
-    templateName<uint8_t>(__VA_ARGS__);                                                                                                                                                                \
-  }                                                                                                                                                                                                    \
-  else if(TemplateHelpers::CanDynamicCast<Int16ArrayType>()(inputData))                                                                                                                                \
-  {                                                                                                                                                                                                    \
-    templateName<int16_t>(__VA_ARGS__);                                                                                                                                                                \
-  }                                                                                                                                                                                                    \
-  else if(TemplateHelpers::CanDynamicCast<UInt16ArrayType>()(inputData))                                                                                                                               \
-  {                                                                                                                                                                                                    \
-    templateName<uint16_t>(__VA_ARGS__);                                                                                                                                                               \
-  }                                                                                                                                                                                                    \
-  else if(TemplateHelpers::CanDynamicCast<Int32ArrayType>()(inputData))                                                                                                                                \
-  {                                                                                                                                                                                                    \
-    templateName<int32_t>(__VA_ARGS__);                                                                                                                                                                \
-  }                                                                                                                                                                                                    \
-  else if(TemplateHelpers::CanDynamicCast<UInt32ArrayType>()(inputData))                                                                                                                               \
-  {                                                                                                                                                                                                    \
-    templateName<uint32_t>(__VA_ARGS__);                                                                                                                                                               \
-  }                                                                                                                                                                                                    \
-  else if(TemplateHelpers::CanDynamicCast<Int64ArrayType>()(inputData))                                                                                                                                \
-  {                                                                                                                                                                                                    \
-    templateName<int64_t>(__VA_ARGS__);                                                                                                                                                                \
-  }                                                                                                                                                                                                    \
-  else if(TemplateHelpers::CanDynamicCast<UInt64ArrayType>()(inputData))                                                                                                                               \
-  {                                                                                                                                                                                                    \
-    templateName<uint64_t>(__VA_ARGS__);                                                                                                                                                               \
-  } \
-  else if(TemplateHelpers::CanDynamicCast<SizeTArrayType>()(inputData))                                                                                                                               \
-  {                                                                                                                                                                                                    \
-    templateName<size_t>(__VA_ARGS__);                                                                                                                                                               \
-  }  \
-  else                                                                                                                                                                                                 \
-  {                                                                                                                                                                                                    \
-    observableObj->setErrorCondition(TemplateHelpers::Errors::UnsupportedDataType, "The input array was of unsupported type");                                                             \
-  }
 
 /**
  * @brief This namespace is used to define some Constants for the plugin itself.
@@ -156,16 +114,16 @@ const QString AnisotropicAlignment("Anisotropic Alignment");
 }
 
 // define pixels for dream3d variable types
-typedef int8_t Int8PixelType;
-typedef uint8_t UInt8PixelType;
-typedef int16_t Int16PixelType;
-typedef uint16_t UInt16PixelType;
-typedef int32_t Int32PixelType;
-typedef uint32_t UInt32PixelType;
-typedef int64_t Int64PixelType;
-typedef uint64_t UInt64PixelType;
-typedef float FloatPixelType;
-typedef double DoublePixelType;
+using Int8PixelType = int8_t;
+using UInt8PixelType = uint8_t;
+using Int16PixelType = int16_t;
+using UInt16PixelType = uint16_t;
+using Int32PixelType = int32_t;
+using UInt32PixelType = uint32_t;
+using Int64PixelType = int64_t;
+using UInt64PixelType = uint64_t;
+using FloatPixelType = float;
+using DoublePixelType = double;
 
 // define default pixel type
 #if Anisotropy_BitDepth == 8
@@ -178,12 +136,12 @@ typedef UInt16ArrayType DefaultArrayType;
 typedef FloatPixelType DefaultPixelType;
 typedef FloatArrayType DefaultArrayType;
 #else
-typedef UInt8PixelType DefaultPixelType;
-typedef UInt8ArrayType DefaultArrayType;
+using DefaultPixelType = UInt8PixelType;
+using DefaultArrayType = UInt8ArrayType;
 #endif
 
 // multicomponent pixels
-typedef itk::RGBPixel<uint8_t> RGBUInt8PixelType; // ipf color etc
+using RGBUInt8PixelType = itk::RGBPixel<uint8_t>; // ipf color etc
 // typedef itk::RGBAPixel <float> RGBAFloatPixelType; //may be able to handle quats with this?
 
 // define dimensionality
@@ -196,29 +154,29 @@ const unsigned int YSlice = 1;
 const unsigned int ZSlice = 2;
 
 // define image types
-typedef itk::Image<DefaultPixelType, ImageDimension> DefaultImageType;
-typedef itk::Image<Int8PixelType, ImageDimension> Int8ImageType;
-typedef itk::Image<UInt8PixelType, ImageDimension> UInt8ImageType;
-typedef itk::Image<Int16PixelType, ImageDimension> Int16ImageType;
-typedef itk::Image<UInt16PixelType, ImageDimension> UInt16ImageType;
-typedef itk::Image<Int32PixelType, ImageDimension> Int32ImageType;
-typedef itk::Image<UInt32PixelType, ImageDimension> UInt32ImageType;
-typedef itk::Image<Int64PixelType, ImageDimension> Int64ImageType;
-typedef itk::Image<UInt64PixelType, ImageDimension> UInt64ImageType;
-typedef itk::Image<FloatPixelType, ImageDimension> FloatImageType;
-typedef itk::Image<DoublePixelType, ImageDimension> DoubleImageType;
+using DefaultImageType = itk::Image<DefaultPixelType, ImageDimension>;
+using Int8ImageType = itk::Image<Int8PixelType, ImageDimension>;
+using UInt8ImageType = itk::Image<UInt8PixelType, ImageDimension>;
+using Int16ImageType = itk::Image<Int16PixelType, ImageDimension>;
+using UInt16ImageType = itk::Image<UInt16PixelType, ImageDimension>;
+using Int32ImageType = itk::Image<Int32PixelType, ImageDimension>;
+using UInt32ImageType = itk::Image<UInt32PixelType, ImageDimension>;
+using Int64ImageType = itk::Image<Int64PixelType, ImageDimension>;
+using UInt64ImageType = itk::Image<UInt64PixelType, ImageDimension>;
+using FloatImageType = itk::Image<FloatPixelType, ImageDimension>;
+using DoubleImageType = itk::Image<DoublePixelType, ImageDimension>;
 
-typedef itk::Image<DefaultPixelType, SliceDimension> DefaultSliceType;
-typedef itk::Image<Int8PixelType, SliceDimension> Int8SliceType;
-typedef itk::Image<UInt8PixelType, SliceDimension> UInt8SliceType;
-typedef itk::Image<Int16PixelType, SliceDimension> Int16SliceType;
-typedef itk::Image<UInt16PixelType, SliceDimension> UInt16SliceType;
-typedef itk::Image<Int32PixelType, SliceDimension> Int32SliceType;
-typedef itk::Image<UInt32PixelType, SliceDimension> UInt32SliceType;
-typedef itk::Image<Int64PixelType, SliceDimension> Int64SliceType;
-typedef itk::Image<UInt64PixelType, SliceDimension> UInt64SliceType;
-typedef itk::Image<FloatPixelType, SliceDimension> FloatSliceType;
-typedef itk::Image<DoublePixelType, SliceDimension> DoubleSliceType;
+using DefaultSliceType = itk::Image<DefaultPixelType, SliceDimension>;
+using Int8SliceType = itk::Image<Int8PixelType, SliceDimension>;
+using UInt8SliceType = itk::Image<UInt8PixelType, SliceDimension>;
+using Int16SliceType = itk::Image<Int16PixelType, SliceDimension>;
+using UInt16SliceType = itk::Image<UInt16PixelType, SliceDimension>;
+using Int32SliceType = itk::Image<Int32PixelType, SliceDimension>;
+using UInt32SliceType = itk::Image<UInt32PixelType, SliceDimension>;
+using Int64SliceType = itk::Image<Int64PixelType, SliceDimension>;
+using UInt64SliceType = itk::Image<UInt64PixelType, SliceDimension>;
+using FloatSliceType = itk::Image<FloatPixelType, SliceDimension>;
+using DoubleSliceType = itk::Image<DoublePixelType, SliceDimension>;
 }
 
 /**

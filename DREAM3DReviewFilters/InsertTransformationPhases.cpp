@@ -150,7 +150,8 @@ void InsertTransformationPhases::setupFilterParameters()
     option->setSetterCallback(SIMPL_BIND_SETTER(InsertTransformationPhases, this, TransCrystalStruct));
     option->setGetterCallback(SIMPL_BIND_GETTER(InsertTransformationPhases, this, TransCrystalStruct));
     // The choices here are IN ORDER of the enumerations from the EBSDLib. DO NOT CHANGE THE ORDER.
-    QVector<QString> choices = QVector<QString>::fromStdVector(LaueOps::GetLaueNames());
+    std::vector<QString> names = LaueOps::GetLaueNames();
+    QVECTOR_FROM_STD_VECTOR(QVector<QString>, choices, names)
     choices.pop_back(); // Remove the last name because we don't need it.
     option->setCategory(FilterParameter::Parameter);
     option->setChoices(choices);
