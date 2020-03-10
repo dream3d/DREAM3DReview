@@ -938,48 +938,6 @@ void EstablishFoamMorphology::dataCheck()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void EstablishFoamMorphology::preflight()
-{
-	setInPreflight(true);
-	emit preflightAboutToExecute();
-	emit updateFilterParameters(this);
-	dataCheck();
-	emit preflightExecuted();
-
-	DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getOutputCellAttributeMatrixPath());
-	if (dc == nullptr)
-	{
-		setInPreflight(false);
-		return;
-	}
-	AttributeMatrix::Pointer featureAttrMat = dc->getAttributeMatrix(getOutputCellFeatureAttributeMatrixName());
-	if (featureAttrMat == nullptr)
-	{
-		setInPreflight(false);
-		return;
-	}
-	AttributeMatrix::Pointer cellAttrMat = dc->getAttributeMatrix(getOutputCellAttributeMatrixPath().getAttributeMatrixName());
-	if (cellAttrMat == nullptr)
-	{
-		setInPreflight(false);
-		return;
-	}
-	cellAttrMat->removeAttributeArray(m_NearestNeighborsArrayName);
-	featureAttrMat->removeAttributeArray(m_AxisEulerAnglesArrayName);
-	featureAttrMat->removeAttributeArray(m_AxisLengthsArrayName);
-	featureAttrMat->removeAttributeArray(m_CentroidsArrayName);
-	featureAttrMat->removeAttributeArray(m_EquivalentDiametersArrayName);
-	featureAttrMat->removeAttributeArray(m_NeighborhoodsArrayName);
-	featureAttrMat->removeAttributeArray(m_Omega3sArrayName);
-	featureAttrMat->removeAttributeArray(m_FeaturePhasesArrayName);
-	featureAttrMat->removeAttributeArray(m_VolumesArrayName);
-
-	setInPreflight(false);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void EstablishFoamMorphology::execute()
 {
   initialize();

@@ -180,18 +180,6 @@ void KDistanceGraph::dataCheck()
   getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void KDistanceGraph::preflight()
-{
-  setInPreflight(true);
-  emit preflightAboutToExecute();
-  emit updateFilterParameters(this);
-  dataCheck();
-  emit preflightExecuted();
-  setInPreflight(false);
-}
 
 // -----------------------------------------------------------------------------
 //

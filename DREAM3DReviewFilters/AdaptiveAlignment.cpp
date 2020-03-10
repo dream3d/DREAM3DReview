@@ -240,18 +240,6 @@ void AdaptiveAlignment::dataCheck()
   }
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void AdaptiveAlignment::preflight()
-{
-  setInPreflight(true);
-  emit preflightAboutToExecute();
-  emit updateFilterParameters(this);
-  dataCheck();
-  emit preflightExecuted();
-  setInPreflight(false);
-}
 
 void AdaptiveAlignment::create_array_for_flattened_image()
 {

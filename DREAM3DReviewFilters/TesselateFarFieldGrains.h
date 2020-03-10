@@ -400,11 +400,6 @@ public:
   void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
 
   /**
-   * @brief preflight
-   */
-  void preflight() override;
-
-  /**
    * @brief Reimplemented from @see AbstractFilter class
    */
   void execute() override;
@@ -415,7 +410,7 @@ protected:
   /**
    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
    */
-  void dataCheck();
+  void dataCheck() override;
 
   /**
    * @brief Initializes all the private instance variables.

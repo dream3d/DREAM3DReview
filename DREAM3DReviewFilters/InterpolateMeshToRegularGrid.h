@@ -198,11 +198,6 @@ public:
   void execute() override;
 
   /**
-  * @brief preflight Reimplemented from @see AbstractFilter class
-  */
-  void preflight() override;
-
-  /**
   * @brief getUuid Return the unique identifier for this filter.
   * @return A QUuid object.
   */

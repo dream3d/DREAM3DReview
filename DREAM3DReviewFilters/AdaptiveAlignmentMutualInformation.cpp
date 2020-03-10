@@ -208,18 +208,6 @@ void AdaptiveAlignmentMutualInformation::dataCheck()
   getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void AdaptiveAlignmentMutualInformation::preflight()
-{
-  setInPreflight(true);
-  emit preflightAboutToExecute();
-  emit updateFilterParameters(this);
-  dataCheck();
-  emit preflightExecuted();
-  setInPreflight(false);
-}
 
 // -----------------------------------------------------------------------------
 //

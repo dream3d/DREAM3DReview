@@ -196,18 +196,6 @@ void Silhouette::dataCheck()
   getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void Silhouette::preflight()
-{
-  setInPreflight(true);
-  emit preflightAboutToExecute();
-  emit updateFilterParameters(this);
-  dataCheck();
-  emit preflightExecuted();
-  setInPreflight(false);
-}
 
 // -----------------------------------------------------------------------------
 //

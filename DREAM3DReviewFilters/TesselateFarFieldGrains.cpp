@@ -461,6 +461,28 @@ void TesselateFarFieldGrains::dataCheck()
   clearWarningCode();
   // This is for convenience
 
+  bool hasMissingFiles = false;
+  bool orderAscending = false;
+
+  if(m_FeatureInputFileListInfo.Ordering == 0)
+  {
+    orderAscending = true;
+  }
+  else if(m_FeatureInputFileListInfo.Ordering == 1)
+  {
+    orderAscending = false;
+  }
+
+  // Now generate all the file names the user is asking for and populate the table
+  QVector<QString> fileList = FilePathGenerator::GenerateFileList(m_FeatureInputFileListInfo.StartIndex, m_FeatureInputFileListInfo.EndIndex, m_FeatureInputFileListInfo.IncrementIndex,
+                                                                  hasMissingFiles, orderAscending, m_FeatureInputFileListInfo.InputPath, m_FeatureInputFileListInfo.FilePrefix,
+                                                                  m_FeatureInputFileListInfo.FileSuffix, m_FeatureInputFileListInfo.FileExtension, m_FeatureInputFileListInfo.PaddingDigits);
+  if(fileList.empty())
+  {
+    QString ss = QObject::tr("No files have been selected for import. Have you set the input directory?");
+    setErrorCondition(-11, ss);
+  }
+
   // Make sure we have our input DataContainer with the proper Ensemble data
   DataContainer::Pointer m = getDataContainerArray()->getPrereqDataContainer(this, getOutputCellAttributeMatrixName().getDataContainerName(), false);
   if(getErrorCode() < 0 || nullptr == m.get())
@@ -593,61 +615,6 @@ void TesselateFarFieldGrains::dataCheck()
   {
     m_CrystalStructures = m_CrystalStructuresPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void TesselateFarFieldGrains::preflight()
-{
-  setInPreflight(true);
-  emit preflightAboutToExecute();
-  emit updateFilterParameters(this);
-  dataCheck();
-  emit preflightExecuted();
-
-  bool hasMissingFiles = false;
-  bool orderAscending = false;
-
-  if(m_FeatureInputFileListInfo.Ordering == 0)
-  {
-    orderAscending = true;
-  }
-  else if(m_FeatureInputFileListInfo.Ordering == 1)
-  {
-    orderAscending = false;
-  }
-
-  // Now generate all the file names the user is asking for and populate the table
-  QVector<QString> fileList = FilePathGenerator::GenerateFileList(m_FeatureInputFileListInfo.StartIndex, m_FeatureInputFileListInfo.EndIndex, m_FeatureInputFileListInfo.IncrementIndex,
-                                                                  hasMissingFiles, orderAscending, m_FeatureInputFileListInfo.InputPath, m_FeatureInputFileListInfo.FilePrefix,
-                                                                  m_FeatureInputFileListInfo.FileSuffix, m_FeatureInputFileListInfo.FileExtension, m_FeatureInputFileListInfo.PaddingDigits);
-  if(fileList.empty())
-  {
-    QString ss = QObject::tr("No files have been selected for import. Have you set the input directory?");
-    setErrorCondition(-11, ss);
-  }
-
-  DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getOutputCellAttributeMatrixName());
-  if(dc == nullptr)
-  {
-    setInPreflight(false);
-    return;
-  }
-  AttributeMatrix::Pointer attrMat = dc->getAttributeMatrix(getOutputCellFeatureAttributeMatrixName());
-  if(attrMat == nullptr)
-  {
-    setInPreflight(false);
-    return;
-  }
-
-  attrMat->removeAttributeArray(m_EquivalentDiametersArrayName);
-  attrMat->removeAttributeArray(m_Omega3sArrayName);
-  attrMat->removeAttributeArray(m_AxisEulerAnglesArrayName);
-  attrMat->removeAttributeArray(m_AxisLengthsArrayName);
-  attrMat->removeAttributeArray(m_VolumesArrayName);
-  attrMat->removeAttributeArray(m_CentroidsArrayName);
-  setInPreflight(false);
 }
 
 // -----------------------------------------------------------------------------

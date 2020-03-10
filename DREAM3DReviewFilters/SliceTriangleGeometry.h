@@ -273,11 +273,6 @@ public:
   void execute() override;
 
   /**
-  * @brief preflight Reimplemented from @see AbstractFilter class
-  */
-  void preflight() override;
-
-  /**
   * @brief getUuid Return the unique identifier for this filter.
   * @return A QUuid object.
   */
@@ -289,7 +284,7 @@ protected:
   /**
    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
    */
-  void dataCheck();
+  void dataCheck() override;
 
   /**
    * @brief rotateVertices either rotates CAD triangles and/or edges into or out of the sectioning orientation so the sectioning is always along 001
