@@ -693,7 +693,7 @@ void AdaptiveAlignment::execute()
 {
   clearErrorCode();
   clearWarningCode();
-  dataCheck();
+  AdaptiveAlignment::dataCheck();
   if(getErrorCode() < 0)
   {
     return;
