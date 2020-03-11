@@ -400,6 +400,11 @@ public:
   void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
 
   /**
+   * @brief preflight
+   */
+  void preflight() override;
+
+  /**
    * @brief Reimplemented from @see AbstractFilter class
    */
   void execute() override;
