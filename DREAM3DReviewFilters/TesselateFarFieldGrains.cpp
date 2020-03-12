@@ -593,18 +593,6 @@ void TesselateFarFieldGrains::dataCheck()
   {
     m_CrystalStructures = m_CrystalStructuresPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void TesselateFarFieldGrains::preflight()
-{
-  setInPreflight(true);
-  emit preflightAboutToExecute();
-  emit updateFilterParameters(this);
-  dataCheck();
-  emit preflightExecuted();
 
   bool hasMissingFiles = false;
   bool orderAscending = false;
@@ -647,7 +635,6 @@ void TesselateFarFieldGrains::preflight()
   attrMat->removeAttributeArray(m_AxisLengthsArrayName);
   attrMat->removeAttributeArray(m_VolumesArrayName);
   attrMat->removeAttributeArray(m_CentroidsArrayName);
-  setInPreflight(false);
 }
 
 // -----------------------------------------------------------------------------
