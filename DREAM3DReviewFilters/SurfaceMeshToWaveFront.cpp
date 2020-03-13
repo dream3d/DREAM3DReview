@@ -183,9 +183,9 @@ void SurfaceMeshToWaveFront::execute()
   // Dump the triangle faces
   for(size_t i = 0; i < numberOfTriangles; i++)
   {
-    float c0 = triangles->getComponent(i, 0);
-    float c1 = triangles->getComponent(i, 1);
-    float c2 = triangles->getComponent(i, 2);
+    size_t c0 = triangles->getComponent(i, 0);
+    size_t c1 = triangles->getComponent(i, 1);
+    size_t c2 = triangles->getComponent(i, 2);
 
     // These vertex values that make up the face must be 1-based
     ss << "f " << c0 + 1 << " " << c1 + 1 << " " << c2 + 1 << "\n";
