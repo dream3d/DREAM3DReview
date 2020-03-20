@@ -29,6 +29,28 @@ class SliceTriangleGeometry : public AbstractFilter
 {
   Q_OBJECT
 
+#ifdef SIMPL_ENABLE_PYTHON
+  PYB11_CREATE_BINDINGS(SliceTriangleGeometry SUPERCLASS AbstractFilter)
+  PYB11_SHARED_POINTERS(SliceTriangleGeometry)
+  PYB11_FILTER_NEW_MACRO(SliceTriangleGeometry)
+
+  PYB11_PROPERTY(DataArrayPath CADDataContainerName READ getCADDataContainerName WRITE setCADDataContainerName)
+  PYB11_PROPERTY(QString SliceDataContainerName READ getSliceDataContainerName WRITE setSliceDataContainerName)
+  PYB11_PROPERTY(QString EdgeAttributeMatrixName READ getEdgeAttributeMatrixName WRITE setEdgeAttributeMatrixName)
+  PYB11_PROPERTY(QString SliceAttributeMatrixName READ getSliceAttributeMatrixName WRITE setSliceAttributeMatrixName)
+  PYB11_PROPERTY(QString SliceIdArrayName READ getSliceIdArrayName WRITE setSliceIdArrayName)
+  PYB11_PROPERTY(QString AreasArrayName READ getAreasArrayName WRITE setAreasArrayName)
+  PYB11_PROPERTY(QString PerimetersArrayName READ getPerimetersArrayName WRITE setPerimetersArrayName)
+  PYB11_PROPERTY(bool HaveRegionIds READ getHaveRegionIds WRITE setHaveRegionIds)
+  PYB11_PROPERTY(DataArrayPath RegionIdArrayPath READ getRegionIdArrayPath WRITE setRegionIdArrayPath)
+  PYB11_PROPERTY(FloatVec3Type SliceDirection READ getSliceDirection WRITE setSliceDirection)
+  PYB11_PROPERTY(float SliceResolution READ getSliceResolution WRITE setSliceResolution)
+  PYB11_PROPERTY(float Zstart READ getZstart WRITE setZstart)
+  PYB11_PROPERTY(float Zend READ getZend WRITE setZend)
+  PYB11_PROPERTYQ_PROPERTY(int SliceRange READ getSliceRange WRITE setSliceRange)
+
+#endif
+
 public:
   using Self = SliceTriangleGeometry;
   using Pointer = std::shared_ptr<Self>;
@@ -261,11 +283,6 @@ public:
    * @brief setupFilterParameters Reimplemented from @see AbstractFilter class
    */
   void setupFilterParameters() override;
-
-  /**
-   * @brief readFilterParameters Reimplemented from @see AbstractFilter class
-   */
-  void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
 
   /**
    * @brief execute Reimplemented from @see AbstractFilter class

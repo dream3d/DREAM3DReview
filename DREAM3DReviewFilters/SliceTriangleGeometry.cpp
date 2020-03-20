@@ -18,7 +18,6 @@
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
-
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
@@ -120,27 +119,6 @@ void SliceTriangleGeometry::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_DA_WITH_LINKED_AM_FP("Areas", AreasArrayName, SliceDataContainerName, SliceAttributeMatrixName, FilterParameter::CreatedArray, SliceTriangleGeometry));
   parameters.push_back(SIMPL_NEW_DA_WITH_LINKED_AM_FP("Perimeters", PerimetersArrayName, SliceDataContainerName, SliceAttributeMatrixName, FilterParameter::CreatedArray, SliceTriangleGeometry));
   setFilterParameters(parameters);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SliceTriangleGeometry::readFilterParameters(AbstractFilterParametersReader* reader, int index)
-{
-  reader->openFilterGroup(this, index);
-  setCADDataContainerName(reader->readDataArrayPath("CADDataContainerName", getCADDataContainerName()));
-  setSliceDataContainerName(reader->readString("SliceDataContainerName", getSliceDataContainerName()));
-  setEdgeAttributeMatrixName(reader->readString("EdgeAttributeMatrixName", getEdgeAttributeMatrixName()));
-  setSliceAttributeMatrixName(reader->readString("SliceAttributeMatrixName", getSliceAttributeMatrixName()));
-  setSliceIdArrayName(reader->readString("SliceIdArrayName", getSliceIdArrayName()));
-  setHaveRegionIds(reader->readValue("HaveRegionIds", getHaveRegionIds()));
-  setRegionIdArrayPath(reader->readDataArrayPath("RegionIdArrayPath", getRegionIdArrayPath()));
-  setSliceDirection(reader->readFloatVec3("SliceDirection", getSliceDirection()));
-  setSliceResolution(reader->readValue("SliceResolution", getSliceResolution()));
-  setSliceRange(reader->readValue("SliceRange", getSliceRange()));
-  setZstart(reader->readValue("Zstart", getZstart()));
-  setZend(reader->readValue("Zend", getZend()));
-  reader->closeFilterGroup();
 }
 
 // -----------------------------------------------------------------------------
@@ -309,6 +287,7 @@ void SliceTriangleGeometry::rotateVertices(unsigned int direction, float* n, int
       MatrixMath::Copy3x3(invRotMat, rotMat);
     }
 
+    // TODO: PARALLELIZE THIS BIT: Not sure if it will really help though
     // rotate all vertices so sectioning direction will always be 001
     float coords[3] = {0.0f, 0.0f, 0.0f};
     float newcoords[3] = {0.0f, 0.0f, 0.0f};
@@ -391,7 +370,7 @@ void SliceTriangleGeometry::determineBoundsAndNumSlices(float& minDim, float& ma
       maxDim = m_Zend;
     }
   }
-
+  // TODO: Is this still correct? Why have the subtraction at all?
   m_NumberOfSlices = static_cast<MeshIndexType>((maxDim - 0.0) / m_SliceResolution) + 1;
 //  m_NumberOfSlices = static_cast<MeshIndexType>((maxDim - minDim) / m_SliceResolution) + 1;
 }
