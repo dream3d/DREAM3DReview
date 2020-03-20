@@ -1,16 +1,16 @@
 /* ============================================================================
-* Software developed by US federal government employees (including military personnel) 
-* as part of their official duties is not subject to copyright protection and is 
-* considered “public domain” (see 17 USC Section 105). Public domain software can be used 
-* by anyone for any purpose, and cannot be released under a copyright license 
-* (including typical open source software licenses).
-* 
-* This source code file was originally written by United States DoD employees. The
-* original source code files are released into the Public Domain.
-* 
-* Subsequent changes to the codes by others may elect to add a copyright and license
-* for those changes.
-* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+ * Software developed by US federal government employees (including military personnel)
+ * as part of their official duties is not subject to copyright protection and is
+ * considered “public domain” (see 17 USC Section 105). Public domain software can be used
+ * by anyone for any purpose, and cannot be released under a copyright license
+ * (including typical open source software licenses).
+ *
+ * This source code file was originally written by United States DoD employees. The
+ * original source code files are released into the Public Domain.
+ *
+ * Subsequent changes to the codes by others may elect to add a copyright and license
+ * for those changes.
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include <memory>
 
 #include "SliceTriangleGeometry.h"
@@ -199,9 +199,9 @@ void SliceTriangleGeometry::dataCheck()
   std::vector<size_t> cDims(1, 1);
   if(m_HaveRegionIds)
   {
-    m_TriRegionIdPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getRegionIdArrayPath(),
-                                                                                                           cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-    if(nullptr != m_TriRegionIdPtr.lock().get())                                                                   /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    m_TriRegionIdPtr =
+        getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getRegionIdArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    if(nullptr != m_TriRegionIdPtr.lock().get())                                                                  /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
       m_TriRegionId = m_TriRegionIdPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -211,8 +211,7 @@ void SliceTriangleGeometry::dataCheck()
     }
 
     tempPath.update(getSliceDataContainerName(), getEdgeAttributeMatrixName(), getRegionIdArrayPath().getDataArrayName());
-    m_RegionIdPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(
-        this, tempPath, 0, cDims);            /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    m_RegionIdPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, tempPath, 0, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_RegionIdPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
       m_RegionId = m_RegionIdPtr.lock()->getPointer(0);
@@ -224,8 +223,7 @@ void SliceTriangleGeometry::dataCheck()
   }
 
   tempPath.update(getSliceDataContainerName(), getEdgeAttributeMatrixName(), getSliceIdArrayName());
-  m_SliceIdPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, tempPath, 0,
-                                                                                                                    cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  m_SliceIdPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, tempPath, 0, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_SliceIdPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_SliceId = m_SliceIdPtr.lock()->getPointer(0);
@@ -236,9 +234,8 @@ void SliceTriangleGeometry::dataCheck()
   }
 
   tempPath.update(getSliceDataContainerName(), getSliceAttributeMatrixName(), getAreasArrayName());
-  m_AreaPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, tempPath, 0,
-                                                                                                               cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_AreaPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  m_AreaPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, tempPath, 0, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_AreaPtr.lock().get())                                                                          /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_Area = m_AreaPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -248,8 +245,7 @@ void SliceTriangleGeometry::dataCheck()
   }
 
   tempPath.update(getSliceDataContainerName(), getSliceAttributeMatrixName(), getPerimetersArrayName());
-  m_PerimeterPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, tempPath, 0,
-                                                                                                                    cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  m_PerimeterPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, tempPath, 0, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_PerimeterPtr.lock().get()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_Perimeter = m_PerimeterPtr.lock()->getPointer(0);
@@ -280,9 +276,9 @@ void SliceTriangleGeometry::rotateVertices(unsigned int direction, float* n, int
     MatrixMath::Normalize3x1(crossDirection);
     OrientationTransformation::ax2om<OrientationF, OrientationF>(OrientationF(crossDirection[0], crossDirection[1], crossDirection[2], angle)).toGMatrix(rotMat);
 
-    if (direction == rotBackward)
+    if(direction == rotBackward)
     {
-      //invert the roation matrix and copy it back into itself
+      // invert the roation matrix and copy it back into itself
       MatrixMath::Invert3x3(rotMat, invRotMat);
       MatrixMath::Copy3x3(invRotMat, rotMat);
     }
@@ -372,10 +368,10 @@ void SliceTriangleGeometry::determineBoundsAndNumSlices(float& minDim, float& ma
   }
   // TODO: Is this still correct? Why have the subtraction at all?
   m_NumberOfSlices = static_cast<MeshIndexType>((maxDim - 0.0) / m_SliceResolution) + 1;
-//  m_NumberOfSlices = static_cast<MeshIndexType>((maxDim - minDim) / m_SliceResolution) + 1;
+  //  m_NumberOfSlices = static_cast<MeshIndexType>((maxDim - minDim) / m_SliceResolution) + 1;
 }
 
-    // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void SliceTriangleGeometry::execute()
@@ -402,10 +398,10 @@ void SliceTriangleGeometry::execute()
   MeshIndexType numTris = triangle->getNumberOfTris();
   MeshIndexType numTriVerts = triangle->getNumberOfVertices();
 
-  //rotate CAD tiangles to get into sectioning orientation
+  // rotate CAD tiangles to get into sectioning orientation
   rotateVertices(rotForward, n, numTriVerts, triVerts);
 
-  //determine bounds and number of slices needed for CAD geometry
+  // determine bounds and number of slices needed for CAD geometry
   float minDim = std::numeric_limits<float>::max();
   float maxDim = -minDim;
   determineBoundsAndNumSlices(minDim, maxDim, numTris, tris, triVerts);
@@ -509,7 +505,7 @@ void SliceTriangleGeometry::execute()
         slicedVerts.push_back(p[2]);
         cut++;
       }
-      else if (val == 'q' || val == 'r')
+      else if(val == 'q' || val == 'r')
       {
         cornerHit = true;
         corner[0] = p[0];
@@ -674,10 +670,9 @@ void SliceTriangleGeometry::execute()
     m_Area[i] = fabsf(m_Area[i]);
   }
 
-
   // rotate all CAD triangles back to original orientation
   rotateVertices(rotBackward, n, numTriVerts, triVerts);
-  
+
   // rotate all edges back to original orientation
   rotateVertices(rotBackward, n, numVerts, verts);
 
