@@ -1,7 +1,34 @@
-/*
- * Your License or Copyright can go here
- */
-
+/* ============================================================================
+ * Copyright (c) 2020 BlueQuartz Software, LLC
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the names of any of the BlueQuartz Software contributors
+ * may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
 #include "SIMPLib/SIMPLib.h"
@@ -19,15 +46,11 @@ class DREAM3DReview_EXPORT SurfaceMeshToWaveFront : public AbstractFilter
   Q_OBJECT
 
 #ifdef SIMPL_ENABLE_PYTHON
-  // clang-format off
   PYB11_CREATE_BINDINGS(SurfaceMeshToWaveFront SUPERCLASS AbstractFilter)
+  PYB11_SHARED_POINTERS(SurfaceMeshToWaveFront)
+  PYB11_FILTER_NEW_MACRO(SurfaceMeshToWaveFront)
   PYB11_FILTER_PARAMETER(QString, OutputWaveFrontFile)
-//  PYB11_FILTER_PARAMETER(DataArrayPath, SurfaceMeshFaceLabelsArrayPath)
   PYB11_FILTER_PARAMETER(DataArrayPath, SurfaceMeshNodeTypeArrayPath)
-//  PYB11_FILTER_PARAMETER(QVector<DataArrayPath>, SelectedFaceArrays)
-//  PYB11_FILTER_PARAMETER(QVector<DataArrayPath>, SelectedVertexArrays)
-
-  // clang-format on
 #endif
 
 public:
@@ -42,78 +65,6 @@ public:
   static std::shared_ptr<SurfaceMeshToWaveFront> New();
 
   /**
-   * @brief Setter property for OutputWaveFrontFile
-   */
-  void setOutputWaveFrontFile(const QString& value);
-  /**
-   * @brief Getter property for OutputWaveFrontFile
-   * @return Value of OutputWaveFrontFile
-   */
-  QString getOutputWaveFrontFile() const;
-
-  Q_PROPERTY(QString OutputWaveFrontFile READ getOutputWaveFrontFile WRITE setOutputWaveFrontFile)
-
-  //  /**
-  //   * @brief Setter property for DataContainerName
-  //   */
-  //  void setDataContainerPath(const DataArrayPath& value);
-  //  /**
-  //   * @brief Getter property for DataContainerPath
-  //   * @return Value of DataContainerPath
-  //   */
-  //  DataArrayPath getDataContainerPath() const;
-
-  //  Q_PROPERTY(DataArrayPath DataContainerPath READ getDataContainerPath WRITE setDataContainerPath)
-
-  //  /**
-  //   * @brief Setter property for SurfaceMeshFaceLabelsArrayPath
-  //   */
-  //  void setSurfaceMeshFaceLabelsArrayPath(const DataArrayPath& value);
-  //  /**
-  //   * @brief Getter property for SurfaceMeshFaceLabelsArrayPath
-  //   * @return Value of SurfaceMeshFaceLabelsArrayPath
-  //   */
-  //  DataArrayPath getSurfaceMeshFaceLabelsArrayPath() const;
-
-  //  Q_PROPERTY(DataArrayPath SurfaceMeshFaceLabelsArrayPath READ getSurfaceMeshFaceLabelsArrayPath WRITE setSurfaceMeshFaceLabelsArrayPath)
-
-  /**
-   * @brief Setter property for SurfaceMeshNodeTypeArrayPath
-   */
-  void setSurfaceMeshNodeTypeArrayPath(const DataArrayPath& value);
-  /**
-   * @brief Getter property for SurfaceMeshNodeTypeArrayPath
-   * @return Value of SurfaceMeshNodeTypeArrayPath
-   */
-  DataArrayPath getSurfaceMeshNodeTypeArrayPath() const;
-
-  Q_PROPERTY(DataArrayPath SurfaceMeshNodeTypeArrayPath READ getSurfaceMeshNodeTypeArrayPath WRITE setSurfaceMeshNodeTypeArrayPath)
-
-  //  /**
-  //   * @brief Setter property for SelectedFaceArrays
-  //   */
-  //  void setSelectedFaceArrays(const QVector<DataArrayPath>& value);
-  //  /**
-  //   * @brief Getter property for SelectedFaceArrays
-  //   * @return Value of SelectedFaceArrays
-  //   */
-  //  QVector<DataArrayPath> getSelectedFaceArrays() const;
-
-  //  Q_PROPERTY(QVector<DataArrayPath> SelectedFaceArrays READ getSelectedFaceArrays WRITE setSelectedFaceArrays)
-
-  //  /**
-  //   * @brief Setter property for SelectedVertexArrays
-  //   */
-  //  void setSelectedVertexArrays(const QVector<DataArrayPath>& value);
-  //  /**
-  //   * @brief Getter property for SelectedVertexArrays
-  //   * @return Value of SelectedVertexArrays
-  //   */
-  //  QVector<DataArrayPath> getSelectedVertexArrays() const;
-
-  //  Q_PROPERTY(QVector<DataArrayPath> SelectedVertexArrays READ getSelectedVertexArrays WRITE setSelectedVertexArrays)
-
-  /**
    * @brief Returns the name of the class for SurfaceMeshToWaveFront
    */
   QString getNameOfClass() const override;
@@ -124,8 +75,28 @@ public:
   static QString ClassName();
 
   ~SurfaceMeshToWaveFront() override;
-  
 
+  /**
+   * @brief Setter property for OutputWaveFrontFile
+   */
+  void setOutputWaveFrontFile(const QString& value);
+  /**
+   * @brief Getter property for OutputWaveFrontFile
+   * @return Value of OutputWaveFrontFile
+   */
+  QString getOutputWaveFrontFile() const;
+  Q_PROPERTY(QString OutputWaveFrontFile READ getOutputWaveFrontFile WRITE setOutputWaveFrontFile)
+
+  /**
+   * @brief Setter property for SurfaceMeshNodeTypeArrayPath
+   */
+  void setSurfaceMeshNodeTypeArrayPath(const DataArrayPath& value);
+  /**
+   * @brief Getter property for SurfaceMeshNodeTypeArrayPath
+   * @return Value of SurfaceMeshNodeTypeArrayPath
+   */
+  DataArrayPath getSurfaceMeshNodeTypeArrayPath() const;
+  Q_PROPERTY(DataArrayPath SurfaceMeshNodeTypeArrayPath READ getSurfaceMeshNodeTypeArrayPath WRITE setSurfaceMeshNodeTypeArrayPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -182,34 +153,6 @@ public:
    */
   void execute() override;
 
-  /**
-   * @brief preflight Reimplemented from @see AbstractFilter class
-   */
-  void preflight() override;
-
-signals:
-  /**
-   * @brief updateFilterParameters Emitted when the Filter requests all the latest Filter parameters
-   * be pushed from a user-facing control (such as a widget)
-   * @param filter Filter instance pointer
-   */
-  void updateFilterParameters(AbstractFilter * filter);
-
-  /**
-   * @brief parametersChanged Emitted when any Filter parameter is changed internally
-   */
-  void parametersChanged();
-
-  /**
-   * @brief preflightAboutToExecute Emitted just before calling dataCheck()
-   */
-  void preflightAboutToExecute();
-
-  /**
-   * @brief preflightExecuted Emitted just after calling dataCheck()
-   */
-  void preflightExecuted();
-
 protected:
   SurfaceMeshToWaveFront();
 
@@ -224,17 +167,11 @@ protected:
   void initialize();
 
 private:
-  //  std::weak_ptr<DataArray<int32_t>> m_SurfaceMeshFaceLabelsPtr;
-  //  int32_t* m_SurfaceMeshFaceLabels = nullptr;
   std::weak_ptr<DataArray<int8_t>> m_SurfaceMeshNodeTypePtr;
   int8_t* m_SurfaceMeshNodeType = nullptr;
-  //  DataArrayPath m_DataContainerPath;
 
   QString m_OutputWaveFrontFile = {};
-  //  DataArrayPath m_SurfaceMeshFaceLabelsArrayPath = {};
   DataArrayPath m_SurfaceMeshNodeTypeArrayPath = {};
-  //  QVector<DataArrayPath> m_SelectedFaceArrays = {};
-  //  QVector<DataArrayPath> m_SelectedVertexArrays = {};
 
 public:
   SurfaceMeshToWaveFront(const SurfaceMeshToWaveFront&) = delete;            // Copy Constructor Not Implemented

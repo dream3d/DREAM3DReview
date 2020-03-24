@@ -1,6 +1,34 @@
-/*
- * Your License or Copyright can go here
- */
+/* ============================================================================
+ * Copyright (c) 2020 BlueQuartz Software, LLC
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the names of any of the BlueQuartz Software contributors
+ * may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "SurfaceMeshToWaveFront.h"
 
@@ -20,12 +48,11 @@
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SurfaceMeshToWaveFront::SurfaceMeshToWaveFront() :
-  AbstractFilter()
+SurfaceMeshToWaveFront::SurfaceMeshToWaveFront()
+: AbstractFilter()
 {
   initialize();
 }
@@ -54,41 +81,14 @@ void SurfaceMeshToWaveFront::setupFilterParameters()
 
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Output Wavefront File", OutputWaveFrontFile, FilterParameter::Parameter, SurfaceMeshToWaveFront, "*.obj", "Wavefront Object File"));
 
-  //  {
-  //    DataContainerSelectionFilterParameter::RequirementType req;
-  //    req.dcGeometryTypes = IGeometry::Types(1, IGeometry::Type::Triangle);
-  //    parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Data Container (Triangle Geometry)", DataContainerPath, FilterParameter::RequiredArray, SurfaceMeshToWaveFront, req));
-  //  }
-
-  //  {
-  //    DataArraySelectionFilterParameter::RequirementType req;
-  //    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("SurfaceMeshFaceLabels", SurfaceMeshFaceLabelsArrayPath, FilterParameter::RequiredArray, SurfaceMeshToWaveFront, req));
-  //  }
-  {
-    DataArraySelectionFilterParameter::RequirementType req;
-    req.dcGeometryTypes = IGeometry::Types(1, IGeometry::Type::Triangle);
-    req.amTypes = AttributeMatrix::Types(1, AttributeMatrix::Type::Vertex);
-    req.daTypes = QVector<QString>(1, SIMPL::TypeNames::Int8);
-    std::vector<std::vector<size_t>> comp;
-    comp.push_back(std::vector<size_t>(1, 1));
-    req.componentDimensions = comp;
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Surface Mesh Node Type", SurfaceMeshNodeTypeArrayPath, FilterParameter::RequiredArray, SurfaceMeshToWaveFront, req));
-  }
-
-  //  parameters.push_back(SeparatorFilterParameter::New("Vertex Data", FilterParameter::RequiredArray));
-  //  {
-  //    MultiDataArraySelectionFilterParameter::RequirementType req;
-  //    req.dcGeometryTypes = IGeometry::Types(1, IGeometry::Type::Triangle);
-  //    req.amTypes = AttributeMatrix::Types(1, AttributeMatrix::Type::Vertex);
-  //    parameters.push_back(SIMPL_NEW_MDA_SELECTION_FP("Vertex Arrays", SelectedVertexArrays, FilterParameter::RequiredArray, SurfaceMeshToWaveFront, req));
-  //  }
-  //  parameters.push_back(SeparatorFilterParameter::New("Face Data", FilterParameter::RequiredArray));
-  //  {
-  //    MultiDataArraySelectionFilterParameter::RequirementType req;
-  //    req.dcGeometryTypes = IGeometry::Types(1, IGeometry::Type::Triangle);
-  //    req.amTypes = AttributeMatrix::Types(1, AttributeMatrix::Type::Face);
-  //    parameters.push_back(SIMPL_NEW_MDA_SELECTION_FP("Face Arrays", SelectedFaceArrays, FilterParameter::RequiredArray, SurfaceMeshToWaveFront, req));
-  //  }
+  DataArraySelectionFilterParameter::RequirementType req;
+  req.dcGeometryTypes = IGeometry::Types(1, IGeometry::Type::Triangle);
+  req.amTypes = AttributeMatrix::Types(1, AttributeMatrix::Type::Vertex);
+  req.daTypes = QVector<QString>(1, SIMPL::TypeNames::Int8);
+  std::vector<std::vector<size_t>> comp;
+  comp.push_back(std::vector<size_t>(1, 1));
+  req.componentDimensions = comp;
+  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Surface Mesh Node Type", SurfaceMeshNodeTypeArrayPath, FilterParameter::RequiredArray, SurfaceMeshToWaveFront, req));
 
   setFilterParameters(parameters);
 }
@@ -104,12 +104,11 @@ void SurfaceMeshToWaveFront::dataCheck()
   FileSystemPathHelper::CheckOutputFile(this, "Output Wavefront File", getOutputWaveFrontFile(), true);
 
   std::vector<size_t> dims = {1};
-  m_SurfaceMeshNodeTypePtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>, AbstractFilter>(this, getSurfaceMeshNodeTypeArrayPath(),
-                                                                                                                dims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_SurfaceMeshNodeTypePtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  m_SurfaceMeshNodeTypePtr = getDataContainerArray()->getPrereqArrayFromPath<Int8ArrayType>(this, getSurfaceMeshNodeTypeArrayPath(), dims);
+  if(nullptr != m_SurfaceMeshNodeTypePtr.lock())
   {
     m_SurfaceMeshNodeType = m_SurfaceMeshNodeTypePtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   DataContainer::Pointer sm = getDataContainerArray()->getPrereqDataContainer(this, getSurfaceMeshNodeTypeArrayPath().getDataContainerName(), false);
   if(getErrorCode() < 0)
@@ -117,25 +116,11 @@ void SurfaceMeshToWaveFront::dataCheck()
     return;
   }
 
-  TriangleGeom::Pointer triangleGeom = sm->getPrereqGeometry<TriangleGeom, AbstractFilter>(this);
+  TriangleGeom::Pointer triangleGeom = sm->getPrereqGeometry<TriangleGeom>(this);
   if(getErrorCode() < 0)
   {
     return;
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void SurfaceMeshToWaveFront::preflight()
-{
-  // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
-  setInPreflight(true); // Set the fact that we are preflighting.
-  emit preflightAboutToExecute(); // Emit this signal so that other widgets can do one file update
-  emit updateFilterParameters(this); // Emit this signal to have the widgets push their values down to the filter
-  dataCheck(); // Run our DataCheck to make sure everthing is setup correctly
-  emit preflightExecuted(); // We are done preflighting this filter
-  setInPreflight(false); // Inform the system this filter is NOT in preflight mode anymore.
 }
 
 // -----------------------------------------------------------------------------
@@ -211,7 +196,7 @@ AbstractFilter::Pointer SurfaceMeshToWaveFront::newFilterInstance(bool copyFilte
 //
 // -----------------------------------------------------------------------------
 QString SurfaceMeshToWaveFront::getCompiledLibraryName() const
-{ 
+{
   return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
@@ -230,7 +215,7 @@ QString SurfaceMeshToWaveFront::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
-  vStream <<  DREAM3DReview::Version::Major() << "." << DREAM3DReview::Version::Minor() << "." << DREAM3DReview::Version::Patch();
+  vStream << DREAM3DReview::Version::Major() << "." << DREAM3DReview::Version::Minor() << "." << DREAM3DReview::Version::Patch();
   return version;
 }
 
@@ -246,8 +231,8 @@ QString SurfaceMeshToWaveFront::getGroupName() const
 //
 // -----------------------------------------------------------------------------
 QString SurfaceMeshToWaveFront::getSubGroupName() const
-{ 
-  return "DREAM3DReview"; 
+{
+  return "DREAM3DReview";
 }
 
 // -----------------------------------------------------------------------------
@@ -307,30 +292,6 @@ QString SurfaceMeshToWaveFront::getOutputWaveFrontFile() const
   return m_OutputWaveFrontFile;
 }
 
-//// -----------------------------------------------------------------------------
-// void SurfaceMeshToWaveFront::setDataContainerPath(const DataArrayPath& value)
-//{
-//  m_DataContainerPath = value;
-//}
-
-//// -----------------------------------------------------------------------------
-// DataArrayPath SurfaceMeshToWaveFront::getDataContainerPath() const
-//{
-//  return m_DataContainerPath;
-//}
-
-//// -----------------------------------------------------------------------------
-// void SurfaceMeshToWaveFront::setSurfaceMeshFaceLabelsArrayPath(const DataArrayPath& value)
-//{
-//  m_SurfaceMeshFaceLabelsArrayPath = value;
-//}
-
-//// -----------------------------------------------------------------------------
-// DataArrayPath SurfaceMeshToWaveFront::getSurfaceMeshFaceLabelsArrayPath() const
-//{
-//  return m_SurfaceMeshFaceLabelsArrayPath;
-//}
-
 // -----------------------------------------------------------------------------
 void SurfaceMeshToWaveFront::setSurfaceMeshNodeTypeArrayPath(const DataArrayPath& value)
 {
@@ -342,27 +303,3 @@ DataArrayPath SurfaceMeshToWaveFront::getSurfaceMeshNodeTypeArrayPath() const
 {
   return m_SurfaceMeshNodeTypeArrayPath;
 }
-
-//// -----------------------------------------------------------------------------
-// void SurfaceMeshToWaveFront::setSelectedFaceArrays(const QVector<DataArrayPath>& value)
-//{
-//  m_SelectedFaceArrays = value;
-//}
-
-//// -----------------------------------------------------------------------------
-// QVector<DataArrayPath> SurfaceMeshToWaveFront::getSelectedFaceArrays() const
-//{
-//  return m_SelectedFaceArrays;
-//}
-
-//// -----------------------------------------------------------------------------
-// void SurfaceMeshToWaveFront::setSelectedVertexArrays(const QVector<DataArrayPath>& value)
-//{
-//  m_SelectedVertexArrays = value;
-//}
-
-//// -----------------------------------------------------------------------------
-// QVector<DataArrayPath> SurfaceMeshToWaveFront::getSelectedVertexArrays() const
-//{
-//  return m_SelectedVertexArrays;
-//}
