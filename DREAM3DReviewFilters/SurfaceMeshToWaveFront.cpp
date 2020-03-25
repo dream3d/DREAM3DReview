@@ -32,15 +32,15 @@
 
 #include "SurfaceMeshToWaveFront.h"
 
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+
 #include <fstream>
 
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/MultiDataArraySelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
 #include "SIMPLib/Geometry/TriangleGeom.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
@@ -81,14 +81,9 @@ void SurfaceMeshToWaveFront::setupFilterParameters()
 
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Output Wavefront File", OutputWaveFrontFile, FilterParameter::Parameter, SurfaceMeshToWaveFront, "*.obj", "Wavefront Object File"));
 
-  DataArraySelectionFilterParameter::RequirementType req;
+  DataContainerSelectionFilterParameter::RequirementType req;
   req.dcGeometryTypes = IGeometry::Types(1, IGeometry::Type::Triangle);
-  req.amTypes = AttributeMatrix::Types(1, AttributeMatrix::Type::Vertex);
-  req.daTypes = QVector<QString>(1, SIMPL::TypeNames::Int8);
-  std::vector<std::vector<size_t>> comp;
-  comp.push_back(std::vector<size_t>(1, 1));
-  req.componentDimensions = comp;
-  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Surface Mesh Node Type", SurfaceMeshNodeTypeArrayPath, FilterParameter::RequiredArray, SurfaceMeshToWaveFront, req));
+  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Triangle Geometry", TriangleGeometry, FilterParameter::RequiredArray, SurfaceMeshToWaveFront, req));
 
   setFilterParameters(parameters);
 }
@@ -103,14 +98,7 @@ void SurfaceMeshToWaveFront::dataCheck()
 
   FileSystemPathHelper::CheckOutputFile(this, "Output Wavefront File", getOutputWaveFrontFile(), true);
 
-  std::vector<size_t> dims = {1};
-  m_SurfaceMeshNodeTypePtr = getDataContainerArray()->getPrereqArrayFromPath<Int8ArrayType>(this, getSurfaceMeshNodeTypeArrayPath(), dims);
-  if(nullptr != m_SurfaceMeshNodeTypePtr.lock())
-  {
-    m_SurfaceMeshNodeType = m_SurfaceMeshNodeTypePtr.lock()->getPointer(0);
-  }
-
-  DataContainer::Pointer sm = getDataContainerArray()->getPrereqDataContainer(this, getSurfaceMeshNodeTypeArrayPath().getDataContainerName(), false);
+  DataContainer::Pointer sm = getDataContainerArray()->getPrereqDataContainer(this, getTriangleGeometry(), false);
   if(getErrorCode() < 0)
   {
     return;
@@ -135,23 +123,33 @@ void SurfaceMeshToWaveFront::execute()
     return;
   }
 
-  DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getSurfaceMeshNodeTypeArrayPath().getDataContainerName());
+  // Make sure any directory path is also available as the user may have just typed
+  // in a path without actually creating the full path
+  QFileInfo fi(getOutputWaveFrontFile());
+  QDir outDir = fi.path();
+  if(!outDir.mkpath("."))
+  {
+    QString ss = QObject::tr("Error creating parent path '%1'").arg(getOutputWaveFrontFile());
+    setErrorCondition(-1, ss);
+    return;
+  }
+
+  DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getTriangleGeometry().getDataContainerName());
   TriangleGeom::Pointer triangleGeom = dc->getGeometryAs<TriangleGeom>();
   MeshIndexType numberOfTriangles = triangleGeom->getNumberOfTris();
   SharedTriList::Pointer triangles = triangleGeom->getTriangles();
   SharedVertexList::Pointer vertices = triangleGeom->getVertices();
   size_t numberOfVertices = triangleGeom->getNumberOfVertices();
 
-  std::ofstream ss;
-  ss.open(getOutputWaveFrontFile().toStdString().c_str());
-  if(!ss.is_open())
+  std::ofstream outFile(getOutputWaveFrontFile().toStdString().c_str());
+  if(!outFile.is_open())
   {
     QString ss = QObject::tr("Could not open output file %1 for writing.").arg(getOutputWaveFrontFile());
     setErrorCondition(-2000, ss);
     return;
   }
 
-  ss << "# Vertices\n";
+  outFile << "# Vertices\n";
 
   // Dump the vertices
   for(size_t i = 0; i < numberOfVertices; i++)
@@ -160,10 +158,10 @@ void SurfaceMeshToWaveFront::execute()
     float c1 = vertices->getComponent(i, 1);
     float c2 = vertices->getComponent(i, 2);
 
-    ss << "v " << c0 << " " << c1 << " " << c2 << "\n";
+    outFile << "v " << c0 << " " << c1 << " " << c2 << "\n";
   }
 
-  ss << "\n# Faces\n";
+  outFile << "\n# Faces\n";
 
   // Dump the triangle faces
   for(size_t i = 0; i < numberOfTriangles; i++)
@@ -173,10 +171,8 @@ void SurfaceMeshToWaveFront::execute()
     size_t c2 = triangles->getComponent(i, 2);
 
     // These vertex values that make up the face must be 1-based
-    ss << "f " << c0 + 1 << " " << c1 + 1 << " " << c2 + 1 << "\n";
+    outFile << "f " << c0 + 1 << " " << c1 + 1 << " " << c2 + 1 << "\n";
   }
-
-  ss.close();
 }
 
 // -----------------------------------------------------------------------------
@@ -293,13 +289,13 @@ QString SurfaceMeshToWaveFront::getOutputWaveFrontFile() const
 }
 
 // -----------------------------------------------------------------------------
-void SurfaceMeshToWaveFront::setSurfaceMeshNodeTypeArrayPath(const DataArrayPath& value)
+void SurfaceMeshToWaveFront::setTriangleGeometry(const DataArrayPath& value)
 {
-  m_SurfaceMeshNodeTypeArrayPath = value;
+  m_TriangleGeometry = value;
 }
 
 // -----------------------------------------------------------------------------
-DataArrayPath SurfaceMeshToWaveFront::getSurfaceMeshNodeTypeArrayPath() const
+DataArrayPath SurfaceMeshToWaveFront::getTriangleGeometry() const
 {
-  return m_SurfaceMeshNodeTypeArrayPath;
+  return m_TriangleGeometry;
 }

@@ -49,8 +49,8 @@ class DREAM3DReview_EXPORT SurfaceMeshToWaveFront : public AbstractFilter
   PYB11_CREATE_BINDINGS(SurfaceMeshToWaveFront SUPERCLASS AbstractFilter)
   PYB11_SHARED_POINTERS(SurfaceMeshToWaveFront)
   PYB11_FILTER_NEW_MACRO(SurfaceMeshToWaveFront)
-  PYB11_FILTER_PARAMETER(QString, OutputWaveFrontFile)
-  PYB11_FILTER_PARAMETER(DataArrayPath, SurfaceMeshNodeTypeArrayPath)
+  PYB11_PROPERTY(QString, OutputWaveFrontFile)
+  PYB11_PROPERTY(DataArrayPath, TriangleGeometry)
 #endif
 
 public:
@@ -62,7 +62,7 @@ public:
   using ConstWeakPointer = std::weak_ptr<const Self>;
   static Pointer NullPointer();
 
-  static std::shared_ptr<SurfaceMeshToWaveFront> New();
+  static Pointer New();
 
   /**
    * @brief Returns the name of the class for SurfaceMeshToWaveFront
@@ -90,13 +90,13 @@ public:
   /**
    * @brief Setter property for SurfaceMeshNodeTypeArrayPath
    */
-  void setSurfaceMeshNodeTypeArrayPath(const DataArrayPath& value);
+  void setTriangleGeometry(const DataArrayPath& value);
   /**
    * @brief Getter property for SurfaceMeshNodeTypeArrayPath
    * @return Value of SurfaceMeshNodeTypeArrayPath
    */
-  DataArrayPath getSurfaceMeshNodeTypeArrayPath() const;
-  Q_PROPERTY(DataArrayPath SurfaceMeshNodeTypeArrayPath READ getSurfaceMeshNodeTypeArrayPath WRITE setSurfaceMeshNodeTypeArrayPath)
+  DataArrayPath getTriangleGeometry() const;
+  Q_PROPERTY(DataArrayPath TriangleGeometry READ getTriangleGeometry WRITE setTriangleGeometry)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -159,7 +159,7 @@ protected:
   /**
    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
    */
-  void dataCheck();
+  void dataCheck() override;
 
   /**
    * @brief Initializes all the private instance variables.
@@ -167,11 +167,8 @@ protected:
   void initialize();
 
 private:
-  std::weak_ptr<DataArray<int8_t>> m_SurfaceMeshNodeTypePtr;
-  int8_t* m_SurfaceMeshNodeType = nullptr;
-
   QString m_OutputWaveFrontFile = {};
-  DataArrayPath m_SurfaceMeshNodeTypeArrayPath = {};
+  DataArrayPath m_TriangleGeometry = {};
 
 public:
   SurfaceMeshToWaveFront(const SurfaceMeshToWaveFront&) = delete;            // Copy Constructor Not Implemented
