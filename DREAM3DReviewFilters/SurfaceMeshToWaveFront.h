@@ -49,8 +49,8 @@ class DREAM3DReview_EXPORT SurfaceMeshToWaveFront : public AbstractFilter
   PYB11_CREATE_BINDINGS(SurfaceMeshToWaveFront SUPERCLASS AbstractFilter)
   PYB11_SHARED_POINTERS(SurfaceMeshToWaveFront)
   PYB11_FILTER_NEW_MACRO(SurfaceMeshToWaveFront)
-  PYB11_PROPERTY(QString, OutputWaveFrontFile)
-  PYB11_PROPERTY(DataArrayPath, TriangleGeometry)
+  PYB11_PROPERTY(QString OutputWaveFrontFile READ getOutputWaveFrontFile WRITE setOutputWaveFrontFile)
+  PYB11_PROPERTY(DataArrayPath TriangleGeometry READ getTriangleGeometry WRITE setTriangleGeometry)
 #endif
 
 public:
@@ -176,4 +176,3 @@ public:
   SurfaceMeshToWaveFront(SurfaceMeshToWaveFront &&) = delete;                // Move Constructor Not Implemented
   SurfaceMeshToWaveFront& operator=(SurfaceMeshToWaveFront&&) = delete;      // Move Assignment Not Implemented
 };
-
