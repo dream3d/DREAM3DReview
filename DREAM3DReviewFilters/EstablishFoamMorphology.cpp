@@ -1732,6 +1732,7 @@ Int32ArrayType::Pointer EstablishFoamMorphology::initialize_packinggrid()
 void EstablishFoamMorphology::generate_feature(int32_t phase, Feature_t* feature, uint32_t shapeclass)
 {
   SIMPL_RANDOMNG_NEW_SEEDED(m_Seed)
+  std::array<double, 3> randx3 = {rg.genrand_res53(), rg.genrand_res53(), rg.genrand_res53()};
 
   StatsDataArray& statsDataArray = *(m_StatsDataArray.lock());
 
@@ -1821,7 +1822,7 @@ void EstablishFoamMorphology::generate_feature(int32_t phase, Feature_t* feature
       break;
     }
   }
-  OrientationD eulers = m_OrthoOps->determineEulerAngles(m_Seed, bin);
+  OrientationD eulers = m_OrthoOps->determineEulerAngles(randx3.data(), bin);
   VectorOfFloatArray omega3 = pp->getFeatureSize_Omegas();
   float mf = omega3[0]->getValue(diameter);
   float s = omega3[1]->getValue(diameter);
