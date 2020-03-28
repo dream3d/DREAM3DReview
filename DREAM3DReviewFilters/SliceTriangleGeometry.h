@@ -291,6 +291,17 @@ protected:
    */
   void rotateVertices(unsigned int direction, float* n, int64_t numVerts, float* verts);
 
+    /**
+   * @brief Determines if a segment between two points intersects a plane defined by a normal and distance
+   * @param n
+   * @param d
+   * @param q
+   * @param r
+   * @param p
+   * @return
+   */
+  static char rayIntersectsPlane(const float d, const float* q, const float* r, float* p);
+
   /**
    * @brief updateEdgeInstancePointers
    */

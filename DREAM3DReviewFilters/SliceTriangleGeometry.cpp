@@ -282,7 +282,6 @@ void SliceTriangleGeometry::dataCheck()
   }
 }
 
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -324,6 +323,39 @@ void SliceTriangleGeometry::rotateVertices(unsigned int direction, float* n, int
       verts[3 * i + 2] = newcoords[2];
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+char SliceTriangleGeometry::rayIntersectsPlane(const float d, const float* q, const float* r, float* p)
+{
+  double rqDelZ;
+  double dqDelZ;
+  double t;
+
+  rqDelZ = r[2] - q[2];
+  dqDelZ = d - q[2];
+
+  t = dqDelZ / rqDelZ;
+  for(int i = 0; i < 3; i++)
+  {
+    p[i] = q[i] + (t * (r[i] - q[i]));
+  }
+  if(t > 0.0 && t < 1.0)
+  {
+    return '1';
+  }
+  if(t == 0.0)
+  {
+    return 'q';
+  }
+  if(t == 1.0)
+  {
+    return 'r';
+  }
+
+  return '0';
 }
 
 // -----------------------------------------------------------------------------
@@ -384,6 +416,7 @@ void SliceTriangleGeometry::execute()
   n[2] = 1.0f;
 
   TriangleGeom::Pointer triangle = getDataContainerArray()->getDataContainer(getCADDataContainerName())->getGeometryAs<TriangleGeom>();
+  triangle->findEdges();
 
   MeshIndexType* tris = triangle->getTriPointer(0);
   float* triVerts = triangle->getVertexPointer(0);
@@ -412,6 +445,7 @@ void SliceTriangleGeometry::execute()
   std::vector<int32_t> regionIds;
   // float min_shift = m_SliceResolution / 1000.0f;
 
+  int32_t edgeCounter = 0;
   for(MeshIndexType i = 0; i < numTris; i++)
   {
     // get region Id of this triangle (if they are available)
@@ -460,6 +494,7 @@ void SliceTriangleGeometry::execute()
     float vecAB[3];
     float vecAC[3];
     float triCross[3];
+    char val;
     vecAB[0] = triVerts[3 * tris[3 * i + 1]] - triVerts[3 * tris[3 * i]];
     vecAB[1] = triVerts[3 * tris[3 * i + 1] + 1] - triVerts[3 * tris[3 * i] + 1];
     vecAB[2] = triVerts[3 * tris[3 * i + 1] + 2] - triVerts[3 * tris[3 * i] + 2];
@@ -480,7 +515,14 @@ void SliceTriangleGeometry::execute()
       r[0] = triVerts[3 * tris[3 * i + 1]];
       r[1] = triVerts[3 * tris[3 * i + 1] + 1];
       r[2] = triVerts[3 * tris[3 * i + 1] + 2];
-      char val = GeometryMath::RayIntersectsPlane(n, d, q, r, p);
+      if(q[2] > r[2])
+      {
+        val = rayIntersectsPlane(d, r, q, p);
+      }
+      else
+      {
+        val = rayIntersectsPlane(d, q, r, p);
+      }
       if(val == '1')
       {
         slicedVerts.push_back(p[0]);
@@ -498,7 +540,14 @@ void SliceTriangleGeometry::execute()
       r[0] = triVerts[3 * tris[3 * i + 2]];
       r[1] = triVerts[3 * tris[3 * i + 2] + 1];
       r[2] = triVerts[3 * tris[3 * i + 2] + 2];
-      val = GeometryMath::RayIntersectsPlane(n, d, q, r, p);
+      if(q[2] > r[2])
+      {
+        val = rayIntersectsPlane(d, r, q, p);
+      }
+      else
+      {
+        val = rayIntersectsPlane(d, q, r, p);
+      }
       if(val == '1')
       {
         slicedVerts.push_back(p[0]);
@@ -516,7 +565,14 @@ void SliceTriangleGeometry::execute()
       q[0] = triVerts[3 * tris[3 * i + 1]];
       q[1] = triVerts[3 * tris[3 * i + 1] + 1];
       q[2] = triVerts[3 * tris[3 * i + 1] + 2];
-      val = GeometryMath::RayIntersectsPlane(n, d, q, r, p);
+      if(q[2] > r[2])
+      {
+        val = rayIntersectsPlane(d, r, q, p);
+      }
+      else
+      {
+        val = rayIntersectsPlane(d, q, r, p);
+      }
       if(val == '1')
       {
         slicedVerts.push_back(p[0]);
@@ -573,6 +629,7 @@ void SliceTriangleGeometry::execute()
         {
           regionIds.push_back(regionId);
         }
+        edgeCounter++;
       }
     }
   }
