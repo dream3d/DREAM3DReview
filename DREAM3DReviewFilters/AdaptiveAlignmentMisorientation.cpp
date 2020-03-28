@@ -242,13 +242,8 @@ void AdaptiveAlignmentMisorientation::find_shifts(std::vector<int64_t>& xshifts,
   int64_t oldyshift = 0;
   float count = 0.0f;
   uint64_t slice = 0;
-  float w = 0.0f;
-  float n1 = 0.0f, n2 = 0.0f, n3 = 0.0f;
-  //  QuatF q1 = QuaternionMathF::New();
-  //  QuatF q2 = QuaternionMathF::New();
   uint64_t refposition = 0;
   uint64_t curposition = 0;
-  // QuatF* quats = reinterpret_cast<QuatF*>(m_Quats);
 
   uint32_t phase1 = 0, phase2 = 0;
   uint64_t progInt = 0;
@@ -260,7 +255,7 @@ void AdaptiveAlignmentMisorientation::find_shifts(std::vector<int64_t>& xshifts,
   const uint64_t halfDim0 = static_cast<uint64_t>(dims[0] * 0.5f);
   const uint64_t halfDim1 = static_cast<uint64_t>(dims[1] * 0.5f);
 
-  float misorientationTolerance = m_MisorientationTolerance * SIMPLib::Constants::k_Pif / 180.0f;
+  float misorientationToleranceRad = m_MisorientationTolerance * SIMPLib::Constants::k_Pif / 180.0f;
 
   // Loop over the Z Direction
   for(uint64_t iter = 1; iter < dims[2]; iter++)
@@ -306,7 +301,7 @@ void AdaptiveAlignmentMisorientation::find_shifts(std::vector<int64_t>& xshifts,
                   curposition = (slice * dims[0] * dims[1]) + ((l + j + oldyshift) * dims[0]) + (n + k + oldxshift);
                   if(!m_UseGoodVoxels || (m_GoodVoxels[refposition] && m_GoodVoxels[curposition]))
                   {
-                    w = std::numeric_limits<float>::max();
+                    OrientationD axisAngle(0.0, 0.0, 0.0, std::numeric_limits<double>::max());
                     if(m_CellPhases[refposition] > 0 && m_CellPhases[curposition] > 0)
                     {
                       QuatF q1(m_Quats + refposition * 4);
@@ -315,10 +310,10 @@ void AdaptiveAlignmentMisorientation::find_shifts(std::vector<int64_t>& xshifts,
                       phase2 = m_CrystalStructures[m_CellPhases[curposition]];
                       if(phase1 == phase2 && phase1 < static_cast<uint32_t>(m_OrientationOps.size()))
                       {
-                        w = m_OrientationOps[phase1]->getMisoQuat(q1, q2, n1, n2, n3);
+                        axisAngle = m_OrientationOps[phase1]->calculateMisorientation(q1, q2);
                       }
                     }
-                    if(w > misorientationTolerance)
+                    if(axisAngle[3] > misorientationToleranceRad)
                     {
                       disorientation++;
                     }
