@@ -38,9 +38,9 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include <QtCore/QString>
-#include <vector>
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataArrays/IDataArray.h"
@@ -54,6 +54,11 @@
 #include "OrientationLib/LaueOps/OrthoRhombicOps.h"
 
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
+
+
+class LaueOps;
+using LaueOpsShPtrType = std::shared_ptr<LaueOps>;
+using LaueOpsContainer = std::vector<LaueOpsShPtrType>;
 
 /**
  * @class FindCSLBoundaries FindCSLBoundaries.h /TransformationPhase/FindCSLBoundaries.h
@@ -317,7 +322,7 @@ private:
   QString m_SurfaceMeshCSLBoundaryArrayName = {};
   QString m_SurfaceMeshCSLBoundaryIncoherenceArrayName = {};
 
-  QVector<LaueOps::Pointer> m_OrientationOps;
+  LaueOpsContainer m_OrientationOps;  
   CubicOps::Pointer m_CubicOps;
   HexagonalOps::Pointer m_HexOps;
   OrthoRhombicOps::Pointer m_OrthoOps;

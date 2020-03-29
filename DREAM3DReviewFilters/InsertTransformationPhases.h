@@ -41,7 +41,6 @@
 #pragma once
 
 #include <memory>
-
 #include <vector>
 
 #include <QtCore/QString>
@@ -55,9 +54,14 @@
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
 
-#include "OrientationLib/LaueOps/LaueOps.h"
+#include "OrientationLib/Core/Quaternion.hpp"
 
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
+
+class LaueOps;
+using LaueOpsShPtrType = std::shared_ptr<LaueOps>;
+using LaueOpsContainer = std::vector<LaueOpsShPtrType>;
+
 
 /**
  * @class InsertTransformationPhases InsertTransformationPhases.h DREAM3DLib/SyntheticBuildingFilters/InsertTransformationPhases.h
@@ -604,8 +608,7 @@ private:
   DataArrayPath m_ShapeTypesArrayPath = {};
   DataArrayPath m_NumFeaturesArrayPath = {};
 
-  QVector<LaueOps::Pointer> m_OrientationOps;
-
+  LaueOpsContainer m_OrientationOps;
   // Cell Data - make sure these are all initialized to nullptr in the constructor
 
   // Feature Data - make sure these are all initialized to nullptr in the constructor

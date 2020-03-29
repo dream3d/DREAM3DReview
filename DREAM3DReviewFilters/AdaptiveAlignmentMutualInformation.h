@@ -41,11 +41,12 @@
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
 
-#include "OrientationLib/LaueOps/LaueOps.h"
-
 #include "DREAM3DReview/DREAM3DReviewFilters/AdaptiveAlignment.h"
-
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
+
+class LaueOps;
+using LaueOpsShPtrType = std::shared_ptr<LaueOps>;
+using LaueOpsContainer = std::vector<LaueOpsShPtrType>;
 
 /**
  * @brief The AdaptiveAlignmentMutualInformation class. See [Filter documentation](@ref AdaptiveAlignmentmutualinformation) for details.
@@ -287,8 +288,7 @@ private:
   DataArrayPath m_GoodVoxelsArrayPath = {};
   DataArrayPath m_CrystalStructuresArrayPath = {};
 
-  QVector<LaueOps::Pointer> m_OrientationOps;
-
+  LaueOpsContainer m_OrientationOps;
   Int32ArrayType::Pointer m_MIFeaturesPtr;
   uint64_t m_Seed;
 

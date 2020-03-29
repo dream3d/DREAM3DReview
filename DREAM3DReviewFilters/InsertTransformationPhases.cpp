@@ -125,7 +125,7 @@ InsertTransformationPhases::InsertTransformationPhases()
 , m_ShapeTypesArrayPath(SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::ShapeTypes)
 , m_NumFeaturesArrayPath(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::NumFeatures)
 {
-  m_OrientationOps = LaueOps::getOrientationOpsQVector();
+  m_OrientationOps = LaueOps::GetAllOrientationOps();
   m_TransformationPhaseHabitPlane[0] = 1.0f;
   m_TransformationPhaseHabitPlane[1] = 1.0f;
   m_TransformationPhaseHabitPlane[2] = 1.0f;

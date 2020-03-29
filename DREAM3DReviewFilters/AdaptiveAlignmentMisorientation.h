@@ -42,10 +42,12 @@
 #include "SIMPLib/DataArrays/DataArray.hpp"
 
 #include "AdaptiveAlignment.h"
-#include "OrientationLib/LaueOps/LaueOps.h"
 
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
 
+class LaueOps;
+using LaueOpsShPtrType = std::shared_ptr<LaueOps>;
+using LaueOpsContainer = std::vector<LaueOpsShPtrType>;
 /**
  * @brief The AdaptiveAlignmentMisorientation class. See [Filter documentation](@ref AdaptiveAlignmentmisorientation) for details.
  */
@@ -270,8 +272,7 @@ private:
   DataArray<AnisotropyConstants::DefaultPixelType>::WeakPointer SelectedCellArrayPtr;
   DataArray<AnisotropyConstants::DefaultPixelType>::WeakPointer NewCellArrayPtr;
 
-  QVector<LaueOps::Pointer> m_OrientationOps;
-
+  LaueOpsContainer m_OrientationOps;
   uint64_t m_RandomSeed;
 
 public:
