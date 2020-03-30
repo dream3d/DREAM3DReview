@@ -11,8 +11,7 @@
  * Subsequent changes to the codes by others may elect to add a copyright and license
  * for those changes.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-#ifndef _SliceTriangleGeometry_h_
-#define _SliceTriangleGeometry_h_
+#pragma once
 
 #include <memory>
 
@@ -374,4 +373,4 @@ private:
   void operator=(const SliceTriangleGeometry&) = delete;        // Operator '=' Not Implemented
 };
 
-#endif /* _SliceTriangleGeometry_H_ */
+
