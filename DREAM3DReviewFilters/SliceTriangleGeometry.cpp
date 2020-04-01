@@ -742,7 +742,7 @@ QString SliceTriangleGeometry::getSubGroupName() const
 // -----------------------------------------------------------------------------
 QString SliceTriangleGeometry::getHumanLabel() const
 {
-  return "Slice CAD Geometry";
+  return "Slice Triangle Geometry";
 }
 
 // -----------------------------------------------------------------------------
