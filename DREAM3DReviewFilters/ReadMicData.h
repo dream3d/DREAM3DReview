@@ -86,6 +86,7 @@ class DREAM3DReview_EXPORT ReadMicData : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(ReadMicData SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(ReadMicData)
   PYB11_FILTER_NEW_MACRO(ReadMicData)
   PYB11_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)

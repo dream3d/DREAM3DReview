@@ -34,6 +34,7 @@ class DREAM3DReview_EXPORT EstablishFoamMorphology : public AbstractFilter
   Q_OBJECT
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(EstablishFoamMorphology SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(EstablishFoamMorphology)
   PYB11_FILTER_NEW_MACRO(EstablishFoamMorphology)
   PYB11_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)

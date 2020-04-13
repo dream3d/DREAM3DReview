@@ -52,6 +52,7 @@ class DREAM3DReview_EXPORT PrincipalComponentAnalysis : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(PrincipalComponentAnalysis SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(PrincipalComponentAnalysis)
   PYB11_FILTER_NEW_MACRO(PrincipalComponentAnalysis)
   PYB11_PROPERTY(QVector<DataArrayPath> SelectedDataArrayPaths READ getSelectedDataArrayPaths WRITE setSelectedDataArrayPaths)

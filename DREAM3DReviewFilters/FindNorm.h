@@ -55,6 +55,7 @@ class DREAM3DReview_EXPORT FindNorm : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(FindNorm SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(FindNorm)
   PYB11_FILTER_NEW_MACRO(FindNorm)
   PYB11_PROPERTY(DataArrayPath SelectedArrayPath READ getSelectedArrayPath WRITE setSelectedArrayPath)

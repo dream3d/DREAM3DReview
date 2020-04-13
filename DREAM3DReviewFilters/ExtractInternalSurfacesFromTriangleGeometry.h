@@ -52,6 +52,7 @@ class DREAM3DReview_EXPORT ExtractInternalSurfacesFromTriangleGeometry : public 
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(ExtractInternalSurfacesFromTriangleGeometry SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(ExtractInternalSurfacesFromTriangleGeometry)
   PYB11_FILTER_NEW_MACRO(ExtractInternalSurfacesFromTriangleGeometry)
   PYB11_PROPERTY(DataArrayPath TriangleDataContainerName READ getTriangleDataContainerName WRITE setTriangleDataContainerName)

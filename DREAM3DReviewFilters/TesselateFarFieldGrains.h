@@ -70,6 +70,7 @@ class DREAM3DReview_EXPORT TesselateFarFieldGrains : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(TesselateFarFieldGrains SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(TesselateFarFieldGrains)
   PYB11_FILTER_NEW_MACRO(TesselateFarFieldGrains)
   PYB11_PROPERTY(DataArrayPath OutputCellAttributeMatrixName READ getOutputCellAttributeMatrixName WRITE setOutputCellAttributeMatrixName)

@@ -55,6 +55,7 @@ class DREAM3DReview_EXPORT Silhouette : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(Silhouette SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(Silhouette)
   PYB11_FILTER_NEW_MACRO(Silhouette)
   PYB11_PROPERTY(DataArrayPath SelectedArrayPath READ getSelectedArrayPath WRITE setSelectedArrayPath)

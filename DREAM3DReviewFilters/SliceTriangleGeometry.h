@@ -33,6 +33,7 @@ class DREAM3DReview_EXPORT SliceTriangleGeometry : public AbstractFilter
 
   // clang-format off
   PYB11_BEGIN_BINDINGS(SliceTriangleGeometry SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(SliceTriangleGeometry)
   PYB11_FILTER_NEW_MACRO(SliceTriangleGeometry)
 

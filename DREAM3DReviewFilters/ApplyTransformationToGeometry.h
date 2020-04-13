@@ -54,6 +54,7 @@ class DREAM3DReview_EXPORT ApplyTransformationToGeometry : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(ApplyTransformationToGeometry SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(ApplyTransformationToGeometry)
   PYB11_FILTER_NEW_MACRO(ApplyTransformationToGeometry)
   PYB11_PROPERTY(DynamicTableData ManualTransformationMatrix READ getManualTransformationMatrix WRITE setManualTransformationMatrix)

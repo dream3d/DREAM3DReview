@@ -53,6 +53,7 @@ class DREAM3DReview_EXPORT NormalizeArrays : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(NormalizeArrays SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(NormalizeArrays)
   PYB11_FILTER_NEW_MACRO(NormalizeArrays)
   PYB11_PROPERTY(QVector<DataArrayPath> SelectedDataArrayPaths READ getSelectedDataArrayPaths WRITE setSelectedDataArrayPaths)

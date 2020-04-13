@@ -55,6 +55,7 @@ class DREAM3DReview_EXPORT RobustAutomaticThreshold : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(RobustAutomaticThreshold SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(RobustAutomaticThreshold)
   PYB11_FILTER_NEW_MACRO(RobustAutomaticThreshold)
   PYB11_PROPERTY(DataArrayPath InputArrayPath READ getInputArrayPath WRITE setInputArrayPath)

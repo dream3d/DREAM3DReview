@@ -53,6 +53,7 @@ class DREAM3DReview_EXPORT KDistanceGraph : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(KDistanceGraph SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(KDistanceGraph)
   PYB11_FILTER_NEW_MACRO(KDistanceGraph)
   PYB11_PROPERTY(DataArrayPath SelectedArrayPath READ getSelectedArrayPath WRITE setSelectedArrayPath)

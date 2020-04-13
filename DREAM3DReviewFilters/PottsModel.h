@@ -54,6 +54,7 @@ class DREAM3DReview_EXPORT PottsModel : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(PottsModel SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(PottsModel)
   PYB11_FILTER_NEW_MACRO(PottsModel)
   PYB11_PROPERTY(int Iterations READ getIterations WRITE setIterations)

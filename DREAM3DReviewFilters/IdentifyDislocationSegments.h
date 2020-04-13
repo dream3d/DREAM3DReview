@@ -65,6 +65,7 @@ class DREAM3DReview_EXPORT IdentifyDislocationSegments : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(IdentifyDislocationSegments SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(IdentifyDislocationSegments)
   PYB11_FILTER_NEW_MACRO(IdentifyDislocationSegments)
   PYB11_PROPERTY(DataArrayPath BurgersVectorsArrayPath READ getBurgersVectorsArrayPath WRITE setBurgersVectorsArrayPath)

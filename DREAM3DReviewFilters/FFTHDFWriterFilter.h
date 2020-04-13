@@ -26,6 +26,7 @@ class DREAM3DReview_EXPORT FFTHDFWriterFilter : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(FFTHDFWriterFilter SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(FFTHDFWriterFilter)
   PYB11_FILTER_NEW_MACRO(FFTHDFWriterFilter)
   PYB11_PROPERTY(QString OutputFile READ getOutputFile WRITE setOutputFile)

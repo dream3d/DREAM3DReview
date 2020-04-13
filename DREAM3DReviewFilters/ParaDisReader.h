@@ -67,6 +67,7 @@ class DREAM3DReview_EXPORT ParaDisReader : public FileReader
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(ParaDisReader SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(ParaDisReader)
   PYB11_FILTER_NEW_MACRO(ParaDisReader)
   PYB11_PROPERTY(DataArrayPath EdgeDataContainerName READ getEdgeDataContainerName WRITE setEdgeDataContainerName)

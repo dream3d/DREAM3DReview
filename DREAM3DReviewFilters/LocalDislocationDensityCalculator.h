@@ -67,6 +67,7 @@ class DREAM3DReview_EXPORT LocalDislocationDensityCalculator : public AbstractFi
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(LocalDislocationDensityCalculator SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(LocalDislocationDensityCalculator)
   PYB11_FILTER_NEW_MACRO(LocalDislocationDensityCalculator)
   PYB11_PROPERTY(DataArrayPath EdgeDataContainerName READ getEdgeDataContainerName WRITE setEdgeDataContainerName)

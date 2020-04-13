@@ -55,6 +55,7 @@ class DREAM3DReview_EXPORT AdaptiveAlignment : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(AdaptiveAlignment SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(AdaptiveAlignment)
   PYB11_FILTER_NEW_MACRO(AdaptiveAlignment)
   PYB11_PROPERTY(int GlobalCorrection READ getGlobalCorrection WRITE setGlobalCorrection)

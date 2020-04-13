@@ -67,6 +67,7 @@ class DREAM3DReview_EXPORT DiscretizeDDDomain : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(DiscretizeDDDomain SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(DiscretizeDDDomain)
   PYB11_FILTER_NEW_MACRO(DiscretizeDDDomain)
   PYB11_PROPERTY(DataArrayPath EdgeDataContainerName READ getEdgeDataContainerName WRITE setEdgeDataContainerName)

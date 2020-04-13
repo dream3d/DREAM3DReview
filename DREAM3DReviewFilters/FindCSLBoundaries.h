@@ -73,6 +73,7 @@ class DREAM3DReview_EXPORT FindCSLBoundaries : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(FindCSLBoundaries SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(FindCSLBoundaries)
   PYB11_FILTER_NEW_MACRO(FindCSLBoundaries)
   PYB11_PROPERTY(float CSL READ getCSL WRITE setCSL)

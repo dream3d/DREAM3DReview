@@ -52,6 +52,7 @@ class DREAM3DReview_EXPORT FindElementCentroids : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(FindElementCentroids SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(FindElementCentroids)
   PYB11_FILTER_NEW_MACRO(FindElementCentroids)
   PYB11_PROPERTY(DataArrayPath CellCentroidsArrayPath READ getCellCentroidsArrayPath WRITE setCellCentroidsArrayPath)

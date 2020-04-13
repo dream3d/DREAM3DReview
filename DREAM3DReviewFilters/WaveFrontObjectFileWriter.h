@@ -46,6 +46,7 @@ class DREAM3DReview_EXPORT WaveFrontObjectFileWriter : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(WaveFrontObjectFileWriter SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(WaveFrontObjectFileWriter)
   PYB11_FILTER_NEW_MACRO(WaveFrontObjectFileWriter)
   PYB11_PROPERTY(QString OutputWaveFrontFile READ getOutputWaveFrontFile WRITE setOutputWaveFrontFile)

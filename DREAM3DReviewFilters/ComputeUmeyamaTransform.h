@@ -52,6 +52,7 @@ class DREAM3DReview_EXPORT ComputeUmeyamaTransform : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(ComputeUmeyamaTransform SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(ComputeUmeyamaTransform)
   PYB11_FILTER_NEW_MACRO(ComputeUmeyamaTransform)
   PYB11_PROPERTY(DataArrayPath SourcePointSet READ getSourcePointSet WRITE setSourcePointSet)

@@ -55,6 +55,7 @@ class DREAM3DReview_EXPORT AverageVertexArrayToEdgeFaceCellArray : public Abstra
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(AverageVertexArrayToEdgeFaceCellArray SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(AverageVertexArrayToEdgeFaceCellArray)
   PYB11_FILTER_NEW_MACRO(AverageVertexArrayToEdgeFaceCellArray)
   PYB11_PROPERTY(DataArrayPath SelectedArrayPath READ getSelectedArrayPath WRITE setSelectedArrayPath)

@@ -78,6 +78,7 @@ class DREAM3DReview_EXPORT InsertTransformationPhases : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(InsertTransformationPhases SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(InsertTransformationPhases)
   PYB11_FILTER_NEW_MACRO(InsertTransformationPhases)
   PYB11_PROPERTY(int ParentPhase READ getParentPhase WRITE setParentPhase)

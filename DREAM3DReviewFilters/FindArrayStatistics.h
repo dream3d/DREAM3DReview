@@ -56,6 +56,7 @@ class DREAM3DReview_EXPORT FindArrayStatistics : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(FindArrayStatistics SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(FindArrayStatistics)
   PYB11_FILTER_NEW_MACRO(FindArrayStatistics)
   PYB11_PROPERTY(bool FindLength READ getFindLength WRITE setFindLength)

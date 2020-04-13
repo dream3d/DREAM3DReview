@@ -25,6 +25,7 @@ class DREAM3DReview_EXPORT ImportMASSIFData : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(ImportMASSIFData SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(ImportMASSIFData)
   PYB11_FILTER_NEW_MACRO(ImportMASSIFData)
   PYB11_PROPERTY(QString MassifInputFilePath READ getMassifInputFilePath WRITE setMassifInputFilePath)

@@ -56,6 +56,7 @@ class DREAM3DReview_EXPORT PointSampleTriangleGeometry : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(PointSampleTriangleGeometry SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(PointSampleTriangleGeometry)
   PYB11_FILTER_NEW_MACRO(PointSampleTriangleGeometry)
   PYB11_PROPERTY(int SamplesNumberType READ getSamplesNumberType WRITE setSamplesNumberType)

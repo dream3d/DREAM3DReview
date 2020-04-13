@@ -57,6 +57,7 @@ class DREAM3DReview_EXPORT AdaptiveAlignmentMutualInformation : public AdaptiveA
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(AdaptiveAlignmentMutualInformation SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(AdaptiveAlignmentMutualInformation)
   PYB11_FILTER_NEW_MACRO(AdaptiveAlignmentMutualInformation)
   PYB11_PROPERTY(float MisorientationTolerance READ getMisorientationTolerance WRITE setMisorientationTolerance)

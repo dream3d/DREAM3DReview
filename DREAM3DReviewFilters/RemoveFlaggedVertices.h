@@ -52,6 +52,7 @@ class DREAM3DReview_EXPORT RemoveFlaggedVertices : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(RemoveFlaggedVertices SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(RemoveFlaggedVertices)
   PYB11_FILTER_NEW_MACRO(RemoveFlaggedVertices)
   PYB11_PROPERTY(DataArrayPath VertexGeometry READ getVertexGeometry WRITE setVertexGeometry)
