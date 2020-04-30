@@ -39,6 +39,7 @@
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
+#include "SIMPLib/DataArrays/NeighborList.hpp"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
@@ -59,6 +60,7 @@ class DREAM3DReview_EXPORT FindArrayStatistics : public AbstractFilter
   PYB11_FILTER()
   PYB11_SHARED_POINTERS(FindArrayStatistics)
   PYB11_FILTER_NEW_MACRO(FindArrayStatistics)
+  PYB11_PROPERTY(bool FindHistogram READ getFindHistogram WRITE setFindHistogram)
   PYB11_PROPERTY(bool FindLength READ getFindLength WRITE setFindLength)
   PYB11_PROPERTY(bool FindMin READ getFindMin WRITE setFindMin)
   PYB11_PROPERTY(bool FindMax READ getFindMax WRITE setFindMax)
@@ -104,6 +106,59 @@ public:
   static QString ClassName();
 
   ~FindArrayStatistics() override;
+
+  /**
+ * @brief Setter property for MinRange
+ */
+  void setUseFullRange(bool value);
+  /**
+   * @brief Getter property for MinRange
+   * @return Value of MinRange
+   */
+  bool getUseFullRange() const;
+  Q_PROPERTY(bool UseFullRange READ getUseFullRange WRITE setUseFullRange)
+
+  /**
+  * @brief Setter property for MinRange
+  */
+  void setNumBins(int32_t value);
+  /**
+   * @brief Getter property for MinRange
+   * @return Value of MinRange
+   */
+  int32_t getNumBins() const;
+  Q_PROPERTY(double NumBins READ getNumBins WRITE setNumBins)
+
+  /**
+   * @brief Setter property for MinRange
+   */
+  void setMinRange(double value);
+  /**
+   * @brief Getter property for MinRange
+   * @return Value of MinRange
+   */
+  double getMinRange() const;
+  Q_PROPERTY(double MinRange READ getMinRange WRITE setMinRange)
+
+    /**
+     * @brief Setter property for MaxRange
+     */
+    void setMaxRange(double value);
+  /**
+   * @brief Getter property for MaxRange
+   * @return Value of MaxRange
+   */
+  double getMaxRange() const;
+  /**
+   * @brief Setter property for FindHistogram
+   */
+  void setFindHistogram(bool value);
+  /**
+   * @brief Getter property for FindHistogram
+   * @return Value of FindLength
+   */
+  bool getFindHistogram() const;
+  Q_PROPERTY(bool FindHistogram READ getFindHistogram WRITE setFindHistogram)
 
   /**
    * @brief Setter property for FindLength
@@ -236,6 +291,17 @@ public:
    */
   DataArrayPath getMaskArrayPath() const;
   Q_PROPERTY(DataArrayPath MaskArrayPath READ getMaskArrayPath WRITE setMaskArrayPath)
+
+  /**
+    * @brief Setter property for HistogramArrayName
+    */
+    void setHistogramArrayName(const QString& value);
+  /**
+   * @brief Getter property for HistogramArrayName
+   * @return Value of HistogramArrayName
+   */
+  QString getHistogramArrayName() const;
+  Q_PROPERTY(QString HistogramArrayName READ getHistogramArrayName WRITE setHistogramArrayName)
 
   /**
    * @brief Setter property for LengthArrayName
@@ -485,7 +551,16 @@ private:
   int32_t* m_FeatureIds = nullptr;
   std::weak_ptr<DataArray<bool>> m_MaskPtr;
   bool* m_Mask = nullptr;
+  NeighborList<float>::WeakPointer m_HistogramList;
 
+  //Histogram Related Parameters
+  double m_MinRange = {};
+  double m_MaxRange = {};
+  int32_t m_NumBins = {};
+  bool m_UseFullRange = {};
+
+  
+  bool m_FindHistogram = {};
   bool m_FindLength = {};
   bool m_FindMin = {};
   bool m_FindMax = {};
@@ -498,6 +573,7 @@ private:
   bool m_ComputeByIndex = {};
   DataArrayPath m_DestinationAttributeMatrix = {};
   DataArrayPath m_MaskArrayPath = {};
+  QString m_HistogramArrayName = {};
   QString m_LengthArrayName = {};
   QString m_MinimumArrayName = {};
   QString m_MaximumArrayName = {};
