@@ -278,8 +278,9 @@ void FindArrayStatistics::dataCheck()
 
   if (m_FindHistogram)
   {
+    std::vector<size_t> cDims_List(1, m_NumBins+2);
     DataArrayPath path(getDestinationAttributeMatrix().getDataContainerName(), getDestinationAttributeMatrix().getAttributeMatrixName(), getHistogramArrayName());
-    m_HistogramList = getDataContainerArray()->createNonPrereqArrayFromPath<NeighborList<float>>(this, path, 0, cDims, "", DataArrayID33);
+    m_HistogramListPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims_List, "", DataArrayID33);
     if (getErrorCode() < 0)
     {
       return;
@@ -500,7 +501,6 @@ template <template <typename, typename...> class C, typename T, typename... Ts> 
   if (abs(increment) < 1E-10)
   {
     numBins = 1;
-    //Histogram.resize(numBins);
   }
 
   Histogram[0] = min;
@@ -508,13 +508,10 @@ template <template <typename, typename...> class C, typename T, typename... Ts> 
 
   if (numBins == 1) // if one bin, just set the first element to total number of points
   {
-    //Histogram[0] = max;
     Histogram[2] = static_cast<float>(source.size());
   }
   else
   {
-    //for (size_t i = 0; i < numPoints; i++) // sort into bins to create the histogram
-    //{
       for (const auto &s : source)
       {
       bin = size_t((s - min) / increment); // find bin for this input array value
@@ -726,11 +723,8 @@ public:
         if (m_Arrays[7])
         {
           std::vector<float> vals = findHistogram(m_FeatureDataMap[i], m_HistMin, m_HistMax, m_HistFullRange, m_NumBins);
-          NeighborList<float>::SharedVectorType sharedSAL(new std::vector<float>);
-          sharedSAL->assign(vals.begin(), vals.end());
-          std::shared_ptr<FloatNeighborListType> histList = std::dynamic_pointer_cast<NeighborList<float>>(m_Arrays[7]);
-          histList->setList(static_cast<int32_t>(i), sharedSAL);
-          //m_Arrays[7]->setList(i, &val);
+          std::shared_ptr<DataArray<float>> histArray = std::dynamic_pointer_cast<DataArray<float>>(m_Arrays[7]);
+          histArray->setTuple(i, vals);
         }
       }
     }
@@ -828,10 +822,8 @@ void findStatisticsImpl(bool length, bool min, bool max, bool mean, bool median,
     if(arrays[7])
     {
       std::vector<float> vals = findHistogram(data, histmin, histmax, histfullrange, numBins);
-      NeighborList<float>::SharedVectorType sharedSAL(new std::vector<float>);
-      sharedSAL->assign(vals.begin(), vals.end());
-      std::shared_ptr<FloatNeighborListType> histList = std::dynamic_pointer_cast<NeighborList<float>>(arrays[7]);
-      histList->setList(0, sharedSAL);
+      std::shared_ptr<DataArray<float>> histArray = std::dynamic_pointer_cast<DataArray<float>>(arrays[7]);
+      histArray->setTuple(0, vals);
     }
   }
 }
@@ -1001,7 +993,7 @@ void FindArrayStatistics::execute()
     }
     if (m_FindHistogram)
     {
-      arrays[7] = m_HistogramList.lock();
+      arrays[7] = m_HistogramListPtr.lock();
     }
   }
 

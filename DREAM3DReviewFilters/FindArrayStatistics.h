@@ -551,7 +551,8 @@ private:
   int32_t* m_FeatureIds = nullptr;
   std::weak_ptr<DataArray<bool>> m_MaskPtr;
   bool* m_Mask = nullptr;
-  NeighborList<float>::WeakPointer m_HistogramList;
+  std::weak_ptr<DataArray<float>> m_HistogramListPtr;
+  float* m_HistogramList;
 
   //Histogram Related Parameters
   double m_MinRange = {};
