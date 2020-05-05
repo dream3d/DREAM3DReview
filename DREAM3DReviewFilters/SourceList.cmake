@@ -102,6 +102,7 @@ set(_PublicFilters
   ImportPrintRiteHDF5File
   ImportPrintRiteTDMSFiles
   DelaunayTriangulation
+  GenerateFeatureIDsbyBoundingBoxes
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)
