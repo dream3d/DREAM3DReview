@@ -103,6 +103,7 @@ set(_PublicFilters
   ImportPrintRiteTDMSFiles
   DelaunayTriangulation
   GenerateFeatureIDsbyBoundingBoxes
+  GenerateMaskFromSimpleShapes
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

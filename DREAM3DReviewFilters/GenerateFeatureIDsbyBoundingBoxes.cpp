@@ -9,9 +9,8 @@
 #include "SIMPLib/Common/Constants.h"
 
 #include "SIMPLib/FilterParameters/DataArrayCreationFilterParameter.h"
+#include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/AttributeMatrixCreationFilterParameter.h"
-#include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
@@ -79,7 +78,7 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
-  DataContainer::Pointer m = getDataContainerArray()->getPrereqDataContainer(this, getFeatureIDsArrayPath().getDataContainerName(), false);
+  DataContainer::Pointer m = getDataContainerArray()->getPrereqDataContainer(this, getFeatureAttributeMatrixArrayPath().getDataContainerName(), false);
   DataArrayPath path(getFeatureIDsArrayPath().getDataContainerName(), getFeatureIDsArrayPath().getAttributeMatrixName(), "");
   AttributeMatrix::Pointer attrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, path, -301);
 
@@ -199,7 +198,7 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
   }
  
   int32_t numFeatureIDs = attrMat_bounding->getNumberOfTuples();
-  std::vector<size_t> tDims(1, numFeatureIDs);
+  std::vector<size_t> tDims(1, numFeatureIDs+1);
   m->createNonPrereqAttributeMatrix(this, getFeatureAttributeMatrixArrayPath(), tDims, m_DestAttributeMatrixType, AttributeMatrixID20);
 
   
