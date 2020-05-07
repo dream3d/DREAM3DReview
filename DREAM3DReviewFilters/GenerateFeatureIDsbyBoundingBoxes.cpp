@@ -107,56 +107,14 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
     m_DestAttributeMatrixType = AttributeMatrix::Type::FaceFeature;
     break;
   }
-  case AttributeMatrix::Type::Cell:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::CellFeature;
-    break;
+  
   }
-  case AttributeMatrix::Type::VertexFeature:
+
+  if (m_DestAttributeMatrixType == AttributeMatrix::Type::Unknown)
   {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::VertexEnsemble;
-    break;
-  }
-  case AttributeMatrix::Type::EdgeFeature:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::EdgeEnsemble;
-    break;
-  }
-  case AttributeMatrix::Type::FaceFeature:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::FaceEnsemble;
-    break;
-  }
-  case AttributeMatrix::Type::CellFeature:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::CellEnsemble;
-    break;
-  }
-  case AttributeMatrix::Type::VertexEnsemble:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::VertexEnsemble;
-    break;
-  }
-  case AttributeMatrix::Type::EdgeEnsemble:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::EdgeEnsemble;
-    break;
-  }
-  case AttributeMatrix::Type::FaceEnsemble:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::FaceEnsemble;
-    break;
-  }
-  case AttributeMatrix::Type::CellEnsemble:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::CellEnsemble;
-    break;
-  }
-  default:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::Generic;
-    break;
-  }
+    QString ss = QObject::tr("The Attribute Matrix must have a cell, vertex or edge geometry.");
+    setErrorCondition(-5555, ss);
+    return;
   }
 
 
