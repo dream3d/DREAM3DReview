@@ -19,12 +19,11 @@
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
- /* Create Enumerations to allow the created Attribute Arrays to take part in renaming */
+/* Create Enumerations to allow the created Attribute Arrays to take part in renaming */
 enum createdPathID : RenameDataPath::DataID_t
 {
   AttributeMatrixID20 = 20,
 };
-
 
 // -----------------------------------------------------------------------------
 //
@@ -82,85 +81,59 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
   DataArrayPath path(getFeatureIDsArrayPath().getDataContainerName(), getFeatureIDsArrayPath().getAttributeMatrixName(), "");
   AttributeMatrix::Pointer attrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, path, -301);
 
-  if (getErrorCode() < 0)
+  if(getErrorCode() < 0)
   {
     return;
   }
 
-  AttributeMatrix::Type attrMatType = attrMat->getType();
-  m_DestAttributeMatrixType = AttributeMatrix::Type::Unknown;
+  m_DestAttributeMatrixType = attrMat->getType();
 
-  switch (attrMatType)
-  {
-  case AttributeMatrix::Type::Vertex:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::VertexFeature;
-    break;
-  }
-  case AttributeMatrix::Type::Edge:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::EdgeFeature;
-    break;
-  }
-  case AttributeMatrix::Type::Face:
-  {
-    m_DestAttributeMatrixType = AttributeMatrix::Type::FaceFeature;
-    break;
-  }
-  
-  }
-
-  if (m_DestAttributeMatrixType == AttributeMatrix::Type::Unknown)
+  if(m_DestAttributeMatrixType != AttributeMatrix::Type::Vertex && m_DestAttributeMatrixType != AttributeMatrix::Type::EdgeFeature && m_DestAttributeMatrixType != AttributeMatrix::Type::FaceFeature)
   {
     QString ss = QObject::tr("The Attribute Matrix must have a cell, vertex or edge geometry.");
     setErrorCondition(-5555, ss);
     return;
   }
 
-
   std::vector<size_t> cDims(1, 1);
   m_BoxFeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getBoxFeatureIDsArrayPath(), cDims);
-  if (nullptr != m_BoxFeatureIdsPtr.lock())
+  if(nullptr != m_BoxFeatureIdsPtr.lock())
   {
     m_BoxFeatureIds = m_BoxFeatureIdsPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
 
   cDims[0] = 3;
   m_BoxCenterPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getBoxCenterArrayPath(), cDims);
-  if (nullptr != m_BoxCenterPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_BoxCenterPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_BoxCenter = m_BoxCenterPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
 
   m_BoxDimsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getBoxDimensionsArrayPath(), cDims);
-  if (nullptr != m_BoxDimsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_BoxDimsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_BoxDims = m_BoxDimsPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
 
   cDims[0] = 1;
-  m_FeatureIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, getFeatureIDsArrayPath(), 0, cDims);                  /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if (nullptr != m_FeatureIdsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  m_FeatureIdsPtr =
+      getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, getFeatureIDsArrayPath(), 0, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_FeatureIdsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
 
-
-  
   DataArrayPath path_bounding(getBoxFeatureIDsArrayPath().getDataContainerName(), getBoxFeatureIDsArrayPath().getAttributeMatrixName(), "");
   AttributeMatrix::Pointer attrMat_bounding = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, path_bounding, -301);
 
-  if (getErrorCode() < 0)
+  if(getErrorCode() < 0)
   {
     return;
   }
- 
+
   int32_t numFeatureIDs = attrMat_bounding->getNumberOfTuples();
-  std::vector<size_t> tDims(1, numFeatureIDs+1);
+  std::vector<size_t> tDims(1, numFeatureIDs + 1);
   m->createNonPrereqAttributeMatrix(this, getFeatureAttributeMatrixArrayPath(), tDims, m_DestAttributeMatrixType, AttributeMatrixID20);
-
-  
-
 }
 
 // -----------------------------------------------------------------------------
@@ -171,7 +144,7 @@ bool IsPointInBounds(float xmax, float xmin, float ymax, float ymin, float zmax,
 {
   bool inBounds = false;
 
-  if ((x < xmax) && (x > xmin) && (y < ymax) && (y > ymin) && (z < zmax) && (z > zmin))
+  if((x < xmax) && (x > xmin) && (y < ymax) && (y > ymin) && (z < zmax) && (z > zmin))
   {
     inBounds = true;
   }
@@ -184,7 +157,7 @@ bool IsPointInBounds(float xmax, float xmin, float ymax, float ymin, float zmax,
 // -----------------------------------------------------------------------------
 void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxImage()
 {
-  size_t totalNumFIDs = m_BoxFeatureIdsPtr.lock()->getNumberOfTuples(); 
+  size_t totalNumFIDs = m_BoxFeatureIdsPtr.lock()->getNumberOfTuples();
   size_t totalNumElementsDest = m_FeatureIdsPtr.lock()->getNumberOfTuples();
   DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getFeatureIDsArrayPath().getDataContainerName());
   ImageGeom::Pointer image = dc->getGeometryAs<ImageGeom>();
@@ -192,19 +165,22 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxImage()
   FloatVec3Type uorigin = image->getOrigin();
   FloatVec3Type uspacing = image->getSpacing();
 
-  int64_t dims[3] = 
-  {
-    static_cast<int64_t>(udims[0]), static_cast<int64_t>(udims[1]), static_cast<int64_t>(udims[2]),
+  int64_t dims[3] = {
+      static_cast<int64_t>(udims[0]),
+      static_cast<int64_t>(udims[1]),
+      static_cast<int64_t>(udims[2]),
   };
 
-  float origin[3] =
-  {
-    static_cast<float>(uorigin[0]), static_cast<float>(uorigin[1]), static_cast<float>(uorigin[2]),
+  float origin[3] = {
+      static_cast<float>(uorigin[0]),
+      static_cast<float>(uorigin[1]),
+      static_cast<float>(uorigin[2]),
   };
 
-  float spacing[3] =
-  {
-    static_cast<float>(uspacing[0]), static_cast<float>(uspacing[1]), static_cast<float>(uspacing[2]),
+  float spacing[3] = {
+      static_cast<float>(uspacing[0]),
+      static_cast<float>(uspacing[1]),
+      static_cast<float>(uspacing[2]),
   };
 
   bool inBounds = false;
@@ -220,18 +196,18 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxImage()
   float currentz = 0;
 
   int64_t xindex = 0;
-  int64_t yindex = 0; 
+  int64_t yindex = 0;
   int64_t zindex = 0;
   int64_t tempMod = 0;
 
   size_t k = 0;
 
-  for (size_t i = 0; i < totalNumElementsDest; i++)
+  for(size_t i = 0; i < totalNumElementsDest; i++)
   {
-    
+
     zindex = i / (dims[0] * dims[1]);
     tempMod = i % (dims[0] * dims[1]);
-    yindex = tempMod / (dims[0]); 
+    yindex = tempMod / (dims[0]);
     xindex = tempMod % (dims[0]);
 
     currentx = origin[0] + spacing[0] * xindex;
@@ -240,9 +216,8 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxImage()
 
     inBounds = false;
     k = 0;
-    
 
-    while (!inBounds && k < totalNumFIDs)
+    while(!inBounds && k < totalNumFIDs)
     {
       xmin = m_BoxCenter[3 * k] - m_BoxDims[3 * k] / 2.0;
       xmax = m_BoxCenter[3 * k] + m_BoxDims[3 * k] / 2.0;
@@ -253,7 +228,7 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxImage()
 
       inBounds = IsPointInBounds(xmax, xmin, ymax, ymin, zmax, zmin, currentx, currenty, currentz);
 
-      if (inBounds)
+      if(inBounds)
       {
         m_FeatureIds[i] = m_BoxFeatureIds[k];
       }
@@ -261,8 +236,6 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxImage()
       k++;
     }
   }
-
-
 }
 
 
@@ -275,11 +248,10 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxEdge()
   size_t totalNumFIDs = m_BoxFeatureIdsPtr.lock()->getNumberOfTuples();
   size_t totalNumElementsDest = m_FeatureIdsPtr.lock()->getNumberOfTuples();
 
-  for (size_t i; i < totalNumElementsDest; i++)
+  for(size_t i = 0; i < totalNumElementsDest; i++)
   {
-    for (size_t k; k < totalNumFIDs; k++)
+    for(size_t k = 0; k < totalNumFIDs; k++)
     {
-
     }
   }
 }
@@ -297,9 +269,9 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxVertex()
   bool inBounds = false;
   float xmin = 0;
   float xmax = 0;
-  float ymin = 0; 
+  float ymin = 0;
   float ymax = 0;
-  float zmin = 0; 
+  float zmin = 0;
   float zmax = 0;
 
   float currentx = 0;
@@ -308,7 +280,7 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxVertex()
 
   float* vertices = vertex->getVertexPointer(0);
   size_t k = 0;
-  for (size_t i = 0; i < totalNumElementsDest; i++)
+  for(size_t i = 0; i < totalNumElementsDest; i++)
   {
     inBounds = false;
     k = 0;
@@ -316,7 +288,7 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxVertex()
     currenty = vertices[3 * i + 1];
     currentz = vertices[3 * i + 2];
 
-    while (!inBounds && k < totalNumFIDs)
+    while(!inBounds && k < totalNumFIDs)
     {
       xmin = m_BoxCenter[3 * k] - m_BoxDims[3 * k] / 2.0;
       xmax = m_BoxCenter[3 * k] + m_BoxDims[3 * k] / 2.0;
@@ -327,13 +299,13 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxVertex()
 
       inBounds = IsPointInBounds(xmax, xmin, ymax, ymin, zmax, zmin, currentx, currenty, currentz);
 
-      if (inBounds)
+      if(inBounds)
       {
         m_FeatureIds[i] = m_BoxFeatureIds[k];
       }
 
       k++;
-    }    
+    }
   }
 }
 
@@ -344,36 +316,41 @@ void GenerateFeatureIDsbyBoundingBoxes::execute()
 {
   initialize();
   dataCheck();
-  if(getErrorCode() < 0) { return; }
+  if(getErrorCode() < 0)
+  {
+    return;
+  }
 
-  if (getCancel()) { return; }
+  if(getCancel())
+  {
+    return;
+  }
 
-  if (getWarningCode() < 0)
+  if(getWarningCode() < 0)
   {
     QString ss = QObject::tr("Some warning message");
     setWarningCondition(-88888888, ss);
   }
 
-  if (getErrorCode() < 0)
+  if(getErrorCode() < 0)
   {
     QString ss = QObject::tr("Some error message");
     setErrorCondition(-99999999, ss);
     return;
   }
 
-  if (m_DestAttributeMatrixType == AttributeMatrix::Type::CellFeature)
+  if(m_DestAttributeMatrixType == AttributeMatrix::Type::CellFeature)
   {
     checkBoundingBoxImage();
   }
-  else if (m_DestAttributeMatrixType == AttributeMatrix::Type::VertexFeature)
+  else if(m_DestAttributeMatrixType == AttributeMatrix::Type::VertexFeature)
   {
     checkBoundingBoxVertex();
   }
-  else if (m_DestAttributeMatrixType == AttributeMatrix::Type::EdgeFeature)
+  else if(m_DestAttributeMatrixType == AttributeMatrix::Type::EdgeFeature)
   {
     checkBoundingBoxEdge();
   }
-
 }
 
 
@@ -394,7 +371,7 @@ AbstractFilter::Pointer GenerateFeatureIDsbyBoundingBoxes::newFilterInstance(boo
 //
 // -----------------------------------------------------------------------------
 QString GenerateFeatureIDsbyBoundingBoxes::getCompiledLibraryName() const
-{ 
+{
   return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
@@ -413,7 +390,7 @@ QString GenerateFeatureIDsbyBoundingBoxes::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
-  vStream <<  DREAM3DReview::Version::Major() << "." << DREAM3DReview::Version::Minor() << "." << DREAM3DReview::Version::Patch();
+  vStream << DREAM3DReview::Version::Major() << "." << DREAM3DReview::Version::Minor() << "." << DREAM3DReview::Version::Patch();
   return version;
 }
 
@@ -421,24 +398,24 @@ QString GenerateFeatureIDsbyBoundingBoxes::getFilterVersion() const
 //
 // -----------------------------------------------------------------------------
 QString GenerateFeatureIDsbyBoundingBoxes::getGroupName() const
-{ 
-  return SIMPL::FilterGroups::Unsupported; 
+{
+  return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 QString GenerateFeatureIDsbyBoundingBoxes::getSubGroupName() const
-{ 
-  return "DREAM3DReview"; 
+{
+  return "DREAM3DReview";
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 QString GenerateFeatureIDsbyBoundingBoxes::getHumanLabel() const
-{ 
-  return "Generate FeatureIDs by Bounding Boxes"; 
+{
+  return "Generate FeatureIDs by Bounding Boxes";
 }
 
 // -----------------------------------------------------------------------------
@@ -482,7 +459,7 @@ QString GenerateFeatureIDsbyBoundingBoxes::ClassName()
 // -----------------------------------------------------------------------------
 void GenerateFeatureIDsbyBoundingBoxes::setFeatureIDsArrayPath(const DataArrayPath& value)
 {
-    m_FeatureIDsArrayPath = value;
+  m_FeatureIDsArrayPath = value;
 }
 // -----------------------------------------------------------------------------
 DataArrayPath GenerateFeatureIDsbyBoundingBoxes::getFeatureIDsArrayPath() const
@@ -492,7 +469,7 @@ DataArrayPath GenerateFeatureIDsbyBoundingBoxes::getFeatureIDsArrayPath() const
 // -----------------------------------------------------------------------------
 void GenerateFeatureIDsbyBoundingBoxes::setFeatureAttributeMatrixArrayPath(const DataArrayPath& value)
 {
-    m_FeatureAttributeMatrixArrayPath = value;
+  m_FeatureAttributeMatrixArrayPath = value;
 }
 // -----------------------------------------------------------------------------
 DataArrayPath GenerateFeatureIDsbyBoundingBoxes::getFeatureAttributeMatrixArrayPath() const
@@ -502,7 +479,7 @@ DataArrayPath GenerateFeatureIDsbyBoundingBoxes::getFeatureAttributeMatrixArrayP
 // -----------------------------------------------------------------------------
 void GenerateFeatureIDsbyBoundingBoxes::setBoxCenterArrayPath(const DataArrayPath& value)
 {
-    m_BoxCenterArrayPath = value;
+  m_BoxCenterArrayPath = value;
 }
 // -----------------------------------------------------------------------------
 DataArrayPath GenerateFeatureIDsbyBoundingBoxes::getBoxCenterArrayPath() const
@@ -512,7 +489,7 @@ DataArrayPath GenerateFeatureIDsbyBoundingBoxes::getBoxCenterArrayPath() const
 // -----------------------------------------------------------------------------
 void GenerateFeatureIDsbyBoundingBoxes::setBoxDimensionsArrayPath(const DataArrayPath& value)
 {
-    m_BoxDimensionsArrayPath = value;
+  m_BoxDimensionsArrayPath = value;
 }
 // -----------------------------------------------------------------------------
 DataArrayPath GenerateFeatureIDsbyBoundingBoxes::getBoxDimensionsArrayPath() const

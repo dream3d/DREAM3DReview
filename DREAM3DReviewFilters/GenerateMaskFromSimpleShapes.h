@@ -9,9 +9,8 @@
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataContainers/DataContainer.h"
 
-
 #include "DREAM3DReview/DREAM3DReviewPlugin.h"
-    
+
 /**
  * @brief The GenerateMaskFromSimpleShapes class. See [Filter documentation](@ref generatemaskfromsimpleshapes) for details.
  */
@@ -19,21 +18,22 @@ class DREAM3DReview_EXPORT GenerateMaskFromSimpleShapes : public AbstractFilter
 {
   Q_OBJECT
 
-#ifdef SIMPL_ENABLE_PYTHON
-  // clang-format off
-  PYB11_CREATE_BINDINGS(GenerateMaskFromSimpleShapes SUPERCLASS AbstractFilter)
-    PYB11_PROPERTY(DataArrayPath MaskArrayPath READ getMaskArrayPath WRITE setMaskArrayPath)
+  // Start Python bindings declarations
+  PYB11_BEGIN_BINDINGS(GenerateMaskFromSimpleShapes SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
+  PYB11_SHARED_POINTERS(GenerateMaskFromSimpleShapes)
+  PYB11_FILTER_NEW_MACRO(GenerateMaskFromSimpleShapes)
+  PYB11_PROPERTY(DataArrayPath MaskArrayPath READ getMaskArrayPath WRITE setMaskArrayPath)
   PYB11_PROPERTY(DataArrayPath CentersArrayPath READ getCentersArrayPath WRITE setCentersArrayPath)
   PYB11_PROPERTY(DataArrayPath AxesLengthArrayPath READ getAxesLengthArrayPath WRITE setAxesLengthArrayPath)
   PYB11_PROPERTY(DataArrayPath BoxDimensionsArrayPath READ getBoxDimensionsArrayPath WRITE setBoxDimensionsArrayPath)
-  PYB11_PROPERTY(DataArrayPath CylinderRadiusHeightArrayPath READ getCylinderRadiusHeightArrayPath WRITE setCylinderRadiusHeightArrayPath)
+  PYB11_PROPERTY(DataArrayPath CylinderRadiusArrayPath READ getCylinderRadiusArrayPath WRITE setCylinderRadiusArrayPath)
+  PYB11_PROPERTY(DataArrayPath CylinderHeightArrayPath READ getCylinderHeightArrayPath WRITE setCylinderHeightArrayPath)
   PYB11_PROPERTY(int MaskShape READ getMaskShape WRITE setMaskShape)
-
-  // clang-format on
-#endif
+  PYB11_END_BINDINGS()
+  // End Python bindings declarations
 
 public:
-
   using Self = GenerateMaskFromSimpleShapes;
   using Pointer = std::shared_ptr<Self>;
   using ConstPointer = std::shared_ptr<const Self>;
@@ -54,89 +54,89 @@ public:
   static QString ClassName();
 
   ~GenerateMaskFromSimpleShapes() override;
-  
-    /**
-    * @brief Sets the value for Filter Parameter for MaskArrayPath
-    * @param value The new value to use.
-    */
-    void setMaskArrayPath(const DataArrayPath& value);
-    /**
-    * @brief Gets the Filter Parameter value for MaskArrayPath
-    * @return The value for MaskArrayPath
-    */
-    DataArrayPath getMaskArrayPath() const;
-    Q_PROPERTY(DataArrayPath MaskArrayPath READ getMaskArrayPath WRITE setMaskArrayPath)
 
-    /**
-    * @brief Sets the value for Filter Parameter for CentersArrayPath
-    * @param value The new value to use.
-    */
-    void setCentersArrayPath(const DataArrayPath& value);
-    /**
-    * @brief Gets the Filter Parameter value for CentersArrayPath
-    * @return The value for CentersArrayPath
-    */
-    DataArrayPath getCentersArrayPath() const;
-    Q_PROPERTY(DataArrayPath CentersArrayPath READ getCentersArrayPath WRITE setCentersArrayPath)
+  /**
+   * @brief Sets the value for Filter Parameter for MaskArrayPath
+   * @param value The new value to use.
+   */
+  void setMaskArrayPath(const DataArrayPath& value);
+  /**
+   * @brief Gets the Filter Parameter value for MaskArrayPath
+   * @return The value for MaskArrayPath
+   */
+  DataArrayPath getMaskArrayPath() const;
+  Q_PROPERTY(DataArrayPath MaskArrayPath READ getMaskArrayPath WRITE setMaskArrayPath)
 
-    /**
-    * @brief Sets the value for Filter Parameter for AxesLengthArrayPath
-    * @param value The new value to use.
-    */
-    void setAxesLengthArrayPath(const DataArrayPath& value);
-    /**
-    * @brief Gets the Filter Parameter value for AxesLengthArrayPath
-    * @return The value for AxesLengthArrayPath
-    */
-    DataArrayPath getAxesLengthArrayPath() const;
-    Q_PROPERTY(DataArrayPath AxesLengthArrayPath READ getAxesLengthArrayPath WRITE setAxesLengthArrayPath)
+  /**
+   * @brief Sets the value for Filter Parameter for CentersArrayPath
+   * @param value The new value to use.
+   */
+  void setCentersArrayPath(const DataArrayPath& value);
+  /**
+   * @brief Gets the Filter Parameter value for CentersArrayPath
+   * @return The value for CentersArrayPath
+   */
+  DataArrayPath getCentersArrayPath() const;
+  Q_PROPERTY(DataArrayPath CentersArrayPath READ getCentersArrayPath WRITE setCentersArrayPath)
 
-    /**
-    * @brief Sets the value for Filter Parameter for BoxDimensionsArrayPath
-    * @param value The new value to use.
-    */
-    void setBoxDimensionsArrayPath(const DataArrayPath& value);
-    /**
-    * @brief Gets the Filter Parameter value for BoxDimensionsArrayPath
-    * @return The value for BoxDimensionsArrayPath
-    */
-    DataArrayPath getBoxDimensionsArrayPath() const;
-    Q_PROPERTY(DataArrayPath BoxDimensionsArrayPath READ getBoxDimensionsArrayPath WRITE setBoxDimensionsArrayPath)
+  /**
+   * @brief Sets the value for Filter Parameter for AxesLengthArrayPath
+   * @param value The new value to use.
+   */
+  void setAxesLengthArrayPath(const DataArrayPath& value);
+  /**
+   * @brief Gets the Filter Parameter value for AxesLengthArrayPath
+   * @return The value for AxesLengthArrayPath
+   */
+  DataArrayPath getAxesLengthArrayPath() const;
+  Q_PROPERTY(DataArrayPath AxesLengthArrayPath READ getAxesLengthArrayPath WRITE setAxesLengthArrayPath)
 
-    /**
-    * @brief Sets the value for Filter Parameter for CylinderRadiusArrayPath
-    * @param value The new value to use.
-    */
-    void setCylinderRadiusArrayPath(const DataArrayPath& value);
-    /**
-    * @brief Gets the Filter Parameter value for CylinderRadiusArrayPath
-    * @return The value for CylinderRadiusArrayPath
-    */
-    DataArrayPath getCylinderRadiusArrayPath() const;
-    Q_PROPERTY(DataArrayPath CylinderRadiusArrayPath READ getCylinderRadiusArrayPath WRITE setCylinderRadiusArrayPath)
-     
-      /**
-    * @brief Sets the value for Filter Parameter for CylinderHeightArrayPath
-    * @param value The new value to use.
-    */
-      void setCylinderHeightArrayPath(const DataArrayPath& value);
-    /**
-    * @brief Gets the Filter Parameter value for CylinderHeightArrayPath
-    * @return The value for CylinderHeightArrayPath
-    */
-    DataArrayPath getCylinderHeightArrayPath() const;
-    Q_PROPERTY(DataArrayPath CylinderHeightArrayPath READ getCylinderHeightArrayPath WRITE setCylinderHeightArrayPath)
+  /**
+   * @brief Sets the value for Filter Parameter for BoxDimensionsArrayPath
+   * @param value The new value to use.
+   */
+  void setBoxDimensionsArrayPath(const DataArrayPath& value);
+  /**
+   * @brief Gets the Filter Parameter value for BoxDimensionsArrayPath
+   * @return The value for BoxDimensionsArrayPath
+   */
+  DataArrayPath getBoxDimensionsArrayPath() const;
+  Q_PROPERTY(DataArrayPath BoxDimensionsArrayPath READ getBoxDimensionsArrayPath WRITE setBoxDimensionsArrayPath)
 
-      /**
-     * @brief Setter property for ReferenceOrientation
-     */
-      void setMaskShape(int value);
-    /**
-     * @brief Getter property for ReferenceOrientation
-     * @return Value of ReferenceOrientation
-     */
-    int getMaskShape() const;
-    Q_PROPERTY(int MaskShape READ getMaskShape WRITE setMaskShape)
+  /**
+   * @brief Sets the value for Filter Parameter for CylinderRadiusArrayPath
+   * @param value The new value to use.
+   */
+  void setCylinderRadiusArrayPath(const DataArrayPath& value);
+  /**
+   * @brief Gets the Filter Parameter value for CylinderRadiusArrayPath
+   * @return The value for CylinderRadiusArrayPath
+   */
+  DataArrayPath getCylinderRadiusArrayPath() const;
+  Q_PROPERTY(DataArrayPath CylinderRadiusArrayPath READ getCylinderRadiusArrayPath WRITE setCylinderRadiusArrayPath)
+
+  /**
+   * @brief Sets the value for Filter Parameter for CylinderHeightArrayPath
+   * @param value The new value to use.
+   */
+  void setCylinderHeightArrayPath(const DataArrayPath& value);
+  /**
+   * @brief Gets the Filter Parameter value for CylinderHeightArrayPath
+   * @return The value for CylinderHeightArrayPath
+   */
+  DataArrayPath getCylinderHeightArrayPath() const;
+  Q_PROPERTY(DataArrayPath CylinderHeightArrayPath READ getCylinderHeightArrayPath WRITE setCylinderHeightArrayPath)
+
+  /**
+   * @brief Setter property for ReferenceOrientation
+   */
+  void setMaskShape(int value);
+  /**
+   * @brief Getter property for ReferenceOrientation
+   * @return Value of ReferenceOrientation
+   */
+  int getMaskShape() const;
+  Q_PROPERTY(int MaskShape READ getMaskShape WRITE setMaskShape)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -207,8 +207,8 @@ protected:
   void initialize();
 
   /**
- * @brief Initializes all the private instance variables.
- */
+   * @brief Initializes all the private instance variables.
+   */
   void createImageMask();
 
   /**
@@ -221,43 +221,37 @@ protected:
    */
   void createEdgeMask();
 
-private: 
+private:
+  std::weak_ptr<DataArray<bool>> m_MaskPtr;
+  bool* m_Mask = nullptr;
 
+  std::weak_ptr<DataArray<float>> m_CentersPtr;
+  float* m_Centers = nullptr;
 
+  std::weak_ptr<DataArray<float>> m_AxisLengthsPtr;
+  float* m_AxisLengths = nullptr;
 
-    std::weak_ptr<DataArray<bool>> m_MaskPtr;
-    bool* m_Mask = nullptr;
+  std::weak_ptr<DataArray<float>> m_BoxDimsPtr;
+  float* m_BoxDims = nullptr;
 
-    std::weak_ptr<DataArray<float>> m_CentersPtr;
-    float* m_Centers = nullptr;
+  std::weak_ptr<DataArray<float>> m_CylinderRadPtr;
+  float* m_CylinderRad = nullptr;
 
-    std::weak_ptr<DataArray<float>> m_AxisLengthsPtr;
-    float* m_AxisLengths = nullptr;
+  std::weak_ptr<DataArray<float>> m_CylinderHeightPtr;
+  float* m_CylinderHeight = nullptr;
 
-    std::weak_ptr<DataArray<float>> m_BoxDimsPtr;
-    float* m_BoxDims = nullptr;
+  DataArrayPath m_MaskArrayPath;
+  DataArrayPath m_CentersArrayPath;
+  DataArrayPath m_AxesLengthArrayPath;
+  DataArrayPath m_BoxDimensionsArrayPath;
+  DataArrayPath m_CylinderRadiusArrayPath;
+  DataArrayPath m_CylinderHeightArrayPath;
 
-    std::weak_ptr<DataArray<float>> m_CylinderRadPtr;
-    float* m_CylinderRad = nullptr;
-
-    std::weak_ptr<DataArray<float>> m_CylinderHeightPtr;
-    float* m_CylinderHeight = nullptr;
-
-    DataArrayPath  m_MaskArrayPath;
-    DataArrayPath  m_CentersArrayPath;
-    DataArrayPath  m_AxesLengthArrayPath;
-    DataArrayPath  m_BoxDimensionsArrayPath;
-    DataArrayPath  m_CylinderRadiusArrayPath;
-    DataArrayPath  m_CylinderHeightArrayPath;
-
-    int m_MaskShape = {};
-
-
+  int m_MaskShape = {};
 
 public:
   GenerateMaskFromSimpleShapes(const GenerateMaskFromSimpleShapes&) = delete;            // Copy Constructor Not Implemented
   GenerateMaskFromSimpleShapes& operator=(const GenerateMaskFromSimpleShapes&) = delete; // Copy Assignment Not Implemented
-  GenerateMaskFromSimpleShapes(GenerateMaskFromSimpleShapes &&) = delete;                // Move Constructor Not Implemented
+  GenerateMaskFromSimpleShapes(GenerateMaskFromSimpleShapes&&) = delete;                 // Move Constructor Not Implemented
   GenerateMaskFromSimpleShapes& operator=(GenerateMaskFromSimpleShapes&&) = delete;      // Move Assignment Not Implemented
 };
-
