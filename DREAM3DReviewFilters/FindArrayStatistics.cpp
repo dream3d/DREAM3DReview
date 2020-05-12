@@ -278,7 +278,7 @@ void FindArrayStatistics::dataCheck()
 
   if (m_FindHistogram)
   {
-    std::vector<size_t> cDims_List(1, m_NumBins+2);
+    std::vector<size_t> cDims_List(1, m_NumBins);
     DataArrayPath path(getDestinationAttributeMatrix().getDataContainerName(), getDestinationAttributeMatrix().getAttributeMatrixName(), getHistogramArrayName());
     m_HistogramListPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims_List, "", DataArrayID33);
     if (getErrorCode() < 0)
@@ -472,14 +472,14 @@ double findSummation(C<T, Ts...>& source)
 template <template <typename, typename...> class C, typename T, typename... Ts> std::vector<float> findHistogram(C<T, Ts...>& source, float histmin, float histmax, bool histfullrange, int32_t numBins)
 {
 
-  std::vector<float> Histogram(numBins+2);
+  std::vector<float> Histogram(numBins, 0);
   int overflow = 0;
   int32_t bin = 0;
   int32_t numPoints = source.size();
 
   if (source.empty())
   {
-    std::vector<float> empty(1, 0);
+    std::vector<float> empty(numBins, 0);
     return empty;
   }
 
@@ -517,11 +517,11 @@ template <template <typename, typename...> class C, typename T, typename... Ts> 
       bin = size_t((s - min) / increment); // find bin for this input array value
       if ((bin >= 0) && (bin < numBins))              // make certain bin is in range
       {
-        Histogram[bin+2]++; // increment histogram element corresponding to this input array value
+        Histogram[bin]++; // increment histogram element corresponding to this input array value
       }
       else if (s == max)
       {
-        Histogram[numBins + 1]++;
+        Histogram[numBins - 1]++;
       }
       else
       {

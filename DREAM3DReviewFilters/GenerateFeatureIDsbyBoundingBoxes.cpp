@@ -86,10 +86,24 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
     return;
   }
 
-  m_DestAttributeMatrixType = attrMat->getType();
-
-  if(m_DestAttributeMatrixType != AttributeMatrix::Type::Vertex && m_DestAttributeMatrixType != AttributeMatrix::Type::EdgeFeature && m_DestAttributeMatrixType != AttributeMatrix::Type::FaceFeature)
+  m_DestAttributeMatrixType = AttributeMatrix::Type::Unknown;
+  AttributeMatrix::Type attrMatType = attrMat->getType();
+  
+  if (attrMatType == AttributeMatrix::Type::Vertex)
   {
+    m_DestAttributeMatrixType = AttributeMatrix::Type::VertexFeature;
+  }
+  else if (attrMatType == AttributeMatrix::Type::Cell)
+  {
+    m_DestAttributeMatrixType = AttributeMatrix::Type::CellFeature;
+  }
+  else if (attrMatType == AttributeMatrix::Type::Edge)
+  {
+    m_DestAttributeMatrixType = AttributeMatrix::Type::EdgeFeature;
+  }
+  else
+  {
+    m_DestAttributeMatrixType = AttributeMatrix::Type::Unknown;
     QString ss = QObject::tr("The Attribute Matrix must have a cell, vertex or edge geometry.");
     setErrorCondition(-5555, ss);
     return;
