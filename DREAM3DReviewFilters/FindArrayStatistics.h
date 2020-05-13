@@ -148,6 +148,7 @@ public:
    * @brief Getter property for MaxRange
    * @return Value of MaxRange
    */
+  Q_PROPERTY(double MaxRange READ getMaxRange WRITE setMaxRange)
   double getMaxRange() const;
   /**
    * @brief Setter property for FindHistogram
@@ -203,7 +204,6 @@ public:
    */
   bool getFindMean() const;
   Q_PROPERTY(bool FindMean READ getFindMean WRITE setFindMean)
-
   /**
    * @brief Setter property for FindMedian
    */

@@ -503,12 +503,10 @@ template <template <typename, typename...> class C, typename T, typename... Ts> 
     numBins = 1;
   }
 
-  Histogram[0] = min;
-  Histogram[1] = max;
 
   if (numBins == 1) // if one bin, just set the first element to total number of points
   {
-    Histogram[2] = static_cast<float>(source.size());
+    Histogram[0] = static_cast<float>(source.size());
   }
   else
   {
