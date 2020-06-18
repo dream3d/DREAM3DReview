@@ -900,11 +900,11 @@ void TesselateFarFieldGrains::assign_voxels()
 
   FloatVec3Type spacing = m->getGeometryAs<ImageGeom>()->getSpacing();
 
-  Int32ArrayType::Pointer newownersPtr = Int32ArrayType::CreateArray(totalPoints, "newowners", true);
+  Int32ArrayType::Pointer newownersPtr = Int32ArrayType::CreateArray(totalPoints, std::string("newowners"), true);
   newownersPtr->initializeWithValue(-1);
   int32_t* newowners = newownersPtr->getPointer(0);
 
-  FloatArrayType::Pointer ellipfuncsPtr = FloatArrayType::CreateArray(totalPoints, "ellipfuncs", true);
+  FloatArrayType::Pointer ellipfuncsPtr = FloatArrayType::CreateArray(totalPoints, std::string("ellipfuncs"), true);
   ellipfuncsPtr->initializeWithValue(-1);
   float* ellipfuncs = ellipfuncsPtr->getPointer(0);
 
@@ -1077,7 +1077,7 @@ void TesselateFarFieldGrains::assign_gaps_only()
   neighpoints[4] = xPoints;
   neighpoints[5] = xPoints * yPoints;
 
-  Int32ArrayType::Pointer neighborsPtr = Int32ArrayType::CreateArray(m->getGeometryAs<ImageGeom>()->getNumberOfElements(), "Neighbors", true);
+  Int32ArrayType::Pointer neighborsPtr = Int32ArrayType::CreateArray(m->getGeometryAs<ImageGeom>()->getNumberOfElements(), std::string("Neighbors"), true);
   neighborsPtr->initializeWithValue(-1);
   m_Neighbors = neighborsPtr->getPointer(0);
 

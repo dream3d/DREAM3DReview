@@ -218,7 +218,7 @@ void Silhouette::execute()
   }
   else
   {
-    BoolArrayType::Pointer tmpMask = BoolArrayType::CreateArray(numTuples, "_INTERNAL_USE_ONLY_tmpMask", true);
+    BoolArrayType::Pointer tmpMask = BoolArrayType::CreateArray(numTuples, std::string("_INTERNAL_USE_ONLY_tmpMask"), true);
     tmpMask->initializeWithValue(true);
     EXECUTE_TEMPLATE(this, SilhouetteTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_SilhouetteArrayPtr.lock(), tmpMask, uniqueIds.size(), m_FeatureIdsPtr.lock(), m_DistanceMetric)
   }

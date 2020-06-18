@@ -1,3 +1,7 @@
+#include <utility>
+
+#include <utility>
+
 /* ============================================================================
  * Copyright (c) 2010, Michael A. Jackson (BlueQuartz Software)
  * Copyright (c) 2010, Dr. Michael A. Groeber (US Air Force Research Laboratories
@@ -35,11 +39,12 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <string.h>
+#include <cstring>
 
 #include <QtCore/QByteArray>
-#include <QtCore/QString>
 #include <QtCore/QTextStream>
+
+#include "H5Support/H5Lite.h"
 
 #include "EbsdLib/IO/EbsdHeaderEntry.h"
 #include "EbsdLib/EbsdLib.h"
@@ -61,34 +66,30 @@ public:
   HEADERENTRY_NEW_SUPERCLASS(MicHeaderEntry<T>, EbsdHeaderEntry)
   HEADERENTRY_NEW_SUPERCLASS_VALUE(MicHeaderEntry<T>, EbsdHeaderEntry)
 
-  virtual ~MicHeaderEntry()
-  {
-  }
+  ~MicHeaderEntry() override = default;
 
-  QString getKey()
+  std::string getKey() override
   {
     return m_key;
   }
 
 #ifdef EbsdLib_ENABLE_HDF5
-  QString getHDFType()
+  std::string getHDFType() override
   {
     T value = static_cast<T>(0);
-    return QH5Lite::HDFTypeForPrimitiveAsStr(value);
+    return H5Lite::HDFTypeForPrimitiveAsStr(value);
   }
 #endif
 
-  void parseValue(QByteArray& value)
+  void parseValue(std::string& value) override
   {
-    value = value.trimmed();
-    value = value.simplified();
-    QTextStream ss(&value);
+    std::stringstream ss(value);
     ss >> m_value;
   }
 
-  void print(std::ostream& out)
+  void print(std::ostream& out) override
   {
-    out << m_key.toStdString() << "  " << m_value << std::endl;
+    out << m_key << "  " << m_value << std::endl;
   }
 
   T getValue()
@@ -101,19 +102,16 @@ public:
   }
 
 protected:
-  MicHeaderEntry(const QString& key)
-  : m_value(0)
-  , m_key(key)
+  MicHeaderEntry(std::string key)
+  : m_key(std::move(key))
   {
   }
 
-  MicHeaderEntry()
-  {
-  }
+  MicHeaderEntry() = default;
 
 private:
-  T m_value;
-  QString m_key;
+  T m_value = static_cast<T>(0);
+  std::string m_key = {""};
 
 public:
   MicHeaderEntry(const MicHeaderEntry&) = delete;            // Copy Constructor Not Implemented
@@ -135,52 +133,56 @@ public:
   EBSD_SHARED_POINTERS(MicStringHeaderEntry)
   HEADERENTRY_NEW_SUPERCLASS(MicStringHeaderEntry, EbsdHeaderEntry)
 
-  virtual ~MicStringHeaderEntry()
-  {
-  }
+  ~MicStringHeaderEntry() override = default;
 
-  QString getKey()
+  std::string getKey() override
   {
     return m_key;
   }
-  QString getHDFType()
+  std::string getHDFType() override
   {
     return "H5T_STRING";
   }
 
   void parseValue(QByteArray& value)
   {
-    m_value = QString(value.trimmed());
+    m_value = std::string(value.trimmed());
   }
 
-  void print(std::ostream& out)
+  void print(std::ostream& out) override
   {
-    out << m_key.toStdString() << "  " << m_value.toStdString() << std::endl;
+    out << m_key << "  " << m_value << std::endl;
   }
 
-  QString getValue()
+  std::string getValue()
   {
     return m_value;
   }
-  void setValue(const QString& value)
+  void setValue(const std::string& value)
+  {
+    m_value = value;
+  }
+
+  void parseValue(std::string& value)
   {
     m_value = value;
   }
 
 protected:
-  MicStringHeaderEntry(const QString& key)
-  : m_key(key)
+  MicStringHeaderEntry(std::string key)
+  : m_key(std::move(key))
   {
   }
 
-  MicStringHeaderEntry()
-  {
-  }
+  MicStringHeaderEntry() = default;
 
 private:
-  QString m_value;
-  QString m_key;
+  std::string m_value = {""};
+  std::string m_key = {""};
 
-  MicStringHeaderEntry(const MicStringHeaderEntry&) = delete; // Copy Constructor Not Implemented
-  void operator=(const MicStringHeaderEntry&) = delete;       // Move assignment Not Implemented
+public:
+  MicStringHeaderEntry(const MicStringHeaderEntry&) = delete;            // Copy Constructor Not Implemented
+  MicStringHeaderEntry(MicStringHeaderEntry&&) = delete;                 // Move Constructor Not Implemented
+  MicStringHeaderEntry& operator=(const MicStringHeaderEntry&) = delete; // Copy Assignment Not Implemented
+  MicStringHeaderEntry& operator=(MicStringHeaderEntry&&) = delete;      // Move Assignment Not Implemented
 };

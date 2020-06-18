@@ -35,7 +35,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <QtCore/QString>
+#include <string>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/IO/EbsdReader.h"
@@ -60,28 +60,28 @@ public:
   MicReader();
   ~MicReader() override;
 
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, InfileBasename, Mic::InfileBasename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, InfileBasename, Mic::InfileBasename)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, InfileSerialLength, Mic::InfileSerialLength)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, OutfileBasename, Mic::OutfileBasename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, OutfileBasename, Mic::OutfileBasename)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, OutfileSerialLength, Mic::OutfileSerialLength)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, OutStructureBasename, Mic::OutStructureBasename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, OutStructureBasename, Mic::OutStructureBasename)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, BCPeakDetectorOffset, Mic::BCPeakDetectorOffset)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, InFileType, Mic::InFileType)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, OutfileExtension, Mic::OutfileExtension)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, InfileExtesnion, Mic::InfileExtesnion)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, InFileType, Mic::InFileType)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, OutfileExtension, Mic::OutfileExtension)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, InfileExtesnion, Mic::InfileExtesnion)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, BeamEnergyWidth, Mic::BeamEnergyWidth)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, BeamDirection, Mic::BeamDirection)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, BeamDirection, Mic::BeamDirection)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, BeamDeflectionChiLaue, Mic::BeamDeflectionChiLaue)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, BeamHeight, Mic::BeamHeight)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, BeamEnergy, Mic::BeamEnergy)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, DetectorFilename, Mic::DetectorFilename)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, OptimizationConstrainFilename, Mic::OptimizationConstrainFilename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, DetectorFilename, Mic::DetectorFilename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, OptimizationConstrainFilename, Mic::OptimizationConstrainFilename)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, EtaLimit, Mic::EtaLimit)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, SampleFilename, Mic::SampleFilename)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, StructureFilename, Mic::StructureFilename)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, RotationRangeFilename, Mic::RotationRangeFilename)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, FundamentalZoneFilename, Mic::FundamentalZoneFilename)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, SampleSymmetry, Mic::SampleSymmetry)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, SampleFilename, Mic::SampleFilename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, StructureFilename, Mic::StructureFilename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, RotationRangeFilename, Mic::RotationRangeFilename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, FundamentalZoneFilename, Mic::FundamentalZoneFilename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, SampleSymmetry, Mic::SampleSymmetry)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, MinAmplitudeFraction, Mic::MinAmplitudeFraction)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, MaxQ, Mic::MaxQ)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, MaxInitSideLength, Mic::MaxInitSideLength)
@@ -97,17 +97,17 @@ public:
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, SecondsBetweenSave, Mic::SecondsBetweenSave)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, NumParameterOptimizationSteps, Mic::NumParameterOptimizationSteps)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, NumElementToOptimizePerPE, Mic::NumElementToOptimizePerPE)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, OptimizationFilename, Mic::OptimizationFilename)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, DetectionLimitFilename, Mic::DetectionLimitFilename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, OptimizationFilename, Mic::OptimizationFilename)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, DetectionLimitFilename, Mic::DetectionLimitFilename)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, ParameterMCInitTemperature, Mic::ParameterMCInitTemperature)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, OrientationSearchMethod, Mic::OrientationSearchMethod)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, OrientationSearchMethod, Mic::OrientationSearchMethod)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, CoolingFraction, Mic::CoolingFraction)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, ThermalizeFraction, Mic::ThermalizeFraction)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, ParameterRefinements, Mic::ParameterRefinements)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, NumDetectors, Mic::NumDetectors)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, DetectorSpacing, Mic::DetectorSpacing)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, DetectorSpacing, Mic::DetectorSpacing)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, DetectorSpacingDeviation, Mic::DetectorSpacingDeviation)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, DetectorOrientationDeviationInEuler, Mic::DetectorOrientationDeviationInEuler)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, DetectorOrientationDeviationInEuler, Mic::DetectorOrientationDeviationInEuler)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, DetectorOrientationDeviationInSO3, Mic::DetectorOrientationDeviationInSO3)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, ParamMCMaxLocalRestarts, Mic::ParamMCMaxLocalRestarts)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, ParamMCMaxGlobalRestarts, Mic::ParamMCMaxGlobalRestarts)
@@ -116,10 +116,10 @@ public:
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, SearchVolumeReductionFactor, Mic::SearchVolumeReductionFactor)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, FileNumStart, Mic::FileNumStart)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, FileNumEnd, Mic::FileNumEnd)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, SampleLocation, Mic::SampleLocation)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, SampleOrientation, Mic::SampleOrientation)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, SampleLocation, Mic::SampleLocation)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, SampleOrientation, Mic::SampleOrientation)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<int>, int, EnableStrain, Mic::EnableStrain)
-  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, QString, SampleCenter, Mic::SampleCenter)
+  EBSDHEADER_INSTANCE_PROPERTY(MicStringHeaderEntry, std::string, SampleCenter, Mic::SampleCenter)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, SampleRadius, Mic::SampleRadius)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, MaxDeepeningHitRatio, Mic::MaxDeepeningHitRatio)
   EBSDHEADER_INSTANCE_PROPERTY(MicHeaderEntry<float>, float, ConsistencyError, Mic::ConsistencyError)
@@ -147,14 +147,14 @@ public:
    * @brief Returns the pointer to the data for a given feature
    * @param featureName The name of the feature to return the pointer to.
    */
-  void* getPointerByName(const QString& featureName) override;
+  void* getPointerByName(const std::string& featureName) override;
 
   /**
    * @brief Returns an enumeration value that depicts the numerical
    * primitive type that the data is stored as (Int, Float, etc).
    * @param featureName The name of the feature.
    */
-  EbsdLib::NumericTypes::Type getPointerType(const QString& featureName) override;
+  EbsdLib::NumericTypes::Type getPointerType(const std::string& featureName) override;
 
   /**
    * @brief Reads the complete HEDM .Mic file.
@@ -195,12 +195,12 @@ private:
   /** @brief Parses the value from a single line of the header section of the HEDM .Mic file
    * @param line The line to parse
    */
-  void parseHeaderLine(QByteArray& line);
+  void parseHeaderLine(std::string& line);
 
   /** @brief Parses the data from a line of data from the HEDM .Mic file
    * @param line The line of data to parse
    */
-  void parseDataLine(QByteArray& line, size_t i);
+  void parseDataLine(std::string& line, size_t i);
 
   /**
    * @brief initPointers

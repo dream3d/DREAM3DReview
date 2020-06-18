@@ -37,8 +37,9 @@
 
 #include <hdf5.h>
 
-#include <QtCore/QSet>
-#include <QtCore/QVector>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "EbsdLib/EbsdLib.h"
 #include "EbsdLib/Core/EbsdSetGetMacros.h"
@@ -132,7 +133,7 @@ public:
    * @brief Returns a vector of MicPhase objects corresponding to the phases
    * present in the file
    */
-  QVector<MicPhase::Pointer> getPhases()
+  std::vector<MicPhase::Pointer> getPhases()
   {
     return m_Phases;
   }
@@ -141,7 +142,7 @@ public:
    * @brief Sets the names of the arrays to read out of the file
    * @param names
    */
-  void setArraysToRead(QSet<QString> names);
+  void setArraysToRead(const std::set<std::string>& names);
 
   /**
    * @brief Over rides the setArraysToReads to tell the reader to load ALL the data from the HDF5 file. If the
@@ -161,8 +162,8 @@ protected:
   int readData(hid_t parId);
 
 private:
-  QVector<MicPhase::Pointer> m_Phases;
-  QSet<QString> m_ArrayNames;
+  std::vector<MicPhase::Pointer> m_Phases;
+  std::set<std::string> m_ArrayNames;
   bool m_ReadAllArrays;
 
 public:

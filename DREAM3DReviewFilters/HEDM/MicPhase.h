@@ -62,16 +62,16 @@ public:
   virtual ~MicPhase();
 
   EBSD_INSTANCE_STRING_PROPERTY(PhaseName)
-  EBSD_INSTANCE_PROPERTY(QVector<float>, LatticeConstants)
+  EBSD_INSTANCE_PROPERTY(std::vector<float>, LatticeConstants)
   EBSD_INSTANCE_STRING_PROPERTY(BasisAtoms)
   EBSD_INSTANCE_STRING_PROPERTY(Symmetry)
   EBSD_INSTANCE_PROPERTY(QVector<QString>, ZandCoordinates)
   EBSD_INSTANCE_PROPERTY(int, PhaseIndex)
 
-  void parseLatticeConstants(QByteArray& data);
-  void parseLatticeAngles(QByteArray& data);
-  void parseBasisAtoms(QByteArray& data);
-  void parseZandCoordinates(QByteArray& data);
+  void parseLatticeConstants(std::string& data);
+  void parseLatticeAngles(std::string& data);
+  void parseBasisAtoms(std::string& data);
+  void parseZandCoordinates(std::string& data);
 
   void printSelf(std::ostream& stream);
 

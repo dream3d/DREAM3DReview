@@ -35,7 +35,10 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "MicPhase.h"
+
 #include <cstring>
+
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 // -----------------------------------------------------------------------------
 //
@@ -44,6 +47,7 @@ MicPhase::MicPhase()
 : m_PhaseName("")
 , m_PhaseIndex(1)
 {
+  m_LatticeConstants.resize(6);
 }
 
 // -----------------------------------------------------------------------------
@@ -61,42 +65,40 @@ void MicPhase::printSelf(std::ostream& stream)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void MicPhase::parseLatticeConstants(QByteArray& data)
+void MicPhase::parseLatticeConstants(std::string& data)
 {
   bool ok = false;
-  QList<QByteArray> tokens = data.split(',');
-  m_LatticeConstants.resize(6);
-  m_LatticeConstants[0] = tokens[0].toFloat(&ok);
-  m_LatticeConstants[1] = tokens[1].toFloat(&ok);
-  m_LatticeConstants[2] = tokens[2].toFloat(&ok);
+  std::vector<std::string> tokens = EbsdStringUtils::split(data, ',');
+  m_LatticeConstants[0] = std::stof(tokens[0]);
+  m_LatticeConstants[1] = std::stof(tokens[1]);
+  m_LatticeConstants[2] = std::stof(tokens[2]);
 }
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void MicPhase::parseLatticeAngles(QByteArray& data)
+void MicPhase::parseLatticeAngles(std::string& data)
 {
   bool ok = false;
-  QList<QByteArray> tokens = data.split(',');
-  m_LatticeConstants.resize(6);
-  m_LatticeConstants[3] = tokens[0].toFloat(&ok);
-  m_LatticeConstants[4] = tokens[1].toFloat(&ok);
-  m_LatticeConstants[5] = tokens[2].toFloat(&ok);
+  std::vector<std::string> tokens = EbsdStringUtils::split(data, ',');
+  m_LatticeConstants[3] = std::stof(tokens[0]);
+  m_LatticeConstants[4] = std::stof(tokens[1]);
+  m_LatticeConstants[5] = std::stof(tokens[2]);
 }
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void MicPhase::parseBasisAtoms(QByteArray& data)
+void MicPhase::parseBasisAtoms(std::string& data)
 {
   bool ok = false;
-  QList<QByteArray> tokens = data.split(' ');
-  m_BasisAtoms = tokens[0].toInt(&ok, 10);
+  std::vector<std::string> tokens = EbsdStringUtils::split(data, ',');
+  m_BasisAtoms = tokens[0];
 }
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void MicPhase::parseZandCoordinates(QByteArray& data)
+void MicPhase::parseZandCoordinates(std::string& data)
 {
-  m_ZandCoordinates.push_back(QString::fromLatin1(data));
+  m_ZandCoordinates.push_back(QString::fromStdString(data));
 }
 // -----------------------------------------------------------------------------
 //
@@ -104,19 +106,19 @@ void MicPhase::parseZandCoordinates(QByteArray& data)
 unsigned int MicPhase::determineLaueGroup()
 {
   unsigned int crystal_structure;
-  if(m_Symmetry.compare(Mic::Cubic) == 0)
+  if(m_Symmetry == Mic::Cubic)
   {
     crystal_structure = EbsdLib::CrystalStructure::Cubic_High;
   }
-  else if(m_Symmetry.compare(Mic::Hexagonal) == 0)
+  else if(m_Symmetry == Mic::Hexagonal)
   {
     crystal_structure = EbsdLib::CrystalStructure::Hexagonal_High;
   }
-  else if(m_Symmetry.compare(Mic::OrthoRhombic) == 0)
+  else if(m_Symmetry == Mic::OrthoRhombic)
   {
     crystal_structure = EbsdLib::CrystalStructure::OrthoRhombic;
   }
-  else if(m_Symmetry.compare(Mic::Tetragonal) == 0)
+  else if(m_Symmetry == Mic::Tetragonal)
   {
     crystal_structure = EbsdLib::CrystalStructure::UnknownCrystalStructure;
   }
@@ -132,8 +134,5 @@ unsigned int MicPhase::determineLaueGroup()
 // -----------------------------------------------------------------------------
 QString MicPhase::getMaterialName()
 {
-  QString name = "Nickel";
-  m_PhaseName = name;
-
-  return m_PhaseName;
+  return QString::fromStdString(m_PhaseName);
 }

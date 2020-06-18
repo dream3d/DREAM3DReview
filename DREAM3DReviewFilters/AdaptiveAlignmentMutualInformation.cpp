@@ -158,7 +158,7 @@ void AdaptiveAlignmentMutualInformation::dataCheck()
     return;
   }
 
-  m_FeatureCounts = DataArray<int32_t>::CreateArray(0, "m_FeatureCounts", true);
+  m_FeatureCounts = DataArray<int32_t>::CreateArray(0, std::string("m_FeatureCounts"), true);
   QVector<DataArrayPath> dataArrayPaths;
 
   std::vector<size_t> cDims(1, 4);
@@ -215,7 +215,7 @@ void AdaptiveAlignmentMutualInformation::find_shifts(std::vector<int64_t>& xshif
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getDataContainerName());
 
   int64_t totalPoints = m->getAttributeMatrix(getCellAttributeMatrixName())->getNumberOfTuples();
-  m_MIFeaturesPtr = Int32ArrayType::CreateArray((totalPoints * 1), "_INTERNAL_USE_ONLY_MIFeatureIds", true);
+  m_MIFeaturesPtr = Int32ArrayType::CreateArray((totalPoints * 1), std::string("_INTERNAL_USE_ONLY_MIFeatureIds"), true);
   m_MIFeaturesPtr->initializeWithZeros();
   int32_t* miFeatureIds = m_MIFeaturesPtr->getPointer(0);
 

@@ -40,12 +40,13 @@
 
 #include <QtCore/QString>
 
-#include "H5Support/QH5Lite.h"
-#include "H5Support/QH5Utilities.h"
+#include "H5Support/H5Lite.h"
+#include "H5Support/H5Utilities.h"
 
 #include "SIMPLib/Common/Constants.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
+#include "EbsdLib/Utilities/EbsdStringUtils.hpp"
 
 #include "DREAM3DReview/DREAM3DReviewFilters/HEDM/H5MicReader.h"
 
@@ -95,7 +96,7 @@ void H5MicVolumeReader::initPointers(size_t numElements)
   setNumberOfElements(numElements);
   size_t numBytes = numElements * sizeof(float);
   bool readAllArrays = getReadAllArrays();
-  QSet<QString> arrayNames = getArraysToRead();
+  std::set<std::string> arrayNames = getArraysToRead();
 
   H5MICREADER_ALLOCATE_ARRAY(Euler1, float)
   H5MICREADER_ALLOCATE_ARRAY(Euler2, float)
@@ -123,33 +124,33 @@ void H5MicVolumeReader::deletePointers()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void* H5MicVolumeReader::getPointerByName(const QString& featureName)
+void* H5MicVolumeReader::getPointerByName(const std::string& featureName)
 {
-  if(featureName.compare(Mic::Euler1) == 0)
+  if(featureName == Mic::Euler1)
   {
     return static_cast<void*>(m_Euler1);
   }
-  if(featureName.compare(Mic::Euler2) == 0)
+  if(featureName == Mic::Euler2)
   {
     return static_cast<void*>(m_Euler2);
   }
-  if(featureName.compare(Mic::Euler3) == 0)
+  if(featureName == Mic::Euler3)
   {
     return static_cast<void*>(m_Euler3);
   }
-  if(featureName.compare(Mic::Confidence) == 0)
+  if(featureName == Mic::Confidence)
   {
     return static_cast<void*>(m_Conf);
   }
-  if(featureName.compare(Mic::Phase) == 0)
+  if(featureName == Mic::Phase)
   {
     return static_cast<void*>(m_Phase);
   }
-  if(featureName.compare(Mic::X) == 0)
+  if(featureName == Mic::X)
   {
     return static_cast<void*>(m_X);
   }
-  if(featureName.compare(Mic::Y) == 0)
+  if(featureName == Mic::Y)
   {
     return static_cast<void*>(m_Y);
   }
@@ -159,33 +160,33 @@ void* H5MicVolumeReader::getPointerByName(const QString& featureName)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-EbsdLib::NumericTypes::Type H5MicVolumeReader::getPointerType(const QString& featureName)
+EbsdLib::NumericTypes::Type H5MicVolumeReader::getPointerType(const std::string& featureName)
 {
-  if(featureName.compare(Mic::Euler1) == 0)
+  if(featureName == Mic::Euler1)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Mic::Euler2) == 0)
+  if(featureName == Mic::Euler2)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Mic::Euler3) == 0)
+  if(featureName == Mic::Euler3)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Mic::Confidence) == 0)
+  if(featureName == Mic::Confidence)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Mic::Phase) == 0)
+  if(featureName == Mic::Phase)
   {
     return EbsdLib::NumericTypes::Type::Int32;
   }
-  if(featureName.compare(Mic::X) == 0)
+  if(featureName == Mic::X)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
-  if(featureName.compare(Mic::Y) == 0)
+  if(featureName == Mic::Y)
   {
     return EbsdLib::NumericTypes::Type::Float;
   }
@@ -195,7 +196,7 @@ EbsdLib::NumericTypes::Type H5MicVolumeReader::getPointerType(const QString& fea
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<MicPhase::Pointer> H5MicVolumeReader::getPhases()
+std::vector<MicPhase::Pointer> H5MicVolumeReader::getPhases()
 {
   m_Phases.clear();
 
@@ -203,7 +204,7 @@ QVector<MicPhase::Pointer> H5MicVolumeReader::getPhases()
   QString index = QString::number(getZStart());
 
   // Open the hdf5 file and read the data
-  hid_t fileId = QH5Utilities::openFile(getFileName(), true);
+  hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
     std::cout << "Error: Could not open .h5ebsd file for reading." << std::endl;
@@ -213,18 +214,18 @@ QVector<MicPhase::Pointer> H5MicVolumeReader::getPhases()
 
   hid_t gid = H5Gopen(fileId, index.toLatin1().data(), H5P_DEFAULT);
   H5MicReader::Pointer reader = H5MicReader::New();
-  reader->setHDF5Path(index);
+  reader->setHDF5Path(index.toStdString());
   err = reader->readHeader(gid);
   if(err < 0)
   {
     std::cout << "Error reading the header information from the .h5ebsd file" << std::endl;
     err = H5Gclose(gid);
-    err = QH5Utilities::closeFile(fileId);
+    err = H5Utilities::closeFile(fileId);
     return m_Phases;
   }
   m_Phases = reader->getPhases();
   err = H5Gclose(gid);
-  err = QH5Utilities::closeFile(fileId);
+  err = H5Utilities::closeFile(fileId);
   return m_Phases;
 }
 
@@ -255,7 +256,7 @@ int H5MicVolumeReader::loadData(int64_t xpoints, int64_t ypoints, int64_t zpoint
   {
     H5MicReader::Pointer reader = H5MicReader::New();
     reader->setFileName(getFileName());
-    reader->setHDF5Path(QString::number(slice + getSliceStart()));
+    reader->setHDF5Path(EbsdStringUtils::number(slice + getSliceStart()));
     reader->setUserZDir(getStackingOrder());
     reader->setSampleTransformationAngle(getSampleTransformationAngle());
     reader->setSampleTransformationAxis(getSampleTransformationAxis());

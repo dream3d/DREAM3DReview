@@ -257,7 +257,7 @@ void DownsampleVertexGeometry::removeFractionPoints()
 
   int64_t numDecimatedPoints = static_cast<int64_t>(m_DecimationFraction * numVerts);
   std::vector<size_t> removeList;
-  BoolArrayType::Pointer mask = BoolArrayType::CreateArray(numVerts, "_INTERNAL_USE_ONLY_Mask", true);
+  BoolArrayType::Pointer mask = BoolArrayType::CreateArray(numVerts, std::string("_INTERNAL_USE_ONLY_Mask"), true);
   mask->initializeWithValue(true);
   bool* maskPtr = mask->getPointer(0);
   int64_t counter = 0;

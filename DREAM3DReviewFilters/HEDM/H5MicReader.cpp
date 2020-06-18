@@ -36,8 +36,8 @@
 
 #include "H5MicReader.h"
 
-#include "H5Support/QH5Lite.h"
-#include "H5Support/QH5Utilities.h"
+#include "H5Support/H5Lite.h"
+#include "H5Support/H5Utilities.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
@@ -69,27 +69,29 @@ H5MicReader::~H5MicReader()
 int H5MicReader::readFile()
 {
   int err = -1;
-  if(m_HDF5Path.isEmpty())
+  if(m_HDF5Path.empty())
   {
     std::cout << "H5MicReader Error: HDF5 Path is empty." << std::endl;
     return -1;
   }
 
-  hid_t fileId = QH5Utilities::openFile(getFileName(), true);
+  hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    QString ss = QObject::tr("H5MicReader Error: Could not open HDF5 file '%1'").arg(getFileName());
-    setErrorMessage(ss);
+    std::stringstream ss;
+    ss << "H5MicReader Error: Could not open HDF5 file " << getFileName();
+    setErrorMessage(ss.str());
     setErrorCode(-100);
     return -100;
   }
 
-  hid_t gid = H5Gopen(fileId, m_HDF5Path.toLatin1().data(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    err = QH5Utilities::closeFile(fileId);
-    QString ss = QObject::tr("H5MicReader Error: Could not open path '%1'").arg(m_HDF5Path);
-    setErrorMessage(ss);
+    err = H5Utilities::closeFile(fileId);
+    std::stringstream ss;
+    ss << "H5MicReader Error: Could not open path: " << m_HDF5Path;
+    setErrorMessage(ss.str());
     setErrorCode(-101);
     return -101;
   }
@@ -103,7 +105,7 @@ int H5MicReader::readFile()
   err = readData(gid);
 
   err = H5Gclose(gid);
-  err = QH5Utilities::closeFile(fileId);
+  err = H5Utilities::closeFile(fileId);
 
   return err;
 }
@@ -114,30 +116,33 @@ int H5MicReader::readFile()
 int H5MicReader::readHeaderOnly()
 {
   int err = -1;
-  if(m_HDF5Path.isEmpty())
+  if(m_HDF5Path.empty())
   {
     std::cout << "H5MicReader Error: HDF5 Path is empty." << std::endl;
-    QString ss = QObject::tr("H5MicReader Error: HDF5 Path is empty.");
-    setErrorMessage(ss);
+    std::stringstream ss;
+    ss << "H5MicReader Error: HDF5 Path is empty.";
+    setErrorMessage(ss.str());
     setErrorCode(-102);
     return -102;
   }
 
-  hid_t fileId = QH5Utilities::openFile(getFileName(), true);
+  hid_t fileId = H5Utilities::openFile(getFileName(), true);
   if(fileId < 0)
   {
-    QString ss = QObject::tr("H5MicReader Error: Could not open HDF5 file '%1'").arg(getFileName());
-    setErrorMessage(ss);
+    std::stringstream ss;
+    ss << "H5MicReader Error: Could not open HDF5 file " << getFileName();
+    setErrorMessage(ss.str());
     setErrorCode(-100);
     return -100;
   }
 
-  hid_t gid = H5Gopen(fileId, m_HDF5Path.toLatin1().data(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(fileId, m_HDF5Path.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    err = QH5Utilities::closeFile(fileId);
-    QString ss = QObject::tr("H5MicReader Error: Could not open path '%1'").arg(m_HDF5Path);
-    setErrorMessage(ss);
+    err = H5Utilities::closeFile(fileId);
+    std::stringstream ss;
+    ss << "H5MicReader Error: Could not open path " << m_HDF5Path;
+    setErrorMessage(ss.str());
     setErrorCode(-101);
     return -101;
   }
@@ -145,7 +150,7 @@ int H5MicReader::readHeaderOnly()
   // Read all the header information
   // std::cout << "H5MicReader:: reading Header .. " << std::endl;
   err = readHeader(gid);
-  err = QH5Utilities::closeFile(fileId);
+  err = H5Utilities::closeFile(fileId);
   return err;
 }
 
@@ -155,11 +160,12 @@ int H5MicReader::readHeaderOnly()
 int H5MicReader::readHeader(hid_t parId)
 {
   int err = -1;
-  hid_t gid = H5Gopen(parId, Mic::H5Mic::Header.toLatin1().data(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, Mic::H5Mic::Header.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
-    QString ss = QObject::tr("H5MicReader Error: Could not open 'Header' Group").arg(m_HDF5Path);
-    setErrorMessage(ss);
+    std::stringstream ss;
+    ss << "H5MicReader Error: Could not open 'Header' Group" << m_HDF5Path;
+    setErrorMessage(ss.str());
     setErrorCode(-105);
     return -105;
   }
@@ -169,7 +175,7 @@ int H5MicReader::readHeader(hid_t parId)
   READ_EBSD_HEADER_DATA("H5MicReader", MicHeaderEntry<int>, int, XDim, Mic::XDim, gid)
   READ_EBSD_HEADER_DATA("H5MicReader", MicHeaderEntry<int>, int, YDim, Mic::YDim, gid)
 
-  hid_t phasesGid = H5Gopen(gid, Mic::H5Mic::Phases.toLatin1().data(), H5P_DEFAULT);
+  hid_t phasesGid = H5Gopen(gid, Mic::H5Mic::Phases.c_str(), H5P_DEFAULT);
   if(phasesGid < 0)
   {
     std::cout << "H5MicReader Error: Could not open Header/Phases HDF Group. Is this an older file?" << std::endl;
@@ -177,8 +183,8 @@ int H5MicReader::readHeader(hid_t parId)
     return -1;
   }
 
-  QList<QString> names;
-  err = QH5Utilities::getGroupObjects(phasesGid, H5Utilities::CustomHDFDataTypes::Group, names);
+  std::list<std::string> names;
+  err = H5Utilities::getGroupObjects(phasesGid, H5Utilities::CustomHDFDataTypes::Group, names);
   if(err < 0 || names.empty())
   {
     std::cout << "H5MicReader Error: There were no Phase groups present in the HDF5 file" << std::endl;
@@ -187,22 +193,22 @@ int H5MicReader::readHeader(hid_t parId)
     return -1;
   }
   m_Phases.clear();
-  for(QList<QString>::iterator phaseGroupName = names.begin(); phaseGroupName != names.end(); ++phaseGroupName)
+  for(const auto& phaseGroupName : names)
   {
-    hid_t pid = H5Gopen(phasesGid, (*phaseGroupName).toLatin1().data(), H5P_DEFAULT);
-    MicPhase::Pointer m_CurrentPhase = MicPhase::New();
+    hid_t pid = H5Gopen(phasesGid, phaseGroupName.c_str(), H5P_DEFAULT);
+    MicPhase::Pointer currentPhase = MicPhase::New();
 
-    READ_PHASE_HEADER_DATA("H5MicReader", pid, int, Mic::Phase, PhaseIndex, m_CurrentPhase)
-    READ_PHASE_HEADER_ARRAY("H5MicReader", pid, float, Mic::LatticeConstants, LatticeConstants, m_CurrentPhase)
-    READ_PHASE_STRING_DATA("H5MicReader", pid, Mic::BasisAtoms, BasisAtoms, m_CurrentPhase)
-    READ_PHASE_STRING_DATA("H5MicReader", pid, Mic::Symmetry, Symmetry, m_CurrentPhase)
+    READ_PHASE_HEADER_DATA("H5MicReader", pid, int, Mic::Phase, PhaseIndex, currentPhase)
+    READ_PHASE_HEADER_ARRAY("H5MicReader", pid, float, Mic::LatticeConstants, LatticeConstants, currentPhase)
+    READ_PHASE_STRING_DATA("H5MicReader", pid, Mic::BasisAtoms, BasisAtoms, currentPhase)
+    READ_PHASE_STRING_DATA("H5MicReader", pid, Mic::Symmetry, Symmetry, currentPhase)
 
-    m_Phases.push_back(m_CurrentPhase);
+    m_Phases.push_back(currentPhase);
     err = H5Gclose(pid);
   }
 
-  QString completeHeader;
-  err = QH5Lite::readStringDataset(gid, Mic::H5Mic::OriginalHeader, completeHeader);
+  std::string completeHeader;
+  err = H5Lite::readStringDataset(gid, Mic::H5Mic::OriginalHeader, completeHeader);
   setOriginalHeader(completeHeader);
   err = H5Gclose(phasesGid);
   err = H5Gclose(gid);
@@ -216,7 +222,7 @@ int H5MicReader::readHeader(hid_t parId)
     if(nullptr != _##name)                                                                                                                                                                             \
     {                                                                                                                                                                                                  \
       ::memset(_##name, 0, numBytes);                                                                                                                                                                  \
-      err = QH5Lite::readPointerDataset(gid, Mic::name, _##name);                                                                                                                                      \
+      err = H5Lite::readPointerDataset(gid, Mic::name, _##name);                                                                                                                                       \
     }                                                                                                                                                                                                  \
     set##name##Pointer(_##name);                                                                                                                                                                       \
   }
@@ -240,10 +246,10 @@ int H5MicReader::readData(hid_t parId)
   {
     return -200;
   }
-
+  m_ArrayNames;
   totalDataRows = xDim * yDim;
 
-  hid_t gid = H5Gopen(parId, Mic::H5Mic::Data.toLatin1().data(), H5P_DEFAULT);
+  hid_t gid = H5Gopen(parId, Mic::H5Mic::Data.c_str(), H5P_DEFAULT);
   if(gid < 0)
   {
     std::cout << "H5MicReader Error: Could not open 'Data' Group" << std::endl;
@@ -269,7 +275,7 @@ int H5MicReader::readData(hid_t parId)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void H5MicReader::setArraysToRead(QSet<QString> names)
+void H5MicReader::setArraysToRead(const std::set<std::string>& names)
 {
   m_ArrayNames = names;
 }

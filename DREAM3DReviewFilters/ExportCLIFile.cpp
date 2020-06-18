@@ -254,7 +254,7 @@ void ExportCLIFile::execute()
   using GroupLayerTable = std::vector<std::vector<std::vector<int64_t>>>;
   using LayerTable = std::vector<std::vector<int64_t>>;
   GroupLayerTable table(numGroups, LayerTable(numLayers));
-  Int32ArrayType::Pointer groups = Int32ArrayType::CreateArray(numEdges, "_INTERNAL_USE_ONLY_GroupIds", false);
+  Int32ArrayType::Pointer groups = Int32ArrayType::CreateArray(numEdges, std::string("_INTERNAL_USE_ONLY_GroupIds"), false);
   int32_t* groupIds = nullptr;
   if(m_SplitByGroup)
   {

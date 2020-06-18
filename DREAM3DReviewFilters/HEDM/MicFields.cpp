@@ -50,9 +50,9 @@ MicFields::~MicFields() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QVector<QString> MicFields::getFieldNames()
+std::vector<std::string> MicFields::getFieldNames()
 {
-  QVector<QString> features;
+  std::vector<std::string> features;
   features.push_back(Mic::Euler1);
   features.push_back(Mic::Euler2);
   features.push_back(Mic::Euler3);

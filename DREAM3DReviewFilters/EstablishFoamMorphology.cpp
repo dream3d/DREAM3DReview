@@ -1714,7 +1714,7 @@ Int32ArrayType::Pointer EstablishFoamMorphology::initialize_packinggrid()
 
   m_TotalPackingPoints = m_PackingPoints[0] * m_PackingPoints[1] * m_PackingPoints[2];
 
-  Int32ArrayType::Pointer featureOwnersPtr = Int32ArrayType::CreateArray(m_TotalPackingPoints, "_INTERNAL_USE_ONLY_PackPrecipitateFeatures::feature_owners", true);
+  Int32ArrayType::Pointer featureOwnersPtr = Int32ArrayType::CreateArray(m_TotalPackingPoints, std::string("_INTERNAL_USE_ONLY_PackPrecipitateFeatures::feature_owners"), true);
   featureOwnersPtr->initializeWithZeros();
 
   return featureOwnersPtr;
@@ -2630,11 +2630,11 @@ void EstablishFoamMorphology::assign_voxels()
 
   FloatVec3Type res = m->getGeometryAs<ImageGeom>()->getSpacing();
 
-  Int32ArrayType::Pointer newownersPtr = Int32ArrayType::CreateArray(totalPoints, "_INTERNAL_USE_ONLY_newowners", true);
+  Int32ArrayType::Pointer newownersPtr = Int32ArrayType::CreateArray(totalPoints, std::string("_INTERNAL_USE_ONLY_newowners"), true);
   newownersPtr->initializeWithValue(-1);
   int32_t* newowners = newownersPtr->getPointer(0);
 
-  FloatArrayType::Pointer ellipfuncsPtr = FloatArrayType::CreateArray(totalPoints, "_INTERNAL_USE_ONLY_ellipfuncs", true);
+  FloatArrayType::Pointer ellipfuncsPtr = FloatArrayType::CreateArray(totalPoints, std::string("_INTERNAL_USE_ONLY_ellipfuncs"), true);
   ellipfuncsPtr->initializeWithValue(-1);
   float* ellipfuncs = ellipfuncsPtr->getPointer(0);
 
@@ -2863,7 +2863,7 @@ void EstablishFoamMorphology::assign_gaps_only()
   neighpoints[4] = xPoints;
   neighpoints[5] = xPoints * yPoints;
 
-  Int64ArrayType::Pointer neighborsPtr = Int64ArrayType::CreateArray(m->getGeometryAs<ImageGeom>()->getNumberOfElements(), "_INTERNAL_USE_ONLY_Neighbors", true);
+  Int64ArrayType::Pointer neighborsPtr = Int64ArrayType::CreateArray(m->getGeometryAs<ImageGeom>()->getNumberOfElements(), std::string("_INTERNAL_USE_ONLY_Neighbors"), true);
   neighborsPtr->initializeWithValue(-1);
   m_Neighbors = neighborsPtr->getPointer(0);
 

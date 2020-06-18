@@ -281,7 +281,7 @@ void DBSCAN::execute()
   }
   else
   {
-    BoolArrayType::Pointer tmpMask = BoolArrayType::CreateArray(numTuples, "_INTERNAL_USE_ONLY_tmpMask", true);
+    BoolArrayType::Pointer tmpMask = BoolArrayType::CreateArray(numTuples, std::string("_INTERNAL_USE_ONLY_tmpMask"), true);
     tmpMask->initializeWithValue(true);
     EXECUTE_TEMPLATE(this, DBSCANTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), tmpMask, m_FeatureIdsPtr.lock(), m_Epsilon, m_MinPnts, m_DistanceMetric);
   }

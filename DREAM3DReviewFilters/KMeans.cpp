@@ -291,7 +291,7 @@ void KMeans::execute()
   else
   {
     size_t numTuples = m_InDataPtr.lock()->getNumberOfTuples();
-    BoolArrayType::Pointer tmpMask = BoolArrayType::CreateArray(numTuples, "_INTERNAL_USE_ONLY_tmpMask", true);
+    BoolArrayType::Pointer tmpMask = BoolArrayType::CreateArray(numTuples, std::string("_INTERNAL_USE_ONLY_tmpMask"), true);
     tmpMask->initializeWithValue(true);
     EXECUTE_TEMPLATE(this, KMeansTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MeansArrayPtr.lock(), tmpMask, m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric);
   }

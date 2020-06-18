@@ -43,9 +43,9 @@
 #include <QtCore/QFileInfo>
 
 #include "EbsdLib/EbsdLib.h"
-#include "DREAM3DReview/DREAM3DReviewFilters/HEDM/MicFields.h"
-#include "DREAM3DReview/DREAM3DReviewFilters/HEDM/MicReader.h"
 
+#include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataContainerCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
@@ -53,10 +53,10 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
-#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
+#include "DREAM3DReview/DREAM3DReviewFilters/HEDM/MicFields.h"
+#include "DREAM3DReview/DREAM3DReviewFilters/HEDM/MicReader.h"
 
 enum createdPathID : RenameDataPath::DataID_t
 {
@@ -222,14 +222,14 @@ void ReadMicData::populateMicData(MicReader* reader, DataContainer::Pointer m, s
     int zDim = 1;
     float zStep = 1.0, xOrigin = 0.0f, yOrigin = 0.0f, zOrigin = 0.0f;
 
-    reader->setFileName(m_InputFile);
+    reader->setFileName(m_InputFile.toStdString());
 
     if(flag == MIC_HEADER_ONLY)
     {
       int err = reader->readHeaderOnly();
       if(err < 0)
       {
-        setErrorCondition(err, reader->getErrorMessage());
+        setErrorCondition(err, QString::fromStdString(reader->getErrorMessage()));
         setErrorCondition(getErrorCode(), "MicReader could not read the .mic file header.");
         m_FileWasRead = false;
         return;
@@ -242,7 +242,7 @@ void ReadMicData::populateMicData(MicReader* reader, DataContainer::Pointer m, s
       int err = reader->readFile();
       if(err < 0)
       {
-        setErrorCondition(err, reader->getErrorMessage());
+        setErrorCondition(err, QString::fromStdString(reader->getErrorMessage()));
         setErrorCondition(getErrorCode(), "MicReader could not read the .mic file.");
         return;
       }
@@ -353,9 +353,9 @@ void ReadMicData::dataCheck()
   {
     std::vector<size_t> dims(3, 0);
 
-    QString ext = fi.suffix();
-    QVector<QString> names;
-    if(ext.compare(Mic::FileExt) == 0)
+    std::string ext = fi.suffix().toStdString();
+    QVector<std::string> names;
+    if(ext == Mic::FileExt)
     {
       MicReader* reader = new MicReader();
 
@@ -364,18 +364,18 @@ void ReadMicData::dataCheck()
       // Update the size of the Cell Attribute Matrix now that the dimensions of the volume are known
       cellAttrMat->resizeAttributeArrays(dims);
       MicFields micfeatures;
-      names = micfeatures.getFilterFeatures<QVector<QString>>();
+      names = micfeatures.getFilterFeatures<QVector<std::string>>();
       dims.resize(1);
       dims[0] = 1;
-      for(qint32 i = 0; i < names.size(); ++i)
+      for(const auto& name : names)
       {
-        if(reader->getPointerType(names[i]) == EbsdLib::NumericTypes::Type::Int32)
+        if(reader->getPointerType(name) == EbsdLib::NumericTypes::Type::Int32)
         {
-          cellAttrMat->createAndAddAttributeArray<DataArray<int32_t>>(this, names[i], 0, dims);
+          cellAttrMat->createAndAddAttributeArray<DataArray<int32_t>>(this, QString::fromStdString(name), 0, dims);
         }
-        else if(reader->getPointerType(names[i]) == EbsdLib::NumericTypes::Type::Float)
+        else if(reader->getPointerType(name) == EbsdLib::NumericTypes::Type::Float)
         {
-          cellAttrMat->createAndAddAttributeArray<DataArray<float>>(this, names[i], 0, dims);
+          cellAttrMat->createAndAddAttributeArray<DataArray<float>>(this, QString::fromStdString(name), 0, dims);
         }
       }
 
@@ -383,7 +383,7 @@ void ReadMicData::dataCheck()
     }
     else
     {
-      QString ss = QObject::tr("The File extension '%1' was not recognized. The reader only recognizes the .mic file extension").arg(ext);
+      QString ss = QObject::tr("The File extension '%1' was not recognized. The reader only recognizes the .mic file extension").arg(QString::fromStdString(ext));
       setErrorCondition(-997, ss);
       return;
     }
@@ -463,11 +463,11 @@ void ReadMicData::readMicFile()
 {
   int err = 0;
   std::shared_ptr<MicReader> reader(new MicReader());
-  reader->setFileName(m_InputFile);
+  reader->setFileName(m_InputFile.toStdString());
   err = reader->readFile();
   if(err < 0)
   {
-    setErrorCondition(err, reader->getErrorMessage());
+    setErrorCondition(err, QString::fromStdString(reader->getErrorMessage()));
     return;
   }
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getDataContainerName());
@@ -559,7 +559,7 @@ void ReadMicData::readMicFile()
 
   {
     f1 = reinterpret_cast<float*>(reader->getPointerByName(Mic::Confidence));
-    fArray = FloatArrayType::CreateArray(totalPoints, compDims, Mic::Confidence, true);
+    fArray = FloatArrayType::CreateArray(totalPoints, compDims, QString::fromStdString(Mic::Confidence), true);
     ::memcpy(fArray->getPointer(0), f1, sizeof(float) * totalPoints);
     cellAttrMat->insertOrAssign(fArray);
   }
@@ -627,7 +627,7 @@ int ReadMicData::loadMaterialInfo(MicReader* reader)
   QVector<MicPhase::Pointer> phases = getData().phases;
   if(phases.empty())
   {
-    setErrorCondition(reader->getErrorCode(), reader->getErrorMessage());
+    setErrorCondition(reader->getErrorCode(), QString::fromStdString(reader->getErrorMessage()));
     return getErrorCode();
   }
 
@@ -652,7 +652,7 @@ int ReadMicData::loadMaterialInfo(MicReader* reader)
     int phaseID = phases[i]->getPhaseIndex();
     crystalStructures->setValue(phaseID, phases[i]->determineLaueGroup());
     materialNames->setValue(phaseID, phases[i]->getMaterialName());
-    QVector<float> lc = phases[i]->getLatticeConstants();
+    std::vector<float> lc = phases[i]->getLatticeConstants();
 
     latticeConstants->setComponent(phaseID, 0, lc[0]);
     latticeConstants->setComponent(phaseID, 1, lc[1]);

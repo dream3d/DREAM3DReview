@@ -42,7 +42,7 @@
 
 #include "hdf5.h"
 
-#include <QtCore/QString>
+#include <string>
 
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 
@@ -75,7 +75,7 @@ public:
    * @param index The slice index for the file
    * @param MicFile The absolute path to the input .Mic file
    */
-  int importFile(hid_t fileId, int64_t index, const QString& MicFile) override;
+  int importFile(hid_t fileId, int64_t index, const std::string& MicFile) override;
 
   /**
    * @brief Writes the phase data into the HDF5 file

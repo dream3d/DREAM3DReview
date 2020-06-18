@@ -38,7 +38,7 @@
 
 #include <QtCore/QString>
 
-#define DECLARE_STRING_CONST(var) const QString var(#var);
+#define DECLARE_STRING_CONST(var) const std::string var(#var);
 
 /**
  * @file MicConstants.h
@@ -56,23 +56,23 @@ namespace Mic
 
 namespace H5Mic
 {
-const QString OriginalHeader("OriginalHeader");
-const QString Data("Data");
-const QString Phases("Phases");
-const QString Header("Header");
+const std::string OriginalHeader("OriginalHeader");
+const std::string Data("Data");
+const std::string Phases("Phases");
+const std::string Header("Header");
 
-const QString FileVersionStr("FileVersion");
-const unsigned int FileVersion = 5;
+const std::string FileVersionStr("FileVersion");
+const int FileVersion = 5;
 } // namespace H5Mic
 
-const QString Manufacturer("HEDM");
+const std::string Manufacturer("HEDM");
 
 DECLARE_STRING_CONST(Cubic)
 DECLARE_STRING_CONST(Hexagonal)
 DECLARE_STRING_CONST(OrthoRhombic)
 DECLARE_STRING_CONST(Tetragonal)
 
-const QString FileExt("mic");
+const std::string FileExt("mic");
 
 DECLARE_STRING_CONST(InfileBasename)
 DECLARE_STRING_CONST(InfileSerialLength)
@@ -153,14 +153,14 @@ DECLARE_STRING_CONST(XRes)
 DECLARE_STRING_CONST(YRes)
 DECLARE_STRING_CONST(PhaseName)
 
-const QString Euler1("Euler1");
-const QString Euler2("Euler2");
-const QString Euler3("Euler3");
-const QString X("X");
-const QString Y("Y");
-const QString Confidence("Confidence");
-const QString Phase("Phase");
-const QString Level("Level");
-const QString Up("Up");
+const std::string Euler1("Euler1");
+const std::string Euler2("Euler2");
+const std::string Euler3("Euler3");
+const std::string X("X");
+const std::string Y("Y");
+const std::string Confidence("Confidence");
+const std::string Phase("Phase");
+const std::string Level("Level");
+const std::string Up("Up");
 
 } // namespace Mic

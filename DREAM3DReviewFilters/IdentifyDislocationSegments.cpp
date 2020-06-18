@@ -317,7 +317,7 @@ void IdentifyDislocationSegments::execute()
   generator.seed(seed);
   std::uniform_int_distribution<int32_t> distribution(rangeMin, rangeMax);
 
-  DataArray<int32_t>::Pointer rndNumbers = DataArray<int32_t>::CreateArray(dnum, "New FeatureIds", true);
+  DataArray<int32_t>::Pointer rndNumbers = DataArray<int32_t>::CreateArray(dnum, std::string("New FeatureIds"), true);
   int32_t* gid = rndNumbers->getPointer(0);
   gid[0] = 0;
   QSet<int32_t> featureIdSet;
