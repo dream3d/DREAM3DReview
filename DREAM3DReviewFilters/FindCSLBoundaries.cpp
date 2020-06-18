@@ -118,10 +118,10 @@ public:
     double incoherence;
     double n1 = 0.0, n2 = 0.0, n3 = 0.0;
 
-    QuatType misq;
-    QuatType sym_q;
-    QuatType s1_misq;
-    QuatType s2_misq;
+    QuatD misq;
+    QuatD sym_q;
+    QuatD s1_misq;
+    QuatD s2_misq;
 
     double xstl_norm[3];
     std::array<double, 3> s_xstl_norm;
@@ -146,9 +146,9 @@ public:
       {
         w = 10000.0;
         float* quatPtr = m_Quats + feature1 * 4;
-        QuatType q1(quatPtr[0], quatPtr[1], quatPtr[2], quatPtr[3]);
+        QuatD q1(quatPtr[0], quatPtr[1], quatPtr[2], quatPtr[3]);
         quatPtr = m_Quats + feature2 * 4;
-        QuatType q2(quatPtr[0], quatPtr[1], quatPtr[2], quatPtr[3]);
+        QuatD q2(quatPtr[0], quatPtr[1], quatPtr[2], quatPtr[3]);
 
         phase1 = m_CrystalStructures[m_Phases[feature1]];
         phase2 = m_CrystalStructures[m_Phases[feature2]];
@@ -156,7 +156,7 @@ public:
         {
           int nsym = m_OrientationOps[phase1]->getNumSymOps();
           misq = q1 * (q2.conjugate());
-          OrientationTransformation::qu2om<QuatType, OrientationD>(q1).toGMatrix(g1);
+          OrientationTransformation::qu2om<QuatD, OrientationD>(q1).toGMatrix(g1);
           MatrixMath::Multiply3x3with3x1(g1, normal, xstl_norm);
           for(int j = 0; j < nsym; j++)
           {
@@ -170,7 +170,7 @@ public:
               sym_q = m_OrientationOps[phase1]->getQuatSymOp(k);
               s2_misq = sym_q.conjugate() * s1_misq;
 
-              OrientationTransformation::qu2ax<QuatType, OrientationD>(s2_misq).toAxisAngle(n1, n2, n3, w);
+              OrientationTransformation::qu2ax<QuatD, OrientationD>(s2_misq).toAxisAngle(n1, n2, n3, w);
               w = w * 180.0 / SIMPLib::Constants::k_Pi;
               axisdiffCSL = std::acos(std::fabs(n1) * cslAxisNorm[0] + std::fabs(n2) * cslAxisNorm[1] + std::fabs(n3) * cslAxisNorm[2]);
               angdiffCSL = std::fabs(w - TransformationPhaseConstants::CSLAxisAngle[m_CSLIndex][1]);
