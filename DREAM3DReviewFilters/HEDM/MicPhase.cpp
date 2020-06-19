@@ -67,7 +67,6 @@ void MicPhase::printSelf(std::ostream& stream)
 // -----------------------------------------------------------------------------
 void MicPhase::parseLatticeConstants(std::string& data)
 {
-  bool ok = false;
   std::vector<std::string> tokens = EbsdStringUtils::split(data, ',');
   m_LatticeConstants[0] = std::stof(tokens[0]);
   m_LatticeConstants[1] = std::stof(tokens[1]);
@@ -78,7 +77,6 @@ void MicPhase::parseLatticeConstants(std::string& data)
 // -----------------------------------------------------------------------------
 void MicPhase::parseLatticeAngles(std::string& data)
 {
-  bool ok = false;
   std::vector<std::string> tokens = EbsdStringUtils::split(data, ',');
   m_LatticeConstants[3] = std::stof(tokens[0]);
   m_LatticeConstants[4] = std::stof(tokens[1]);
@@ -89,7 +87,6 @@ void MicPhase::parseLatticeAngles(std::string& data)
 // -----------------------------------------------------------------------------
 void MicPhase::parseBasisAtoms(std::string& data)
 {
-  bool ok = false;
   std::vector<std::string> tokens = EbsdStringUtils::split(data, ',');
   m_BasisAtoms = tokens[0];
 }

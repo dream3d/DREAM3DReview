@@ -451,7 +451,6 @@ int MicReader::readMicFile()
   float xMin = 1000000000.0F, yMin = 1000000000.0F;
   float xMinUM, yMinUM;
   int32_t counter = 0;
-  bool ok = false;
   std::string buf;
 
   // Read the First line in the file which is the edge length
