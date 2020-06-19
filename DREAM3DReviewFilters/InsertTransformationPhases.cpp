@@ -593,7 +593,7 @@ void InsertTransformationPhases::insertTransformationPhases()
   float sampleHabitPlane[3] = {0.0f};
   // NOTE: incoherent habit planes e[-20,20] & are ints
   float crystalHabitPlane[3] = {static_cast<float>(rg.genrand_res53() * 20), static_cast<float>(rg.genrand_res53() * 20), static_cast<float>(rg.genrand_res53() * 20)};
-  QuatF q1, q2;
+
   float g[3][3], gT[3][3], rotMat[3][3], newMat[3][3], newMatCopy[3][3], symMat[3][3];
   float plateThickness = 0.0f;
   size_t numFeatures = totalFeatures;
