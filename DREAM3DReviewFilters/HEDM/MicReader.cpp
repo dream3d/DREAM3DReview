@@ -40,8 +40,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "EbsdLib/Core/EbsdDir.h"
-#include "EbsdLib/Core/EbsdFileInfo.h"
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/Math/EbsdLibMath.h"
@@ -304,16 +302,16 @@ int MicReader::readHeaderOnly()
   m_CurrentPhase = MicPhase::New();
   m_PhaseVector.push_back(m_CurrentPhase);
 
-  std::string parentPath = EbsdFileInfo::parentPath(getFileName());
-  std::string name = EbsdFileInfo::baseName(getFileName());
+  std::string parentPath = fs::path(getFileName()).parent_path();
+  std::string name = fs::path(getFileName()).stem();
 
-  if(EbsdDir::toNativeSeparators(parentPath).empty())
+  if(fs::path(parentPath).string().empty())
   {
     name = name + ".config";
   }
   else
   {
-    name = parentPath + EbsdDir::Separator + name + ".config";
+    name = parentPath + fs::path::preferred_separator + name + ".config";
   }
 
   std::ifstream inHeader(getFileName(), std::ios_base::in);
@@ -347,17 +345,16 @@ int MicReader::readHeaderOnly()
 // -----------------------------------------------------------------------------
 int MicReader::readDatFile()
 {
+  std::string parentPath = fs::path(getFileName()).parent_path();
+  std::string name = fs::path(getFileName()).stem();
 
-  std::string parentPath = EbsdFileInfo::parentPath(getFileName());
-  std::string name = EbsdFileInfo::baseName(getFileName());
-
-  if(EbsdDir::toNativeSeparators(parentPath).empty())
+  if(fs::path(parentPath).string().empty())
   {
     name = name + ".dat";
   }
   else
   {
-    name = parentPath + EbsdDir::Separator + name + ".dat";
+    name = parentPath + fs::path::preferred_separator + name + ".config";
   }
 
   std::ifstream inHeader(getFileName(), std::ios_base::in);
