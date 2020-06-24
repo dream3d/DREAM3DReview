@@ -302,8 +302,8 @@ int MicReader::readHeaderOnly()
   m_CurrentPhase = MicPhase::New();
   m_PhaseVector.push_back(m_CurrentPhase);
 
-  std::string parentPath = fs::path(getFileName()).parent_path();
-  std::string name = fs::path(getFileName()).stem();
+  std::string parentPath = fs::path(getFileName()).parent_path().string();
+  std::string name = fs::path(getFileName()).stem().string();
 
   if(fs::path(parentPath).string().empty())
   {
@@ -311,7 +311,9 @@ int MicReader::readHeaderOnly()
   }
   else
   {
-    name = parentPath + fs::path::preferred_separator + name + ".config";
+    std::stringstream ss;
+    ss << parentPath << fs::path::preferred_separator << name << ".config";
+    name = ss.str();
   }
 
   std::ifstream inHeader(getFileName(), std::ios_base::in);
@@ -345,8 +347,8 @@ int MicReader::readHeaderOnly()
 // -----------------------------------------------------------------------------
 int MicReader::readDatFile()
 {
-  std::string parentPath = fs::path(getFileName()).parent_path();
-  std::string name = fs::path(getFileName()).stem();
+  std::string parentPath = fs::path(getFileName()).parent_path().string();
+  std::string name = fs::path(getFileName()).stem().string();
 
   if(fs::path(parentPath).string().empty())
   {
@@ -354,7 +356,9 @@ int MicReader::readDatFile()
   }
   else
   {
-    name = parentPath + fs::path::preferred_separator + name + ".config";
+    std::stringstream ss;
+    ss << parentPath << fs::path::preferred_separator << name << ".config";
+    name = ss.str();
   }
 
   std::ifstream inHeader(getFileName(), std::ios_base::in);
@@ -444,9 +448,12 @@ int MicReader::readMicFile()
   size_t totalPossibleDataRows = 0;
   //  size_t featuresRead = 0;
   float origEdgeLength;
-  float xMax = 0, yMax = 0;
-  float xMin = 1000000000.0F, yMin = 1000000000.0F;
-  float xMinUM, yMinUM;
+  float xMax = 0.0F;
+  float yMax = 0.0F;
+  float xMin = 1000000000.0F;
+  float yMin = 1000000000.0F;
+  float xMinUM = 0.0F;
+  float yMinUM = 0.0F;
   int32_t counter = 0;
   std::string buf;
 
@@ -492,7 +499,8 @@ int MicReader::readMicFile()
   std::vector<float> xVal(totalDataRows, 0.0);
   std::vector<float> yVal(totalDataRows, 0.0);
   float constant = static_cast<float>(1.0f / (2.0 * sqrt(3.0)));
-  float x, y;
+  float x;
+  float y;
   for(size_t i = 0; i < totalDataRows; ++i)
   {
     if(m_Up[i] == 1)
@@ -558,10 +566,17 @@ int MicReader::readMicFile()
   // Resize pointers
   initPointers(xDim * yDim);
 
-  float xA = 0.0f, xB = 0.0f, xC = 0.0f, yA = 0.0f, yB = 0.0f, yC = 0.0f;
+  float xA = 0.0f;
+  float xB = 0.0f;
+  float xC = 0.0f;
+  float yA = 0.0f;
+  float yB = 0.0f;
+  float yC = 0.0f;
   int point = 0;
   float root3over2 = sqrtf(3.0f) / 2.0f;
-  int check1 = 0, check2 = 0, check3 = 0;
+  int check1 = 0;
+  int check2 = 0;
+  int check3 = 0;
   for(size_t i = 0; i < totalDataRows; ++i)
   {
     xA = xVal[i] - xMin;
@@ -673,8 +688,25 @@ void MicReader::parseDataLine(std::string& line, size_t i)
    * Some HEDM Mic files do NOT have all 10 columns. Assume these are lacking the last
    * 2 columns and all the other columns are the same as above.
    */
-  float p1 = 0.0f, p = 0.0f, p2 = 0.0f, x = -1.0f, y = -1.0f, z = -1.0f, conf = -1.0f, junk1, junk2, junk3;
-  int up = 0, level = 0, good = 0, junk4, junk5, junk6, junk7, junk8, junk9;
+  float p1 = 0.0f;
+  float p = 0.0f;
+  float p2 = 0.0f;
+  float x = -1.0f;
+  float y = -1.0f;
+  float z = -1.0f;
+  float conf = -1.0f;
+  float junk1;
+  float junk2;
+  float junk3;
+  int up = 0;
+  int level = 0;
+  int good = 0;
+  int junk4;
+  int junk5;
+  int junk6;
+  int junk7;
+  int junk8;
+  int junk9;
   size_t offset = 0;
   size_t featuresRead = 0;
   featuresRead = sscanf(line.data(), "%f %f %f %d %d %d %f %f %f %f %f %f %f %d %d %d %d %d %d", &x, &y, &z, &up, &level, &good, &p1, &p, &p2, &conf, &junk1, &junk2, &junk3, &junk4, &junk5, &junk6,
