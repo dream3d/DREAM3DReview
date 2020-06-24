@@ -246,7 +246,7 @@ int H5MicReader::readData(hid_t parId)
   {
     return -200;
   }
-  m_ArrayNames;
+
   totalDataRows = xDim * yDim;
 
   hid_t gid = H5Gopen(parId, Mic::H5Mic::Data.c_str(), H5P_DEFAULT);
