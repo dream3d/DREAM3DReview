@@ -16,8 +16,7 @@ def start_test():
                           sd.GetBuildDirectory() + '/Data/Output/Anisotropy/AlMgSc.h5ebsd',
                           'AlMgSc-TD_', '', 'ang', 3,
                           0, 9, simpl.AxisAngleInput(0, 0, 0, 0), simpl.AxisAngleInput(0, 0, 0, 0))
-    if err < 0:
-        print('EBSD to H5EBSD ErrorCondition %d' % err)
+    assert err == 0, f'EBSD to H5EBSD ErrorCondition {err}'
 
 
 if __name__ == '__main__':

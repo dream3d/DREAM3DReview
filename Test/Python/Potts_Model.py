@@ -121,8 +121,7 @@ def start_test():
                                         sd.GetBuildDirectory() +
                                         '/Data/Output/Statistics/SmallIN100_CrystalStats.dream3d',
                                         False, dcap)
-    if err < 0:
-        print('DataContainerReader ErrorCondition %d' % err)
+    assert err == 0, f'DataContainerReader ErrorCondition {err}'
 
     # Crop Geometry (Image)
     err = samplingpy.crop_image_geometry(dca, '',
@@ -130,8 +129,7 @@ def start_test():
                                          simpl.DataArrayPath('Small IN100', 'Grain Data', ''),
                                          41, 41, 0, 140, 140, 99, True, False, True,
                                          simpl.DataArrayPath('Small IN100', 'EBSD Scan Data', 'FeatureIds'))
-    if err < 0:
-        print('CropImageGeometry ErrorCondition %d' % err)
+    assert err == 0, f'CropImageGeometry ErrorCondition {err}'
 
     # Quick Surface Mesh
     err = surfacemeshingpy.quick_surface_mesh(dca,
@@ -143,22 +141,19 @@ def start_test():
                                               'FaceLabels',
                                               'NodeType',
                                               'FaceFeatureData')
-    if err < 0:
-        print('QuickSurfaceMesh ErrorCondition %d' % err)
+    assert err == 0, f'QuickSurfaceMesh ErrorCondition {err}'
 
     # Potts Model
     err = dream3dreviewpy.potts_model(dca, 100, 273, False, False,
                                       simpl.DataArrayPath('Small IN100', 'EBSD Scan Data',
                                                           'FeatureIds'),
                                       simpl.DataArrayPath('', '', ''))
-    if err < 0:
-        print('PottsModel ErrorCondition %d' % err)
+    assert err == 0, f'PottsModel ErrorCondition {err}'
 
     # Write to DREAM3D file
     err = sc.WriteDREAM3DFile(sd.GetBuildDirectory() + '/Data/Output/DREAM3DReview/SmallIN100_PottsModel.dream3d',
                               dca)
-    if err < 0:
-        print('WriteDREAM3DFile ErrorCondition: %d' % err)
+    assert err == 0, f'WriteDREAM3DFile ErrorCondition: {err}'
 
 if __name__ == '__main__':
     print('Starting Test %s ' % os.path.basename(__file__))

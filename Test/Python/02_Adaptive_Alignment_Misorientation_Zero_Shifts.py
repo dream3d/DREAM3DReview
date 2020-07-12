@@ -19,16 +19,14 @@ def start_test():
                                              simpl.StringSet({'Fit', 'Image Quality', 'EulerAngles',
                                                              'SEM Signal', 'Confidence Index', 'Phases',
                                                              'X Position', 'Y Position'}))
-    if err < 0:
-        print('ReadH5Ebsd ErrorCondition %d' % err)
+    assert err == 0, f'ReadH5Ebsd ErrorCondition {err}'
 
     # Convert Orientation Representation
     err = orientationanalysispy.convert_orientations(dca, 0, 2,
                                                      simpl.DataArrayPath('AlMgSc Data', 'EBSD SEM Scan Data',
                                                                          'EulerAngles'),
                                                      'Quats')
-    if err < 0:
-        print('Convert Orientations ErrorCondition %d' % err)
+    assert err == 0, f'Convert Orientations ErrorCondition {err}'
 
     # Adaptive Alignment Misorientation
     err = dream3dreviewpy.adaptive_alignment_misorientation(dca, 5, False,
@@ -39,8 +37,7 @@ def start_test():
                                                          simpl.DataArrayPath('', '', ''),
                                                          simpl.DataArrayPath('AlMgSc Data', 'Phase Data',
                                                                              'CrystalStructures'))
-    if err < 0:
-        print('AdaptiveAlignment Misorientation %d' % err)
+    assert err == 0, f'AdaptiveAlignment Misorientation {err}'
 
 if __name__ == '__main__':
     print('Starting Test %s ' % os.path.basename(__file__))

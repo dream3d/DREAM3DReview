@@ -15,15 +15,13 @@ def start_test():
 
     # Create Data Container
     err = simplpy.create_data_container(dca, 'ImageDataContainer')
-    if err < 0:
-        print('DataContainer ErrorCondition: %d' % err)
+    assert err == 0, f'DataContainer ErrorCondition: {err}'
 
     # Create Image Geometry
     err = simplpy.create_image_geometry(dca, 'ImageDataContainer', simpl.IntVec3([101, 101, 1]),
                                         simpl.FloatVec3([0, 0, 0]),
                                         simpl.FloatVec3([1, 1, 1]))
-    if err < 0:
-        print('ImageGeometry ErrorCondition: %d' % err)
+    assert err == 0, f'ImageGeometry ErrorCondition: {err}'
 
     # Create Attribute Matrix #1 for Lambert Sphere
     new_row = simpl.VectorDouble()
@@ -34,15 +32,13 @@ def start_test():
     table_data.append(new_row)
     err = simplpy.create_attribute_matrix(dca, simpl.DataArrayPath('ImageDataContainer', 'CellAttributeMatrix', ''), 3,
                                           simpl.DynamicTableData(table_data, ['0', '1', '2'], ['0']))
-    if err < 0:
-        print('AttributeMatrix #1 ErrorCondition: %d' % err)
+    assert err == 0, f'AttributeMatrix #1 ErrorCondition: {err}'
 
     # Create Data Array
     err = simplpy.create_data_array(dca, simpl.ScalarTypes.UInt8, 1,
                                     simpl.DataArrayPath('ImageDataContainer', 'CellAttributeMatrix', 'ScalarValues'),
                                     simpl.InitializationType.Manual, '128', (0.0, 151.1))
-    if err < 0:
-        print('DataArray ErrorCondition: %d' % err)
+    assert err == 0, f'DataArray ErrorCondition: {err}'
 
     # Create Lambert Sphere
     err = orientationanalysispy.create_lambert_sphere(dca, sc.Hemisphere.Northern,
@@ -52,8 +48,7 @@ def start_test():
                                                       'VertexDataContainer', 'VertexAttributeMatrix',
                                                       'EdgeAttributeMatrix', 'FaceAttributeMatrix',
                                                       True, True, True, True)
-    if err < 0:
-        print('LambertSphere ErrorCondition: %d' % err)
+    assert err == 0, f'LambertSphere ErrorCondition: {err}'
 
     # Create Attribute Matrix #2 for Statistics
     new_row = simpl.VectorDouble()
@@ -64,8 +59,7 @@ def start_test():
                                           simpl.DataArrayPath('QuadDataContainer', 'StatisticsAttributeMatrix', ''),
                                           simpl.AttributeMatrix.Type.Generic,
                                           simpl.DynamicTableData(table_data, ['0'], ['0']))
-    if err < 0:
-        print('AttributeMatrix #2 ErrorCondition: %d' % err)
+    assert err == 0, f'AttributeMatrix #2 ErrorCondition: {err}'
 
     # Find Attribute Array Statistics
     err = dream3dreviewpy.find_array_statistics(dca, True, False, False, True, False, True, True,
@@ -78,15 +72,13 @@ def start_test():
                                                 simpl.DataArrayPath('QuadDataContainer', 'FaceAttributeMatrix',
                                                                     'Quad_ScalarValues'),
                                                 simpl.DataArrayPath('', '', ''))
-    if err < 0:
-        print('FindArrayStatistics ErrorCondition: %d' % err)
+    assert err == 0, f'FindArrayStatistics ErrorCondition: {err}'
 
     # Write to DREAM3D File
     err = simplpy.data_container_writer(dca, sd.GetBuildDirectory() +
                                         '/Data/Output/DREAM3DReview/Statistics/FindArrayStats.dream3d', True,
                                         False)
-    if err < 0:
-        print('DataContainerWriter ErrorCondition: %d' % err)
+    assert err == 0, f'DataContainerWriter ErrorCondition: {err}'
 
     # Export ASCII Data
     selected_data_array_paths = [simpl.DataArrayPath('QuadDataContainer',
@@ -106,8 +98,7 @@ def start_test():
                                    sd.GetBuildDirectory() + '/Data/Output/DREAM3DReview', # Only needed for Multi-File output
                                    sd.GetBuildDirectory() + '/Data/Output/DREAM3DReview/Statistics.csv', # Only needed for Single File Style
                                    simpl.DelimiterTypes.Comma, '.csv', 10, outStyle)
-    if err < 0:
-        print('WriteAsciiData ErrorCondition: %d' % err)
+    assert err == 0, f'WriteAsciiData ErrorCondition: {err}'
 
 if __name__ == '__main__':
     print('Starting Test %s ' % os.path.basename(__file__))

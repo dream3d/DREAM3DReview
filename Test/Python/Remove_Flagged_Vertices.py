@@ -14,8 +14,7 @@ def start_test():
 
     # Create the Data Container
     err = simplpy.create_data_container(dca, 'DataContainer')
-    if err < 0:
-        print('DataContainer ErrorCondition: %d' % err)
+    assert err == 0, f'DataContainer ErrorCondition: {err}'
 
     # Import ASCII Data - #1 - Vertex Coordinates
     import_file = sd.GetBuildDirectory() + '/Data/SIMPL/VertexCoordinates.csv'
@@ -33,16 +32,14 @@ def start_test():
         'dataTypes': ['float', 'float', 'float']
     }
     err = simplpy.read_ascii_data(dca, wizard_data)
-    if err < 0:
-        print('Import ASCII Data #1 -  ErrorCondition: %d' % err)
+    assert err == 0, f'Import ASCII Data #1 -  ErrorCondition: {err}'
 
     # Combine Attribute Arrays # 1:
     selected_data_array_paths = [simpl.DataArrayPath('DataContainer', 'Bounds', 'x'),
                                  simpl.DataArrayPath('DataContainer', 'Bounds', 'y'),
                                  simpl.DataArrayPath('DataContainer', 'Bounds', 'z')]
     err = simplpy.combine_attribute_arrays(dca, selected_data_array_paths, 'Vertices', False)
-    if err < 0:
-        print('Combined Attribute Arrays #1 -  ErrorCondition: %d' % err)
+    assert err == 0, f'Combined Attribute Arrays #1 -  ErrorCondition: {err}'
 
     # Delete Data # 1
     dcap = simpl.DataContainerArrayProxy()
@@ -52,15 +49,13 @@ def start_test():
     dcap.getDataContainerProxy('DataContainer').getAttributeMatrixProxy('Bounds').getDataArrayProxy('y').Flag = 2
     dcap.getDataContainerProxy('DataContainer').getAttributeMatrixProxy('Bounds').getDataArrayProxy('z').Flag = 2
     err = simplpy.remove_arrays(dca, dcap)
-    if err < 0:
-        print('Remove Arrays #1 -  ErrorCondition: %d' % err)
+    assert err == 0, f'Remove Arrays #1 -  ErrorCondition: {err}'
 
     # Create Geometry
     err = sc.CreateGeometry(dca, 0, simpl.IGeometry.Type.Vertex, 'DataContainer', False,
                             shared_vertex_list_array_path=simpl.DataArrayPath('DataContainer', 'Bounds', 'Vertices'),
                             vertex_attribute_matrix_name='VertexData')
-    if err < 0:
-        print('Create Geometry -  ErrorCondition: %d' % err)
+    assert err == 0, f'Create Geometry -  ErrorCondition: {err}'
 
     # Extract Attribute Arrays from Geometry
     empty_data_array_path = simpl.DataArrayPath('', '', '')
@@ -72,44 +67,38 @@ def start_test():
                                                          empty_data_array_path, empty_data_array_path,
                                                          empty_data_array_path, empty_data_array_path,
                                                          empty_data_array_path)
-    if err < 0:
-        print('ExtractAttributeArraysFromGeometry ErrorCondition %d' % err)
+    assert err == 0, f'ExtractAttributeArraysFromGeometry ErrorCondition {err}'
 
     # Split Multicomponent Attribute Array
     err = simplpy.split_attribute_array(dca,
                                         simpl.DataArrayPath('DataContainer', 'VertexData',
                                                             'VertexCoordinates'),
                                         '_Component_')
-    if err < 0:
-        print('SplitAttributeArray ErrorCondition %d' % err)
+    assert err == 0, f'SplitAttributeArray ErrorCondition {err}'
 
     # Threshold Objects
     err = sc.MultiThresholdObjects(dca, 'Mask', [('DataContainer', 'VertexData',
                                                   'VertexCoordinates_Component_0', '>', -0.5),
                                                  ('DataContainer', 'VertexData',
                                                   'VertexCoordinates_Component_1', '<', 0.5)])
-    if err < 0:
-        print('MultiThresholdObjects ErrorCondition %d' % err)
+    assert err == 0, f'MultiThresholdObjects ErrorCondition {err}'
 
     # Remove Flagged Vertices
     err = dream3dreviewpy.remove_flagged_vertices(dca, 'DataContainer',
                                                   simpl.DataArrayPath('DataContainer', 'VertexData',
                                                                       'Mask'),
                                                   'ReducedVertexDataContainer')
-    if err < 0:
-        print('RemoveFlaggedVertices ErrorCondition %d' % err)
+    assert err == 0, f'RemoveFlaggedVertices ErrorCondition {err}'
 
     # Delete Data
     err = sc.RemoveArrays(dca, [['DataContainer', '', '']])
-    if err < 0:
-        print('RemoveArrays ErrorCondition %d' % err)
+    assert err == 0, f'RemoveArrays ErrorCondition {err}'
 
     # Write to DREAM3D File
     err = simplpy.data_container_writer(dca, sd.GetBuildDirectory() +
                                         '/Data/Output/DREAM3DReview/' +
                                         'RemoveFlaggedVertices.dream3d', True, False)
-    if err < 0:
-        print('DataContainerWriter ErrorCondition: %d' % err)
+    assert err == 0, f'DataContainerWriter ErrorCondition: {err}'
 
 if __name__ == '__main__':
     print('Starting Test %s ' % os.path.basename(__file__))

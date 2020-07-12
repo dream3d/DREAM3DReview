@@ -127,27 +127,23 @@ def start_test():
                                         sd.GetBuildDirectory() +
                                         '/Data/Output/SurfaceMesh/SmallIN100_Smoothed.dream3d',
                                         False,  dcap)
-    if err < 0:
-        print('DataContainerReader ErrorCondition %d' % err)
+    assert err == 0, f'DataContainerReader ErrorCondition {err}'
 
     # Generate Triangle Areas
     err = surfacemeshingpy.triangle_area_filter(dca,
                                                 simpl.DataArrayPath('TriangleDataContainer', 'FaceData', 'FaceAreas'))
-    if err < 0:
-        print('TriangleAreaFilter ErrorCondition %d' % err)
+    assert err == 0, f'TriangleAreaFilter ErrorCondition {err}'
 
     # Generate Triangle Normals
     err = surfacemeshingpy.triangle_normal_filter(dca,
                                                   simpl.DataArrayPath('TriangleDataContainer', 'FaceData',
                                                                       'FaceNormals'))
-    if err < 0:
-        print('TriangleNormalFilter ErrorCondition %d' % err)
+    assert err == 0, f'TriangleNormalFilter ErrorCondition {err}'
 
     # Find Minimum Triangle Dihedral Angle
     err = surfacemeshingpy.triangle_dihedral_angle_filter(dca, simpl.DataArrayPath('TriangleDataContainer', 'FaceData',
                                                                                    'FaceDihedralAngles'))
-    if err < 0:
-        print('TriangleDihedralAngleFilter ErrorCondition %d' % err)
+    assert err == 0, f'TriangleDihedralAngleFilter ErrorCondition {err}'
 
     # Generate IPF Colors (Face)
     err = orientationanalysispy.generate_face_ipf_coloring(dca,
@@ -161,8 +157,7 @@ def start_test():
                                                            simpl.DataArrayPath('Small IN100', 'Phase Data',
                                                                                'CrystalStructures'),
                                                            'SurfaceMeshFaceIPFColors')
-    if err < 0:
-        print('GenerateFaceIPFColoring ErrorCondition %d' % err)
+    assert err == 0, f'GenerateFaceIPFColoring ErrorCondition {err}'
 
     # Generate Misorientation Colors (Face)
     err = orientationanalysispy.generate_face_misorientation_coloring(dca,
@@ -175,8 +170,7 @@ def start_test():
                                                                       simpl.DataArrayPath('Small IN100', 'Phase Data',
                                                                                           'CrystalStructures'),
                                                                       'SurfaceMeshFaceMisorientationColors')
-    if err < 0:
-        print('GenerateFaceMisorientationColoring ErrorCondition %d' % err)
+    assert err == 0, f'GenerateFaceMisorientationColoring ErrorCondition {err}'
 
     # Average Edge/Face/Cell Array to Vertex Array
     err = dream3dreviewpy.average_edge_face_cell_array_to_vertex_array(dca,
@@ -185,15 +179,13 @@ def start_test():
                                                                        simpl.DataArrayPath('TriangleDataContainer',
                                                                                            'VertexData',
                                                                                            'AverageValue'))
-    if err < 0:
-        print('AverageEdgeFaceCellArrayToVertexArray ErrorCondition %d' % err)
+    assert err == 0, f'AverageEdgeFaceCellArrayToVertexArray ErrorCondition {err}'
 
     # Write DREAM3D File
     err = simplpy.data_container_writer(dca, sd.GetBuildDirectory() +
                                         '/Data/Output/DREAM3DReview/' +
                                         'AverageVertexValue.dream3d', True, False)
-    if err < 0:
-        print('DataContainerWriter ErrorCondition: %d' % err)
+    assert err == 0, f'DataContainerWriter ErrorCondition: {err}'
 
 if __name__ == '__main__':
     print('Starting Test %s ' % os.path.basename(__file__))

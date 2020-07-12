@@ -30,8 +30,7 @@ def start_test():
                                axis_dynamic_table_data,
                                euler_dynamic_table_data)
 
-    if err < 0:
-        print('Primary StatsData ErrorCondition: %d' % err)
+    assert err == 0, f'Primary StatsData ErrorCondition: {err}'
 
      # Initialize Synthetic Volume
     err = syntheticbuilding.initialize_synthetic_volume(dca, 'SyntheticVolumeDataContainer', 'CellData',
@@ -47,16 +46,14 @@ def start_test():
                                                         simpl.DataArrayPath('StatsGeneratorDataContainer',
                                                                             'CellEnsembleData', 'PhaseName'),
                                                         False, 0, 'NOT NEEDED')
-    if err < 0:
-        print('InitializeSyntheticVolume ErrorCondition: %d' % err)
+    assert err == 0, f'InitializeSyntheticVolume ErrorCondition: {err}'
 
     # Establish Shape Types
     err = syntheticbuilding.establish_shape_types(dca,
                                                     simpl.DataArrayPath('StatsGeneratorDataContainer',
                                                                         'CellEnsembleData', 'PhaseTypes'),
                                                     'ShapeTypes', [simpl.ShapeType.Ellipsoid])
-    if err < 0:
-        print('EstablishShapeTypes ErrorCondition: %d' % err)
+    assert err == 0, f'EstablishShapeTypes ErrorCondition: {err}'
 
     # Pack Primary Phases
     err = syntheticbuilding.pack_primary_phases(dca,
@@ -76,8 +73,7 @@ def start_test():
                                                   False, False,
                                                   simpl.DataArrayPath('', '', ''),
                                                   simpl.DataArrayPath('', '', ''))
-    if err < 0:
-        print('PackPrimaryPhases ErrorCondition: %d' % err)
+    assert err == 0, f'PackPrimaryPhases ErrorCondition: {err}'
 
     # Find Feature Neighbors
     err = statisticspy.find_neighbors(dca, simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', ''),
@@ -85,8 +81,7 @@ def start_test():
                                       simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData',
                                                           'FeatureIds'),
                                       '', 'NumNeighbors', 'SurfaceFeatures', False, True)
-    if err < 0:
-        print('FindNeighbors ErrorCondition: %d' % err)
+    assert err == 0, f'FindNeighbors ErrorCondition: {err}'
 
     # Match Crystallography
     err = syntheticbuilding.match_crystallography(dca, simpl.DataArrayPath('StatsGeneratorDataContainer',
@@ -108,8 +103,7 @@ def start_test():
                                                     simpl.DataArrayPath('SyntheticVolumeDataContainer',
                                                                         'CellEnsembleData', 'NumFeatures'),
                                                     'EulerAngles', 'Volumes', 'EulerAngles', 'AvgQuats', 100000)
-    if err < 0:
-        print('MatchCrystallography ErrorCondition: %d' % err)
+    assert err == 0, f'MatchCrystallography ErrorCondition: {err}'
 
     # Find Feature Centroids
     err = genericpy.find_feature_centroids(dca,
@@ -117,16 +111,14 @@ def start_test():
                                                                'CellData', 'FeatureIds'),
                                            simpl.DataArrayPath('SyntheticVolumeDataContainer',
                                                                'CellFeatureData', 'Centroids'))
-    if err < 0:
-        print('FindFeatureCentroids ErrorCondition: %d' % err)
+    assert err == 0, f'FindFeatureCentroids ErrorCondition: {err}'
 
     # Find Feature Sizes #1
     err = statisticspy.find_sizes(dca, simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', ''),
                                   simpl.DataArrayPath('SyntheticVolumeDataContainer',
                                                       'CellData', 'FeatureIds'),
                                   'Volumes2', 'EquivalentDiameters', 'NumElements', False)
-    if err < 0:
-        print('FindSizes #1 ErrorCondition %d' % err)
+    assert err == 0, f'FindSizes #1 ErrorCondition {err}'
 
     # Insert Transformation Phases
     # Possible candidate for a helper function
@@ -169,8 +161,7 @@ def start_test():
                                                                                  'CellEnsembleData', 'ShapeTypes'),
                                                              simpl.DataArrayPath('SyntheticVolumeDataContainer',
                                                                                  'CellEnsembleData', 'NumFeatures'))
-    if err < 0:
-        print('InsertTransformationPhases ErrorCondition %d' % err)
+    assert err == 0, f'InsertTransformationPhases ErrorCondition {err}'
 
     # Delete Data (using helper function)
     sc.RemoveArrays(dca, [('SyntheticVolumeDataContainer', 'CellFeatureData', 'AvgQuats'),
@@ -196,24 +187,21 @@ def start_test():
                                                                         'CellEnsembleData', 'CrystalStructures'),
                                                     False,
                                                     simpl.DataArrayPath('', '', ''), 'IPFColor')
-    if err < 0:
-        print('GenerateIPFColors ErrorCondition: %d' % err)
+    assert err == 0, f'GenerateIPFColors ErrorCondition: {err}'
 
     # Find Feature Sizes #2
     err = statisticspy.find_sizes(dca, simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', ''),
                                   simpl.DataArrayPath('SyntheticVolumeDataContainer',
                                                       'CellData', 'FeatureIds'),
                                   'Volumes2', 'EquivalentDiameters', 'NumElements', False)
-    if err < 0:
-        print('FindSizes #2 ErrorCondition %d' % err)
+    assert err == 0, f'FindSizes #2 ErrorCondition {err}'
 
     # Convert Orientation Representation
     err = orientationanalysispy.convert_orientations(dca, 0, 2,
                                                      simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData',
                                                                          'EulerAngles'),
                                                      'Quats')
-    if err < 0:
-        print('Convert Orientations ErrorCondition %d' % err)
+    assert err == 0, f'Convert Orientations ErrorCondition {err}'
 
     # Find Feature Average Orientations
     err = orientationanalysispy.find_avg_orientations(dca,
@@ -229,16 +217,14 @@ def start_test():
                                                                           'CellFeatureData', 'AvgQuats'),
                                                       simpl.DataArrayPath('SyntheticVolumeDataContainer',
                                                                           'CellFeatureData', 'AvgEulers'))
-    if err < 0:
-        print('FindAvgOrientations ErrorCondition: %d' % err)
+    assert err == 0, f'FindAvgOrientations ErrorCondition: {err}'
 
     # Find Feature Centroids
     err = genericpy.find_feature_centroids(dca, simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData',
                                                                     'FeatureIds'),
                                            simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData',
                                                                'Centroids'))
-    if err < 0:
-        print('FindFeatureCentroids ErrorCondition: %d' % err)
+    assert err == 0, f'FindFeatureCentroids ErrorCondition: {err}'
 
     # Find Feature Neighborhoods
     err = statisticspy.find_neighborhoods(dca, 'NeighborhoodList', 1,
@@ -249,23 +235,20 @@ def start_test():
                                           simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData',
                                                               'Centroids'),
                                           'Neighborhoods')
-    if err < 0:
-        print('FindNeighborhoods ErrorCondition: %d' % err)
+    assert err == 0, f'FindNeighborhoods ErrorCondition: {err}'
 
     # Find Feature Neighbors #2
     err = statisticspy.find_neighbors(dca, simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', ''),
                                       'SharedSurfaceAreaList', 'NeighborList',
                                       simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData', 'FeatureIds'),
                                       '', 'NumNeighbors', 'SurfaceFeatures', False, False)
-    if err < 0:
-        print('FindNeighbors #2 ErrorCondition: %d' % err)
+    assert err == 0, f'FindNeighbors #2 ErrorCondition: {err}'
 
     # Write to DREAM3D file
     err = sc.WriteDREAM3DFile(
         sd.GetBuildDirectory() + '/Data/Output/TransformationPhase/InsertTransformationPhases.dream3d',
         dca)
-    if err < 0:
-        print('WriteDREAM3DFile ErrorCondition: %d' % err)
+    assert err == 0, f'WriteDREAM3DFile ErrorCondition: {err}'
 
     # Export Feature Data as CSV File
     err = simplpy.feature_data_csv_writer(dca,
@@ -273,8 +256,7 @@ def start_test():
                                           sd.GetBuildDirectory() +
                                           '/Data/Output/TransformationPhase/InsertTransformationPhases.csv',
                                           False, simpl.DelimiterTypes.Comma, True)
-    if err < 0:
-        print('FeatureDataCsvWriter ErrorCondition: %d' % err)
+    assert err == 0, f'FeatureDataCsvWriter ErrorCondition: {err}'
 
 if __name__ == '__main__':
     print('Starting Test %s ' % os.path.basename(__file__))

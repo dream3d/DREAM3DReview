@@ -119,21 +119,18 @@ def start_test():
                                         sd.GetBuildDirectory() +
                                         '/Data/Output/Statistics/SmallIN100_CrystalStats.dream3d',
                                         False, dcap)
-    if err < 0:
-        print('DataContainerReader ErrorCondition %d' % err)
+    assert err == 0, f'DataContainerReader ErrorCondition {err}'
     
     # Test: K Means
     err = dream3dreviewpy.k_means(dca, simpl.DataArrayPath('Small IN100', 'EBSD Scan Data', 'FeatureIds'),
                                   False, simpl.DataArrayPath('', '', ''), 'ClusterIds', 'ClusterMeans',
                                   5, 'ClusterData', 0)
-    if err < 0:
-        print('KMeans ErrorCondition %d' % err)
+    assert err == 0, f'KMeans ErrorCondition {err}'
 
     # Write to DREAM3D file
     err = sc.WriteDREAM3DFile(sd.GetBuildDirectory()
                               + '/Data/Output/DREAM3DReview/SmallIN100_KMeans.dream3d', dca)
-    if err < 0:
-        print('WriteDREAM3DFile ErrorCondition: %d' % err)
+    assert err == 0, f'WriteDREAM3DFile ErrorCondition: {err}'
 
 if __name__ == '__main__':
     print('Starting Test %s ' % os.path.basename(__file__))

@@ -26,8 +26,7 @@ def start_test():
                                             0, 9, True, sc.AngleRepresentation.Radians,
                                             simpl.StringSet({'Fit', 'Image Quality', 'EulerAngles',
                                                              'SEM Signal', 'Confidence Index', 'Phases'}))
-    if err < 0:
-        print('ReadH5Ebsd ErrorCondition %d' % err)
+    assert err == 0, f'ReadH5Ebsd ErrorCondition {err}'
     
     # Import Image Stack [ITK]
     print('Loading Images...')
@@ -36,16 +35,14 @@ def start_test():
     err = itkimageprocessingpy.itk_import_image_stack(dca, 'SEMAlMgSc Data', 'EBSD SEM Scan Data',
                                                       simpl.FloatVec3([0, 0, 0]), simpl.FloatVec3([1, 1, 1]),
                                                       fileListInfo, 10, 'ImageData')
-    if err < 0:
-        print('ITK Import Image Stack ErrorCondition %d' % err)
+    assert err == 0, f'ITK Import Image Stack ErrorCondition {err}'
 
     # Convert Orientation Representation
     print('Creating Quats....')
     err = orientationanalysispy.convert_orientations(dca, 0, 2,
                                                     simpl.DataArrayPath('AlMgSc Data', 'EBSD SEM Scan Data', 'EulerAngles'),
                                                     'Quats')
-    if err < 0:
-        print('Convert Orientations ErrorCondition %d' % err)
+    assert err == 0, f'Convert Orientations ErrorCondition {err}'
 
     # Adaptive Alignment Mutual Information
     err = dream3dreviewpy.adaptive_alignment_mutual_information(dca, 5, False,
@@ -56,8 +53,7 @@ def start_test():
                                                              1,  # Global Correction
                                                              simpl.DataArrayPath('SEMAlMgSc Data', 'EBSD SEM Scan Data', 'ImageData'),
                                                              )
-    if err < 0:
-        print('AdaptiveAlignment Mutual Information %d' % err)
+    assert err == 0, f'AdaptiveAlignment Mutual Information {err}'
 
 if __name__ == '__main__':
     print('Starting Test %s ' % os.path.basename(__file__))
