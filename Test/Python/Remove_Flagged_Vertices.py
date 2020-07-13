@@ -92,7 +92,7 @@ def start_test():
 
     # Delete Data
     err = sc.RemoveArrays(dca, [['DataContainer', '', '']])
-    assert err == 0, f'RemoveArrays ErrorCondition {err}'
+    assert err, f'RemoveArrays ErrorCondition {err}'
 
     # Write to DREAM3D File
     err = simplpy.data_container_writer(dca, sd.GetBuildDirectory() +
