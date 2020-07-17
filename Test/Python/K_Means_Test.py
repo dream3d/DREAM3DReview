@@ -4,7 +4,7 @@
 import os
 import simpl
 import simplpy
-import simpl_helpers as sc
+import simpl_helpers as sh
 import simpl_test_dirs as sd
 import dream3dreviewpy
 
@@ -128,7 +128,7 @@ def start_test():
     assert err == 0, f'KMeans ErrorCondition {err}'
 
     # Write to DREAM3D file
-    err = sc.WriteDREAM3DFile(sd.GetBuildDirectory()
+    err = sh.WriteDREAM3DFile(sd.GetBuildDirectory()
                               + '/Data/Output/DREAM3DReview/SmallIN100_KMeans.dream3d', dca)
     assert err == 0, f'WriteDREAM3DFile ErrorCondition: {err}'
 

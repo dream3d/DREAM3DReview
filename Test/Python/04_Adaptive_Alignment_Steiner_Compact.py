@@ -4,7 +4,7 @@ Pipeline example based on 04_Steiner Compact in Anisotropy examples
 import os
 import simpl
 import simplpy
-import simpl_helpers as sc
+import simpl_helpers as sh
 import simpl_test_dirs as sd
 import orientationanalysispy
 import dream3dreviewpy
@@ -17,15 +17,15 @@ def start_test():
 
     # Read H5EBSD File
     err = orientationanalysispy.read_h5_ebsd(dca, 'AlMgSc Data', 'Phase Data', 'EBSD SEM Scan Data',
-                                            sd.GetBuildDirectory() + '/Data/Anisotropy/AlMgSc.h5ebsd',
-                                            0, 9, True, sc.AngleRepresentation.Radians,
+                                            sd.GetBuildDirectory() + '/Data/Anisotropy/AlMgsh.h5ebsd',
+                                            0, 9, True, sh.AngleRepresentation.Radians,
                                             simpl.StringSet({'Fit', 'Image Quality', 'EulerAngles',
                                                              'SEM Signal', 'Confidence Index', 'Phases',
                                                              'X Position', 'Y Position'}))
     assert err == 0, f'ReadH5Ebsd ErrorCondition {err}'
 
     # MultiThreshold Objects
-    err = sc.MultiThresholdObjects(dca, 'Mask', [('AlMgSc Data', 'EBSD SEM Scan Data', 'Confidence Index', '>', 0.05),
+    err = sh.MultiThresholdObjects(dca, 'Mask', [('AlMgSc Data', 'EBSD SEM Scan Data', 'Confidence Index', '>', 0.05),
                                                  ('AlMgSc Data', 'EBSD SEM Scan Data', 'Image Quality', '>', 800)])
     assert err == 0, f'MultiThresholdObjects ErrorCondition: {err}'
 
@@ -63,7 +63,7 @@ def start_test():
     assert err == 0, f'EbsdSegmentFeatures ErrorCondition {err}'
 
     # Erode Bad Data
-    err = processingpy.erode_dilate_bad_data(dca, sc.BadDataOperation.Erode, 3, True, True, True,
+    err = processingpy.erode_dilate_bad_data(dca, sh.BadDataOperation.Erode, 3, True, True, True,
                                            simpl.DataArrayPath('AlMgSc Data', 'EBSD SEM Scan Data', 'FeatureIds'))
     assert err == 0, f'ErodeDilateBadData ErrorCondition {err}'
 

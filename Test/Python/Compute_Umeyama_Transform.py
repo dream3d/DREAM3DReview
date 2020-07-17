@@ -5,7 +5,7 @@
 import os
 import simpl
 import simplpy
-import simpl_helpers as sc
+import simpl_helpers as sh
 import simpl_test_dirs as sd
 import ucsbutilitiespy
 import dream3dreviewpy
@@ -91,7 +91,7 @@ def start_test():
     assert err == 0, f'Remove Arrays #2 -  ErrorCondition: {err}'
 
     # Create Geometry
-    err = sc.CreateGeometry(dca, 0, simpl.IGeometry.Type.Quad, 'DataContainer', False,
+    err = sh.CreateGeometry(dca, 0, simpl.IGeometry.Type.Quad, 'DataContainer', False,
                             shared_vertex_list_array_path=simpl.DataArrayPath('DataContainer', 'Bounds', 'Vertices'),
                             shared_quad_list_array_path=simpl.DataArrayPath('DataContainer', 'QuadList', 'Quads'),
                             vertex_attribute_matrix_name='VertexData',
@@ -103,7 +103,7 @@ def start_test():
     assert err == 0, f'CopyDataContainer -  ErrorCondition: {err}'
 
     # Apply Transformation to Geometry - Rotate around Y axis, scale in Y axis and translate +2 in Z axis
-    transformation_matrix = sc.CreateDynamicTableData([[0.707, 0, 0.707, 0],
+    transformation_matrix = sh.CreateDynamicTableData([[0.707, 0, 0.707, 0],
                                                        [0, 2.5, 0, 0],
                                                        [-0.707, 0, 0.707, 2],
                                                        [0, 0, 0, 1]])
@@ -122,7 +122,7 @@ def start_test():
     assert err == 0, f'ComputeUmeyamaTransform -  ErrorCondition: {err}'
 
     # Apply Transformation to Geometry - Scale in Z direction
-    transformation_matrix = sc.CreateDynamicTableData([[1, 0, 0, 0],
+    transformation_matrix = sh.CreateDynamicTableData([[1, 0, 0, 0],
                                                        [0, 1, 0, 0],
                                                        [0, 0, 1, 0],
                                                        [0, 0, 0, 1]])

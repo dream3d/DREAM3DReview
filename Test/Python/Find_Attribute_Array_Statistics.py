@@ -4,7 +4,7 @@
 import os 
 import simpl
 import simplpy
-import simpl_helpers as sc
+import simpl_helpers as sh
 import simpl_test_dirs as sd
 import orientationanalysispy
 import dream3dreviewpy
@@ -41,7 +41,7 @@ def start_test():
     assert err == 0, f'DataArray ErrorCondition: {err}'
 
     # Create Lambert Sphere
-    err = orientationanalysispy.create_lambert_sphere(dca, sc.Hemisphere.Northern,
+    err = orientationanalysispy.create_lambert_sphere(dca, sh.Hemisphere.Northern,
                                                       simpl.DataArrayPath('ImageDataContainer', 'CellAttributeMatrix',
                                                                           'ScalarValues'),
                                                       'QuadDataContainer', 'TriangleDataContainer', 'EdgeDataContainer',

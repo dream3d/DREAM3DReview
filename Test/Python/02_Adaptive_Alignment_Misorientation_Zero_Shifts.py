@@ -3,7 +3,7 @@ Pipeline example based on 02_Adaptive Alignment - Misorientation - Zero Shifts i
 '''
 import os
 import simpl
-import simpl_helpers as sc
+import simpl_helpers as sh
 import simpl_test_dirs as sd
 import orientationanalysispy
 import dream3dreviewpy
@@ -14,8 +14,8 @@ def start_test():
 
     # Read H5EBSD File
     err = orientationanalysispy.read_h5_ebsd(dca, 'AlMgSc Data', 'Phase Data', 'EBSD SEM Scan Data',
-                                            sd.GetBuildDirectory() + '/Data/Anisotropy/AlMgSc.h5ebsd',
-                                             0, 9, True, sc.AngleRepresentation.Radians,
+                                            sd.GetBuildDirectory() + '/Data/Anisotropy/AlMgsh.h5ebsd',
+                                             0, 9, True, sh.AngleRepresentation.Radians,
                                              simpl.StringSet({'Fit', 'Image Quality', 'EulerAngles',
                                                              'SEM Signal', 'Confidence Index', 'Phases',
                                                              'X Position', 'Y Position'}))

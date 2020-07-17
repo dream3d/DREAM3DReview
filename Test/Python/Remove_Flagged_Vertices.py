@@ -4,7 +4,7 @@
 import os
 import simpl
 import simplpy
-import simpl_helpers as sc
+import simpl_helpers as sh
 import simpl_test_dirs as sd
 import dream3dreviewpy
 
@@ -52,7 +52,7 @@ def start_test():
     assert err == 0, f'Remove Arrays #1 -  ErrorCondition: {err}'
 
     # Create Geometry
-    err = sc.CreateGeometry(dca, 0, simpl.IGeometry.Type.Vertex, 'DataContainer', False,
+    err = sh.CreateGeometry(dca, 0, simpl.IGeometry.Type.Vertex, 'DataContainer', False,
                             shared_vertex_list_array_path=simpl.DataArrayPath('DataContainer', 'Bounds', 'Vertices'),
                             vertex_attribute_matrix_name='VertexData')
     assert err == 0, f'Create Geometry -  ErrorCondition: {err}'
@@ -77,7 +77,7 @@ def start_test():
     assert err == 0, f'SplitAttributeArray ErrorCondition {err}'
 
     # Threshold Objects
-    err = sc.MultiThresholdObjects(dca, 'Mask', [('DataContainer', 'VertexData',
+    err = sh.MultiThresholdObjects(dca, 'Mask', [('DataContainer', 'VertexData',
                                                   'VertexCoordinates_Component_0', '>', -0.5),
                                                  ('DataContainer', 'VertexData',
                                                   'VertexCoordinates_Component_1', '<', 0.5)])
@@ -91,7 +91,7 @@ def start_test():
     assert err == 0, f'RemoveFlaggedVertices ErrorCondition {err}'
 
     # Delete Data
-    err = sc.RemoveArrays(dca, [['DataContainer', '', '']])
+    err = sh.RemoveArrays(dca, [['DataContainer', '', '']])
     assert err, f'RemoveArrays ErrorCondition {err}'
 
     # Write to DREAM3D File

@@ -2,7 +2,7 @@
 # Based on InsertTransformationPhase example pipeline
 import os
 import simpl
-import simpl_helpers as sc
+import simpl_helpers as sh
 import simpl_test_dirs as sd
 import simplpy
 import orientationanalysispy
@@ -16,9 +16,9 @@ def start_test():
     dca = simpl.DataContainerArray()
 
      # Using the GenerateStatsData and CreateDynamicTableData functions
-    euler_dynamic_table_data = sc.CreateDynamicTableData([[0, 0, 0, 0, 0]],
+    euler_dynamic_table_data = sh.CreateDynamicTableData([[0, 0, 0, 0, 0]],
                                                       ['Euler 1', 'Euler 2', 'Euler 3', 'Weight', 'Sigma'], ['0'])
-    axis_dynamic_table_data = sc.CreateDynamicTableData([[0, 0, 0, 0, 0]],
+    axis_dynamic_table_data = sh.CreateDynamicTableData([[0, 0, 0, 0, 0]],
                                                      ['Angle(w)', 'Axis (h)', 'Axis (k)', 'Axis (l)', 'Weight (MRD)'],
                                                      ['0'])
     err = syntheticbuilding.generate_primary_stats_data(dca, 'Primary', 0, 1, 0,
@@ -164,7 +164,7 @@ def start_test():
     assert err == 0, f'InsertTransformationPhases ErrorCondition {err}'
 
     # Delete Data (using helper function)
-    sc.RemoveArrays(dca, [('SyntheticVolumeDataContainer', 'CellFeatureData', 'AvgQuats'),
+    sh.RemoveArrays(dca, [('SyntheticVolumeDataContainer', 'CellFeatureData', 'AvgQuats'),
                           ('SyntheticVolumeDataContainer', 'CellFeatureData', 'Centroids'),
                           ('SyntheticVolumeDataContainer', 'CellFeatureData', 'EquivalentDiameters'),
                           ('SyntheticVolumeDataContainer', 'CellFeatureData', 'EulerAngles'),
@@ -245,7 +245,7 @@ def start_test():
     assert err == 0, f'FindNeighbors #2 ErrorCondition: {err}'
 
     # Write to DREAM3D file
-    err = sc.WriteDREAM3DFile(
+    err = sh.WriteDREAM3DFile(
         sd.GetBuildDirectory() + '/Data/Output/TransformationPhase/InsertTransformationPhases.dream3d',
         dca)
     assert err == 0, f'WriteDREAM3DFile ErrorCondition: {err}'
