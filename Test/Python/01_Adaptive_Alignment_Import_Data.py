@@ -13,7 +13,7 @@ def start_test():
     dca = simpl.DataContainerArray()
 
     err = orientationanalysispy.ebsd_to_h5_ebsd(dca, sd.GetBuildDirectory() + '/Data/Anisotropy/ang',
-                          sd.GetBuildDirectory() + '/Data/Output/Anisotropy/AlMgsh.h5ebsd',
+                          sd.GetBuildDirectory() + '/Data/Output/Anisotropy/AlMgsc.h5ebsd',
                           'AlMgSc-TD_', '', 'ang', 3,
                           0, 9, simpl.AxisAngleInput(0, 0, 0, 0), simpl.AxisAngleInput(0, 0, 0, 0))
     assert err == 0, f'EBSD to H5EBSD ErrorCondition {err}'

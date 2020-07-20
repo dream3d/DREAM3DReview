@@ -17,7 +17,7 @@ def start_test():
 
     # Read H5EBSD File
     err = orientationanalysispy.read_h5_ebsd(dca, 'AlMgSc Data', 'Phase Data', 'EBSD SEM Scan Data',
-                                            sd.GetBuildDirectory() + '/Data/Anisotropy/AlMgsh.h5ebsd',
+                                            sd.GetBuildDirectory() + '/Data/Anisotropy/AlMgsc.h5ebsd',
                                             0, 9, True, sh.AngleRepresentation.Radians,
                                             simpl.StringSet({'Fit', 'Image Quality', 'EulerAngles',
                                                              'SEM Signal', 'Confidence Index', 'Phases',
