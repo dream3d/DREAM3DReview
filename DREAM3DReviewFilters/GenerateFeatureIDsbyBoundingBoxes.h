@@ -27,6 +27,7 @@ class DREAM3DReview_EXPORT GenerateFeatureIDsbyBoundingBoxes : public AbstractFi
   PYB11_PROPERTY(DataArrayPath FeatureAttributeMatrixArrayPath READ getFeatureAttributeMatrixArrayPath WRITE setFeatureAttributeMatrixArrayPath)
   PYB11_PROPERTY(DataArrayPath BoxCenterArrayPath READ getBoxCenterArrayPath WRITE setBoxCenterArrayPath)
   PYB11_PROPERTY(DataArrayPath BoxDimensionsArrayPath READ getBoxDimensionsArrayPath WRITE setBoxDimensionsArrayPath)
+  PYB11_PROPERTY(DataArrayPath BoxFeatureIDsArrayPath READ getBoxFeatureIDsArrayPath WRITE setBoxFeatureIDsArrayPath)
   PYB11_END_BINDINGS()
   // End Python bindings declarations
 

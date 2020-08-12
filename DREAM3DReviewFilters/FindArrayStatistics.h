@@ -83,6 +83,11 @@ class DREAM3DReview_EXPORT FindArrayStatistics : public AbstractFilter
   PYB11_PROPERTY(QString StandardizedArrayName READ getStandardizedArrayName WRITE setStandardizedArrayName)
   PYB11_PROPERTY(DataArrayPath SelectedArrayPath READ getSelectedArrayPath WRITE setSelectedArrayPath)
   PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
+  PYB11_PROPERTY(QString HistogramArrayName READ getHistogramArrayName WRITE setHistogramArrayName)
+  PYB11_PROPERTY(bool UseFullRange READ getUseFullRange WRITE setUseFullRange)
+  PYB11_PROPERTY(int32_t NumBins READ getNumBins WRITE setNumBins)
+  PYB11_PROPERTY(float MinRange READ getMinRange WRITE setMinRange)
+  PYB11_PROPERTY(float MaxRange READ getMaxRange WRITE setMaxRange)
   PYB11_END_BINDINGS()
   // End Python bindings declarations
 
