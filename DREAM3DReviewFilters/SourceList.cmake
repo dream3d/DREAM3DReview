@@ -104,6 +104,7 @@ set(_PublicFilters
   DelaunayTriangulation
   GenerateFeatureIDsbyBoundingBoxes
   GenerateMaskFromSimpleShapes
+  CreateArrayofIndices
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)
