@@ -10,6 +10,7 @@ This **Filter** computes a variety of statistics for a given scalar array.  The 
 
 | Statistic | Primitive Type |
 |----------|-----------|
+| Histogram | float (of user set component size) |
 | Length | signed 64-bit integer |
 | Minimum | same type as input |
 | Maximum | same type as input |
@@ -31,6 +32,11 @@ Special operations occur for certain statistics if the supplied array is of type
 
 | Name | Type | Description |
 |------|------|------|
+| Find Histogram | bool | Whether to compute the histogram of the input array | 
+| Histogram Min Value | double | Min cutoff value for histogram |
+| Histogram Max Value | double | Max cutoff value for histogram |
+| Number of Bins | int32_t | Number of bins in histogram |
+| Use Full Range For Histogram | bool | If true, ignore min and max and use min and max from array upon which histogram is computed | 
 | Find Length | bool | Whether to compute the length of the input array |
 | Find Minimum | bool | Whether to compute the minimum of the input array |
 | Find Maximum | bool | Whether to compute the maximum of the input array |
@@ -59,6 +65,7 @@ None
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
+| **Attribute Array** | Histogram | float | (Number of Bins) | Histogram of the input array, if _Find Histogram_ is checked |
 | **Attribute Array** | Length | int64_t | (1) | Length of the input array, if _Find Length_ is checked |
 | **Attribute Array** | Minimum | same as input **Attribute Array** | (1) | Minimum of the input array, if _Find Minimum_ is checked |
 | **Attribute Array** | Maximum | same as input **Attribute Array** | (1) | Maximum of the input array, if _Find Maximum_ is checked |

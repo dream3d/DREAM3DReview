@@ -7,13 +7,11 @@ DREAM3DReview (DREAM3DReview)
 
 ## Description ##
 
-This **Filter** does the following...
+This **Filter** takes an input array (which could be read in through the **Import ASCII Data**  **Filter**) where each tuple in the array corresponds to a bounding box, which is associated with a feature ID. The filter then checks every cell or vertex location in the array to see if it is within a bounding box in the list, and if so, assigns the correpsponding feature ID. 
 
 ## Parameters ##
 
-| Name | Type | Description |
-|------|------|------|
-| Parameter Name | Parameter Type | Description of parameter... |
+None
 
 ## Required Geometry ##
 
@@ -23,17 +21,16 @@ Required Geometry Type -or- Not Applicable
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Data Container** | Data Container Name | N/A | N/A | Description of object... |
-| **Attribute Matrix** | Attribute Matrix Name | Element/Feature/Ensemble/etc. | N/A | Description of object... |
-| **Element/Feature/Ensemble/etc. Attribute Array** | AttributeArray Name | int32_t/float/etc. | (1)/(3)/etc. | Description of object... |
+| **Attribute Array** | Box Corner | float | 3 | An array with 3 components (x, y, z) where each tuple in the array is the origin coordinates a bounding box|
+| **Attribute Array** | Box Dimensions | float | 3 | An array with 3 components (x, y, z) where each tuple in the array is the dimensions of the bounding box|
+| **Attribute Array** | Feature IDs | int32_t | 1 | An array where each tuple in the array is the feature ID associated with the corresponding box corner and box dimension|
 
 ## Created Objects ##
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Data Container** | Data Container Name | N/A | N/A | Description of object... |
-| **Attribute Matrix** | Attribute Matrix Name | Element/Feature/Ensemble/etc. | N/A | Description of object... |
-| **Element/Feature/Ensemble/etc. Attribute Array** | AttributeArray Name | int32_t/float/etc. | (1)/(3)/etc. | Description of object... |
+| **Attribute Array** | Feature IDs | int32_t | 1 | An array of feature IDs assigned based on the bounding box|
+| **Attribute Matrix** | Feature Atribute Matrix | Feature Cell or Feature Vertex | N/A | The attribute matrix associated with the feature IDS created by the bounding box |
 
 
 ## Example Pipelines ##

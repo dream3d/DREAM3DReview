@@ -247,6 +247,8 @@ private:
   DataArrayPath m_CylinderRadiusArrayPath;
   DataArrayPath m_CylinderHeightArrayPath;
 
+  AttributeMatrix::Type m_DestAttributeMatrixType;
+
   int m_MaskShape = {};
 
 public:

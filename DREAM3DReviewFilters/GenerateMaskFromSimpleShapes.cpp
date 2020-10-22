@@ -96,8 +96,22 @@ void GenerateMaskFromSimpleShapes::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
+  AttributeMatrix::Pointer attrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getMaskArrayPath(), -301);
+
+  
+
   if(getErrorCode() < 0)
   {
+    return;
+  }
+
+
+  AttributeMatrix::Type attrMatType = attrMat->getType();
+
+  if (attrMatType == AttributeMatrix::Type::Vertex || attrMatType == AttributeMatrix::Type::Cell)
+  {
+    QString ss = QObject::tr("The Attribute Matrix must have a cell or vertex geometry.");
+    setErrorCondition(-5555, ss);
     return;
   }
 
