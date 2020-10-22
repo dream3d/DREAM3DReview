@@ -78,6 +78,10 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
   clearWarningCode();
 
   DataContainer::Pointer m = getDataContainerArray()->getPrereqDataContainer(this, getFeatureAttributeMatrixArrayPath().getDataContainerName(), false);
+  if(getErrorCode() < 0)
+  {
+    return;
+  }
   DataArrayPath path(getFeatureIDsArrayPath().getDataContainerName(), getFeatureIDsArrayPath().getAttributeMatrixName(), "");
   AttributeMatrix::Pointer attrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, path, -301);
 
@@ -337,19 +341,6 @@ void GenerateFeatureIDsbyBoundingBoxes::execute()
 
   if(getCancel())
   {
-    return;
-  }
-
-  if(getWarningCode() < 0)
-  {
-    QString ss = QObject::tr("Some warning message");
-    setWarningCondition(-88888888, ss);
-  }
-
-  if(getErrorCode() < 0)
-  {
-    QString ss = QObject::tr("Some error message");
-    setErrorCondition(-99999999, ss);
     return;
   }
 

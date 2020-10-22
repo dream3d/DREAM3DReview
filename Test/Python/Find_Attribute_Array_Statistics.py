@@ -62,21 +62,40 @@ def start_test():
     assert err == 0, f'AttributeMatrix #2 ErrorCondition: {err}'
 
     # Find Attribute Array Statistics
-    err = dream3dreviewpy.find_array_statistics(dca, True, False, False, True, False, True, True,
-                                                False, False, False,
-                                                simpl.DataArrayPath('QuadDataContainer',
-                                                                    'StatisticsAttributeMatrix',
-                                                                    ''),
-                                                simpl.DataArrayPath('', '', ''), 'Length', '', '',
-                                                'Mean', '', 'StandardDeviation', 'Summation', '',
-                                                simpl.DataArrayPath('QuadDataContainer', 'FaceAttributeMatrix',
-                                                                    'Quad_ScalarValues'),
-                                                simpl.DataArrayPath('', '', ''))
+    err = dream3dreviewpy.find_array_statistics(data_container_array=dca,
+                                                find_histogram=True, 
+                                                find_length=True, 
+                                                find_min=True, 
+                                                find_max=True, 
+                                                find_mean=True, 
+                                                find_median=True, 
+                                                find_std_deviation=True,
+                                                find_summation=True,
+                                                use_mask=False,
+                                                standardize_data=False,
+                                                compute_by_index=False,
+                                                destination_attribute_matrix=simpl.DataArrayPath('QuadDataContainer', 'StatisticsAttributeMatrix', ''),
+                                                mask_array_path=simpl.DataArrayPath('', '', ''), 
+                                                length_array_name='Length', 
+                                                minimum_array_name='MinValue', 
+                                                maximum_array_name='MaxValue',
+                                                mean_array_name='Mean', 
+                                                median_array_name='MedianValue', 
+                                                std_deviation_array_name='StandardDeviation', 
+                                                summation_array_name='Summation', 
+                                                standardized_array_name='',
+                                                selected_array_path=simpl.DataArrayPath('QuadDataContainer', 'FaceAttributeMatrix','Quad_ScalarValues'),
+                                                feature_ids_array_path=simpl.DataArrayPath('', '', ''),
+                                                histogram_array_name='Histogram',
+                                                use_full_range=False,
+                                                num_bins=100,
+                                                min_range=0.0,
+                                                max_range=1.0)
     assert err == 0, f'FindArrayStatistics ErrorCondition: {err}'
 
     # Write to DREAM3D File
     err = simplpy.data_container_writer(dca, sd.GetBuildDirectory() +
-                                        '/Data/Output/DREAM3DReview/Statistics/FindArrayStats.dream3d', True,
+                                        '/Data/Output/UnitTest/Plugins/DREAM3DReview/Test/Temp/FindArrayStats.dream3d', True,
                                         False)
     assert err == 0, f'DataContainerWriter ErrorCondition: {err}'
 
@@ -95,10 +114,11 @@ def start_test():
                                                      'Summation')]
     outStyle = 0 
     err = simplpy.write_ascii_data(dca, selected_data_array_paths,
-                                   sd.GetBuildDirectory() + '/Data/Output/DREAM3DReview', # Only needed for Multi-File output
-                                   sd.GetBuildDirectory() + '/Data/Output/DREAM3DReview/Statistics.csv', # Only needed for Single File Style
+                                   sd.GetBuildDirectory() + '/Data/Output/UnitTest/Plugins/DREAM3DReview/Test/Temp/', # Only needed for Multi-File output
+                                   sd.GetBuildDirectory() + '/Data/Output/UnitTest/Plugins/DREAM3DReview/Test/Temp/Statistics.csv', # Only needed for Single File Style
                                    simpl.DelimiterTypes.Comma, '.csv', 10, outStyle)
     assert err == 0, f'WriteAsciiData ErrorCondition: {err}'
+    print(f'Output files Written to {sd.GetBuildDirectory()}/Data/Output/UnitTest/Plugins/DREAM3DReview/Test/Temp/')
 
 if __name__ == '__main__':
     print('Starting Test %s ' % os.path.basename(__file__))

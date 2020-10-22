@@ -97,9 +97,6 @@ void GenerateMaskFromSimpleShapes::dataCheck()
   clearWarningCode();
 
   AttributeMatrix::Pointer attrMat = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getMaskArrayPath(), -301);
-
-  
-
   if(getErrorCode() < 0)
   {
     return;
@@ -470,19 +467,6 @@ void GenerateMaskFromSimpleShapes::execute()
 
   if(getCancel())
   {
-    return;
-  }
-
-  if(getWarningCode() < 0)
-  {
-    QString ss = QObject::tr("Some warning message");
-    setWarningCondition(-88888888, ss);
-  }
-
-  if(getErrorCode() < 0)
-  {
-    QString ss = QObject::tr("Some error message");
-    setErrorCondition(-99999999, ss);
     return;
   }
 

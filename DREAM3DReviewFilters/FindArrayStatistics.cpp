@@ -634,8 +634,8 @@ template <typename T>
 class FindStatisticsByIndexImpl
 {
 public:
-  FindStatisticsByIndexImpl(std::unordered_map<int32_t, std::list<T>>& featureDataMap, bool length, bool min, bool max, bool mean, bool median, bool stdDeviation, bool summation, 
-    std::vector<IDataArray::Pointer>& arrays, bool hist, float histmin, float histmax, bool histfullrange, int32_t numBins)
+  FindStatisticsByIndexImpl(std::unordered_map<int32_t, std::list<T>>& featureDataMap, bool length, bool min, bool max, bool mean, bool median, bool stdDeviation, bool summation,
+                            std::vector<IDataArray::Pointer>& arrays, bool hist, float histmin, float histmax, bool histfullrange, int32_t numBins)
   : m_FeatureDataMap(featureDataMap)
   , m_Length(length)
   , m_Min(min)
@@ -644,12 +644,12 @@ public:
   , m_Median(median)
   , m_StdDeviation(stdDeviation)
   , m_Summation(summation)
-  , m_Arrays(arrays)
-  , m_Histogram(hist) 
+  , m_Histogram(hist)
   , m_HistMin(histmin)
   , m_HistMax(histmax)
   , m_HistFullRange(histfullrange)
   , m_NumBins(numBins)
+  , m_Arrays(arrays)
   {
   }
   

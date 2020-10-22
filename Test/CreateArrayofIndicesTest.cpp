@@ -8,72 +8,71 @@
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/Filtering/FilterPipeline.h"
-#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/DataContainers/AttributeMatrix.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
+#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
+#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 #include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
-#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 
 #include "UnitTestSupport.hpp"
 
 #include "DREAM3DReviewTestFileLocations.h"
 
+#include "DREAM3DReview/DREAM3DReviewFilters/CreateArrayofIndices.h"
+
 class CreateArrayofIndicesTest
 {
 
-  public:
-    CreateArrayofIndicesTest() = default;
-    ~CreateArrayofIndicesTest() = default;
-    CreateArrayofIndicesTest(const CreateArrayofIndicesTest&) = delete;            // Copy Constructor
-    CreateArrayofIndicesTest(CreateArrayofIndicesTest&&) = delete;                 // Move Constructor
-    CreateArrayofIndicesTest& operator=(const CreateArrayofIndicesTest&) = delete; // Copy Assignment
-    CreateArrayofIndicesTest& operator=(CreateArrayofIndicesTest&&) = delete;      // Move Assignment
+public:
+  CreateArrayofIndicesTest() = default;
+  ~CreateArrayofIndicesTest() = default;
+  CreateArrayofIndicesTest(const CreateArrayofIndicesTest&) = delete;            // Copy Constructor
+  CreateArrayofIndicesTest(CreateArrayofIndicesTest&&) = delete;                 // Move Constructor
+  CreateArrayofIndicesTest& operator=(const CreateArrayofIndicesTest&) = delete; // Copy Assignment
+  CreateArrayofIndicesTest& operator=(CreateArrayofIndicesTest&&) = delete;      // Move Assignment
 
   // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  int TestFilterAvailability()
+  DataContainerArray::Pointer createDataStructure()
   {
-    // Now instantiate the CreateArrayofIndicesTest Filter from the FilterManager
-    QString filtName = "CreateArrayofIndices";
-    FilterManager* fm = FilterManager::Instance();
-    IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
-    if (nullptr == filterFactory.get())
-    {
-      std::stringstream ss;
-      ss << "The CreateArrayofIndicesTest Requires the use of the " << filtName.toStdString()
-         << " filter which is found in the DREAM3DReview Plugin";
-      DREAM3D_TEST_THROW_EXCEPTION(ss.str())
-    }
-    return 0;
+
+    DataContainerArray::Pointer dca = DataContainerArray::New();
+    DataContainer::Pointer dc = DataContainer::New("Test");
+    AttributeMatrix::Pointer am = AttributeMatrix::New({100}, "AM", AttributeMatrix::Type::Cell);
+
+    dca->addOrReplaceDataContainer(dc);
+    dc->addOrReplaceAttributeMatrix(am);
+    return dca;
   }
 
   // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
   int TestCreateArrayofIndicesTest()
   {
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   /* Please write CreateArrayofIndicesTest test code here.
-    *
-    * To create IO test files, please edit the file template at DREAM3DReview/Test/TestFileLocations.h.in.
-    * Add a CreateArrayofIndicesTest namespace inside the UnitTest namespace, and add your test file paths to your new namespace.
-    *
-    * SIMPLib provides some macros that will throw exceptions when a test fails
-    * and thus report that during testing. These macros are located in the
-    * SIMPLib/Utilities/UnitTestSupport.hpp file. Some examples are:
-    *
-    * SIMPLib_REQUIRE_EQUAL(foo, 0)
-    * This means that if the variable foo is NOT equal to Zero then test will fail
-    * and the current test will exit immediately. If there are more tests registered
-    * with the SIMPLib_REGISTER_TEST() macro, the next test will execute. There are
-    * lots of examples in the SIMPLib/Test folder to look at.
-    */
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DataContainerArray::Pointer dca = createDataStructure();
+    DataArrayPath indexArrayPath("Test", "AM", "Indices");
 
-    int foo = -1;
-    DREAM3D_REQUIRE_EQUAL(foo, 0)
+    CreateArrayofIndices::Pointer filter = CreateArrayofIndices::New();
+    filter->setDataContainerArray(dca);
+    filter->setIndexArrayPath(indexArrayPath);
+    filter->preflight();
+    int32_t err = filter->getErrorCode();
+    DREAM3D_REQUIRE_EQUAL(err, 0)
+
+    dca = createDataStructure();
+    filter->setDataContainerArray(dca);
+    filter->setIndexArrayPath(indexArrayPath);
+    filter->execute();
+    err = filter->getErrorCode();
+    DREAM3D_REQUIRE_EQUAL(err, 0)
+
+    SizeTArrayType& indices = *(dca->getAttributeMatrix(indexArrayPath)->getAttributeArrayAs<SizeTArrayType>("Indices"));
+    for(size_t i = 0; i < 100; i++)
+    {
+      DREAM3D_REQUIRE_EQUAL(i, indices[i]);
+    }
 
     return EXIT_SUCCESS;
   }
@@ -85,13 +84,8 @@ class CreateArrayofIndicesTest
   {
     int err = EXIT_SUCCESS;
 
-    DREAM3D_REGISTER_TEST( TestFilterAvailability() );
-
-    DREAM3D_REGISTER_TEST( TestCreateArrayofIndicesTest() )
+    DREAM3D_REGISTER_TEST(TestCreateArrayofIndicesTest())
   }
 
-  private:
-
-
+private:
 };
-

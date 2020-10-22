@@ -5,12 +5,11 @@
 #pragma once
 
 #include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
-
+#include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "DREAM3DReview/DREAM3DReviewPlugin.h"
-    
+
 /**
  * @brief The CreateArrayofIndices class. See [Filter documentation](@ref createarrayofindices) for details.
  */
@@ -23,13 +22,11 @@ class DREAM3DReview_EXPORT CreateArrayofIndices : public AbstractFilter
   PYB11_FILTER()
   PYB11_SHARED_POINTERS(CreateArrayofIndices)
   PYB11_FILTER_NEW_MACRO(CreateArrayofIndices)
-    PYB11_PROPERTY(DataArrayPath IndexArrayPath READ getIndexArrayPath WRITE setIndexArrayPath)
-
+  PYB11_PROPERTY(DataArrayPath IndexArrayPath READ getIndexArrayPath WRITE setIndexArrayPath)
   PYB11_END_BINDINGS()
   // clang-format on
 
 public:
-
   using Self = CreateArrayofIndices;
   using Pointer = std::shared_ptr<Self>;
   using ConstPointer = std::shared_ptr<const Self>;
@@ -50,19 +47,18 @@ public:
   static QString ClassName();
 
   ~CreateArrayofIndices() override;
-  
-    /**
-    * @brief Sets the value for Filter Parameter for IndexArrayPath
-    * @param value The new value to use.
-    */
-    void setIndexArrayPath(const DataArrayPath& value);
-    /**
-    * @brief Gets the Filter Parameter value for IndexArrayPath
-    * @return The value for IndexArrayPath
-    */
-    DataArrayPath getIndexArrayPath() const;
-    Q_PROPERTY(DataArrayPath IndexArrayPath READ getIndexArrayPath WRITE setIndexArrayPath)
 
+  /**
+   * @brief Sets the value for Filter Parameter for IndexArrayPath
+   * @param value The new value to use.
+   */
+  void setIndexArrayPath(const DataArrayPath& value);
+  /**
+   * @brief Gets the Filter Parameter value for IndexArrayPath
+   * @return The value for IndexArrayPath
+   */
+  DataArrayPath getIndexArrayPath() const;
+  Q_PROPERTY(DataArrayPath IndexArrayPath READ getIndexArrayPath WRITE setIndexArrayPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -132,17 +128,15 @@ protected:
    */
   void initialize();
 
-private: 
-    DataArrayPath  m_IndexArrayPath;
+private:
+  DataArrayPath m_IndexArrayPath;
 
-    std::weak_ptr<DataArray<size_t>> m_IndicesPtr;
-    size_t* m_Indices = nullptr;
-
+  std::weak_ptr<DataArray<size_t>> m_IndicesPtr;
+  size_t* m_Indices = nullptr;
 
 public:
   CreateArrayofIndices(const CreateArrayofIndices&) = delete;            // Copy Constructor Not Implemented
   CreateArrayofIndices& operator=(const CreateArrayofIndices&) = delete; // Copy Assignment Not Implemented
-  CreateArrayofIndices(CreateArrayofIndices &&) = delete;                // Move Constructor Not Implemented
+  CreateArrayofIndices(CreateArrayofIndices&&) = delete;                 // Move Constructor Not Implemented
   CreateArrayofIndices& operator=(CreateArrayofIndices&&) = delete;      // Move Assignment Not Implemented
 };
-

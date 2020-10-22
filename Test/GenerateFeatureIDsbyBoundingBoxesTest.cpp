@@ -7,15 +7,18 @@
 #include <QtCore/QFile>
 
 #include "SIMPLib/SIMPLib.h"
-
 #include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/Filtering/FilterPipeline.h"
-#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/DataContainers/AttributeMatrix.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
+#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
+#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 #include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 
-#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
+#include "DREAM3DReview/DREAM3DReviewFilters/GenerateFeatureIDsbyBoundingBoxes.h"
 
 #include "UnitTestSupport.hpp"
 
@@ -24,76 +27,46 @@
 class GenerateFeatureIDsbyBoundingBoxesTest
 {
 
-  public:
-    GenerateFeatureIDsbyBoundingBoxesTest() = default;
-    ~GenerateFeatureIDsbyBoundingBoxesTest() = default;
-    GenerateFeatureIDsbyBoundingBoxesTest(const GenerateFeatureIDsbyBoundingBoxesTest&) = delete;            // Copy Constructor
-    GenerateFeatureIDsbyBoundingBoxesTest(GenerateFeatureIDsbyBoundingBoxesTest&&) = delete;                 // Move Constructor
-    GenerateFeatureIDsbyBoundingBoxesTest& operator=(const GenerateFeatureIDsbyBoundingBoxesTest&) = delete; // Copy Assignment
-    GenerateFeatureIDsbyBoundingBoxesTest& operator=(GenerateFeatureIDsbyBoundingBoxesTest&&) = delete;      // Move Assignment
+public:
+  GenerateFeatureIDsbyBoundingBoxesTest() = default;
+  ~GenerateFeatureIDsbyBoundingBoxesTest() = default;
+  GenerateFeatureIDsbyBoundingBoxesTest(const GenerateFeatureIDsbyBoundingBoxesTest&) = delete;            // Copy Constructor
+  GenerateFeatureIDsbyBoundingBoxesTest(GenerateFeatureIDsbyBoundingBoxesTest&&) = delete;                 // Move Constructor
+  GenerateFeatureIDsbyBoundingBoxesTest& operator=(const GenerateFeatureIDsbyBoundingBoxesTest&) = delete; // Copy Assignment
+  GenerateFeatureIDsbyBoundingBoxesTest& operator=(GenerateFeatureIDsbyBoundingBoxesTest&&) = delete;      // Move Assignment
 
   // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  int TestFilterAvailability()
+  DataContainerArray::Pointer createDataStructure()
   {
-    // Now instantiate the GenerateFeatureIDsbyBoundingBoxesTest Filter from the FilterManager
-    QString filtName = "GenerateFeatureIDsbyBoundingBoxes";
-    FilterManager* fm = FilterManager::Instance();
-    IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
-    if (nullptr == filterFactory.get())
-    {
-      std::stringstream ss;
-      ss << "The GenerateFeatureIDsbyBoundingBoxesTest Requires the use of the " << filtName.toStdString()
-         << " filter which is found in the DREAM3DReview Plugin";
-      DREAM3D_TEST_THROW_EXCEPTION(ss.str())
-    }
-    return 0;
+    DataContainerArray::Pointer dca = DataContainerArray::New();
+    DataContainer::Pointer dc = DataContainer::New("Test");
+    AttributeMatrix::Pointer am = AttributeMatrix::New({100}, "AM", AttributeMatrix::Type::Cell);
+
+    dca->addOrReplaceDataContainer(dc);
+    dc->addOrReplaceAttributeMatrix(am);
+    return dca;
   }
 
   // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
   int TestGenerateFeatureIDsbyBoundingBoxesTest()
   {
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   /* Please write GenerateFeatureIDsbyBoundingBoxesTest test code here.
-    *
-    * To create IO test files, please edit the file template at DREAM3DReview/Test/TestFileLocations.h.in.
-    * Add a GenerateFeatureIDsbyBoundingBoxesTest namespace inside the UnitTest namespace, and add your test file paths to your new namespace.
-    *
-    * SIMPLib provides some macros that will throw exceptions when a test fails
-    * and thus report that during testing. These macros are located in the
-    * SIMPLib/Utilities/UnitTestSupport.hpp file. Some examples are:
-    *
-    * SIMPLib_REQUIRE_EQUAL(foo, 0)
-    * This means that if the variable foo is NOT equal to Zero then test will fail
-    * and the current test will exit immediately. If there are more tests registered
-    * with the SIMPLib_REGISTER_TEST() macro, the next test will execute. There are
-    * lots of examples in the SIMPLib/Test folder to look at.
-    */
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    int foo = -1;
-    DREAM3D_REQUIRE_EQUAL(foo, 0)
+    DataContainerArray::Pointer dca = createDataStructure();
+
+    GenerateFeatureIDsbyBoundingBoxes::Pointer filter = GenerateFeatureIDsbyBoundingBoxes::New();
+    filter->setDataContainerArray(dca);
+    filter->preflight();
+    int32_t err = filter->getErrorCode();
+    DREAM3D_REQUIRE_EQUAL(err, -999)
 
     return EXIT_SUCCESS;
   }
 
   // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
   void operator()()
   {
     int err = EXIT_SUCCESS;
 
-    DREAM3D_REGISTER_TEST( TestFilterAvailability() );
-
-    DREAM3D_REGISTER_TEST( TestGenerateFeatureIDsbyBoundingBoxesTest() )
+    DREAM3D_REGISTER_TEST(TestGenerateFeatureIDsbyBoundingBoxesTest())
   }
-
-  private:
-
-
 };
-

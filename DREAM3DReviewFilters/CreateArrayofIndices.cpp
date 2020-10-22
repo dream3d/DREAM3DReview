@@ -4,10 +4,11 @@
 
 #include "CreateArrayofIndices.h"
 
+#include <numeric>
+
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
-
 #include "SIMPLib/FilterParameters/DataArrayCreationFilterParameter.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
@@ -64,8 +65,7 @@ void CreateArrayofIndices::dataCheck()
   if (nullptr != m_IndicesPtr.lock())
   {
     m_Indices = m_IndicesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
-  
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -79,29 +79,8 @@ void CreateArrayofIndices::execute()
 
   if (getCancel()) { return; }
 
-  if (getWarningCode() < 0)
-  {
-    QString ss = QObject::tr("Some warning message");
-    setWarningCondition(-88888888, ss);
-  }
-
-  if (getErrorCode() < 0)
-  {
-    QString ss = QObject::tr("Some error message");
-    setErrorCondition(-99999999, ss);
-    return;
-  }
-
-  size_t numTuples = m_IndicesPtr.lock()->getNumberOfTuples();
-
-  
-
-  for (size_t t = 0; t < numTuples; t++)
-  {
-    m_Indices[t] = t;
-  }
-
-
+  SizeTArrayType& array = *(m_IndicesPtr.lock());
+  std::iota(array.begin(), array.end(), 0);
 }
 
 // -----------------------------------------------------------------------------
