@@ -8,13 +8,12 @@
 
 #include "SIMPLib/Common/Constants.h"
 
+#include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/FilterParameters/AttributeMatrixCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArrayCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/AttributeMatrixCreationFilterParameter.h"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
-
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -28,11 +27,11 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-GenerateFeatureIDsbyBoundingBoxes::GenerateFeatureIDsbyBoundingBoxes() 
-:  m_FeatureIDsArrayPath("", "", "")
-,  m_FeatureAttributeMatrixArrayPath("", "", "")
-,  m_BoxCenterArrayPath("", "", "")
-,  m_BoxDimensionsArrayPath("", "", "")
+GenerateFeatureIDsbyBoundingBoxes::GenerateFeatureIDsbyBoundingBoxes()
+: m_FeatureIDsArrayPath("", "", "")
+, m_FeatureAttributeMatrixArrayPath("", "", "")
+, m_BoxCenterArrayPath("", "", "")
+, m_BoxDimensionsArrayPath("", "", "")
 {
   initialize();
 }
@@ -92,16 +91,16 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
 
   m_DestAttributeMatrixType = AttributeMatrix::Type::Unknown;
   AttributeMatrix::Type attrMatType = attrMat->getType();
-  
-  if (attrMatType == AttributeMatrix::Type::Vertex)
+
+  if(attrMatType == AttributeMatrix::Type::Vertex)
   {
     m_DestAttributeMatrixType = AttributeMatrix::Type::VertexFeature;
   }
-  else if (attrMatType == AttributeMatrix::Type::Cell)
+  else if(attrMatType == AttributeMatrix::Type::Cell)
   {
     m_DestAttributeMatrixType = AttributeMatrix::Type::CellFeature;
   }
-  //else if (attrMatType == AttributeMatrix::Type::Edge)
+  // else if (attrMatType == AttributeMatrix::Type::Edge)
   //{
   //  m_DestAttributeMatrixType = AttributeMatrix::Type::EdgeFeature;
   //}
@@ -256,8 +255,6 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxImage()
   }
 }
 
-
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -357,7 +354,6 @@ void GenerateFeatureIDsbyBoundingBoxes::execute()
     checkBoundingBoxEdge();
   }
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -460,7 +456,6 @@ QString GenerateFeatureIDsbyBoundingBoxes::ClassName()
   return QString("GenerateFeatureIDsbyBoundingBoxes");
 }
 
-
 // -----------------------------------------------------------------------------
 void GenerateFeatureIDsbyBoundingBoxes::setFeatureIDsArrayPath(const DataArrayPath& value)
 {
@@ -511,5 +506,3 @@ DataArrayPath GenerateFeatureIDsbyBoundingBoxes::getBoxFeatureIDsArrayPath() con
 {
   return m_BoxFeatureIDsArrayPath;
 }
-
-

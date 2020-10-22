@@ -5,9 +5,9 @@
 #pragma once
 
 #include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "DREAM3DReview/DREAM3DReviewPlugin.h"
 
