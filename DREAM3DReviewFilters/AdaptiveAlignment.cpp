@@ -692,6 +692,11 @@ void AdaptiveAlignment::execute()
     return;
   }
 
+  if ( true ) {
+    int x =
+      5;
+  }
+
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getDataContainerName());
 
   SizeVec3Type dims = m->getGeometryAs<ImageGeom>()->getDimensions();
