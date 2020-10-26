@@ -18,8 +18,9 @@
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
-namespace {
-  constexpr int32_t k_AttributeMatrixTypeSelectionError = -5555;
+namespace
+{
+constexpr int32_t k_AttributeMatrixTypeSelectionError = -5555;
 
 }
 
@@ -123,28 +124,28 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
   if(nullptr != m_BoxFeatureIdsPtr.lock())
   {
     m_BoxFeatureIds = m_BoxFeatureIdsPtr.lock()->getPointer(0);
-  } 
+  }
 
   cDims[0] = 3;
   m_BoxCenterPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getBoxCenterArrayPath(), cDims);
-  if(nullptr != m_BoxCenterPtr.lock()) 
+  if(nullptr != m_BoxCenterPtr.lock())
   {
     m_BoxCenter = m_BoxCenterPtr.lock()->getPointer(0);
-  } 
+  }
 
   m_BoxDimsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getBoxDimensionsArrayPath(), cDims);
-  if(nullptr != m_BoxDimsPtr.lock()) 
+  if(nullptr != m_BoxDimsPtr.lock())
   {
     m_BoxDims = m_BoxDimsPtr.lock()->getPointer(0);
-  } 
+  }
 
   cDims[0] = 1;
   m_FeatureIdsPtr =
       getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, getFeatureIDsArrayPath(), 0, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_FeatureIdsPtr.lock()) 
+  if(nullptr != m_FeatureIdsPtr.lock())
   {
     m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
-  } 
+  }
 
   DataArrayPath path_bounding(getBoxFeatureIDsArrayPath().getDataContainerName(), getBoxFeatureIDsArrayPath().getAttributeMatrixName(), "");
   AttributeMatrix::Pointer attrMat_bounding = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, path_bounding, -301);
