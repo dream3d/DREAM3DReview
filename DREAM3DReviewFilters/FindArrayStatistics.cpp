@@ -40,12 +40,6 @@
 #include <numeric>
 #include <unordered_map>
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
-#endif
-
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
@@ -55,9 +49,9 @@
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
-#include "SIMPLib/FilterParameters/DoubleFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArrayCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
+#include "SIMPLib/FilterParameters/DoubleFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
@@ -67,6 +61,12 @@
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
+
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
+#include <tbb/partitioner.h>
+#endif
 
 /* Create Enumerations to allow the created Attribute Arrays to take part in renaming */
 enum createdPathID : RenameDataPath::DataID_t
@@ -208,8 +208,6 @@ void FindArrayStatistics::dataCheck()
     return;
   }
 
-  
-
   QVector<DataArrayPath> dataArrayPaths;
 
   m_InputArrayPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getSelectedArrayPath());
@@ -276,17 +274,15 @@ void FindArrayStatistics::dataCheck()
 
   EXECUTE_FUNCTION_TEMPLATE(this, createCompatibleArrays, m_InputArrayPtr.lock())
 
-  if (m_FindHistogram)
+  if(m_FindHistogram)
   {
     std::vector<size_t> cDims_List(1, m_NumBins);
     DataArrayPath path(getDestinationAttributeMatrix().getDataContainerName(), getDestinationAttributeMatrix().getAttributeMatrixName(), getHistogramArrayName());
     m_HistogramListPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims_List, "", DataArrayID33);
-    if (getErrorCode() < 0)
+    if(getErrorCode() < 0)
     {
       return;
     }
-
-
   }
 
   if(m_FindLength)
@@ -469,7 +465,8 @@ double findSummation(C<T, Ts...>& source)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename T, typename... Ts> std::vector<float> findHistogram(C<T, Ts...>& source, float histmin, float histmax, bool histfullrange, int32_t numBins)
+template <template <typename, typename...> class C, typename T, typename... Ts>
+std::vector<float> findHistogram(C<T, Ts...>& source, float histmin, float histmax, bool histfullrange, int32_t numBins)
 {
 
   std::vector<float> Histogram(numBins, 0);
@@ -477,7 +474,7 @@ template <template <typename, typename...> class C, typename T, typename... Ts> 
   int32_t bin = 0;
   int32_t numPoints = source.size();
 
-  if (source.empty())
+  if(source.empty())
   {
     std::vector<float> empty(numBins, 0);
     return empty;
@@ -486,7 +483,7 @@ template <template <typename, typename...> class C, typename T, typename... Ts> 
   float min = std::numeric_limits<float>::max();
   float max = -1.0 * std::numeric_limits<float>::max();
 
-  if (histfullrange)
+  if(histfullrange)
   {
     min = findMin(source);
     max = findMax(source);
@@ -498,26 +495,25 @@ template <template <typename, typename...> class C, typename T, typename... Ts> 
   }
 
   float increment = (max - min) / (numBins);
-  if (abs(increment) < 1E-10)
+  if(abs(increment) < 1E-10)
   {
     numBins = 1;
   }
 
-
-  if (numBins == 1) // if one bin, just set the first element to total number of points
+  if(numBins == 1) // if one bin, just set the first element to total number of points
   {
     Histogram[0] = static_cast<float>(source.size());
   }
   else
   {
-      for (const auto &s : source)
-      {
+    for(const auto& s : source)
+    {
       bin = size_t((s - min) / increment); // find bin for this input array value
-      if ((bin >= 0) && (bin < numBins))              // make certain bin is in range
+      if((bin >= 0) && (bin < numBins))    // make certain bin is in range
       {
         Histogram[bin]++; // increment histogram element corresponding to this input array value
       }
-      else if (s == max)
+      else if(s == max)
       {
         Histogram[numBins - 1]++;
       }
@@ -530,16 +526,8 @@ template <template <typename, typename...> class C, typename T, typename... Ts> 
 
   return Histogram;
 
-
-
-
-
-
-
-
-
-  //float sum = std::accumulate(std::begin(source), std::end(source), 0.0f);
-  //return sum;
+  // float sum = std::accumulate(std::begin(source), std::end(source), 0.0f);
+  // return sum;
 }
 
 // -----------------------------------------------------------------------------
@@ -652,7 +640,7 @@ public:
   , m_Arrays(arrays)
   {
   }
-  
+
   virtual ~FindStatisticsByIndexImpl() = default;
 
   void compute(size_t start, size_t end) const
@@ -718,7 +706,7 @@ public:
 
       if(m_Histogram)
       {
-        if (m_Arrays[7])
+        if(m_Arrays[7])
         {
           std::vector<float> vals = findHistogram(m_FeatureDataMap[i], m_HistMin, m_HistMax, m_HistFullRange, m_NumBins);
           std::shared_ptr<DataArray<float>> histArray = std::dynamic_pointer_cast<DataArray<float>>(m_Arrays[7]);
@@ -756,7 +744,8 @@ private:
 //
 // -----------------------------------------------------------------------------
 template <typename T>
-void findStatisticsImpl(bool length, bool min, bool max, bool mean, bool median, bool stdDeviation, bool summation, std::vector<IDataArray::Pointer>& arrays, std::vector<T>& data, bool hist, float histmin, float histmax, bool histfullrange, int32_t numBins)
+void findStatisticsImpl(bool length, bool min, bool max, bool mean, bool median, bool stdDeviation, bool summation, std::vector<IDataArray::Pointer>& arrays, std::vector<T>& data, bool hist,
+                        float histmin, float histmax, bool histfullrange, int32_t numBins)
 {
   if(length)
   {
@@ -864,7 +853,8 @@ void findStatistics(IDataArray::Pointer source, Int32ArrayType::Pointer featureI
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
     if(doParallel)
     {
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, numFeatures), FindStatisticsByIndexImpl<T>(featureValueMap, length, min, max, mean, median, stdDeviation, summation, arrays, hist, histmin, histmax, histfullrange, numBins),
+      tbb::parallel_for(tbb::blocked_range<size_t>(0, numFeatures),
+                        FindStatisticsByIndexImpl<T>(featureValueMap, length, min, max, mean, median, stdDeviation, summation, arrays, hist, histmin, histmax, histfullrange, numBins),
                         tbb::auto_partitioner());
     }
     else
@@ -989,15 +979,13 @@ void FindArrayStatistics::execute()
     {
       arrays[6] = m_SummationPtr.lock();
     }
-    if (m_FindHistogram)
+    if(m_FindHistogram)
     {
       arrays[7] = m_HistogramListPtr.lock();
     }
   }
 
-
-  //std::vector<std::vector<int32_t>> neighborlist;
-
+  // std::vector<std::vector<int32_t>> neighborlist;
 
   EXECUTE_FUNCTION_TEMPLATE(this, findStatistics, m_InputArrayPtr.lock(), m_InputArrayPtr.lock(), m_FeatureIdsPtr.lock(), m_UseMask, m_Mask, m_FindLength, m_FindMin, m_FindMax, m_FindMean,
                             m_FindMedian, m_FindStdDeviation, m_FindSummation, arrays, numFeatures, m_ComputeByIndex, m_FindHistogram, m_MinRange, m_MaxRange, m_UseFullRange, m_NumBins);

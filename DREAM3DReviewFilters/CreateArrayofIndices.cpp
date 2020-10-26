@@ -13,15 +13,14 @@
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
-
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CreateArrayofIndices::CreateArrayofIndices() 
-:  m_IndexArrayPath("IndexArray")
+CreateArrayofIndices::CreateArrayofIndices()
+: m_IndexArrayPath("IndexArray")
 {
   initialize();
 }
@@ -62,7 +61,7 @@ void CreateArrayofIndices::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
   m_IndicesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<size_t>>(this, m_IndexArrayPath, 0, cDims);
-  if (nullptr != m_IndicesPtr.lock())
+  if(nullptr != m_IndicesPtr.lock())
   {
     m_Indices = m_IndicesPtr.lock()->getPointer(0);
   }
@@ -75,9 +74,15 @@ void CreateArrayofIndices::execute()
 {
   initialize();
   dataCheck();
-  if(getErrorCode() < 0) { return; }
+  if(getErrorCode() < 0)
+  {
+    return;
+  }
 
-  if (getCancel()) { return; }
+  if(getCancel())
+  {
+    return;
+  }
 
   SizeTArrayType& array = *(m_IndicesPtr.lock());
   std::iota(array.begin(), array.end(), 0);
@@ -100,7 +105,7 @@ AbstractFilter::Pointer CreateArrayofIndices::newFilterInstance(bool copyFilterP
 //
 // -----------------------------------------------------------------------------
 QString CreateArrayofIndices::getCompiledLibraryName() const
-{ 
+{
   return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
@@ -119,7 +124,7 @@ QString CreateArrayofIndices::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
-  vStream <<  DREAM3DReview::Version::Major() << "." << DREAM3DReview::Version::Minor() << "." << DREAM3DReview::Version::Patch();
+  vStream << DREAM3DReview::Version::Major() << "." << DREAM3DReview::Version::Minor() << "." << DREAM3DReview::Version::Patch();
   return version;
 }
 
@@ -127,24 +132,24 @@ QString CreateArrayofIndices::getFilterVersion() const
 //
 // -----------------------------------------------------------------------------
 QString CreateArrayofIndices::getGroupName() const
-{ 
-  return SIMPL::FilterGroups::Unsupported; 
+{
+  return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 QString CreateArrayofIndices::getSubGroupName() const
-{ 
-  return "DREAM3DReview"; 
+{
+  return "DREAM3DReview";
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 QString CreateArrayofIndices::getHumanLabel() const
-{ 
-  return "Create Array of Indices"; 
+{
+  return "Create Array of Indices";
 }
 
 // -----------------------------------------------------------------------------
@@ -184,16 +189,13 @@ QString CreateArrayofIndices::ClassName()
   return QString("CreateArrayofIndices");
 }
 
-
 // -----------------------------------------------------------------------------
 void CreateArrayofIndices::setIndexArrayPath(const DataArrayPath& value)
 {
-    m_IndexArrayPath = value;
+  m_IndexArrayPath = value;
 }
 // -----------------------------------------------------------------------------
 DataArrayPath CreateArrayofIndices::getIndexArrayPath() const
 {
   return m_IndexArrayPath;
 }
-
-

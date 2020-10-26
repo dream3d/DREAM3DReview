@@ -113,8 +113,8 @@ public:
   ~FindArrayStatistics() override;
 
   /**
- * @brief Setter property for MinRange
- */
+   * @brief Setter property for MinRange
+   */
   void setUseFullRange(bool value);
   /**
    * @brief Getter property for MinRange
@@ -124,8 +124,8 @@ public:
   Q_PROPERTY(bool UseFullRange READ getUseFullRange WRITE setUseFullRange)
 
   /**
-  * @brief Setter property for MinRange
-  */
+   * @brief Setter property for MinRange
+   */
   void setNumBins(int32_t value);
   /**
    * @brief Getter property for MinRange
@@ -145,10 +145,10 @@ public:
   double getMinRange() const;
   Q_PROPERTY(double MinRange READ getMinRange WRITE setMinRange)
 
-    /**
-     * @brief Setter property for MaxRange
-     */
-    void setMaxRange(double value);
+  /**
+   * @brief Setter property for MaxRange
+   */
+  void setMaxRange(double value);
   /**
    * @brief Getter property for MaxRange
    * @return Value of MaxRange
@@ -298,9 +298,9 @@ public:
   Q_PROPERTY(DataArrayPath MaskArrayPath READ getMaskArrayPath WRITE setMaskArrayPath)
 
   /**
-    * @brief Setter property for HistogramArrayName
-    */
-    void setHistogramArrayName(const QString& value);
+   * @brief Setter property for HistogramArrayName
+   */
+  void setHistogramArrayName(const QString& value);
   /**
    * @brief Getter property for HistogramArrayName
    * @return Value of HistogramArrayName
@@ -559,13 +559,12 @@ private:
   std::weak_ptr<DataArray<float>> m_HistogramListPtr;
   float* m_HistogramList;
 
-  //Histogram Related Parameters
+  // Histogram Related Parameters
   double m_MinRange = {};
   double m_MaxRange = {};
   int32_t m_NumBins = {};
   bool m_UseFullRange = {};
 
-  
   bool m_FindHistogram = {};
   bool m_FindLength = {};
   bool m_FindMin = {};
