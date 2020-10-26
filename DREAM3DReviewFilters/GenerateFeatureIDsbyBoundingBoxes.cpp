@@ -18,6 +18,11 @@
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
+namespace {
+  constexpr int32_t k_AttributeMatrixTypeSelectionError = -5555;
+
+}
+
 /* Create Enumerations to allow the created Attribute Arrays to take part in renaming */
 enum createdPathID : RenameDataPath::DataID_t
 {
@@ -58,6 +63,7 @@ void GenerateFeatureIDsbyBoundingBoxes::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
   DataArrayCreationFilterParameter::RequirementType dacReq;
+  dacReq.amTypes = {AttributeMatrix::Type::Vertex, AttributeMatrix::Type::Cell};
   parameters.push_back(SIMPL_NEW_DA_CREATION_FP("Feature IDs", FeatureIDsArrayPath, FilterParameter::CreatedArray, GenerateFeatureIDsbyBoundingBoxes, dacReq));
   AttributeMatrixCreationFilterParameter::RequirementType amcReq;
   parameters.push_back(SIMPL_NEW_AM_CREATION_FP("Feature Attribute Matrix", FeatureAttributeMatrixArrayPath, FilterParameter::CreatedArray, GenerateFeatureIDsbyBoundingBoxes, amcReq));
@@ -108,7 +114,7 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
   {
     m_DestAttributeMatrixType = AttributeMatrix::Type::Unknown;
     QString ss = QObject::tr("The Attribute Matrix must have a cell, vertex geometry.");
-    setErrorCondition(-5555, ss);
+    setErrorCondition(::k_AttributeMatrixTypeSelectionError, ss);
     return;
   }
 
@@ -117,28 +123,28 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
   if(nullptr != m_BoxFeatureIdsPtr.lock())
   {
     m_BoxFeatureIds = m_BoxFeatureIdsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  } 
 
   cDims[0] = 3;
   m_BoxCenterPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getBoxCenterArrayPath(), cDims);
-  if(nullptr != m_BoxCenterPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_BoxCenterPtr.lock()) 
   {
     m_BoxCenter = m_BoxCenterPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  } 
 
   m_BoxDimsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getBoxDimensionsArrayPath(), cDims);
-  if(nullptr != m_BoxDimsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_BoxDimsPtr.lock()) 
   {
     m_BoxDims = m_BoxDimsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  } 
 
   cDims[0] = 1;
   m_FeatureIdsPtr =
       getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, getFeatureIDsArrayPath(), 0, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_FeatureIdsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_FeatureIdsPtr.lock()) 
   {
     m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  } 
 
   DataArrayPath path_bounding(getBoxFeatureIDsArrayPath().getDataContainerName(), getBoxFeatureIDsArrayPath().getAttributeMatrixName(), "");
   AttributeMatrix::Pointer attrMat_bounding = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, path_bounding, -301);
@@ -156,7 +162,6 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-
 bool IsPointInBounds(float xmax, float xmin, float ymax, float ymin, float zmax, float zmin, float x, float y, float z)
 {
   bool inBounds = false;
@@ -349,10 +354,10 @@ void GenerateFeatureIDsbyBoundingBoxes::execute()
   {
     checkBoundingBoxVertex();
   }
-  else if(m_DestAttributeMatrixType == AttributeMatrix::Type::EdgeFeature)
-  {
-    checkBoundingBoxEdge();
-  }
+  // else if(m_DestAttributeMatrixType == AttributeMatrix::Type::EdgeFeature)
+  // {
+  //   checkBoundingBoxEdge();
+  // }
 }
 
 // -----------------------------------------------------------------------------
