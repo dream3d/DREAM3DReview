@@ -310,7 +310,7 @@ void GenerateMaskFromSimpleShapes::createImageMask()
 
       while(!inBounds && k < totalNumFIDs)
       {
-        inBounds = IsPointInCylinderBounds(m_Centers[3 * k], m_Centers[3 * k + 1], m_Centers[3 * k + 2], m_CylinderRad[k], m_CylinderHeight[k], currentx, currenty, currentz);
+        inBounds = IsPointInBoxBounds(m_Centers[3 * k], m_Centers[3 * k + 1], m_Centers[3 * k + 2], m_BoxDims[0], m_BoxDims[1], m_BoxDims[2], currentx, currenty, currentz);
 
         if(inBounds)
         {

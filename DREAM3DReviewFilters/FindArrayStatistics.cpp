@@ -470,7 +470,6 @@ std::vector<float> findHistogram(C<T, Ts...>& source, float histmin, float histm
 {
 
   std::vector<float> Histogram(numBins, 0);
-  int overflow = 0;
   int32_t bin = 0;
   int32_t numPoints = source.size();
 
@@ -516,10 +515,6 @@ std::vector<float> findHistogram(C<T, Ts...>& source, float histmin, float histm
       else if(s == max)
       {
         Histogram[numBins - 1]++;
-      }
-      else
-      {
-        overflow++;
       }
     }
   }
