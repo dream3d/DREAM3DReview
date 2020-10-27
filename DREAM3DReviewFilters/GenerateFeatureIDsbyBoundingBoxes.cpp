@@ -119,7 +119,7 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
     return;
   }
 
-  std::vector<size_t> cDims(1, 1);
+  std::vector<size_t> cDims = {1};
   m_BoxFeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getBoxFeatureIDsArrayPath(), cDims);
   if(nullptr != m_BoxFeatureIdsPtr.lock())
   {
