@@ -216,7 +216,6 @@ protected:
    */
   void createVertexMask();
 
-
 private:
   std::weak_ptr<DataArray<bool>> m_MaskPtr;
   bool* m_Mask = nullptr;

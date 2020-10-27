@@ -4,8 +4,8 @@
 
 #include "GenerateMaskFromSimpleShapes.h"
 
- #include <array>
- 
+#include <array>
+
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
@@ -426,7 +426,6 @@ void GenerateMaskFromSimpleShapes::createVertexMask()
     }
   }
 }
-
 
 // -----------------------------------------------------------------------------
 //

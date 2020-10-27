@@ -506,7 +506,7 @@ std::vector<float> findHistogram(C<T, Ts...>& source, float histmin, float histm
     for(const auto& s : source)
     {
       size_t bin = static_cast<size_t>((s - min) / increment); // find bin for this input array value
-      if((bin >= 0) && (bin < numBins))    // make certain bin is in range
+      if((bin >= 0) && (bin < numBins))                        // make certain bin is in range
       {
         Histogram[bin]++; // increment histogram element corresponding to this input array value
       }
