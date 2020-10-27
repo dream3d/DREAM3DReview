@@ -478,8 +478,8 @@ std::vector<float> findHistogram(C<T, Ts...>& source, float histmin, float histm
     return empty;
   }
 
-  float min = std::numeric_limits<float>::max();
-  float max = -1.0 * std::numeric_limits<float>::max();
+  float min = 0.0f;
+  float max = 0.0f;
 
   if(histfullrange)
   {
