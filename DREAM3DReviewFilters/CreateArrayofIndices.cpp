@@ -60,10 +60,10 @@ void CreateArrayofIndices::dataCheck()
   clearWarningCode();
 
   std::vector<size_t> cDims = {1};
-  m_IndicesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<size_t>>(this, m_IndexArrayPath, 0, cDims);
-  if(nullptr != m_IndicesPtr.lock())
+  SizeTArrayType::Pointer indices = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<size_t>>(this, m_IndexArrayPath, 0, cDims);
+  if(indices == nullptr)
   {
-    m_Indices = m_IndicesPtr.lock()->getPointer(0);
+    return;
   }
 }
 
