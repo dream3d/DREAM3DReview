@@ -938,7 +938,7 @@ void FindArrayStatistics::execute()
 
   std::vector<IDataArray::Pointer> arrays(8, nullptr);
 
-  for(size_t i = 0; i < 7; i++)
+  for(size_t i = 0; i < arrays.size(); i++)
   {
     if(m_FindLength)
     {
