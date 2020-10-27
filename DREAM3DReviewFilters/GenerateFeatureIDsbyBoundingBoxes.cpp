@@ -164,14 +164,7 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
 // -----------------------------------------------------------------------------
 bool IsPointInBounds(float xmax, float xmin, float ymax, float ymin, float zmax, float zmin, float x, float y, float z)
 {
-  bool inBounds = false;
-
-  if((x < xmax) && (x > xmin) && (y < ymax) && (y > ymin) && (z < zmax) && (z > zmin))
-  {
-    inBounds = true;
-  }
-
-  return inBounds;
+  return (x < xmax) && (x > xmin) && (y < ymax) && (y > ymin) && (z < zmax) && (z > zmin);
 }
 
 // -----------------------------------------------------------------------------
