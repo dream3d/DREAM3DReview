@@ -111,7 +111,7 @@ void GenerateMaskFromSimpleShapes::dataCheck()
     return;
   }
 
-  std::vector<size_t> cDims(1, 1);
+  std::vector<size_t> cDims = {1};
   m_MaskPtr =
       getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<bool>>(this, getMaskArrayPath(), false, cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_MaskPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
