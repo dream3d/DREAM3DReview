@@ -182,17 +182,10 @@ bool IsPointInBoxBounds(float xcenter, float ycenter, float zcenter, float xwidt
 // -----------------------------------------------------------------------------
 bool IsPointInCylinderBounds(float xcenter, float ycenter, float zcenter, float radius, float zdepth, float x, float y, float z)
 {
-  bool inBounds = false;
-
   float zmin = zcenter - zdepth / 2.0;
   float zmax = zcenter + zdepth / 2.0;
 
-  if((sqrt((xcenter - x) * (xcenter - x) + (ycenter - y) * (ycenter - y)) < radius) && (z < zmax) && (z > zmin))
-  {
-    inBounds = true;
-  }
-
-  return inBounds;
+  return (std::sqrt((xcenter - x) * (xcenter - x) + (ycenter - y) * (ycenter - y)) < radius) && (z < zmax) && (z > zmin);
 }
 // -----------------------------------------------------------------------------
 //
