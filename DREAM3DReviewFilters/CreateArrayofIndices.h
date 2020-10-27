@@ -131,9 +131,6 @@ protected:
 private:
   DataArrayPath m_IndexArrayPath;
 
-  std::weak_ptr<DataArray<size_t>> m_IndicesPtr;
-  size_t* m_Indices = nullptr;
-
 public:
   CreateArrayofIndices(const CreateArrayofIndices&) = delete;            // Copy Constructor Not Implemented
   CreateArrayofIndices& operator=(const CreateArrayofIndices&) = delete; // Copy Assignment Not Implemented
