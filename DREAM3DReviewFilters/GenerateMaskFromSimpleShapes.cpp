@@ -209,7 +209,7 @@ void GenerateMaskFromSimpleShapes::createImageMask()
   FloatVec3Type uorigin = image->getOrigin();
   FloatVec3Type uspacing = image->getSpacing();
 
-  int64_t dims[3] = {
+  std::array<int64_t, 3> dims = {
       static_cast<int64_t>(udims[0]),
       static_cast<int64_t>(udims[1]),
       static_cast<int64_t>(udims[2]),
