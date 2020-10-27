@@ -4,6 +4,8 @@
 
 #include "GenerateMaskFromSimpleShapes.h"
 
+ #include <array>
+ 
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
