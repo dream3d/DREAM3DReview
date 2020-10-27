@@ -276,7 +276,7 @@ void FindArrayStatistics::dataCheck()
 
   if(m_FindHistogram)
   {
-    std::vector<size_t> cDims_List(1, m_NumBins);
+    std::vector<size_t> cDims_List = {static_cast<size_t>(m_NumBins)};
     DataArrayPath path(getDestinationAttributeMatrix().getDataContainerName(), getDestinationAttributeMatrix().getAttributeMatrixName(), getHistogramArrayName());
     m_HistogramListPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims_List, "", DataArrayID33);
     if(getErrorCode() < 0)
