@@ -216,10 +216,6 @@ protected:
    */
   void createVertexMask();
 
-  /**
-   * @brief Initializes all the private instance variables.
-   */
-  void createEdgeMask();
 
 private:
   std::weak_ptr<DataArray<bool>> m_MaskPtr;

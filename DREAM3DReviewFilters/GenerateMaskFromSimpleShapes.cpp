@@ -445,12 +445,7 @@ void GenerateMaskFromSimpleShapes::createVertexMask()
     }
   }
 }
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void GenerateMaskFromSimpleShapes::createEdgeMask()
-{
-}
+
 
 // -----------------------------------------------------------------------------
 //
@@ -487,10 +482,6 @@ void GenerateMaskFromSimpleShapes::execute()
   else if(attrMatType == AttributeMatrix::Type::Vertex)
   {
     createVertexMask();
-  }
-  else if(attrMatType == AttributeMatrix::Type::Edge)
-  {
-    createEdgeMask();
   }
 }
 
