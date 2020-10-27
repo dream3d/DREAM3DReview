@@ -518,9 +518,6 @@ std::vector<float> findHistogram(C<T, Ts...>& source, float histmin, float histm
   }
 
   return Histogram;
-
-  // float sum = std::accumulate(std::begin(source), std::end(source), 0.0f);
-  // return sum;
 }
 
 // -----------------------------------------------------------------------------
