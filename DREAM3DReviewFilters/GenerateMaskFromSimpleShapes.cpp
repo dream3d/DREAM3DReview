@@ -192,14 +192,7 @@ bool IsPointInCylinderBounds(float xcenter, float ycenter, float zcenter, float 
 // -----------------------------------------------------------------------------
 bool IsPointInEllipsoidBounds(float xcenter, float ycenter, float zcenter, float a, float b, float c, float x, float y, float z)
 {
-  bool inBounds = false;
-
-  if(((xcenter - x) * (xcenter - x) / (a * a) + (ycenter - y) * (ycenter - y) / (b * b) + (zcenter - z) * (zcenter - z) / (c * c)) < 1)
-  {
-    inBounds = true;
-  }
-
-  return inBounds;
+  return ((xcenter - x) * (xcenter - x) / (a * a) + (ycenter - y) * (ycenter - y) / (b * b) + (zcenter - z) * (zcenter - z) / (c * c)) < 1;
 }
 // -----------------------------------------------------------------------------
 //
