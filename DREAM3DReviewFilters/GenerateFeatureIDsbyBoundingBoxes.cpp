@@ -206,48 +206,28 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxImage()
       static_cast<float>(uspacing[2]),
   };
 
-  bool inBounds = false;
-  float xmin = 0;
-  float xmax = 0;
-  float ymin = 0;
-  float ymax = 0;
-  float zmin = 0;
-  float zmax = 0;
-
-  float currentx = 0;
-  float currenty = 0;
-  float currentz = 0;
-
-  int64_t xindex = 0;
-  int64_t yindex = 0;
-  int64_t zindex = 0;
-  int64_t tempMod = 0;
-
-  size_t k = 0;
-
   for(size_t i = 0; i < totalNumElementsDest; i++)
   {
+    int64_t zindex = i / (dims[0] * dims[1]);
+    int64_t tempMod = i % (dims[0] * dims[1]);
+    int64_t yindex = tempMod / (dims[0]);
+    int64_t xindex = tempMod % (dims[0]);
 
-    zindex = i / (dims[0] * dims[1]);
-    tempMod = i % (dims[0] * dims[1]);
-    yindex = tempMod / (dims[0]);
-    xindex = tempMod % (dims[0]);
+    float currentx = origin[0] + spacing[0] * xindex;
+    float currenty = origin[1] + spacing[1] * yindex;
+    float currentz = origin[2] + spacing[2] * zindex;
 
-    currentx = origin[0] + spacing[0] * xindex;
-    currenty = origin[1] + spacing[1] * yindex;
-    currentz = origin[2] + spacing[2] * zindex;
-
-    inBounds = false;
-    k = 0;
+    bool inBounds = false;
+    size_t k = 0;
 
     while(!inBounds && k < totalNumFIDs)
     {
-      xmin = m_BoxCenter[3 * k] - m_BoxDims[3 * k] / 2.0;
-      xmax = m_BoxCenter[3 * k] + m_BoxDims[3 * k] / 2.0;
-      ymin = m_BoxCenter[3 * k + 1] - m_BoxDims[3 * k + 1] / 2.0;
-      ymax = m_BoxCenter[3 * k + 1] + m_BoxDims[3 * k + 1] / 2.0;
-      zmin = m_BoxCenter[3 * k + 2] - m_BoxDims[3 * k + 2] / 2.0;
-      zmax = m_BoxCenter[3 * k + 2] + m_BoxDims[3 * k + 2] / 2.0;
+      float xmin = m_BoxCenter[3 * k] - m_BoxDims[3 * k] / 2.0;
+      float xmax = m_BoxCenter[3 * k] + m_BoxDims[3 * k] / 2.0;
+      float ymin = m_BoxCenter[3 * k + 1] - m_BoxDims[3 * k + 1] / 2.0;
+      float ymax = m_BoxCenter[3 * k + 1] + m_BoxDims[3 * k + 1] / 2.0;
+      float zmin = m_BoxCenter[3 * k + 2] - m_BoxDims[3 * k + 2] / 2.0;
+      float zmax = m_BoxCenter[3 * k + 2] + m_BoxDims[3 * k + 2] / 2.0;
 
       inBounds = IsPointInBounds(xmax, xmin, ymax, ymin, zmax, zmin, currentx, currenty, currentz);
 
