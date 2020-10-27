@@ -155,8 +155,7 @@ void GenerateFeatureIDsbyBoundingBoxes::dataCheck()
     return;
   }
 
-  int32_t numFeatureIDs = attrMat_bounding->getNumberOfTuples();
-  std::vector<size_t> tDims(1, numFeatureIDs + 1);
+  std::vector<size_t> tDims = {attrMat_bounding->getNumberOfTuples() + 1};
   m->createNonPrereqAttributeMatrix(this, getFeatureAttributeMatrixArrayPath(), tDims, m_DestAttributeMatrixType, AttributeMatrixID20);
 }
 
