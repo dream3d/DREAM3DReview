@@ -240,7 +240,7 @@ void GenerateMaskFromSimpleShapes::createImageMask()
       static_cast<float>(uorigin[2]),
   };
 
-  float spacing[3] = {
+  std::array<float, 3> spacing = {
       static_cast<float>(uspacing[0]),
       static_cast<float>(uspacing[1]),
       static_cast<float>(uspacing[2]),
