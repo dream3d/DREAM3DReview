@@ -69,7 +69,7 @@ public:
     DREAM3D_REQUIRE_EQUAL(err, 0)
 
     SizeTArrayType& indices = *(dca->getAttributeMatrix(indexArrayPath)->getAttributeArrayAs<SizeTArrayType>("Indices"));
-    for(size_t i = 0; i < 100; i++)
+    for(size_t i = 0; i < indices.size(); i++)
     {
       DREAM3D_REQUIRE_EQUAL(i, indices[i]);
     }
