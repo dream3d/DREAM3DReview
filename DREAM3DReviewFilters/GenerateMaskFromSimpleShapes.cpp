@@ -168,8 +168,6 @@ void GenerateMaskFromSimpleShapes::dataCheck()
 // -----------------------------------------------------------------------------
 bool IsPointInBoxBounds(float xcenter, float ycenter, float zcenter, float xwidth, float yheight, float zdepth, float x, float y, float z)
 {
-  bool inBounds = false;
-
   float xmin = xcenter - xwidth / 2.0;
   float xmax = xcenter + xwidth / 2.0;
   float ymin = ycenter - yheight / 2.0;
@@ -177,12 +175,7 @@ bool IsPointInBoxBounds(float xcenter, float ycenter, float zcenter, float xwidt
   float zmin = zcenter - zdepth / 2.0;
   float zmax = zcenter + zdepth / 2.0;
 
-  if((x < xmax) && (x > xmin) && (y < ymax) && (y > ymin) && (z < zmax) && (z > zmin))
-  {
-    inBounds = true;
-  }
-
-  return inBounds;
+  return (x < xmax) && (x > xmin) && (y < ymax) && (y > ymin) && (z < zmax) && (z > zmin);
 }
 // -----------------------------------------------------------------------------
 //
