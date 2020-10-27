@@ -259,36 +259,23 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxVertex()
   DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getFeatureIDsArrayPath().getDataContainerName());
   VertexGeom::Pointer vertex = dc->getGeometryAs<VertexGeom>();
 
-  bool inBounds = false;
-  float xmin = 0;
-  float xmax = 0;
-  float ymin = 0;
-  float ymax = 0;
-  float zmin = 0;
-  float zmax = 0;
-
-  float currentx = 0;
-  float currenty = 0;
-  float currentz = 0;
-
   float* vertices = vertex->getVertexPointer(0);
-  size_t k = 0;
   for(size_t i = 0; i < totalNumElementsDest; i++)
   {
-    inBounds = false;
-    k = 0;
-    currentx = vertices[3 * i];
-    currenty = vertices[3 * i + 1];
-    currentz = vertices[3 * i + 2];
+    bool inBounds = false;
+    size_t k = 0;
+    float currentx = vertices[3 * i];
+    float currenty = vertices[3 * i + 1];
+    float currentz = vertices[3 * i + 2];
 
     while(!inBounds && k < totalNumFIDs)
     {
-      xmin = m_BoxCenter[3 * k] - m_BoxDims[3 * k] / 2.0;
-      xmax = m_BoxCenter[3 * k] + m_BoxDims[3 * k] / 2.0;
-      ymin = m_BoxCenter[3 * k + 1] - m_BoxDims[3 * k + 1] / 2.0;
-      ymax = m_BoxCenter[3 * k + 1] + m_BoxDims[3 * k + 1] / 2.0;
-      zmin = m_BoxCenter[3 * k + 2] - m_BoxDims[3 * k + 2] / 2.0;
-      zmax = m_BoxCenter[3 * k + 2] + m_BoxDims[3 * k + 2] / 2.0;
+      float xmin = m_BoxCenter[3 * k] - m_BoxDims[3 * k] / 2.0;
+      float xmax = m_BoxCenter[3 * k] + m_BoxDims[3 * k] / 2.0;
+      float ymin = m_BoxCenter[3 * k + 1] - m_BoxDims[3 * k + 1] / 2.0;
+      float ymax = m_BoxCenter[3 * k + 1] + m_BoxDims[3 * k + 1] / 2.0;
+      float zmin = m_BoxCenter[3 * k + 2] - m_BoxDims[3 * k + 2] / 2.0;
+      float zmax = m_BoxCenter[3 * k + 2] + m_BoxDims[3 * k + 2] / 2.0;
 
       inBounds = IsPointInBounds(xmax, xmin, ymax, ymin, zmax, zmin, currentx, currenty, currentz);
 
