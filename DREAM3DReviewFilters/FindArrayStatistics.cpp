@@ -936,8 +936,7 @@ void FindArrayStatistics::execute()
     }
   }
 
-  std::vector<IDataArray::Pointer> arrays(8);
-  std::fill(std::begin(arrays), std::end(arrays), nullptr);
+  std::vector<IDataArray::Pointer> arrays(8, nullptr);
 
   for(size_t i = 0; i < 7; i++)
   {
