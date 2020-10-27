@@ -41,7 +41,7 @@ public:
   using ConstWeakPointer = std::weak_ptr<const Self>;
   static Pointer NullPointer();
 
-  static std::shared_ptr<GenerateMaskFromSimpleShapes> New();
+  static Pointer New();
 
   /**
    * @brief Returns the name of the class for GenerateMaskFromSimpleShapes
