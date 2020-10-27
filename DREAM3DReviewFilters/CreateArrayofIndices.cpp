@@ -59,7 +59,7 @@ void CreateArrayofIndices::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
-  std::vector<size_t> cDims(1, 1);
+  std::vector<size_t> cDims = {1};
   m_IndicesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<size_t>>(this, m_IndexArrayPath, 0, cDims);
   if(nullptr != m_IndicesPtr.lock())
   {
