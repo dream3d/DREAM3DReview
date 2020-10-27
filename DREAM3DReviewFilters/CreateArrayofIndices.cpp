@@ -84,8 +84,14 @@ void CreateArrayofIndices::execute()
     return;
   }
 
-  SizeTArrayType& array = *(m_IndicesPtr.lock());
-  std::iota(array.begin(), array.end(), 0);
+  SizeTArrayType::Pointer indices = getDataContainerArray()->getPrereqArrayFromPath<SizeTArrayType>(this, m_IndexArrayPath, {1});
+  if(indices == nullptr)
+  {
+    setErrorCondition(-99999, "Failed to obtain Indices DataArray");
+    return;
+  }
+
+  std::iota(indices->begin(), indices->end(), static_cast<size_t>(0));
 }
 
 // -----------------------------------------------------------------------------
