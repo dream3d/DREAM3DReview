@@ -186,7 +186,7 @@ void GenerateFeatureIDsbyBoundingBoxes::checkBoundingBoxImage()
       static_cast<int64_t>(udims[2]),
   };
 
-  float origin[3] = {
+  std::array<float, 3> origin = {
       static_cast<float>(uorigin[0]),
       static_cast<float>(uorigin[1]),
       static_cast<float>(uorigin[2]),
