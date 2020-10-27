@@ -470,7 +470,6 @@ std::vector<float> findHistogram(C<T, Ts...>& source, float histmin, float histm
 {
 
   std::vector<float> Histogram(numBins, 0);
-  int32_t bin = 0;
 
   if(source.empty())
   {
