@@ -328,7 +328,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
                 setErrorCondition(-11002, ss);
                 return;
               }
-              EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(this, createCompatibleNeighborList, tmpDataArray, this, tempPath, cDims, m_DynamicArraysToInterpolate)
+              EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(DataArray, this, createCompatibleNeighborList, tmpDataArray, this, tempPath, cDims, m_DynamicArraysToInterpolate)
             }
           }
 
@@ -347,7 +347,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
                 setErrorCondition(-11002, ss);
                 return;
               }
-              EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(this, createCompatibleNeighborList, tmpDataArray, this, tempPath, cDims, m_DynamicArraysToCopy)
+              EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(DataArray, this, createCompatibleNeighborList, tmpDataArray, this, tempPath, cDims, m_DynamicArraysToCopy)
             }
           }
         }
@@ -617,8 +617,8 @@ void InterpolatePointCloudToRegularGrid::execute()
     {
       for(std::vector<IDataArray::WeakPointer>::size_type j = 0; j < m_SourceArraysToInterpolate.size(); j++)
       {
-        EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(this, mapPointCloudDataByKernel, m_SourceArraysToInterpolate[j].lock(), m_SourceArraysToInterpolate[j].lock(), m_DynamicArraysToInterpolate[j].lock(),
-                                          m_Kernel, kernelNumVoxels, dims.data(), x, y, z, i)
+        EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(DataArray, this, mapPointCloudDataByKernel, m_SourceArraysToInterpolate[j].lock(), m_SourceArraysToInterpolate[j].lock(),
+                                          m_DynamicArraysToInterpolate[j].lock(), m_Kernel, kernelNumVoxels, dims.data(), x, y, z, i)
       }
     }
 
@@ -626,7 +626,7 @@ void InterpolatePointCloudToRegularGrid::execute()
     {
       for(std::vector<IDataArray::WeakPointer>::size_type j = 0; j < m_SourceArraysToCopy.size(); j++)
       {
-        EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(this, mapPointCloudDataByKernel, m_SourceArraysToCopy[j].lock(), m_SourceArraysToCopy[j].lock(), m_DynamicArraysToCopy[j].lock(), uniformKernel,
+        EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(DataArray, this, mapPointCloudDataByKernel, m_SourceArraysToCopy[j].lock(), m_SourceArraysToCopy[j].lock(), m_DynamicArraysToCopy[j].lock(), uniformKernel,
                                           kernelNumVoxels, dims.data(), x, y, z, i)
       }
     }

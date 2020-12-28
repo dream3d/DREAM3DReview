@@ -62,49 +62,17 @@
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
+#define STATISTICS_FILTER_CLASS_NAME FindArrayStatistics
+#include "util/StatisticsHelpers.hpp"
+
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/partitioner.h>
 #endif
 
-/* Create Enumerations to allow the created Attribute Arrays to take part in renaming */
-enum createdPathID : RenameDataPath::DataID_t
-{
-  DataArrayID30 = 30,
-  DataArrayID31 = 31,
-  DataArrayID32 = 32,
-  DataArrayID33 = 33,
-};
-
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-FindArrayStatistics::FindArrayStatistics()
-: m_FindLength(false)
-, m_FindMin(false)
-, m_FindMax(false)
-, m_FindMean(false)
-, m_FindMedian(false)
-, m_FindStdDeviation(false)
-, m_FindSummation(false)
-, m_UseMask(false)
-, m_StandardizeData(false)
-, m_ComputeByIndex(false)
-, m_DestinationAttributeMatrix("", "", "")
-, m_MaskArrayPath("", "", "Mask")
-, m_LengthArrayName("Length")
-, m_MinimumArrayName("Minimum")
-, m_MaximumArrayName("Maximum")
-, m_MeanArrayName("Mean")
-, m_MedianArrayName("Median")
-, m_StdDeviationArrayName("StandardDeviation")
-, m_SummationArrayName("Summation")
-, m_StandardizedArrayName("Standardized")
-, m_SelectedArrayPath("", "", "")
-, m_FeatureIdsArrayPath("", "", "")
-{
-}
+FindArrayStatistics::FindArrayStatistics() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -151,7 +119,6 @@ void FindArrayStatistics::setupFilterParameters()
   linkedProps.clear();
   linkedProps << "SummationArrayName";
   parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Find Summation", FindSummation, FilterParameter::Parameter, FindArrayStatistics, linkedProps));
-  AttributeMatrixSelectionFilterParameter::RequirementType amReq = AttributeMatrixSelectionFilterParameter::CreateRequirement(AttributeMatrix::Type::Any, IGeometry::Type::Any);
   linkedProps.clear();
 
   parameters.push_back(SeparatorFilterParameter::New("Algorithm Options", FilterParameter::Parameter));
@@ -166,10 +133,13 @@ void FindArrayStatistics::setupFilterParameters()
 
   DataArraySelectionFilterParameter::RequirementType dasReq = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::Any, IGeometry::Type::Any);
   parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Attribute Array to Compute Statistics", SelectedArrayPath, FilterParameter::RequiredArray, FindArrayStatistics, dasReq));
+
   dasReq = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Any, IGeometry::Type::Any);
   parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", FeatureIdsArrayPath, FilterParameter::RequiredArray, FindArrayStatistics, dasReq));
   DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Bool, 1, AttributeMatrix::Type::Any, IGeometry::Type::Any);
   parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Mask", MaskArrayPath, FilterParameter::RequiredArray, FindArrayStatistics, req));
+
+  AttributeMatrixSelectionFilterParameter::RequirementType amReq = AttributeMatrixSelectionFilterParameter::CreateRequirement(AttributeMatrix::Type::Any, IGeometry::Type::Any);
   parameters.push_back(SIMPL_NEW_AM_SELECTION_FP("Destination Attribute Matrix", DestinationAttributeMatrix, FilterParameter::RequiredArray, FindArrayStatistics, amReq));
 
   parameters.push_back(SIMPL_NEW_DA_WITH_LINKED_AM_FP("Histogram", HistogramArrayName, DestinationAttributeMatrix, DestinationAttributeMatrix, FilterParameter::CreatedArray, FindArrayStatistics));
@@ -217,7 +187,7 @@ void FindArrayStatistics::dataCheck()
     return;
   }
 
-  dataArrayPaths.push_back(getSelectedArrayPath());
+  // dataArrayPaths.push_back(getSelectedArrayPath());
 
   if(m_InputArrayPtr.lock()->getNumberOfComponents() != 1)
   {
@@ -257,7 +227,7 @@ void FindArrayStatistics::dataCheck()
     }
   }
 
-  std::vector<size_t> cDims(1, 1);
+  std::vector<size_t> cDims = {1};
 
   if(getComputeByIndex())
   {
@@ -272,26 +242,16 @@ void FindArrayStatistics::dataCheck()
     }
   }
 
-  EXECUTE_FUNCTION_TEMPLATE(this, createCompatibleArrays, m_InputArrayPtr.lock())
+  EXECUTE_FUNCTION_TEMPLATE(this, createCompatibleArrays, m_InputArrayPtr.lock(), dataArrayPaths)
 
   if(m_FindHistogram)
   {
     std::vector<size_t> cDims_List = {static_cast<size_t>(m_NumBins)};
     DataArrayPath path(getDestinationAttributeMatrix().getDataContainerName(), getDestinationAttributeMatrix().getAttributeMatrixName(), getHistogramArrayName());
-    m_HistogramListPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims_List, "", DataArrayID33);
+    m_HistogramListPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims_List, "", DataArrayID37);
     if(getErrorCode() < 0)
     {
       return;
-    }
-  }
-
-  if(m_FindLength)
-  {
-    DataArrayPath path(getDestinationAttributeMatrix().getDataContainerName(), getDestinationAttributeMatrix().getAttributeMatrixName(), getLengthArrayName());
-    m_LengthPtr = getDataContainerArray()->createNonPrereqArrayFromPath<MeshIndexArrayType>(this, path, 0, cDims, "", DataArrayID31);
-    if(m_LengthPtr.lock())
-    {
-      m_Length = m_LengthPtr.lock()->getPointer(0);
     }
   }
 
@@ -316,7 +276,7 @@ void FindArrayStatistics::dataCheck()
       setErrorCondition(-11003, ss);
     }
     DataArrayPath path(getSelectedArrayPath().getDataContainerName(), getSelectedArrayPath().getAttributeMatrixName(), getStandardizedArrayName());
-    m_StandardizedPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims, "", DataArrayID32);
+    m_StandardizedPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims, "", DataArrayID39);
     if(m_StandardizedPtr.lock())
     {
       m_Standardized = m_StandardizedPtr.lock()->getPointer(0);
@@ -328,138 +288,6 @@ void FindArrayStatistics::dataCheck()
   }
 
   getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename T, typename... Ts>
-int64_t findLength(C<T, Ts...>& source)
-{
-  return static_cast<int64_t>(source.size());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename T, typename... Ts>
-T findMin(C<T, Ts...>& source)
-{
-  if(source.empty())
-  {
-    return T(0);
-  }
-  return (*std::min_element(std::begin(source), std::end(source)));
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename T, typename... Ts>
-T findMax(C<T, Ts...>& source)
-{
-  if(source.empty())
-  {
-    return T(0);
-  }
-  return (*std::max_element(std::begin(source), std::end(source)));
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename T, typename... Ts>
-float findMean(C<T, Ts...>& source)
-{
-  if(source.empty())
-  {
-    return 0.0f;
-  }
-  float sum = std::accumulate(std::begin(source), std::end(source), 0.0f);
-  return static_cast<float>(sum / source.size());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename... Ts>
-bool findMean(C<bool, Ts...>& source)
-{
-  if(source.empty())
-  {
-    return false;
-  }
-  size_t count = std::count(std::begin(source), std::end(source), true);
-  return true ? count >= (source.size() - count) : false;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename T, typename... Ts>
-float findMedian(C<T, Ts...>& source)
-{
-  // Need a copy, not a reference, since we will be messing with the vector order
-  std::vector<T> tmpList{std::begin(source), std::end(source)};
-  if(tmpList.empty())
-  {
-    return 0.0f;
-  }
-  auto halfElements = tmpList.size() / 2;
-  std::nth_element(std::begin(tmpList), tmpList.begin() + halfElements, std::end(tmpList));
-  T medVal = tmpList[halfElements];
-  if(tmpList.size() % 2 == 1)
-  {
-    return static_cast<float>(medVal);
-  }
-
-  return static_cast<float>((0.5f * (medVal + tmpList[halfElements - 1])));
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename T, typename... Ts>
-float findStdDeviation(C<T, Ts...>& source)
-{
-  if(source.empty())
-  {
-    return 0.0f;
-  }
-  std::vector<double> difference(source.size());
-  float sum = std::accumulate(std::begin(source), std::end(source), 0.0f);
-  float mean = static_cast<double>(sum / source.size());
-  std::transform(std::begin(source), std::end(source), std::begin(difference), [mean](float a) { return a - mean; });
-  float squaredSum = std::inner_product(std::begin(difference), std::end(difference), std::begin(difference), 0.0f);
-  return std::sqrt(squaredSum / source.size());
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename... Ts>
-bool findStdDeviation(C<bool, Ts...>& source)
-{
-  if(source.empty())
-  {
-    return false;
-  }
-  size_t count = std::count(std::begin(source), std::end(source), true);
-  return true ? count >= (source.size() - count) : false;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-template <template <typename, typename...> class C, typename T, typename... Ts>
-double findSummation(C<T, Ts...>& source)
-{
-  if(source.empty())
-  {
-    return 0.0f;
-  }
-  float sum = std::accumulate(std::begin(source), std::end(source), 0.0f);
-  return sum;
 }
 
 // -----------------------------------------------------------------------------
@@ -608,11 +436,11 @@ void standardizeData<bool>(IDataArray::Pointer dataPtr, FloatArrayType::Pointer 
 //
 // -----------------------------------------------------------------------------
 template <typename T>
-class FindStatisticsByIndexImpl
+class FindArrayStatisticsByIndexImpl
 {
 public:
-  FindStatisticsByIndexImpl(std::unordered_map<int32_t, std::list<T>>& featureDataMap, bool length, bool min, bool max, bool mean, bool median, bool stdDeviation, bool summation,
-                            std::vector<IDataArray::Pointer>& arrays, bool hist, float histmin, float histmax, bool histfullrange, int32_t numBins)
+  FindArrayStatisticsByIndexImpl(std::unordered_map<int32_t, std::list<T>>& featureDataMap, bool length, bool min, bool max, bool mean, bool median, bool stdDeviation, bool summation,
+                                 std::vector<IDataArray::Pointer>& arrays, bool hist, float histmin, float histmax, bool histfullrange, int32_t numBins)
   : m_FeatureDataMap(featureDataMap)
   , m_Length(length)
   , m_Min(min)
@@ -630,7 +458,7 @@ public:
   {
   }
 
-  virtual ~FindStatisticsByIndexImpl() = default;
+  virtual ~FindArrayStatisticsByIndexImpl() = default;
 
   void compute(size_t start, size_t end) const
   {
@@ -843,13 +671,13 @@ void findStatistics(IDataArray::Pointer source, Int32ArrayType::Pointer featureI
     if(doParallel)
     {
       tbb::parallel_for(tbb::blocked_range<size_t>(0, numFeatures),
-                        FindStatisticsByIndexImpl<T>(featureValueMap, length, min, max, mean, median, stdDeviation, summation, arrays, hist, histmin, histmax, histfullrange, numBins),
+                        FindArrayStatisticsByIndexImpl<T>(featureValueMap, length, min, max, mean, median, stdDeviation, summation, arrays, hist, histmin, histmax, histfullrange, numBins),
                         tbb::auto_partitioner());
     }
     else
 #endif
     {
-      FindStatisticsByIndexImpl<T> serial(featureValueMap, length, min, max, mean, median, stdDeviation, summation, arrays, hist, histmin, histmax, histfullrange, numBins);
+      FindArrayStatisticsByIndexImpl<T> serial(featureValueMap, length, min, max, mean, median, stdDeviation, summation, arrays, hist, histmin, histmax, histfullrange, numBins);
       serial.compute(0, numFeatures);
     }
   }

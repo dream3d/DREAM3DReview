@@ -1,45 +1,22 @@
 /* ============================================================================
- * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ * Software developed by US federal government employees (including military personnel)
+ * as part of their official duties is not subject to copyright protection and is
+ * considered "public domain" (see 17 USC Section 105). Public domain software can be used
+ * by anyone for any purpose, and cannot be released under a copyright license
+ * (including typical open source software licenses).
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * This source code file was originally written by United States DoD employees. The
+ * original source code files are released into the Public Domain.
  *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
- * contributors may be used to endorse or promote products derived from this software
- * without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * The code contained herein was partially funded by the followig contracts:
- *    United States Air Force Prime Contract FA8650-07-D-5800
- *    United States Air Force Prime Contract FA8650-10-D-5210
- *    United States Prime Contract Navy N00173-07-C-2068
- *
+ * Subsequent changes to the codes by others may elect to add a copyright and license
+ * for those changes.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
 #pragma once
 
 #include <memory>
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/DataArrays/NeighborList.hpp"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
@@ -48,20 +25,19 @@
 class IDataArray;
 using IDataArrayWkPtrType = std::weak_ptr<IDataArray>;
 
-
 /**
- * @brief The FindArrayStatistics class. See [Filter documentation](@ref findarraystatistics) for details.
+ * @brief The FindNeighborListStatistics class. See [Filter documentation](@ref FindNeighborListStatistics) for details.
  */
-class DREAM3DReview_EXPORT FindArrayStatistics : public AbstractFilter
+class DREAM3DReview_EXPORT FindNeighborListStatistics : public AbstractFilter
 {
   Q_OBJECT
 
   // Start Python bindings declarations
-  PYB11_BEGIN_BINDINGS(FindArrayStatistics SUPERCLASS AbstractFilter)
+  PYB11_BEGIN_BINDINGS(FindNeighborListStatistics SUPERCLASS AbstractFilter)
   PYB11_FILTER()
-  PYB11_SHARED_POINTERS(FindArrayStatistics)
-  PYB11_FILTER_NEW_MACRO(FindArrayStatistics)
-  PYB11_PROPERTY(bool FindHistogram READ getFindHistogram WRITE setFindHistogram)
+  PYB11_SHARED_POINTERS(FindNeighborListStatistics)
+  PYB11_FILTER_NEW_MACRO(FindNeighborListStatistics)
+
   PYB11_PROPERTY(bool FindLength READ getFindLength WRITE setFindLength)
   PYB11_PROPERTY(bool FindMin READ getFindMin WRITE setFindMin)
   PYB11_PROPERTY(bool FindMax READ getFindMax WRITE setFindMax)
@@ -69,11 +45,9 @@ class DREAM3DReview_EXPORT FindArrayStatistics : public AbstractFilter
   PYB11_PROPERTY(bool FindMedian READ getFindMedian WRITE setFindMedian)
   PYB11_PROPERTY(bool FindStdDeviation READ getFindStdDeviation WRITE setFindStdDeviation)
   PYB11_PROPERTY(bool FindSummation READ getFindSummation WRITE setFindSummation)
-  PYB11_PROPERTY(bool UseMask READ getUseMask WRITE setUseMask)
-  PYB11_PROPERTY(bool StandardizeData READ getStandardizeData WRITE setStandardizeData)
-  PYB11_PROPERTY(bool ComputeByIndex READ getComputeByIndex WRITE setComputeByIndex)
+
   PYB11_PROPERTY(DataArrayPath DestinationAttributeMatrix READ getDestinationAttributeMatrix WRITE setDestinationAttributeMatrix)
-  PYB11_PROPERTY(DataArrayPath MaskArrayPath READ getMaskArrayPath WRITE setMaskArrayPath)
+
   PYB11_PROPERTY(QString LengthArrayName READ getLengthArrayName WRITE setLengthArrayName)
   PYB11_PROPERTY(QString MinimumArrayName READ getMinimumArrayName WRITE setMinimumArrayName)
   PYB11_PROPERTY(QString MaximumArrayName READ getMaximumArrayName WRITE setMaximumArrayName)
@@ -81,91 +55,32 @@ class DREAM3DReview_EXPORT FindArrayStatistics : public AbstractFilter
   PYB11_PROPERTY(QString MedianArrayName READ getMedianArrayName WRITE setMedianArrayName)
   PYB11_PROPERTY(QString StdDeviationArrayName READ getStdDeviationArrayName WRITE setStdDeviationArrayName)
   PYB11_PROPERTY(QString SummationArrayName READ getSummationArrayName WRITE setSummationArrayName)
-  PYB11_PROPERTY(QString StandardizedArrayName READ getStandardizedArrayName WRITE setStandardizedArrayName)
+
   PYB11_PROPERTY(DataArrayPath SelectedArrayPath READ getSelectedArrayPath WRITE setSelectedArrayPath)
-  PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
-  PYB11_PROPERTY(QString HistogramArrayName READ getHistogramArrayName WRITE setHistogramArrayName)
-  PYB11_PROPERTY(bool UseFullRange READ getUseFullRange WRITE setUseFullRange)
-  PYB11_PROPERTY(int32_t NumBins READ getNumBins WRITE setNumBins)
-  PYB11_PROPERTY(float MinRange READ getMinRange WRITE setMinRange)
-  PYB11_PROPERTY(float MaxRange READ getMaxRange WRITE setMaxRange)
+
   PYB11_END_BINDINGS()
   // End Python bindings declarations
 
 public:
-  using Self = FindArrayStatistics;
+  using Self = FindNeighborListStatistics;
   using Pointer = std::shared_ptr<Self>;
   using ConstPointer = std::shared_ptr<const Self>;
   using WeakPointer = std::weak_ptr<Self>;
   using ConstWeakPointer = std::weak_ptr<const Self>;
   static Pointer NullPointer();
 
-  static std::shared_ptr<FindArrayStatistics> New();
+  static std::shared_ptr<FindNeighborListStatistics> New();
 
   /**
-   * @brief Returns the name of the class for FindArrayStatistics
+   * @brief Returns the name of the class for FindNeighborListStatistics
    */
   QString getNameOfClass() const override;
   /**
-   * @brief Returns the name of the class for FindArrayStatistics
+   * @brief Returns the name of the class for FindNeighborListStatistics
    */
   static QString ClassName();
 
-  ~FindArrayStatistics() override;
-
-  /**
-   * @brief Setter property for MinRange
-   */
-  void setUseFullRange(bool value);
-  /**
-   * @brief Getter property for MinRange
-   * @return Value of MinRange
-   */
-  bool getUseFullRange() const;
-  Q_PROPERTY(bool UseFullRange READ getUseFullRange WRITE setUseFullRange)
-
-  /**
-   * @brief Setter property for MinRange
-   */
-  void setNumBins(int32_t value);
-  /**
-   * @brief Getter property for MinRange
-   * @return Value of MinRange
-   */
-  int32_t getNumBins() const;
-  Q_PROPERTY(double NumBins READ getNumBins WRITE setNumBins)
-
-  /**
-   * @brief Setter property for MinRange
-   */
-  void setMinRange(double value);
-  /**
-   * @brief Getter property for MinRange
-   * @return Value of MinRange
-   */
-  double getMinRange() const;
-  Q_PROPERTY(double MinRange READ getMinRange WRITE setMinRange)
-
-  /**
-   * @brief Setter property for MaxRange
-   */
-  void setMaxRange(double value);
-  /**
-   * @brief Getter property for MaxRange
-   * @return Value of MaxRange
-   */
-  Q_PROPERTY(double MaxRange READ getMaxRange WRITE setMaxRange)
-  double getMaxRange() const;
-  /**
-   * @brief Setter property for FindHistogram
-   */
-  void setFindHistogram(bool value);
-  /**
-   * @brief Getter property for FindHistogram
-   * @return Value of FindLength
-   */
-  bool getFindHistogram() const;
-  Q_PROPERTY(bool FindHistogram READ getFindHistogram WRITE setFindHistogram)
+  ~FindNeighborListStatistics() override;
 
   /**
    * @brief Setter property for FindLength
@@ -210,6 +125,7 @@ public:
    */
   bool getFindMean() const;
   Q_PROPERTY(bool FindMean READ getFindMean WRITE setFindMean)
+
   /**
    * @brief Setter property for FindMedian
    */
@@ -244,39 +160,6 @@ public:
   Q_PROPERTY(bool FindSummation READ getFindSummation WRITE setFindSummation)
 
   /**
-   * @brief Setter property for UseMask
-   */
-  void setUseMask(bool value);
-  /**
-   * @brief Getter property for UseMask
-   * @return Value of UseMask
-   */
-  bool getUseMask() const;
-  Q_PROPERTY(bool UseMask READ getUseMask WRITE setUseMask)
-
-  /**
-   * @brief Setter property for StandardizeData
-   */
-  void setStandardizeData(bool value);
-  /**
-   * @brief Getter property for StandardizeData
-   * @return Value of StandardizeData
-   */
-  bool getStandardizeData() const;
-  Q_PROPERTY(bool StandardizeData READ getStandardizeData WRITE setStandardizeData)
-
-  /**
-   * @brief Setter property for ComputeByIndex
-   */
-  void setComputeByIndex(bool value);
-  /**
-   * @brief Getter property for ComputeByIndex
-   * @return Value of ComputeByIndex
-   */
-  bool getComputeByIndex() const;
-  Q_PROPERTY(bool ComputeByIndex READ getComputeByIndex WRITE setComputeByIndex)
-
-  /**
    * @brief Setter property for DestinationAttributeMatrix
    */
   void setDestinationAttributeMatrix(const DataArrayPath& value);
@@ -286,28 +169,6 @@ public:
    */
   DataArrayPath getDestinationAttributeMatrix() const;
   Q_PROPERTY(DataArrayPath DestinationAttributeMatrix READ getDestinationAttributeMatrix WRITE setDestinationAttributeMatrix)
-
-  /**
-   * @brief Setter property for MaskArrayPath
-   */
-  void setMaskArrayPath(const DataArrayPath& value);
-  /**
-   * @brief Getter property for MaskArrayPath
-   * @return Value of MaskArrayPath
-   */
-  DataArrayPath getMaskArrayPath() const;
-  Q_PROPERTY(DataArrayPath MaskArrayPath READ getMaskArrayPath WRITE setMaskArrayPath)
-
-  /**
-   * @brief Setter property for HistogramArrayName
-   */
-  void setHistogramArrayName(const QString& value);
-  /**
-   * @brief Getter property for HistogramArrayName
-   * @return Value of HistogramArrayName
-   */
-  QString getHistogramArrayName() const;
-  Q_PROPERTY(QString HistogramArrayName READ getHistogramArrayName WRITE setHistogramArrayName)
 
   /**
    * @brief Setter property for LengthArrayName
@@ -387,17 +248,6 @@ public:
   Q_PROPERTY(QString SummationArrayName READ getSummationArrayName WRITE setSummationArrayName)
 
   /**
-   * @brief Setter property for StandardizedArrayName
-   */
-  void setStandardizedArrayName(const QString& value);
-  /**
-   * @brief Getter property for StandardizedArrayName
-   * @return Value of StandardizedArrayName
-   */
-  QString getStandardizedArrayName() const;
-  Q_PROPERTY(QString StandardizedArrayName READ getStandardizedArrayName WRITE setStandardizedArrayName)
-
-  /**
    * @brief Setter property for SelectedArrayPath
    */
   void setSelectedArrayPath(const DataArrayPath& value);
@@ -407,17 +257,6 @@ public:
    */
   DataArrayPath getSelectedArrayPath() const;
   Q_PROPERTY(DataArrayPath SelectedArrayPath READ getSelectedArrayPath WRITE setSelectedArrayPath)
-
-  /**
-   * @brief Setter property for FeatureIdsArrayPath
-   */
-  void setFeatureIdsArrayPath(const DataArrayPath& value);
-  /**
-   * @brief Getter property for FeatureIdsArrayPath
-   * @return Value of FeatureIdsArrayPath
-   */
-  DataArrayPath getFeatureIdsArrayPath() const;
-  Q_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -475,10 +314,16 @@ public:
   void execute() override;
 
 protected:
+  /**
+   * @brief createCompatibleArrays Creates the output statistics arrays with compatible types to the
+   * incoming NeighborList
+   * @param dataArrayPaths Vector used to store paths for later tuple checking
+   */
   template <typename T>
   void createCompatibleArrays(QVector<DataArrayPath>& dataArrayPaths);
 
-  FindArrayStatistics();
+  FindNeighborListStatistics();
+
   /**
    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
    */
@@ -491,38 +336,17 @@ protected:
 
 private:
   IDataArrayWkPtrType m_MinimumPtr;
-  void* m_Minimum = nullptr;
   IDataArrayWkPtrType m_MaximumPtr;
-  void* m_Maximum = nullptr;
   IDataArrayWkPtrType m_InputArrayPtr;
-  void* m_InputArray = nullptr;
 
-  std::weak_ptr<DataArray<size_t>> m_LengthPtr;
-  size_t* m_Length = nullptr;
-  std::weak_ptr<DataArray<float>> m_MeanPtr;
-  float* m_Mean = nullptr;
-  std::weak_ptr<DataArray<float>> m_MedianPtr;
-  float* m_Median = nullptr;
-  std::weak_ptr<DataArray<float>> m_StandardDeviationPtr;
-  float* m_StandardDeviation = nullptr;
-  std::weak_ptr<DataArray<float>> m_SummationPtr;
-  float* m_Summation = nullptr;
-  std::weak_ptr<DataArray<float>> m_StandardizedPtr;
-  float* m_Standardized = nullptr;
-  std::weak_ptr<DataArray<int32_t>> m_FeatureIdsPtr;
-  int32_t* m_FeatureIds = nullptr;
-  std::weak_ptr<DataArray<bool>> m_MaskPtr;
-  bool* m_Mask = nullptr;
-  std::weak_ptr<DataArray<float>> m_HistogramListPtr;
-  float* m_HistogramList;
+  std::weak_ptr<SizeTArrayType> m_LengthPtr;
+  std::weak_ptr<FloatArrayType> m_MeanPtr;
+  std::weak_ptr<FloatArrayType> m_MedianPtr;
+  std::weak_ptr<FloatArrayType> m_StandardDeviationPtr;
+  std::weak_ptr<FloatArrayType> m_SummationPtr;
 
-  // Histogram Related Parameters
-  double m_MinRange = {};
-  double m_MaxRange = {};
-  int32_t m_NumBins = {};
-  bool m_UseFullRange = {};
+  DataArrayPath m_DestinationAttributeMatrix = {"", "", ""};
 
-  bool m_FindHistogram = false;
   bool m_FindLength = false;
   bool m_FindMin = false;
   bool m_FindMax = false;
@@ -530,14 +354,7 @@ private:
   bool m_FindMedian = false;
   bool m_FindStdDeviation = false;
   bool m_FindSummation = false;
-  bool m_UseMask = false;
-  bool m_StandardizeData = false;
-  bool m_ComputeByIndex = false;
 
-  DataArrayPath m_DestinationAttributeMatrix = {"", "", ""};
-  DataArrayPath m_MaskArrayPath = {"", "", "Mask"};
-
-  QString m_HistogramArrayName = {};
   QString m_LengthArrayName = {"Length"};
   QString m_MinimumArrayName = {"Minimum"};
   QString m_MaximumArrayName = {"Maximum"};
@@ -545,14 +362,12 @@ private:
   QString m_MedianArrayName = {"Median"};
   QString m_StdDeviationArrayName = {"StandardDeviation"};
   QString m_SummationArrayName = {"Summation"};
-  QString m_StandardizedArrayName = {"Standardized"};
 
   DataArrayPath m_SelectedArrayPath = {};
-  DataArrayPath m_FeatureIdsArrayPath = {};
 
 public:
-  FindArrayStatistics(const FindArrayStatistics&) = delete;            // Copy Constructor Not Implemented
-  FindArrayStatistics(FindArrayStatistics&&) = delete;                 // Move Constructor Not Implemented
-  FindArrayStatistics& operator=(const FindArrayStatistics&) = delete; // Copy Assignment Not Implemented
-  FindArrayStatistics& operator=(FindArrayStatistics&&) = delete;      // Move Assignment Not Implemented
+  FindNeighborListStatistics(const FindNeighborListStatistics&) = delete;            // Copy Constructor Not Implemented
+  FindNeighborListStatistics(FindNeighborListStatistics&&) = delete;                 // Move Constructor Not Implemented
+  FindNeighborListStatistics& operator=(const FindNeighborListStatistics&) = delete; // Copy Assignment Not Implemented
+  FindNeighborListStatistics& operator=(FindNeighborListStatistics&&) = delete;      // Move Assignment Not Implemented
 };

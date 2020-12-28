@@ -209,7 +209,7 @@ void RobustAutomaticThreshold::execute()
 
   // float threshold = 0.0f;
 
-  EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(this, findThreshold, m_InputArrayPtr.lock(), m_InputArrayPtr.lock(), m_GradientMagnitudePtr.lock(), m_FeatureIdsPtr.lock());
+  EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(DataArray, this, findThreshold, m_InputArrayPtr.lock(), m_InputArrayPtr.lock(), m_GradientMagnitudePtr.lock(), m_FeatureIdsPtr.lock());
 }
 
 // -----------------------------------------------------------------------------

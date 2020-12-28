@@ -12,12 +12,13 @@ set(TEST_NAMES
   CreateArrayofIndicesTest
   EstablishFoamMorphologyTest
   FFTHDFWriterFilterTest
+  FindNeighborListStatisticsTest
   GenerateFeatureIDsbyBoundingBoxesTest
   GenerateMaskFromSimpleShapesTest
   ImportMASSIFDataTest
+  ImportQMMeltpoolH5FileTest
   ImportQMMeltpoolTDMSFileTest
   ImportVolumeGraphicsFileTest
-  ImportQMMeltpoolH5FileTest
 )
 
 #------------------------------------------------------------------------------

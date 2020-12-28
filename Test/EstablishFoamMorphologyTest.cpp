@@ -52,18 +52,15 @@
 
 #include "DREAM3DReviewTestFileLocations.h"
 
-// These values are dependant on the prebuilt example pipeline for this filter. If the names of any of the Data Structure
-// elements in that file change, then these need to change.
-namespace
-{
-const QString k_SyntheticVolumeDataContainer("SyntheticVolumeDataContainer");
-const QString k_CellFeatureData("CellFeatureData");
-const QString k_CellFeatureData2("CellFeatureData2");
-const QString k_Centroids("Centroids");
-const QString k_Phases2("Phases2");
-} // namespace
 class EstablishFoamMorphologyTest
 {
+  // These values are dependant on the prebuilt example pipeline for this filter. If the names of any of the Data Structure
+  // elements in that file change, then these need to change.
+  const QString k_SyntheticVolumeDataContainer = {"SyntheticVolumeDataContainer"};
+  const QString k_CellFeatureData = {"CellFeatureData"};
+  const QString k_CellFeatureData2 = {"CellFeatureData2"};
+  const QString k_Centroids = {"Centroids"};
+  const QString k_Phases2 = {"Phases2"};
 
 public:
   EstablishFoamMorphologyTest() = default;
@@ -144,11 +141,11 @@ public:
     }
     DREAM3D_REQUIRE(err >= 0)
 
-    DataContainer::Pointer dc = dca->getDataContainer(::k_SyntheticVolumeDataContainer);
+    DataContainer::Pointer dc = dca->getDataContainer(k_SyntheticVolumeDataContainer);
 
-    AttributeMatrix::Pointer featureAttrMat = dc->getAttributeMatrix(::k_CellFeatureData);
+    AttributeMatrix::Pointer featureAttrMat = dc->getAttributeMatrix(k_CellFeatureData);
 
-    FloatArrayType::Pointer centroids = std::dynamic_pointer_cast<FloatArrayType>(featureAttrMat->getAttributeArray(::k_Centroids));
+    FloatArrayType::Pointer centroids = std::dynamic_pointer_cast<FloatArrayType>(featureAttrMat->getAttributeArray(k_Centroids));
     // In the example pipeline there should be somewhere around 6264 features created. Should be 61 but with the randomness
     // of the test we can use a tolerance instead of +-10.
 
@@ -156,8 +153,8 @@ public:
     DREAM3D_REQUIRED(numTuples, >, 50)
     DREAM3D_REQUIRED(numTuples, <, 70)
 
-    AttributeMatrix::Pointer featureAttrMat2 = dc->getAttributeMatrix(::k_CellFeatureData2);
-    Int32ArrayType::Pointer phases2 = std::dynamic_pointer_cast<Int32ArrayType>(featureAttrMat2->getAttributeArray(::k_Phases2));
+    AttributeMatrix::Pointer featureAttrMat2 = dc->getAttributeMatrix(k_CellFeatureData2);
+    Int32ArrayType::Pointer phases2 = std::dynamic_pointer_cast<Int32ArrayType>(featureAttrMat2->getAttributeArray(k_Phases2));
     numTuples = phases2->getNumberOfTuples();
     DREAM3D_REQUIRED(numTuples, >, 2400)
     DREAM3D_REQUIRED(numTuples, <, 2910)
