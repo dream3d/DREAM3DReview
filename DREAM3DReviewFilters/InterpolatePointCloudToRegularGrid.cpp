@@ -45,8 +45,8 @@ InterpolatePointCloudToRegularGrid::InterpolatePointCloudToRegularGrid()
 , m_ArraysToInterpolate(QVector<DataArrayPath>())
 , m_ArraysToCopy(QVector<DataArrayPath>())
 , m_VoxelIndicesArrayPath("", "", "VoxelIndices")
-, m_InterpolatedDataContainerName("InterpolatedDataContainer")
-, m_InterpolatedAttributeMatrixName("InterpolatedAttributeMatrix")
+, m_InterpolatedDataContainerName("Interpolated DataContainer")
+, m_InterpolatedAttributeMatrixName("Interpolated AttributeMatrix")
 , m_MaskArrayPath("", "", "")
 , m_KernelDistancesArrayName("KernelDistances")
 {
@@ -124,29 +124,11 @@ void InterpolatePointCloudToRegularGrid::setupFilterParameters()
                                                       InterpolatePointCloudToRegularGrid));
   parameters.push_back(SIMPL_NEW_DA_WITH_LINKED_AM_FP("Kernel Distances", KernelDistancesArrayName, InterpolatedDataContainerName, InterpolatedAttributeMatrixName, FilterParameter::CreatedArray,
                                                       InterpolatePointCloudToRegularGrid));
-  setFilterParameters(parameters);
-}
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void InterpolatePointCloudToRegularGrid::readFilterParameters(AbstractFilterParametersReader* reader, int index)
-{
-  reader->openFilterGroup(this, index);
-  setDataContainerName(reader->readDataArrayPath("DataContainerName", getDataContainerName()));
-  setArraysToInterpolate(reader->readDataArrayPathVector("ArraysToInterpolate", getArraysToInterpolate()));
-  setArraysToCopy(reader->readDataArrayPathVector("ArraysToCopy", getArraysToCopy()));
-  setVoxelIndicesArrayPath(reader->readDataArrayPath("VoxelIndicesArrayPath", getVoxelIndicesArrayPath()));
-  setInterpolatedDataContainerName(reader->readDataArrayPath("InterpolatedDataContainerName", getInterpolatedDataContainerName()));
-  setInterpolatedAttributeMatrixName(reader->readString("InterpolatedAttributeMatrixName", getInterpolatedAttributeMatrixName()));
-  setInterpolationTechnique(reader->readValue("InterpolationTechnique", getInterpolationTechnique()));
-  setKernelSize(reader->readFloatVec3("KernelSize", getKernelSize()));
-  setSigmas(reader->readFloatVec3("Sigmas", getSigmas()));
-  setUseMask(reader->readValue("UseMask", getUseMask()));
-  setMaskArrayPath(reader->readDataArrayPath("MaskArrayPath", getMaskArrayPath()));
-  setStoreKernelDistances(reader->readValue("StoreKernelDistances", getStoreKernelDistances()));
-  setKernelDistancesArrayName(reader->readString("KernelDistancesArrayName", getKernelDistancesArrayName()));
-  reader->closeFilterGroup();
+  parameters.push_back(SIMPL_NEW_STRING_FP("Interpolated Array Suffix", InterpolatedSuffix, FilterParameter::Parameter, InterpolatePointCloudToRegularGrid));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Copied Array Suffix", CopySuffix, FilterParameter::Parameter, InterpolatePointCloudToRegularGrid));
+
+  setFilterParameters(parameters);
 }
 
 // -----------------------------------------------------------------------------
@@ -315,7 +297,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
         {
           for(int32_t i = 0; i < interpolatePaths.size(); i++)
           {
-            tempPath.update(getInterpolatedDataContainerName().getDataContainerName(), getInterpolatedAttributeMatrixName(), interpolatePaths[i].getDataArrayName() + "Interpolation");
+            tempPath.update(getInterpolatedDataContainerName().getDataContainerName(), getInterpolatedAttributeMatrixName(), interpolatePaths[i].getDataArrayName() + getInterpolatedSuffix());
             IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray(this, interpolatePaths[i].getDataArrayName(), -90002);
             if(getErrorCode() >= 0)
             {
@@ -334,7 +316,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
 
           for(int32_t i = 0; i < copyPaths.size(); i++)
           {
-            tempPath.update(getInterpolatedDataContainerName().getDataContainerName(), getInterpolatedAttributeMatrixName(), copyPaths[i].getDataArrayName() + "Copy");
+            tempPath.update(getInterpolatedDataContainerName().getDataContainerName(), getInterpolatedAttributeMatrixName(), copyPaths[i].getDataArrayName() + getCopySuffix());
             IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray(this, copyPaths[i].getDataArrayName(), -90002);
             if(getErrorCode() >= 0)
             {
@@ -903,4 +885,28 @@ void InterpolatePointCloudToRegularGrid::setKernelDistancesArrayName(const QStri
 QString InterpolatePointCloudToRegularGrid::getKernelDistancesArrayName() const
 {
   return m_KernelDistancesArrayName;
+}
+
+// -----------------------------------------------------------------------------
+void InterpolatePointCloudToRegularGrid::setInterpolatedSuffix(const QString& value)
+{
+  m_InterpolatedSuffix = value;
+}
+
+// -----------------------------------------------------------------------------
+QString InterpolatePointCloudToRegularGrid::getInterpolatedSuffix() const
+{
+  return m_InterpolatedSuffix;
+}
+
+// -----------------------------------------------------------------------------
+void InterpolatePointCloudToRegularGrid::setCopySuffix(const QString& value)
+{
+  m_CopySuffix = value;
+}
+
+// -----------------------------------------------------------------------------
+QString InterpolatePointCloudToRegularGrid::getCopySuffix() const
+{
+  return m_CopySuffix;
 }
