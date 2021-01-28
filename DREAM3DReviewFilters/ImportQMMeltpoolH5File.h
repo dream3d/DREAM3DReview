@@ -33,9 +33,12 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/SIMPLArray.hpp"
+#include "SIMPLib/FilterParameters/StackFileListInfo.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "DREAM3DReview/DREAM3DReviewPlugin.h"
@@ -51,6 +54,7 @@ class DREAM3DReview_EXPORT ImportQMMeltpoolH5File : public AbstractFilter
   PYB11_FILTER()
   PYB11_SHARED_POINTERS(ImportQMMeltpoolH5File)
   PYB11_FILTER_NEW_MACRO(ImportQMMeltpoolH5File)
+  PYB11_PROPERTY(VectString InputFiles READ getInputFiles WRITE setInputFiles)
   PYB11_PROPERTY(QString HDF5FilePath READ getHDF5FilePath WRITE setHDF5FilePath)
   PYB11_PROPERTY(DataArrayPath DataContainerPath READ getDataContainerPath WRITE setDataContainerPath)
   PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
@@ -69,6 +73,9 @@ public:
 
   static Pointer New();
 
+  using VectString = std::vector<std::string>;
+  struct Cache;
+
   /**
    * @brief Returns the name of the class for ImportQMMeltpoolH5File
    */
@@ -82,17 +89,28 @@ public:
   ~ImportQMMeltpoolH5File() override;
 
   /**
-   * @brief Sets the value for Filter Parameter for HDF5FilePath
-   * @param value The new value to use.
+   * @brief Setter property for InputFileListInfo
    */
-  void setHDF5FilePath(const QString& value);
-
+  void setInputFiles(const VectString& value);
   /**
-   * @brief Gets the Filter Parameter value for HDF5FilePath
-   * @return The value for HDF5FilePath
+   * @brief Getter property for InputFileListInfo
+   * @return Value of InputFileListInfo
    */
-  QString getHDF5FilePath() const;
-  Q_PROPERTY(QString HDF5FilePath READ getHDF5FilePath WRITE setHDF5FilePath)
+  VectString getInputFiles() const;
+  Q_PROPERTY(VectString InputFiles READ getInputFiles WRITE setInputFiles)
+
+  //  /**
+  //   * @brief Sets the value for Filter Parameter for HDF5FilePath
+  //   * @param value The new value to use.
+  //   */
+  //  void setHDF5FilePath(const QString& value);
+
+  //  /**
+  //   * @brief Gets the Filter Parameter value for HDF5FilePath
+  //   * @return The value for HDF5FilePath
+  //   */
+  //  QString getHDF5FilePath() const;
+  //  Q_PROPERTY(QString HDF5FilePath READ getHDF5FilePath WRITE setHDF5FilePath)
 
   /**
    * @brief Sets the value for Filter Parameter for DataContainerPath
@@ -224,7 +242,7 @@ protected:
    * @param device
    * @return
    */
-  void generateCache();
+  void generateCache(Cache& cache);
 
   /**
    * @brief generateDataStructure
@@ -236,16 +254,23 @@ protected:
    */
   void readDataFromFile();
 
+  /**
+   * @brief createUpdateCacheEntries
+   * @param filePath
+   */
+  void createUpdateCacheEntries();
+
 private:
-  QString m_HDF5FilePath = {};
+  VectString m_InputFiles = {};
+
+  // QString m_HDF5FilePath = {};
   DataArrayPath m_DataContainerPath = {"MeltPoolData", "", ""};
   QString m_VertexAttributeMatrixName = {"Vertex Data"};
   IntVec2Type m_SliceRange = {0, 0};
   float m_Power = 0.0f;
   QString m_PossibleIndices = "";
 
-  struct Cache;
-  std::unique_ptr<Cache> m_Cache;
+  std::vector<Cache> m_Caches;
 
 public:
   ImportQMMeltpoolH5File(const ImportQMMeltpoolH5File&) = delete;            // Copy Constructor Not Implemented

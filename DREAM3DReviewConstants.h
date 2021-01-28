@@ -2,6 +2,11 @@
 
 #include <QtCore/QString>
 
+/** @brief This macro is used to shorten the code needed to go from std::string to QString. Helpful in other codes that use
+ * QString instead of std::string
+ */
+#define S2Q(var) QString::fromStdString((var))
+
 /**
  * @brief This namespace is used to define some Constants for the plugin itself.
  */
