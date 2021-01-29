@@ -55,7 +55,6 @@ class DREAM3DReview_EXPORT ImportQMMeltpoolH5File : public AbstractFilter
   PYB11_SHARED_POINTERS(ImportQMMeltpoolH5File)
   PYB11_FILTER_NEW_MACRO(ImportQMMeltpoolH5File)
   PYB11_PROPERTY(VectString InputFiles READ getInputFiles WRITE setInputFiles)
-  PYB11_PROPERTY(QString HDF5FilePath READ getHDF5FilePath WRITE setHDF5FilePath)
   PYB11_PROPERTY(DataArrayPath DataContainerPath READ getDataContainerPath WRITE setDataContainerPath)
   PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
   PYB11_PROPERTY(IntVec2Type SliceRange READ getSliceRange WRITE setSliceRange)
