@@ -35,14 +35,15 @@ class DREAM3DReview_EXPORT MapPointCloudToRegularGrid : public AbstractFilter
   PYB11_SHARED_POINTERS(MapPointCloudToRegularGrid)
   PYB11_FILTER_NEW_MACRO(MapPointCloudToRegularGrid)
   PYB11_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)
-  PYB11_PROPERTY(QString ImageDataContainerName READ getImageDataContainerName WRITE setImageDataContainerName)
+  PYB11_PROPERTY(DataArrayPath CreatedImageDataContainerName READ getCreatedImageDataContainerName WRITE setCreatedImageDataContainerName)
   PYB11_PROPERTY(DataArrayPath ImageDataContainerPath READ getImageDataContainerPath WRITE setImageDataContainerPath)
   PYB11_PROPERTY(DataArrayPath VoxelIndicesArrayPath READ getVoxelIndicesArrayPath WRITE setVoxelIndicesArrayPath)
   PYB11_PROPERTY(IntVec3Type GridDimensions READ getGridDimensions WRITE setGridDimensions)
   PYB11_PROPERTY(bool UseMask READ getUseMask WRITE setUseMask)
-  PYB11_PROPERTY(int CreateDataContainer READ getCreateDataContainer WRITE setCreateDataContainer)
+  PYB11_PROPERTY(int SamplingGridType READ getSamplingGridType WRITE setSamplingGridType)
   PYB11_PROPERTY(DataArrayPath MaskArrayPath READ getMaskArrayPath WRITE setMaskArrayPath)
   PYB11_END_BINDINGS()
+
 public:
   using Self = MapPointCloudToRegularGrid;
   using Pointer = std::shared_ptr<Self>;
@@ -76,15 +77,15 @@ public:
   Q_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)
 
   /**
-   * @brief Setter property for ImageDataContainerName
+   * @brief Setter property for CreatedImageDataContainerName
    */
-  void setImageDataContainerName(const QString& value);
+  void setCreatedImageDataContainerName(const DataArrayPath& value);
   /**
-   * @brief Getter property for ImageDataContainerName
-   * @return Value of ImageDataContainerName
+   * @brief Getter property for CreatedImageDataContainerName
+   * @return Value of CreatedImageDataContainerName
    */
-  QString getImageDataContainerName() const;
-  Q_PROPERTY(QString ImageDataContainerName READ getImageDataContainerName WRITE setImageDataContainerName)
+  DataArrayPath getCreatedImageDataContainerName() const;
+  Q_PROPERTY(DataArrayPath CreatedImageDataContainerName READ getCreatedImageDataContainerName WRITE setCreatedImageDataContainerName)
 
   /**
    * @brief Setter property for ImageDataContainerPath
@@ -131,15 +132,15 @@ public:
   Q_PROPERTY(bool UseMask READ getUseMask WRITE setUseMask)
 
   /**
-   * @brief Setter property for CreateDataContainer
+   * @brief Setter property for SamplingGridType
    */
-  void setCreateDataContainer(int value);
+  void setSamplingGridType(int value);
   /**
-   * @brief Getter property for CreateDataContainer
-   * @return Value of CreateDataContainer
+   * @brief Getter property for SamplingGridType
+   * @return Value of SamplingGridType
    */
-  int getCreateDataContainer() const;
-  Q_PROPERTY(int CreateDataContainer READ getCreateDataContainer WRITE setCreateDataContainer)
+  int getSamplingGridType() const;
+  Q_PROPERTY(int SamplingGridType READ getSamplingGridType WRITE setSamplingGridType)
 
   /**
    * @brief Setter property for MaskArrayPath
@@ -197,11 +198,6 @@ public:
   void setupFilterParameters() override;
 
   /**
-   * @brief readFilterParameters Reimplemented from @see AbstractFilter class
-   */
-  void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
-
-  /**
    * @brief execute Reimplemented from @see AbstractFilter class
    */
   void execute() override;
@@ -238,12 +234,12 @@ private:
   bool* m_Mask = nullptr;
 
   DataArrayPath m_DataContainerName = {"", "", ""};
-  QString m_ImageDataContainerName = {"ImageDataContainer"};
+  DataArrayPath m_CreatedImageDataContainerName = {"ImageDataContainer", "", ""};
   DataArrayPath m_ImageDataContainerPath = {"", "", ""};
   DataArrayPath m_VoxelIndicesArrayPath = {"", "", "VoxelIndices"};
   IntVec3Type m_GridDimensions = {10, 10, 10};
   bool m_UseMask = {false};
-  int m_CreateDataContainer = {0};
+  int m_SamplingGridType = {0};
   DataArrayPath m_MaskArrayPath = {"", "", ""};
 
   std::vector<float> m_MeshMinExtents;

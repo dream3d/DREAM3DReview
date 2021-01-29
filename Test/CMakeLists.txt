@@ -96,6 +96,7 @@ if(SIMPL_ENABLE_PYTHON)
     "03_Adaptive_Alignment_Mutual_Information_SEM_Images"
     "04_Adaptive_Alignment_Steiner_Compact"
     "InsertTransformationPhase"
+    "ImportQMMeltpoolH5File"
   )
 
   include(${SIMPLProj_SOURCE_DIR}/Wrapping/Python/Binding/CreatePybind11Module.cmake)

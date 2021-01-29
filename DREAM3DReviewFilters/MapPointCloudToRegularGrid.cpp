@@ -22,6 +22,7 @@
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArrayCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
+#include "SIMPLib/FilterParameters/DataContainerCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
@@ -33,6 +34,11 @@
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
+namespace
+{
+constexpr int32_t k_CreateSamplingGrid = 0;
+constexpr int32_t k_UseExistingSamplingGrid = 1;
+} // namespace
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -55,9 +61,9 @@ void MapPointCloudToRegularGrid::setupFilterParameters()
   {
     LinkedChoicesFilterParameter::Pointer parameter = LinkedChoicesFilterParameter::New();
     parameter->setHumanLabel("Sampling Grid Type");
-    parameter->setPropertyName("CreateDataContainer");
-    parameter->setSetterCallback(SIMPL_BIND_SETTER(MapPointCloudToRegularGrid, this, CreateDataContainer));
-    parameter->setGetterCallback(SIMPL_BIND_GETTER(MapPointCloudToRegularGrid, this, CreateDataContainer));
+    parameter->setPropertyName("SamplingGridType");
+    parameter->setSetterCallback(SIMPL_BIND_SETTER(MapPointCloudToRegularGrid, this, SamplingGridType));
+    parameter->setGetterCallback(SIMPL_BIND_GETTER(MapPointCloudToRegularGrid, this, SamplingGridType));
 
     QVector<QString> choices;
     choices.push_back("Manual");
@@ -65,19 +71,19 @@ void MapPointCloudToRegularGrid::setupFilterParameters()
     parameter->setChoices(choices);
     QStringList linkedProps2;
     linkedProps2 << "GridDimensions"
-                 << "ImageDataContainerName"
+                 << "CreatedImageDataContainerName"
                  << "ImageDataContainerPath";
     parameter->setLinkedProperties(linkedProps2);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
     parameters.push_back(parameter);
   }
-  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Grid Dimensions", GridDimensions, FilterParameter::Parameter, MapPointCloudToRegularGrid, 0));
+  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Grid Dimensions", GridDimensions, FilterParameter::Parameter, MapPointCloudToRegularGrid, k_CreateSamplingGrid));
   {
     DataContainerSelectionFilterParameter::RequirementType req;
     IGeometry::Types reqGeom = {IGeometry::Type::Image};
     req.dcGeometryTypes = reqGeom;
-    parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("ImageDataContainerPath", ImageDataContainerPath, FilterParameter::RequiredArray, MapPointCloudToRegularGrid, req, 1));
+    parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("ImageDataContainerPath", ImageDataContainerPath, FilterParameter::RequiredArray, MapPointCloudToRegularGrid, req, k_UseExistingSamplingGrid));
   }
   {
     DataContainerSelectionFilterParameter::RequirementType req;
@@ -97,24 +103,9 @@ void MapPointCloudToRegularGrid::setupFilterParameters()
     DataArrayCreationFilterParameter::RequirementType req = DataArrayCreationFilterParameter::CreateRequirement(AttributeMatrix::Type::Vertex, IGeometry::Type::Vertex);
     parameters.push_back(SIMPL_NEW_DA_CREATION_FP("Voxel Indices", VoxelIndicesArrayPath, FilterParameter::CreatedArray, MapPointCloudToRegularGrid, req));
   }
-  setFilterParameters(parameters);
-}
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void MapPointCloudToRegularGrid::readFilterParameters(AbstractFilterParametersReader* reader, int index)
-{
-  reader->openFilterGroup(this, index);
-  setDataContainerName(reader->readDataArrayPath("DataContainerName", getDataContainerName()));
-  setImageDataContainerPath(reader->readDataArrayPath("ImageDataContainerPath", getImageDataContainerPath()));
-  setImageDataContainerName(reader->readString("ImageDataContainerName", getImageDataContainerName()));
-  setVoxelIndicesArrayPath(reader->readDataArrayPath("VoxelIndicesArrayPath", getVoxelIndicesArrayPath()));
-  setGridDimensions(reader->readIntVec3("GridDimensions", getGridDimensions()));
-  setUseMask(reader->readValue("UseMask", getUseMask()));
-  setCreateDataContainer(reader->readValue("CreateDataContainer", getCreateDataContainer()));
-  setMaskArrayPath(reader->readDataArrayPath("MaskArrayPath", getMaskArrayPath()));
-  reader->closeFilterGroup();
+  parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Created Image DataContainer", CreatedImageDataContainerName, FilterParameter::CreatedArray, MapPointCloudToRegularGrid, k_CreateSamplingGrid));
+  setFilterParameters(parameters);
 }
 
 // -----------------------------------------------------------------------------
@@ -146,7 +137,7 @@ void MapPointCloudToRegularGrid::dataCheck()
 
   dataArrays.push_back(vertex->getVertices());
 
-  if(m_CreateDataContainer == 0)
+  if(m_SamplingGridType == k_CreateSamplingGrid)
   {
     if(getGridDimensions()[0] <= 0 || getGridDimensions()[1] <= 0 || getGridDimensions()[2] <= 0)
     {
@@ -167,7 +158,7 @@ void MapPointCloudToRegularGrid::dataCheck()
     size_t dims[3] = {static_cast<size_t>(getGridDimensions()[0]), static_cast<size_t>(getGridDimensions()[1]), static_cast<size_t>(getGridDimensions()[2])};
     image->setDimensions(dims);
 
-    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer(this, getImageDataContainerName());
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer(this, getCreatedImageDataContainerName());
 
     if(getErrorCode() < 0)
     {
@@ -177,7 +168,7 @@ void MapPointCloudToRegularGrid::dataCheck()
     m->setGeometry(image);
   }
 
-  if(m_CreateDataContainer == 1)
+  if(m_SamplingGridType == k_UseExistingSamplingGrid)
   {
     ImageGeom::Pointer vertex = getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom>(this, getImageDataContainerPath());
     if(getErrorCode() < 0)
@@ -189,7 +180,7 @@ void MapPointCloudToRegularGrid::dataCheck()
   std::vector<size_t> cDims(1, 1);
 
   m_VoxelIndicesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<size_t>>(this, getVoxelIndicesArrayPath(), 0, cDims);
-  if(nullptr != m_VoxelIndicesPtr.lock().get())
+  if(nullptr != m_VoxelIndicesPtr.lock())
   {
     m_VoxelIndices = m_VoxelIndicesPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -198,10 +189,10 @@ void MapPointCloudToRegularGrid::dataCheck()
     dataArrays.push_back(m_VoxelIndicesPtr.lock());
   }
 
-  if(getUseMask() == true)
+  if(getUseMask())
   {
     m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<bool>>(this, getMaskArrayPath(), cDims);
-    if(nullptr != m_MaskPtr.lock().get())
+    if(nullptr != m_MaskPtr.lock())
     {
       m_Mask = m_MaskPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -223,7 +214,7 @@ void MapPointCloudToRegularGrid::createRegularGrid()
   notifyStatusMessage(ss);
 
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getDataContainerName());
-  DataContainer::Pointer interpolatedDC = getDataContainerArray()->getDataContainer(getImageDataContainerName());
+  DataContainer::Pointer interpolatedDC = getDataContainerArray()->getDataContainer(getCreatedImageDataContainerName());
   VertexGeom::Pointer pointCloud = m->getGeometryAs<VertexGeom>();
   ImageGeom::Pointer image = interpolatedDC->getGeometryAs<ImageGeom>();
 
@@ -376,13 +367,13 @@ void MapPointCloudToRegularGrid::execute()
   }
 
   ImageGeom::Pointer image;
-  if(m_CreateDataContainer == 0)
+  if(m_SamplingGridType == 0)
   {
     // Create the regular grid
     createRegularGrid();
-    image = getDataContainerArray()->getDataContainer(getImageDataContainerName())->getGeometryAs<ImageGeom>();
+    image = getDataContainerArray()->getDataContainer(getCreatedImageDataContainerName())->getGeometryAs<ImageGeom>();
   }
-  else if(m_CreateDataContainer == 1)
+  else if(m_SamplingGridType == 1)
   {
     image = getDataContainerArray()->getDataContainer(getImageDataContainerPath())->getGeometryAs<ImageGeom>();
   }
@@ -554,15 +545,15 @@ DataArrayPath MapPointCloudToRegularGrid::getDataContainerName() const
 }
 
 // -----------------------------------------------------------------------------
-void MapPointCloudToRegularGrid::setImageDataContainerName(const QString& value)
+void MapPointCloudToRegularGrid::setCreatedImageDataContainerName(const DataArrayPath& value)
 {
-  m_ImageDataContainerName = value;
+  m_CreatedImageDataContainerName = value;
 }
 
 // -----------------------------------------------------------------------------
-QString MapPointCloudToRegularGrid::getImageDataContainerName() const
+DataArrayPath MapPointCloudToRegularGrid::getCreatedImageDataContainerName() const
 {
-  return m_ImageDataContainerName;
+  return m_CreatedImageDataContainerName;
 }
 
 // -----------------------------------------------------------------------------
@@ -614,15 +605,15 @@ bool MapPointCloudToRegularGrid::getUseMask() const
 }
 
 // -----------------------------------------------------------------------------
-void MapPointCloudToRegularGrid::setCreateDataContainer(int value)
+void MapPointCloudToRegularGrid::setSamplingGridType(int value)
 {
-  m_CreateDataContainer = value;
+  m_SamplingGridType = value;
 }
 
 // -----------------------------------------------------------------------------
-int MapPointCloudToRegularGrid::getCreateDataContainer() const
+int MapPointCloudToRegularGrid::getSamplingGridType() const
 {
-  return m_CreateDataContainer;
+  return m_SamplingGridType;
 }
 
 // -----------------------------------------------------------------------------
