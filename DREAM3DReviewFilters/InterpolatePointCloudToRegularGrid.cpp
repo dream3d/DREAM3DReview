@@ -501,8 +501,6 @@ void InterpolatePointCloudToRegularGrid::mapKernelDistances(int64_t kernel[3], s
 // -----------------------------------------------------------------------------
 void InterpolatePointCloudToRegularGrid::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

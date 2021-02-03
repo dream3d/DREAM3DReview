@@ -329,8 +329,6 @@ private:
 // -----------------------------------------------------------------------------
 void NormalizeArrays::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

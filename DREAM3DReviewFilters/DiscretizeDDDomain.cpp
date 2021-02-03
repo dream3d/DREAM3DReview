@@ -129,9 +129,10 @@ void DiscretizeDDDomain::initialize()
 // -----------------------------------------------------------------------------
 void DiscretizeDDDomain::dataCheck()
 {
-  DataArrayPath tempPath;
+
   clearErrorCode();
   clearWarningCode();
+  DataArrayPath tempPath;
 
   // First sanity check the inputs and output names. All must be filled in
 

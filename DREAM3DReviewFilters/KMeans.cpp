@@ -276,8 +276,6 @@ void KMeans::dataCheck()
 // -----------------------------------------------------------------------------
 void KMeans::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

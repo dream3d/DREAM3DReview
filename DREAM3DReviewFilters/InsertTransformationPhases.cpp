@@ -361,9 +361,10 @@ void InsertTransformationPhases::initialize()
 // -----------------------------------------------------------------------------
 void InsertTransformationPhases::dataCheck()
 {
-  DataArrayPath tempPath;
+
   clearErrorCode();
   clearWarningCode();
+  DataArrayPath tempPath;
 
   DataContainer::Pointer m = getDataContainerArray()->getPrereqDataContainer(this, m_FeatureIdsArrayPath.getDataContainerName(), false);
   if(getErrorCode() < 0 || m == nullptr)
@@ -492,8 +493,6 @@ void InsertTransformationPhases::dataCheck()
 // -----------------------------------------------------------------------------
 void InsertTransformationPhases::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

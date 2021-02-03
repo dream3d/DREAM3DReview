@@ -267,8 +267,6 @@ void DelaunayTriangulation::dataCheck()
 // -----------------------------------------------------------------------------
 void DelaunayTriangulation::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

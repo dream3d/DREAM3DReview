@@ -126,7 +126,7 @@ void ExtractTripleLinesFromTriangleGeometry::setupFilterParameters()
 void ExtractTripleLinesFromTriangleGeometry::dataCheck()
 {
   clearErrorCode();
-
+  clearWarningCode();
   QVector<IDataArray::Pointer> dataArrays;
 
   TriangleGeom::Pointer triangle = getDataContainerArray()->getPrereqGeometryFromDataContainer<TriangleGeom>(this, getNodeTypesArrayPath().getDataContainerName());

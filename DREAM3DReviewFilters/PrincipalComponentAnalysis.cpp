@@ -267,8 +267,6 @@ void copyDataArrays(IDataArray::Pointer dataPtr, std::vector<double>& copy, int3
 // -----------------------------------------------------------------------------
 void PrincipalComponentAnalysis::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

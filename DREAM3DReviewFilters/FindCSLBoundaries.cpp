@@ -322,9 +322,9 @@ void FindCSLBoundaries::dataCheckVoxel()
 // -----------------------------------------------------------------------------
 void FindCSLBoundaries::dataCheckSurfaceMesh()
 {
-  DataArrayPath tempPath;
   clearErrorCode();
   clearWarningCode();
+  DataArrayPath tempPath;
 
   getDataContainerArray()->getPrereqGeometryFromDataContainer<TriangleGeom>(this, getSurfaceMeshFaceLabelsArrayPath().getDataContainerName());
 
@@ -360,6 +360,9 @@ void FindCSLBoundaries::dataCheckSurfaceMesh()
 // -----------------------------------------------------------------------------
 void FindCSLBoundaries::dataCheck()
 {
+  clearErrorCode();
+  clearWarningCode();
+
   dataCheckVoxel();
   dataCheckSurfaceMesh();
 }

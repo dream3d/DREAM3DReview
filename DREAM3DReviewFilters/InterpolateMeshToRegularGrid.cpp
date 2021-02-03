@@ -658,8 +658,6 @@ void InterpolateMeshToRegularGrid::dataCheck()
 // -----------------------------------------------------------------------------
 void InterpolateMeshToRegularGrid::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

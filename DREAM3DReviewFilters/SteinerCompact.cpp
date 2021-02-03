@@ -172,7 +172,8 @@ void SteinerCompact::initialize()
 // -----------------------------------------------------------------------------
 void SteinerCompact::dataCheck()
 {
-
+  clearErrorCode();
+  clearWarningCode();
   std::vector<size_t> cDims(1, 1);
   QVector<DataArrayPath> dataArrayPaths;
 
@@ -1033,8 +1034,6 @@ void SteinerCompact::output_txt(std::vector<std::vector<float>>& vertices_x, std
 // -----------------------------------------------------------------------------
 void SteinerCompact::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

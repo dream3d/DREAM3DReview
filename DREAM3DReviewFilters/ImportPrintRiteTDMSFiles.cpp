@@ -169,6 +169,7 @@ void ImportPrintRiteTDMSFiles::setupFilterParameters()
 void ImportPrintRiteTDMSFiles::dataCheck()
 {
   clearErrorCode();
+  clearWarningCode();
 
   if(getLayerThickness() <= 0.0f)
   {

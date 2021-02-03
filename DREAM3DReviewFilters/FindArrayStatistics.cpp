@@ -711,8 +711,6 @@ void findStatistics(IDataArray::Pointer source, Int32ArrayType::Pointer featureI
 // -----------------------------------------------------------------------------
 void FindArrayStatistics::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

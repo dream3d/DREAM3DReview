@@ -451,9 +451,9 @@ void TesselateFarFieldGrains::initialize()
 // -----------------------------------------------------------------------------
 void TesselateFarFieldGrains::dataCheck()
 {
-  DataArrayPath tempPath;
   clearErrorCode();
   clearWarningCode();
+  DataArrayPath tempPath;
   // This is for convenience
 
   // Make sure we have our input DataContainer with the proper Ensemble data

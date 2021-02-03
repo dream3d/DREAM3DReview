@@ -325,8 +325,6 @@ void FindLayerStatistics::dataCheck()
 // -----------------------------------------------------------------------------
 void FindLayerStatistics::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

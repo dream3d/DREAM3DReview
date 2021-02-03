@@ -479,8 +479,6 @@ float AdaptiveAlignmentFeature::compute_error2(uint64_t iter, uint64_t index, st
 // -----------------------------------------------------------------------------
 void AdaptiveAlignmentFeature::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

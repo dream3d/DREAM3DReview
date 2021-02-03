@@ -237,6 +237,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
 // -----------------------------------------------------------------------------
 void ImportPrintRiteHDF5File::dataCheck()
 {
+  clearErrorCode();
+  clearWarningCode();
+
   m_SliceGroups.clear();
   m_SortedSliceGroups.clear();
   m_HFDataSetNames.clear();
@@ -248,8 +251,6 @@ void ImportPrintRiteHDF5File::dataCheck()
   m_NumLFVertsPerSlice.clear();
   m_CumulativeNumHFVerts.clear();
 
-  clearErrorCode();
-  clearWarningCode();
   int32_t err = -1;
 
   QFileInfo fi(getInputFile());
@@ -477,8 +478,6 @@ void ImportPrintRiteHDF5File::dataCheck()
 // -----------------------------------------------------------------------------
 void ImportPrintRiteHDF5File::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

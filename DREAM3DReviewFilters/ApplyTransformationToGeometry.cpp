@@ -403,8 +403,6 @@ void ApplyTransformationToGeometry::applyTransformation()
 // -----------------------------------------------------------------------------
 void ApplyTransformationToGeometry::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

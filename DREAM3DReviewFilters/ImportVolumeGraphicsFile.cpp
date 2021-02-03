@@ -223,8 +223,6 @@ void ImportVolumeGraphicsFile::dataCheck()
 // -----------------------------------------------------------------------------
 void ImportVolumeGraphicsFile::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

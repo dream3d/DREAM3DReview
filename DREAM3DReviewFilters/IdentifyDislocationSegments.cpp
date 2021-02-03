@@ -148,10 +148,11 @@ void IdentifyDislocationSegments::initialize()
 // -----------------------------------------------------------------------------
 void IdentifyDislocationSegments::dataCheck()
 {
-  DataArrayPath tempPath;
+
   clearErrorCode();
   clearWarningCode();
 
+  DataArrayPath tempPath;
   // Next check the existing DataContainer/AttributeMatrix
   DataContainer::Pointer m = getDataContainerArray()->getPrereqDataContainer(this, getBurgersVectorsArrayPath().getDataContainerName());
   if(getErrorCode() < 0)

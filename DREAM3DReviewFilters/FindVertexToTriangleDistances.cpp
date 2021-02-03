@@ -154,7 +154,7 @@ void FindVertexToTriangleDistances::setupFilterParameters()
 void FindVertexToTriangleDistances::dataCheck()
 {
   clearErrorCode();
-
+  clearWarningCode();
   getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom>(this, getVertexDataContainer());
   getDataContainerArray()->getPrereqGeometryFromDataContainer<TriangleGeom>(this, getTriangleDataContainer());
 

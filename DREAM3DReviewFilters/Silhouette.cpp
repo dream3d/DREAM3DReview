@@ -196,8 +196,6 @@ void Silhouette::dataCheck()
 // -----------------------------------------------------------------------------
 void Silhouette::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

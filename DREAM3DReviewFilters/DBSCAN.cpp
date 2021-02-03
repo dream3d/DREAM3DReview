@@ -263,8 +263,6 @@ void DBSCAN::dataCheck()
 // -----------------------------------------------------------------------------
 void DBSCAN::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

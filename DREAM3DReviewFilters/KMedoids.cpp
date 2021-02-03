@@ -271,8 +271,6 @@ void KMedoids::dataCheck()
 // -----------------------------------------------------------------------------
 void KMedoids::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

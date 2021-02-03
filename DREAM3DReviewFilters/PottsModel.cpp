@@ -392,6 +392,8 @@ void PottsModel::setupFilterParameters()
 // -----------------------------------------------------------------------------
 void PottsModel::dataCheck()
 {
+  clearErrorCode();
+  clearWarningCode();
   initialize();
 
   if(getIterations() < 1)

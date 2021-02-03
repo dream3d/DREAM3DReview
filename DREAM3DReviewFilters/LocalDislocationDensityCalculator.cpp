@@ -165,10 +165,9 @@ void LocalDislocationDensityCalculator::initialize()
 // -----------------------------------------------------------------------------
 void LocalDislocationDensityCalculator::dataCheck()
 {
-  DataArrayPath tempPath;
   clearErrorCode();
   clearWarningCode();
-
+  DataArrayPath tempPath;
   // First sanity check the inputs and output names. All must be filled in
 
   if(getOutputDataContainerName().isEmpty())
@@ -279,15 +278,12 @@ void LocalDislocationDensityCalculator::dataCheck()
 // -----------------------------------------------------------------------------
 void LocalDislocationDensityCalculator::execute()
 {
-  QString ss;
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {
     return;
   }
-
+  QString ss;
   DataContainer::Pointer edc = getDataContainerArray()->getDataContainer(getEdgeDataContainerName());
   DataContainer::Pointer vdc = getDataContainerArray()->getDataContainer(getOutputDataContainerName());
   AttributeMatrix::Pointer cellAttrMat = vdc->getAttributeMatrix(getOutputAttributeMatrixName());

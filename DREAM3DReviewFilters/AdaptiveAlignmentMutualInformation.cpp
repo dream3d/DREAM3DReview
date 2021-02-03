@@ -809,8 +809,6 @@ void AdaptiveAlignmentMutualInformation::form_features_sections()
 // -----------------------------------------------------------------------------
 void AdaptiveAlignmentMutualInformation::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

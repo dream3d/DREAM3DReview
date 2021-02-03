@@ -123,8 +123,6 @@ void LabelTriangleGeometry::dataCheck()
 // -----------------------------------------------------------------------------
 void LabelTriangleGeometry::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

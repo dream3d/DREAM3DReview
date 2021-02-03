@@ -309,9 +309,9 @@ void TiDwellFatigueCrystallographicAnalysis::initialize()
 // -----------------------------------------------------------------------------
 void TiDwellFatigueCrystallographicAnalysis::dataCheck()
 {
-  DataArrayPath tempPath;
   clearErrorCode();
   clearWarningCode();
+  DataArrayPath tempPath;
 
   DataContainer::Pointer m = getDataContainerArray()->getPrereqDataContainer(this, m_FeatureIdsArrayPath.getDataContainerName(), false);
   if(getErrorCode() < 0 || nullptr == m.get())

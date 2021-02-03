@@ -349,8 +349,6 @@ void AverageVertexArrayToEdgeFaceCellArray::dataCheck()
 // -----------------------------------------------------------------------------
 void AverageVertexArrayToEdgeFaceCellArray::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

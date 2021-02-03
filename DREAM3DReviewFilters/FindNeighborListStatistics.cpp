@@ -280,8 +280,6 @@ void findStatistics(AbstractFilter* filter, IDataArray::Pointer source, bool len
 // -----------------------------------------------------------------------------
 void FindNeighborListStatistics::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

@@ -582,8 +582,6 @@ void DownsampleVertexGeometry::gridDownsample()
 // -----------------------------------------------------------------------------
 void DownsampleVertexGeometry::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

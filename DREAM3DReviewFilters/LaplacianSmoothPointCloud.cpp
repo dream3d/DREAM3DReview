@@ -156,8 +156,6 @@ void LaplacianSmoothPointCloud::determineNewCoords(float* vertex, int64_t vertId
 // -----------------------------------------------------------------------------
 void LaplacianSmoothPointCloud::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

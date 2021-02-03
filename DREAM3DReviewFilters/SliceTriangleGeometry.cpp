@@ -282,8 +282,6 @@ void SliceTriangleGeometry::determineBoundsAndNumSlices(float& minDim, float& ma
 // -----------------------------------------------------------------------------
 void SliceTriangleGeometry::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

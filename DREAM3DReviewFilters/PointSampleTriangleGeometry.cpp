@@ -358,8 +358,6 @@ void PointSampleTriangleGeometry::sampleTriangle(float a[3], float b[3], float c
 // -----------------------------------------------------------------------------
 void PointSampleTriangleGeometry::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

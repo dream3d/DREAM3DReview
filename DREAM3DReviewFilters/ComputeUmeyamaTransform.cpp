@@ -220,8 +220,6 @@ void ComputeUmeyamaTransform::dataCheck()
 // -----------------------------------------------------------------------------
 void ComputeUmeyamaTransform::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

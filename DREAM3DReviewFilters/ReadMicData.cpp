@@ -305,12 +305,13 @@ void ReadMicData::initialize()
 // -----------------------------------------------------------------------------
 void ReadMicData::dataCheck()
 {
+  clearErrorCode();
+  clearWarningCode();
+
   // Reset FileWasRead flag
   m_FileWasRead = false;
 
   DataArrayPath tempPath;
-  clearErrorCode();
-  clearWarningCode();
 
   DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerName(), DataContainerID);
   if(getErrorCode() < 0)

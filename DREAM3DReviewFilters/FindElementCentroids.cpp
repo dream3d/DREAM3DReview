@@ -216,8 +216,6 @@ void FindElementCentroids::dataCheck()
 // -----------------------------------------------------------------------------
 void FindElementCentroids::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

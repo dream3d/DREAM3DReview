@@ -552,8 +552,6 @@ int32_t ReadBinaryCTNorthStar::readHeaderMetaData()
 // -----------------------------------------------------------------------------
 void ReadBinaryCTNorthStar::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

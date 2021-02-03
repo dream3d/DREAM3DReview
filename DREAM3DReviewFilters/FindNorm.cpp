@@ -170,8 +170,6 @@ void findPthNorm(IDataArray::Pointer inDataPtr, const FloatArrayType::Pointer& n
 // -----------------------------------------------------------------------------
 void FindNorm::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {
