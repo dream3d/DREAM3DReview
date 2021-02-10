@@ -138,7 +138,6 @@ struct ImportQMMeltpoolH5File::Cache
   void flush()
   {
     filePath = "";
-    // lastModified = QDateTime();
     sliceRange = {};
 
     missingIndices.clear();
