@@ -232,11 +232,6 @@ protected:
   void dataCheck() override;
 
   /**
-   * @brief Initializes all the private instance variables.
-   */
-  void initialize();
-
-  /**
    * @brief generateCache
    * @param device
    * @return

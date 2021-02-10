@@ -123,48 +123,12 @@ std::string make_list_string(const Container& items)
 
   return ss.str();
 }
-} // namespace
 
-struct ImportQMMeltpoolH5File::Cache
-{
-  fs::file_time_type lastModified;
-  std::string filePath;
-  IntVec2Type sliceRange;
-
-  std::vector<int64_t> missingIndices;
-  std::vector<int64_t> layerThicknesses;
-  std::vector<int64_t> numElements;
-
-  void flush()
-  {
-    filePath = "";
-    sliceRange = {};
-
-    missingIndices.clear();
-
-    layerThicknesses.clear();
-    numElements.clear();
-  }
-};
-
-// -----------------------------------------------------------------------------
-ImportQMMeltpoolH5File::ImportQMMeltpoolH5File()
-{
-  initialize();
-}
-
-// -----------------------------------------------------------------------------
-ImportQMMeltpoolH5File::~ImportQMMeltpoolH5File() = default;
-
-// -----------------------------------------------------------------------------
-void ImportQMMeltpoolH5File::initialize()
-{
-  clearErrorCode();
-  clearWarningCode();
-  setCancel(false);
-}
-
-// -----------------------------------------------------------------------------
+/**
+ * @brief Returns Error Code and Error Message if the checks do not pass
+ * @param filePath The file path to check
+ * @return Error Code (<0 is bad) and Error Message if something didn't pass
+ */
 std::pair<int32_t, std::string> checkFile(const std::string& filePath)
 {
   if(filePath.empty())
@@ -191,6 +155,36 @@ std::pair<int32_t, std::string> checkFile(const std::string& filePath)
 
   return {0, ""};
 }
+
+} // namespace
+
+struct ImportQMMeltpoolH5File::Cache
+{
+  fs::file_time_type lastModified;
+  std::string filePath;
+  IntVec2Type sliceRange;
+
+  std::vector<int64_t> missingIndices;
+  std::vector<int64_t> layerThicknesses;
+  std::vector<int64_t> numElements;
+
+  void flush()
+  {
+    filePath = "";
+    sliceRange = {};
+
+    missingIndices.clear();
+
+    layerThicknesses.clear();
+    numElements.clear();
+  }
+};
+
+// -----------------------------------------------------------------------------
+ImportQMMeltpoolH5File::ImportQMMeltpoolH5File() = default;
+
+// -----------------------------------------------------------------------------
+ImportQMMeltpoolH5File::~ImportQMMeltpoolH5File() = default;
 
 // -----------------------------------------------------------------------------
 void ImportQMMeltpoolH5File::createUpdateCacheEntries()
@@ -253,6 +247,7 @@ void ImportQMMeltpoolH5File::dataCheck()
 {
   clearErrorCode();
   clearWarningCode();
+  setCancel(false);
 
   auto dca = getDataContainerArray();
 
@@ -265,7 +260,7 @@ void ImportQMMeltpoolH5File::dataCheck()
   // Check all of the files
   for(const auto& inputFile : m_InputFiles)
   {
-    std::pair<int32_t, std::string> result = checkFile(inputFile);
+    std::pair<int32_t, std::string> result = ::checkFile(inputFile);
     if(result.first < 0)
     {
       setErrorCondition(result.first, S2Q(result.second));
@@ -297,7 +292,6 @@ void ImportQMMeltpoolH5File::dataCheck()
 // -----------------------------------------------------------------------------
 void ImportQMMeltpoolH5File::execute()
 {
-  initialize();
   dataCheck();
   if(getErrorCode() < 0)
   {
