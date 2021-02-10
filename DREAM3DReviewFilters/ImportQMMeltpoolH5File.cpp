@@ -127,7 +127,6 @@ std::string make_list_string(const Container& items)
 
 struct ImportQMMeltpoolH5File::Cache
 {
-  // QDateTime lastModified;
   fs::file_time_type lastModified;
   std::string filePath;
   IntVec2Type sliceRange;
