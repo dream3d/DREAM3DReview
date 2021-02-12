@@ -200,9 +200,9 @@ private:
   std::weak_ptr<DataArray<bool>> m_FeatureIdsPtr;
   bool* m_FeatureIds = nullptr;
 
-  DataArrayPath m_InputArrayPath = {};
-  DataArrayPath m_FeatureIdsArrayPath = {};
-  DataArrayPath m_GradientMagnitudeArrayPath = {};
+  DataArrayPath m_InputArrayPath = {"", "", ""};
+  DataArrayPath m_FeatureIdsArrayPath = {"", "", "Mask"};
+  DataArrayPath m_GradientMagnitudeArrayPath = {"", "", ""};
 
 public:
   RobustAutomaticThreshold(const RobustAutomaticThreshold&) = delete;            // Copy Constructor Not Implemented

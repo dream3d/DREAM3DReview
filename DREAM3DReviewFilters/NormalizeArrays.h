@@ -254,14 +254,14 @@ private:
   std::weak_ptr<DataArray<bool>> m_MaskPtr;
   bool* m_Mask = nullptr;
 
-  QVector<DataArrayPath> m_SelectedDataArrayPaths = {};
-  int m_NormalizeType = {};
-  double m_RangeMin = {};
-  double m_RangeMax = {};
-  QString m_Postfix = {};
-  bool m_UseMask = {};
-  DataArrayPath m_MaskArrayPath = {};
-  double m_DefaultValue = {};
+  QVector<DataArrayPath> m_SelectedDataArrayPaths = {QVector<DataArrayPath>()};
+  int m_NormalizeType = {0};
+  double m_RangeMin = {0.0};
+  double m_RangeMax = {1.0};
+  QString m_Postfix = {"_Normalized"};
+  bool m_UseMask = {false};
+  DataArrayPath m_MaskArrayPath = {"", "", ""};
+  double m_DefaultValue = {0.0};
 
   std::vector<IDataArray::WeakPointer> m_SelectedWeakPtrVector;
   std::vector<DoubleArrayType::Pointer> m_NormalizedArraysPtrVector;

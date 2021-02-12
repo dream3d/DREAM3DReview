@@ -197,9 +197,9 @@ private:
   std::weak_ptr<DataArray<float>> m_AverageCellArrayPtr;
   float* m_AverageCellArray = nullptr;
 
-  DataArrayPath m_SelectedArrayPath = {};
-  DataArrayPath m_AverageCellArrayPath = {};
-  bool m_WeightedAverage = {};
+  DataArrayPath m_SelectedArrayPath = {"", "", ""};
+  DataArrayPath m_AverageCellArrayPath = {"", "", ""};
+  bool m_WeightedAverage = {false};
 
 public:
   AverageVertexArrayToEdgeFaceCellArray(const AverageVertexArrayToEdgeFaceCellArray&) = delete;            // Copy Constructor Not Implemented

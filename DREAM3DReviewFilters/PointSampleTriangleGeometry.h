@@ -283,20 +283,20 @@ private:
   std::weak_ptr<DataArray<bool>> m_MaskPtr;
   bool* m_Mask = nullptr;
 
-  int m_SamplesNumberType = {};
-  DataArrayPath m_TriangleGeometry = {};
-  QString m_VertexGeometry = {};
-  QString m_VertexAttributeMatrixName = {};
-  int m_NumberOfSamples = {};
-  DataArrayPath m_ParentGeometry = {};
-  DataArrayPath m_TriangleAreasArrayPath = {};
-  bool m_UseMask = {};
-  DataArrayPath m_MaskArrayPath = {};
-  QVector<DataArrayPath> m_SelectedDataArrayPaths = {};
+  int m_SamplesNumberType = {0};
+  DataArrayPath m_TriangleGeometry = {SIMPL::Defaults::TriangleDataContainerName, "", ""};
+  QString m_VertexGeometry = {SIMPL::Defaults::VertexDataContainerName};
+  QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
+  int m_NumberOfSamples = {100000};
+  DataArrayPath m_ParentGeometry = {"", "", ""};
+  DataArrayPath m_TriangleAreasArrayPath = {SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceAreas};
+  bool m_UseMask = {false};
+  DataArrayPath m_MaskArrayPath = {"", "", ""};
+  QVector<DataArrayPath> m_SelectedDataArrayPaths = {QVector<DataArrayPath>()};
 
   std::vector<IDataArray::WeakPointer> m_SelectedWeakPtrVector;
   std::vector<IDataArray::WeakPointer> m_CreatedWeakPtrVector;
-  int32_t m_NumSamples;
+  int32_t m_NumSamples = 0;
 
 public:
   PointSampleTriangleGeometry(const PointSampleTriangleGeometry&) = delete;            // Copy Constructor Not Implemented

@@ -60,15 +60,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-KDistanceGraph::KDistanceGraph()
-: m_SelectedArrayPath("", "", "")
-, m_UseMask(false)
-, m_MaskArrayPath("", "", "")
-, m_KDistanceArrayPath("", "", "KDistance")
-, m_MinDist(1)
-, m_DistanceMetric(0)
-{
-}
+KDistanceGraph::KDistanceGraph() = default;
 
 // -----------------------------------------------------------------------------
 //

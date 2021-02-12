@@ -64,18 +64,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SteinerCompact::SteinerCompact()
-: m_DataContainerName(SIMPL::Defaults::ImageDataContainerName)
-, m_VtkOutput(true)
-, m_VtkFileName("")
-, m_TxtOutput(false)
-, m_TxtFileName("")
-, m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
-, m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
-, m_Plane(0)
-, m_Sites(1)
-{
-}
+SteinerCompact::SteinerCompact() = default;
 
 // -----------------------------------------------------------------------------
 //

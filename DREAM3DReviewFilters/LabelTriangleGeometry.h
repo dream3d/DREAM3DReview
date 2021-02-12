@@ -161,9 +161,9 @@ private:
   std::weak_ptr<DataArray<int32_t>> m_RegionIdPtr;
   int32_t* m_RegionId = nullptr;
 
-  DataArrayPath m_CADDataContainerName = {};
-  QString m_TriangleAttributeMatrixName = {};
-  QString m_RegionIdArrayName = {};
+  DataArrayPath m_CADDataContainerName = {"", "", ""};
+  QString m_TriangleAttributeMatrixName = {""};
+  QString m_RegionIdArrayName = {""};
 
 public:
   LabelTriangleGeometry(const LabelTriangleGeometry&) = delete;            // Copy Constructor Not Implemented

@@ -64,17 +64,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DBSCAN::DBSCAN()
-: m_SelectedArrayPath("", "", "")
-, m_UseMask(false)
-, m_MaskArrayPath("", "", "")
-, m_FeatureIdsArrayName("ClusterIds")
-, m_FeatureAttributeMatrixName("ClusterData")
-, m_Epsilon(0.01f)
-, m_MinPnts(50)
-, m_DistanceMetric(0)
-{
-}
+DBSCAN::DBSCAN() = default;
 
 // -----------------------------------------------------------------------------
 //

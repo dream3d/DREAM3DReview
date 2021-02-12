@@ -157,9 +157,9 @@ private:
   std::weak_ptr<DataArray<double>> m_RoughnessParamsPtr;
   double* m_RoughnessParams = nullptr;
 
-  DataArrayPath m_BoundaryCellsArrayPath = {};
-  QString m_AttributeMatrixName = {};
-  QString m_RoughnessParamsArrayName = {};
+  DataArrayPath m_BoundaryCellsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::BoundaryCells};
+  QString m_AttributeMatrixName = {"RoughnessData"};
+  QString m_RoughnessParamsArrayName = {"RougnessParameters"};
 
 public:
   FindSurfaceRoughness(const FindSurfaceRoughness&) = delete;            // Copy Constructor Not Implemented

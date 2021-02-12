@@ -377,19 +377,19 @@ private:
   std::weak_ptr<DataArray<float>> m_LatticeConstantsPtr;
   float* m_LatticeConstants = nullptr;
 
-  DataArrayPath m_DataContainerName = {};
-  QString m_CellEnsembleAttributeMatrixName = {};
-  QString m_CellAttributeMatrixName = {};
+  DataArrayPath m_DataContainerName = {SIMPL::Defaults::ImageDataContainerName, "", ""};
+  QString m_CellEnsembleAttributeMatrixName = {SIMPL::Defaults::CellEnsembleAttributeMatrixName};
+  QString m_CellAttributeMatrixName = {SIMPL::Defaults::CellAttributeMatrixName};
   bool m_FileWasRead = {};
-  QString m_PhaseNameArrayName = {};
-  QString m_MaterialNameArrayName = {};
-  QString m_InputFile = {};
-  QString m_CellEulerAnglesArrayName = {};
-  QString m_CellPhasesArrayName = {};
-  QString m_CrystalStructuresArrayName = {};
-  QString m_LatticeConstantsArrayName = {};
-  uint32_t m_RefFrameZDir = {};
-  EbsdLib::OEM m_Manufacturer = {};
+  QString m_PhaseNameArrayName = {""};
+  QString m_MaterialNameArrayName = {SIMPL::EnsembleData::PhaseName};
+  QString m_InputFile = {""};
+  QString m_CellEulerAnglesArrayName = {SIMPL::CellData::EulerAngles};
+  QString m_CellPhasesArrayName = {SIMPL::CellData::Phases};
+  QString m_CrystalStructuresArrayName = {SIMPL::EnsembleData::CrystalStructures};
+  QString m_LatticeConstantsArrayName = {SIMPL::EnsembleData::LatticeConstants};
+  uint32_t m_RefFrameZDir = {SIMPL::RefFrameZDir::UnknownRefFrameZDirection};
+  EbsdLib::OEM m_Manufacturer = {EbsdLib::OEM::Unknown};
 
   QScopedPointer<ReadMicDataPrivate> const d_ptr;
 

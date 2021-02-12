@@ -18,8 +18,6 @@
 //
 // -----------------------------------------------------------------------------
 ImportQMMeltpoolTDMSFile::ImportQMMeltpoolTDMSFile()
-: m_InputFile("")
-, m_DataContainerName("", "", "")
 {
   initialize();
 }

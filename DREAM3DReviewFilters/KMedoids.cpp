@@ -65,17 +65,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-KMedoids::KMedoids()
-: m_SelectedArrayPath("", "", "")
-, m_UseMask(false)
-, m_MaskArrayPath("", "", "")
-, m_FeatureIdsArrayName("ClusterIds")
-, m_MedoidsArrayName("ClusterMedoids")
-, m_FeatureAttributeMatrixName("ClusterData")
-, m_InitClusters(1)
-, m_DistanceMetric(0)
-{
-}
+KMedoids::KMedoids() = default;
 
 // -----------------------------------------------------------------------------
 //

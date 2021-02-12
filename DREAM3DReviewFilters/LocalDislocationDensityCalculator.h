@@ -280,14 +280,14 @@ private:
   std::weak_ptr<DataArray<float>> m_SlipPlaneNormalsPtr;
   float* m_SlipPlaneNormals = nullptr;
 
-  DataArrayPath m_EdgeDataContainerName = {};
-  DataArrayPath m_BurgersVectorsArrayPath = {};
-  DataArrayPath m_SlipPlaneNormalsArrayPath = {};
+  DataArrayPath m_EdgeDataContainerName = {SIMPL::Defaults::DataContainerName, "", ""};
+  DataArrayPath m_BurgersVectorsArrayPath = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::EdgeAttributeMatrixName, SIMPL::EdgeData::BurgersVectors};
+  DataArrayPath m_SlipPlaneNormalsArrayPath = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::EdgeAttributeMatrixName, SIMPL::EdgeData::SlipPlaneNormals};
   FloatVec3Type m_CellSize = {};
-  DataArrayPath m_OutputDataContainerName = {};
-  QString m_OutputAttributeMatrixName = {};
-  QString m_OutputArrayName = {};
-  QString m_DominantSystemArrayName = {};
+  DataArrayPath m_OutputDataContainerName = {SIMPL::Defaults::NewDataContainerName, "", ""};
+  QString m_OutputAttributeMatrixName = {SIMPL::Defaults::CellAttributeMatrixName};
+  QString m_OutputArrayName = {"DislocationLineDensity"};
+  QString m_DominantSystemArrayName = {"DominantSystem"};
 
 public:
   LocalDislocationDensityCalculator(const LocalDislocationDensityCalculator&) = delete;            // Copy Constructor Not Implemented

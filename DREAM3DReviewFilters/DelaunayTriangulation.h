@@ -200,14 +200,14 @@ protected:
   void initialize();
 
 private:
-  DataArrayPath m_InputGeometry = {};
-  QString m_TriangleDataContainerName = {};
-  QString m_VertexAttributeMatrixName = {};
-  QString m_FaceAttributeMatrixName = {};
-  double m_Offset = {};
-  double m_Tolerance = {};
-  bool m_TriangulateByFeature = {};
-  DataArrayPath m_FeatureIdsArrayPath = {};
+  DataArrayPath m_InputGeometry = {"", "", ""};
+  QString m_TriangleDataContainerName = {SIMPL::Defaults::TriangleDataContainerName};
+  QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
+  QString m_FaceAttributeMatrixName = {SIMPL::Defaults::FaceAttributeMatrixName};
+  double m_Offset = {1.0};
+  double m_Tolerance = {0.00001};
+  bool m_TriangulateByFeature = {false};
+  DataArrayPath m_FeatureIdsArrayPath = {"", "", ""};
   std::weak_ptr<Int32ArrayType> m_FeatureIdsPtr;
   int32_t* m_FeatureIds = nullptr;
 

@@ -62,8 +62,6 @@ IDataArray::Pointer readH5Dataset(hid_t locId, const QString& datasetPath, const
 //
 // -----------------------------------------------------------------------------
 ImportMASSIFData::ImportMASSIFData()
-: m_FilePrefix("Step-")
-, m_StepNumber(2)
 {
   initialize();
 }

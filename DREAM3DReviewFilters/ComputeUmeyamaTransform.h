@@ -216,11 +216,11 @@ private:
   std::weak_ptr<DataArray<float>> m_TransformationMatrixPtr;
   float* m_TransformationMatrix = nullptr;
 
-  DataArrayPath m_SourcePointSet = {};
-  DataArrayPath m_DestPointSet = {};
+  DataArrayPath m_SourcePointSet = {"", "", ""};
+  DataArrayPath m_DestPointSet = {"", "", ""};
   bool m_UseScaling = {};
-  QString m_TransformationAttributeMatrixName = {};
-  QString m_TransformationMatrixName = {};
+  QString m_TransformationAttributeMatrixName = {"TransformationData"};
+  QString m_TransformationMatrixName = {"TransformationMatrix"};
 
 public:
   ComputeUmeyamaTransform(const ComputeUmeyamaTransform&) = delete;            // Copy Constructor Not Implemented

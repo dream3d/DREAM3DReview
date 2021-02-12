@@ -69,13 +69,6 @@ enum createdPathID : RenameDataPath::DataID_t
 //
 // -----------------------------------------------------------------------------
 LocalDislocationDensityCalculator::LocalDislocationDensityCalculator()
-: m_EdgeDataContainerName(SIMPL::Defaults::DataContainerName)
-, m_BurgersVectorsArrayPath(SIMPL::Defaults::DataContainerName, SIMPL::Defaults::EdgeAttributeMatrixName, SIMPL::EdgeData::BurgersVectors)
-, m_SlipPlaneNormalsArrayPath(SIMPL::Defaults::DataContainerName, SIMPL::Defaults::EdgeAttributeMatrixName, SIMPL::EdgeData::SlipPlaneNormals)
-, m_OutputDataContainerName(SIMPL::Defaults::NewDataContainerName)
-, m_OutputAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
-, m_OutputArrayName("DislocationLineDensity")
-, m_DominantSystemArrayName("DominantSystem")
 {
   m_CellSize[0] = 2.0;
   m_CellSize[1] = 2.0;

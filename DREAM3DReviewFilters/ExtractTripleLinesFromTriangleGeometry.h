@@ -196,11 +196,11 @@ private:
   std::weak_ptr<DataArray<int8_t>> m_TripleLineNodeTypesPtr;
   int8_t* m_TripleLineNodeTypes = nullptr;
 
-  DataArrayPath m_NodeTypesArrayPath = {};
-  QString m_EdgeGeometry = {};
-  QString m_VertexAttributeMatrixName = {};
-  QString m_EdgeAttributeMatrixName = {};
-  QString m_NodeTypesArrayName = {};
+  DataArrayPath m_NodeTypesArrayPath = {SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::VertexAttributeMatrixName, SIMPL::VertexData::SurfaceMeshNodeType};
+  QString m_EdgeGeometry = {SIMPL::Defaults::EdgeDataContainerName};
+  QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
+  QString m_EdgeAttributeMatrixName = {SIMPL::Defaults::EdgeAttributeMatrixName};
+  QString m_NodeTypesArrayName = {SIMPL::VertexData::SurfaceMeshNodeType};
   bool m_SmoothTripleLines = false;
 
 public:

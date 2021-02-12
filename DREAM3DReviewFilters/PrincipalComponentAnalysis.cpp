@@ -72,17 +72,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PrincipalComponentAnalysis::PrincipalComponentAnalysis()
-: m_SelectedDataArrayPaths(QVector<DataArrayPath>())
-, m_PCAttributeMatrixName("PrincipalComponentAnalysis")
-, m_PCEigenvaluesName("PrincipalComponentEigenvalues")
-, m_PCEigenvectorsName("PrincipalComponentEigenvectors")
-, m_MatrixApproach(0)
-, m_ProjectDataSpace(false)
-, m_NumberOfDimensionsForProjection(0)
-, m_ProjectedDataSpaceArrayPath("", "", "ProjectedDataSpace")
-{
-}
+PrincipalComponentAnalysis::PrincipalComponentAnalysis() = default;
 
 // -----------------------------------------------------------------------------
 //

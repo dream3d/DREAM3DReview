@@ -337,19 +337,19 @@ private:
   std::weak_ptr<DataArray<bool>> m_MaskPtr;
   bool* m_Mask = nullptr;
 
-  DataArrayPath m_DataContainerName = {};
-  QVector<DataArrayPath> m_ArraysToInterpolate = {};
-  QVector<DataArrayPath> m_ArraysToCopy = {};
-  DataArrayPath m_VoxelIndicesArrayPath = {};
-  DataArrayPath m_InterpolatedDataContainerName = {};
-  QString m_InterpolatedAttributeMatrixName = {};
+  DataArrayPath m_DataContainerName = {"", "", ""};
+  QVector<DataArrayPath> m_ArraysToInterpolate = {QVector<DataArrayPath>()};
+  QVector<DataArrayPath> m_ArraysToCopy = {QVector<DataArrayPath>()};
+  DataArrayPath m_VoxelIndicesArrayPath = {"", "", "VoxelIndices"};
+  DataArrayPath m_InterpolatedDataContainerName = {"InterpolatedDataContainer", "", ""};
+  QString m_InterpolatedAttributeMatrixName = {"InterpolatedAttributeMatrix"};
   int m_InterpolationTechnique = 0;
   FloatVec3Type m_KernelSize = {1.0f, 1.0f, 1.0f};
   FloatVec3Type m_Sigmas = {1.0f, 1.0f, 1.0f};
   bool m_UseMask = false;
-  DataArrayPath m_MaskArrayPath = {};
+  DataArrayPath m_MaskArrayPath = {"", "", ""};
   bool m_StoreKernelDistances = false;
-  QString m_KernelDistancesArrayName = {};
+  QString m_KernelDistancesArrayName = {"KernelDistances"};
 
   QString m_InterpolatedSuffix = " [Interpolated]";
   QString m_CopySuffix = " [Copied]";

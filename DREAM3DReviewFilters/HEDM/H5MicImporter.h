@@ -117,11 +117,11 @@ protected:
   H5MicImporter();
 
 private:
-  int64_t xDim;
-  int64_t yDim;
-  float xRes;
-  float yRes;
-  int m_FileVersion;
+  int64_t xDim = 0;
+  int64_t yDim = 0;
+  float xRes = 0.0F;
+  float yRes = 0.0F;
+  int m_FileVersion = {Mic::H5Mic::FileVersion};
 
 public:
   H5MicImporter(const H5MicImporter&) = delete;            // Copy Constructor Not Implemented

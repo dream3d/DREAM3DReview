@@ -260,23 +260,6 @@ private:
 //
 // -----------------------------------------------------------------------------
 TesselateFarFieldGrains::TesselateFarFieldGrains()
-: m_OutputCellAttributeMatrixName(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, "")
-, m_OutputCellFeatureAttributeMatrixName(SIMPL::Defaults::CellFeatureAttributeMatrixName)
-, m_OutputCellEnsembleAttributeMatrixName(SIMPL::Defaults::CellEnsembleAttributeMatrixName)
-, m_FeatureIdsArrayName(SIMPL::CellData::FeatureIds)
-, m_CellPhasesArrayName(SIMPL::CellData::Phases)
-, m_SlabIdArrayName("BoxBeamID")
-, m_FeaturePhasesArrayName(SIMPL::FeatureData::Phases)
-, m_FeatureEulerAnglesArrayName(SIMPL::FeatureData::EulerAngles)
-, m_ElasticStrainsArrayName(SIMPL::FeatureData::ElasticStrains)
-, m_CentroidsArrayName(SIMPL::FeatureData::Centroids)
-, m_VolumesArrayName(SIMPL::FeatureData::Volumes)
-, m_AxisLengthsArrayName(SIMPL::FeatureData::AxisLengths)
-, m_AxisEulerAnglesArrayName(SIMPL::FeatureData::AxisEulerAngles)
-, m_Omega3sArrayName(SIMPL::FeatureData::Omega3s)
-, m_EquivalentDiametersArrayName(SIMPL::FeatureData::EquivalentDiameters)
-, m_CrystalStructuresArrayName(SIMPL::EnsembleData::CrystalStructures)
-, m_MaskArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Mask)
 {
   m_EllipsoidOps = EllipsoidOps::New();
 

@@ -163,10 +163,10 @@ protected:
   void initialize();
 
 private:
-  DataArrayPath m_VertexDataContainerName = {};
-  QString m_HullDataContainerName = {};
+  DataArrayPath m_VertexDataContainerName = {SIMPL::Defaults::VertexDataContainerName, "", ""};
+  QString m_HullDataContainerName = {"HullDataContainer"};
   FloatVec3Type m_GridResolution = {};
-  int m_NumberOfEmptyNeighbors = {};
+  int m_NumberOfEmptyNeighbors = {1};
 
   ImageGeom::Pointer m_SamplingGrid;
   std::vector<float> m_MeshMinExtents;

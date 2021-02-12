@@ -171,11 +171,11 @@ protected:
   void initialize();
 
 private:
-  QString m_InputFile = {};
-  QString m_HFDataContainerName = {};
-  QString m_HFDataName = {};
-  QString m_HFSliceDataName = {};
-  QString m_HFSliceIdsArrayName = {};
+  QString m_InputFile = {""};
+  QString m_HFDataContainerName = {"HighFrequencyDataContainer"};
+  QString m_HFDataName = {"HighFrequencyData"};
+  QString m_HFSliceDataName = {"HF_SliceAttributeMatrix"};
+  QString m_HFSliceIdsArrayName = {"LayerIds"};
   std::weak_ptr<Int32ArrayType> m_HFSliceIdsPtr;
   int32_t* m_HFSliceIds = nullptr;
 

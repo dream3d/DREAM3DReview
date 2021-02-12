@@ -78,11 +78,6 @@ using EdgeMap = std::unordered_map<Edge, MeshIndexType, EdgeHasher>;
 //
 // -----------------------------------------------------------------------------
 ExtractTripleLinesFromTriangleGeometry::ExtractTripleLinesFromTriangleGeometry()
-: m_NodeTypesArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::VertexAttributeMatrixName, SIMPL::VertexData::SurfaceMeshNodeType)
-, m_EdgeGeometry(SIMPL::Defaults::EdgeDataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_EdgeAttributeMatrixName(SIMPL::Defaults::EdgeAttributeMatrixName)
-, m_NodeTypesArrayName(SIMPL::VertexData::SurfaceMeshNodeType)
 {
   initialize();
 }

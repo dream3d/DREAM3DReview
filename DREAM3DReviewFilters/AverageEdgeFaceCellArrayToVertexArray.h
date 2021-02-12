@@ -185,8 +185,8 @@ private:
   std::weak_ptr<DataArray<float>> m_AverageVertexArrayPtr;
   float* m_AverageVertexArray = nullptr;
 
-  DataArrayPath m_SelectedArrayPath = {};
-  DataArrayPath m_AverageVertexArrayPath = {};
+  DataArrayPath m_SelectedArrayPath = {"", "", ""};
+  DataArrayPath m_AverageVertexArrayPath = {SIMPL::Defaults::VertexDataContainerName, SIMPL::Defaults::VertexAttributeMatrixName, ""};
 
 public:
   AverageEdgeFaceCellArrayToVertexArray(const AverageEdgeFaceCellArrayToVertexArray&) = delete;            // Copy Constructor Not Implemented

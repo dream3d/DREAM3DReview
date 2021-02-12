@@ -262,14 +262,14 @@ private:
   std::weak_ptr<DataArray<double>> m_MeansArrayPtr;
   double* m_MeansArray = nullptr;
 
-  DataArrayPath m_SelectedArrayPath = {};
-  bool m_UseMask = {};
-  DataArrayPath m_MaskArrayPath = {};
-  QString m_FeatureIdsArrayName = {};
-  QString m_MeansArrayName = {};
-  int m_InitClusters = {};
-  QString m_FeatureAttributeMatrixName = {};
-  int m_DistanceMetric = {};
+  DataArrayPath m_SelectedArrayPath = {"", "", ""};
+  bool m_UseMask = {false};
+  DataArrayPath m_MaskArrayPath = {"", "", ""};
+  QString m_FeatureIdsArrayName = {"ClusterIds"};
+  QString m_MeansArrayName = {"ClusterMeans"};
+  int m_InitClusters = {1};
+  QString m_FeatureAttributeMatrixName = {"ClusterData"};
+  int m_DistanceMetric = {0};
 
 public:
   KMeans(const KMeans&) = delete;            // Copy Constructor Not Implemented

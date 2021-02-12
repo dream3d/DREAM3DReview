@@ -33,9 +33,6 @@
 //
 // -----------------------------------------------------------------------------
 FindSurfaceRoughness::FindSurfaceRoughness()
-: m_BoundaryCellsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::BoundaryCells)
-, m_AttributeMatrixName("RoughnessData")
-, m_RoughnessParamsArrayName("RougnessParameters")
 {
   initialize();
 }

@@ -231,12 +231,12 @@ private:
   std::weak_ptr<DataArray<double>> m_KDistanceArrayPtr;
   double* m_KDistanceArray = nullptr;
 
-  DataArrayPath m_SelectedArrayPath = {};
-  bool m_UseMask = {};
-  DataArrayPath m_MaskArrayPath = {};
-  DataArrayPath m_KDistanceArrayPath = {};
-  int m_MinDist = {};
-  int m_DistanceMetric = {};
+  DataArrayPath m_SelectedArrayPath = {"", "", ""};
+  bool m_UseMask = {false};
+  DataArrayPath m_MaskArrayPath = {"", "", ""};
+  DataArrayPath m_KDistanceArrayPath = {"", "", "KDistance"};
+  int m_MinDist = {1};
+  int m_DistanceMetric = {0};
 
   IDataArray::WeakPointer m_InDataPtr;
 

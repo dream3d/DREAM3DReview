@@ -61,9 +61,6 @@ enum createdPathID : RenameDataPath::DataID_t
 //
 // -----------------------------------------------------------------------------
 RemoveFlaggedVertices::RemoveFlaggedVertices()
-: m_VertexGeometry(SIMPL::Defaults::VertexDataContainerName)
-, m_MaskArrayPath(SIMPL::Defaults::VertexDataContainerName, SIMPL::Defaults::VertexAttributeMatrixName, SIMPL::CellData::Mask)
-, m_ReducedVertexGeometry("ReducedVertexDataContainer")
 {
   initialize();
 }

@@ -65,13 +65,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FindElementCentroids::FindElementCentroids()
-: m_CellCentroidsArrayPath("", "", "Centroids")
-, m_CreateVertexDataContainer(false)
-, m_NewDataContainerName(SIMPL::Defaults::VertexDataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-{
-}
+FindElementCentroids::FindElementCentroids() = default;
 
 // -----------------------------------------------------------------------------
 //

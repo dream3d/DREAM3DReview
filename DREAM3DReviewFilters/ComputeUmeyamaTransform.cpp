@@ -68,13 +68,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ComputeUmeyamaTransform::ComputeUmeyamaTransform()
-: m_SourcePointSet("")
-, m_DestPointSet("")
-, m_TransformationAttributeMatrixName("TransformationData")
-, m_TransformationMatrixName("TransformationMatrix")
-{
-}
+ComputeUmeyamaTransform::ComputeUmeyamaTransform() = default;
 
 // -----------------------------------------------------------------------------
 //

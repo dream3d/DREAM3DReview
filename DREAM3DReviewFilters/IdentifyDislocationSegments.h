@@ -242,11 +242,11 @@ private:
   std::weak_ptr<DataArray<bool>> m_ActivePtr;
   bool* m_Active = nullptr;
 
-  QString m_EdgeFeatureAttributeMatrixName = {};
-  DataArrayPath m_BurgersVectorsArrayPath = {};
-  DataArrayPath m_SlipPlaneNormalsArrayPath = {};
-  QString m_DislocationIdsArrayName = {};
-  QString m_ActiveArrayName = {};
+  QString m_EdgeFeatureAttributeMatrixName = {SIMPL::Defaults::EdgeFeatureAttributeMatrixName};
+  DataArrayPath m_BurgersVectorsArrayPath = {SIMPL::Defaults::EdgeDataContainerName, SIMPL::Defaults::EdgeAttributeMatrixName, SIMPL::EdgeData::BurgersVectors};
+  DataArrayPath m_SlipPlaneNormalsArrayPath = {SIMPL::Defaults::EdgeDataContainerName, SIMPL::Defaults::EdgeAttributeMatrixName, SIMPL::EdgeData::SlipPlaneNormals};
+  QString m_DislocationIdsArrayName = {SIMPL::EdgeData::DislocationIds};
+  QString m_ActiveArrayName = {SIMPL::FeatureData::Active};
 
 public:
   IdentifyDislocationSegments(const IdentifyDislocationSegments&) = delete;            // Copy Constructor Not Implemented

@@ -70,17 +70,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-NormalizeArrays::NormalizeArrays()
-: m_SelectedDataArrayPaths(QVector<DataArrayPath>())
-, m_NormalizeType(0)
-, m_RangeMin(0.0)
-, m_RangeMax(1.0)
-, m_Postfix("_Normalized")
-, m_UseMask(false)
-, m_MaskArrayPath("", "", "")
-, m_DefaultValue(0.0)
-{
-}
+NormalizeArrays::NormalizeArrays() = default;
 
 // -----------------------------------------------------------------------------
 //

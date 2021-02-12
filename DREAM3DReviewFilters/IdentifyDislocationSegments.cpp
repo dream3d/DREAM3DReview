@@ -67,14 +67,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-IdentifyDislocationSegments::IdentifyDislocationSegments()
-: m_EdgeFeatureAttributeMatrixName(SIMPL::Defaults::EdgeFeatureAttributeMatrixName)
-, m_BurgersVectorsArrayPath(SIMPL::Defaults::EdgeDataContainerName, SIMPL::Defaults::EdgeAttributeMatrixName, SIMPL::EdgeData::BurgersVectors)
-, m_SlipPlaneNormalsArrayPath(SIMPL::Defaults::EdgeDataContainerName, SIMPL::Defaults::EdgeAttributeMatrixName, SIMPL::EdgeData::SlipPlaneNormals)
-, m_DislocationIdsArrayName(SIMPL::EdgeData::DislocationIds)
-, m_ActiveArrayName(SIMPL::FeatureData::Active)
-{
-}
+IdentifyDislocationSegments::IdentifyDislocationSegments() = default;
 
 // -----------------------------------------------------------------------------
 //

@@ -445,29 +445,6 @@ public:
 //
 // -----------------------------------------------------------------------------
 EstablishFoamMorphology::EstablishFoamMorphology()
-: m_DataContainerName(SIMPL::Defaults::SyntheticVolumeDataContainerName)
-, m_OutputCellAttributeMatrixPath(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, "")
-, m_InputCellFeatureIdsArrayPath(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
-, m_OutputCellEnsembleAttributeMatrixName(SIMPL::Defaults::CellEnsembleAttributeMatrixName)
-, m_OutputCellFeatureAttributeMatrixName(SIMPL::Defaults::CellFeatureAttributeMatrixName)
-, m_FeatureIdsArrayName(SIMPL::CellData::FeatureIds)
-, m_MaskArrayName(SIMPL::CellData::Mask)
-, m_CellPhasesArrayName(SIMPL::CellData::Phases)
-, m_NumFeaturesArrayName(SIMPL::EnsembleData::NumFeatures)
-, m_QPEuclideanDistancesArrayName(SIMPL::CellData::QPEuclideanDistances)
-, m_TJEuclideanDistancesArrayName(SIMPL::CellData::TJEuclideanDistances)
-, m_GBEuclideanDistancesArrayName(SIMPL::CellData::GBEuclideanDistances)
-, m_InputStatsArrayPath(SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::Statistics)
-, m_InputPhaseTypesArrayPath(SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseTypes)
-, m_InputPhaseNamesArrayPath(SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
-, m_InputShapeTypesArrayPath(SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::ShapeTypes)
-, m_CsvOutputFile("")
-, m_PeriodicBoundaries(false)
-, m_WriteGoalAttributes(false)
-, m_HaveFeatures(0)
-, m_MinStrutThickness(1.0)
-, m_StrutThicknessVariability(0.5f)
-, m_StrutShapeVariability(0.5f)
 {
   initialize();
   setupFilterParameters();

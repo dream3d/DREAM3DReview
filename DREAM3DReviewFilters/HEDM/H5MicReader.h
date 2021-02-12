@@ -164,7 +164,7 @@ protected:
 private:
   std::vector<MicPhase::Pointer> m_Phases;
   std::set<std::string> m_ArrayNames;
-  bool m_ReadAllArrays;
+  bool m_ReadAllArrays = {true};
 
 public:
   H5MicReader(const H5MicReader&) = delete;            // Copy Constructor Not Implemented

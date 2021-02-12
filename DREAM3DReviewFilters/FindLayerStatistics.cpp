@@ -135,18 +135,7 @@ private:
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FindLayerStatistics::FindLayerStatistics()
-: m_SelectedArrayPath("", "", "")
-, m_Plane(0)
-, m_LayerIDsArrayName("LayerIDs")
-, m_LayerAttributeMatrixName("")
-, m_LayerMinArrayName("LayerMin")
-, m_LayerMaxArrayName("LayerMax")
-, m_LayerAvgArrayName("LayerAvg")
-, m_LayerStdArrayName("LayerStd")
-, m_LayerVarArrayName("LayerVar")
-{
-}
+FindLayerStatistics::FindLayerStatistics() = default;
 
 // -----------------------------------------------------------------------------
 //

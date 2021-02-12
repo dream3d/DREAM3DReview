@@ -237,12 +237,12 @@ private:
   std::weak_ptr<DataArray<double>> m_SilhouetteArrayPtr;
   double* m_SilhouetteArray = nullptr;
 
-  DataArrayPath m_SelectedArrayPath = {};
-  bool m_UseMask = {};
-  DataArrayPath m_MaskArrayPath = {};
-  DataArrayPath m_FeatureIdsArrayPath = {};
-  DataArrayPath m_SilhouetteArrayPath = {};
-  int m_DistanceMetric = {};
+  DataArrayPath m_SelectedArrayPath = {"", "", ""};
+  bool m_UseMask = {false};
+  DataArrayPath m_MaskArrayPath = {"", "", "Mask"};
+  DataArrayPath m_FeatureIdsArrayPath = {"", "", "ClusterIds"};
+  DataArrayPath m_SilhouetteArrayPath = {"", "", "Silhouette"};
+  int m_DistanceMetric = {0};
 
 public:
   Silhouette(const Silhouette&) = delete;            // Copy Constructor Not Implemented

@@ -74,20 +74,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-PointSampleTriangleGeometry::PointSampleTriangleGeometry()
-: m_SamplesNumberType(0)
-, m_TriangleGeometry(SIMPL::Defaults::TriangleDataContainerName)
-, m_VertexGeometry(SIMPL::Defaults::VertexDataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_NumberOfSamples(100000)
-, m_ParentGeometry("")
-, m_TriangleAreasArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceAreas)
-, m_UseMask(false)
-, m_MaskArrayPath("", "", "")
-, m_SelectedDataArrayPaths(QVector<DataArrayPath>())
-, m_NumSamples(0)
-{
-}
+PointSampleTriangleGeometry::PointSampleTriangleGeometry() = default;
 
 // -----------------------------------------------------------------------------
 //

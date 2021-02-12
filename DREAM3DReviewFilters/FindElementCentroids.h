@@ -203,10 +203,10 @@ private:
   std::weak_ptr<DataArray<float>> m_CellCentroidsArrayPtr;
   float* m_CellCentroidsArray = nullptr;
 
-  DataArrayPath m_CellCentroidsArrayPath = {};
-  bool m_CreateVertexDataContainer = {};
-  DataArrayPath m_NewDataContainerName = {};
-  QString m_VertexAttributeMatrixName = {};
+  DataArrayPath m_CellCentroidsArrayPath = {"", "", "Centroids"};
+  bool m_CreateVertexDataContainer = {false};
+  DataArrayPath m_NewDataContainerName = {SIMPL::Defaults::VertexDataContainerName, "", ""};
+  QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
 
 public:
   FindElementCentroids(const FindElementCentroids&) = delete;            // Copy Constructor Not Implemented

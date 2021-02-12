@@ -366,19 +366,19 @@ private:
   std::weak_ptr<DataArray<DREAM3DReviewConstants::DefaultPixelType>> m_FlatImageDataPtr;
   DREAM3DReviewConstants::DefaultPixelType* m_FlatImageData = nullptr;
 
-  QString m_DataContainerName = {};
-  QString m_CellAttributeMatrixName = {};
-  bool m_WriteAlignmentShifts = {};
-  QString m_AlignmentShiftFileName = {};
-  int m_GlobalCorrection = {};
-  QString m_InputPath = {};
-  float m_ShiftX = {};
-  float m_ShiftY = {};
-  DataArrayPath m_ImageDataArrayPath = {};
-  QString m_NewCellArrayName = {};
-  float m_MinRadius = {};
-  float m_MaxRadius = {};
-  int m_NumberCircles = {};
+  QString m_DataContainerName = {SIMPL::Defaults::ImageDataContainerName};
+  QString m_CellAttributeMatrixName = {SIMPL::Defaults::CellAttributeMatrixName};
+  bool m_WriteAlignmentShifts = {false};
+  QString m_AlignmentShiftFileName = {""};
+  int m_GlobalCorrection = {0};
+  QString m_InputPath = {""};
+  float m_ShiftX = {0.0f};
+  float m_ShiftY = {0.0f};
+  DataArrayPath m_ImageDataArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::ImageData};
+  QString m_NewCellArrayName = {""};
+  float m_MinRadius = {0.0f};
+  float m_MaxRadius = {0.0f};
+  int m_NumberCircles = {0};
   QVector<DataArrayPath> m_IgnoredDataArrayPaths = {};
 
   DataArray<DREAM3DReviewConstants::DefaultPixelType>::WeakPointer m_NewCellArrayPtr;

@@ -59,9 +59,6 @@ enum createdPathID : RenameDataPath::DataID_t
 //
 // -----------------------------------------------------------------------------
 RobustAutomaticThreshold::RobustAutomaticThreshold()
-: m_InputArrayPath("", "", "")
-, m_FeatureIdsArrayPath("", "", "Mask")
-, m_GradientMagnitudeArrayPath("", "", "")
 {
   initialize();
 }

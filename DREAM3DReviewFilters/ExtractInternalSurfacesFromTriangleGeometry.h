@@ -192,9 +192,9 @@ private:
   std::weak_ptr<DataArray<int8_t>> m_NodeTypesPtr;
   int8_t* m_NodeTypes = nullptr;
 
-  DataArrayPath m_TriangleDataContainerName = {};
-  DataArrayPath m_NodeTypesArrayPath = {};
-  QString m_InternalTrianglesName = {};
+  DataArrayPath m_TriangleDataContainerName = {SIMPL::Defaults::TriangleDataContainerName, "", ""};
+  DataArrayPath m_NodeTypesArrayPath = {SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::VertexAttributeMatrixName, SIMPL::VertexData::SurfaceMeshNodeType};
+  QString m_InternalTrianglesName = {"InternalTrianglesDataContainer"};
 
   QList<QString> m_AttrMatList;
 

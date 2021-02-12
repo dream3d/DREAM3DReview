@@ -162,8 +162,8 @@ private:
   std::weak_ptr<DataArray<float>> m_SFieldPtr;
 
   QString m_MassifInputFilePath = {};
-  QString m_FilePrefix = {};
-  int m_StepNumber = {};
+  QString m_FilePrefix = {"Step-"};
+  int m_StepNumber = {2};
 
   QString m_PaddedStep = "";
 

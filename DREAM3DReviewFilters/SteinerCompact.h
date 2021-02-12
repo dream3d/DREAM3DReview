@@ -309,16 +309,16 @@ private:
   std::weak_ptr<DataArray<int32_t>> m_CellPhasesPtr;
   int32_t* m_CellPhases = nullptr;
 
-  QString m_DataContainerName = {};
+  QString m_DataContainerName = {SIMPL::Defaults::ImageDataContainerName};
   QString m_CellAttributeMatrixName = {};
-  bool m_VtkOutput = {};
-  QString m_VtkFileName = {};
-  bool m_TxtOutput = {};
-  QString m_TxtFileName = {};
-  DataArrayPath m_FeatureIdsArrayPath = {};
-  DataArrayPath m_CellPhasesArrayPath = {};
-  int m_Plane = {};
-  int m_Sites = {};
+  bool m_VtkOutput = {true};
+  QString m_VtkFileName = {""};
+  bool m_TxtOutput = {false};
+  QString m_TxtFileName = {""};
+  DataArrayPath m_FeatureIdsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
+  DataArrayPath m_CellPhasesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases};
+  int m_Plane = {0};
+  int m_Sites = {1};
 
 public:
   SteinerCompact(const SteinerCompact&) = delete;            // Copy Constructor Not Implemented

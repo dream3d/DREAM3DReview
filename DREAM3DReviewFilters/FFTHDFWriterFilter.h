@@ -231,14 +231,14 @@ private:
   std::weak_ptr<DataArray<float>> m_CellEulerAnglesPtr;
   float* m_CellEulerAngles = nullptr;
 
-  QString m_OutputFile = {};
-  bool m_WritePipeline = {};
-  bool m_AppendToExisting = {};
-  DataArrayPath m_FeatureIdsArrayPath = {};
-  DataArrayPath m_CellPhasesArrayPath = {};
-  DataArrayPath m_CellEulerAnglesArrayPath = {};
+  QString m_OutputFile = {""};
+  bool m_WritePipeline = {true};
+  bool m_AppendToExisting = {false};
+  DataArrayPath m_FeatureIdsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
+  DataArrayPath m_CellPhasesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases};
+  DataArrayPath m_CellEulerAnglesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles};
 
-  hid_t m_FileId;
+  hid_t m_FileId = -1;
 
 public:
   FFTHDFWriterFilter(const FFTHDFWriterFilter&) = delete;            // Copy Constructor Not Implemented

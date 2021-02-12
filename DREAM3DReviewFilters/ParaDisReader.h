@@ -317,16 +317,16 @@ private:
   std::weak_ptr<DataArray<float>> m_DomainBoundsPtr;
   float* m_DomainBounds = nullptr;
 
-  DataArrayPath m_EdgeDataContainerName = {};
-  QString m_VertexAttributeMatrixName = {};
-  QString m_EdgeAttributeMatrixName = {};
-  QString m_InputFile = {};
-  float m_BurgersVector = {};
-  QString m_NumberOfArmsArrayName = {};
-  QString m_NodeConstraintsArrayName = {};
-  QString m_BurgersVectorsArrayName = {};
-  QString m_SlipPlaneNormalsArrayName = {};
-  QString m_DomainBoundsArrayName = {};
+  DataArrayPath m_EdgeDataContainerName = {SIMPL::Defaults::DataContainerName, "", ""};
+  QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
+  QString m_EdgeAttributeMatrixName = {SIMPL::Defaults::EdgeAttributeMatrixName};
+  QString m_InputFile = {""};
+  float m_BurgersVector = {2.5};
+  QString m_NumberOfArmsArrayName = {SIMPL::VertexData::NumberOfArms};
+  QString m_NodeConstraintsArrayName = {SIMPL::VertexData::NodeConstraints};
+  QString m_BurgersVectorsArrayName = {SIMPL::EdgeData::BurgersVectors};
+  QString m_SlipPlaneNormalsArrayName = {SIMPL::EdgeData::SlipPlaneNormals};
+  QString m_DomainBoundsArrayName = {"DomainBounds"};
 
   QFile m_InStream;
 

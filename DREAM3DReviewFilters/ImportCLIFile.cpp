@@ -19,7 +19,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
-#include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
@@ -35,12 +34,6 @@
 //
 // -----------------------------------------------------------------------------
 ImportCLIFile::ImportCLIFile()
-: m_CLIFile("")
-, m_EdgeDataContainerName(SIMPL::Defaults::EdgeDataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_EdgeAttributeMatrixName(SIMPL::Defaults::EdgeAttributeMatrixName)
-, m_LayerIdsArrayName("LayerIds")
-, m_FeatureIdsArrayName(SIMPL::CellData::FeatureIds)
 {
   initialize();
 }

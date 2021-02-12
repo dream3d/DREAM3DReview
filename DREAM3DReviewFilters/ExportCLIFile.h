@@ -213,14 +213,14 @@ private:
   std::weak_ptr<DataArray<int32_t>> m_GroupIdsPtr;
   int32_t* m_GroupIds = nullptr;
 
-  DataArrayPath m_EdgeGeometry = {};
-  DataArrayPath m_LayerIdsArrayPath = {};
+  DataArrayPath m_EdgeGeometry = {"", "", ""};
+  DataArrayPath m_LayerIdsArrayPath = {"", "", ""};
   bool m_SplitByGroup = {};
-  DataArrayPath m_GroupIdsArrayPath = {};
-  QString m_OutputDirectory = {};
-  QString m_OutputFilePrefix = {};
-  double m_UnitsScaleFactor = {};
-  int m_Precision = {};
+  DataArrayPath m_GroupIdsArrayPath = {"", "", ""};
+  QString m_OutputDirectory = {""};
+  QString m_OutputFilePrefix = {""};
+  double m_UnitsScaleFactor = {1.0};
+  int m_Precision = {5};
 
 public:
   ExportCLIFile(const ExportCLIFile&) = delete;            // Copy Constructor Not Implemented

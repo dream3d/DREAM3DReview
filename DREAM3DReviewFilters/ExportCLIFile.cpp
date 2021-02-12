@@ -40,13 +40,6 @@
 //
 // -----------------------------------------------------------------------------
 ExportCLIFile::ExportCLIFile()
-: m_EdgeGeometry("")
-, m_LayerIdsArrayPath("", "", "")
-, m_GroupIdsArrayPath("", "", "")
-, m_OutputDirectory("")
-, m_OutputFilePrefix("")
-, m_UnitsScaleFactor(1.0)
-, m_Precision(5)
 {
   initialize();
 }

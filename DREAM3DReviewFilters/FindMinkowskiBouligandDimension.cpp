@@ -34,9 +34,6 @@
 //
 // -----------------------------------------------------------------------------
 FindMinkowskiBouligandDimension::FindMinkowskiBouligandDimension()
-: m_MaskArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Mask)
-, m_AttributeMatrixName("FractalData")
-, m_MinkowskiBouligandDimensionArrayName("MinkowskiBouligandDimension")
 {
   initialize();
 }

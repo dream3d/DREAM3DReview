@@ -156,9 +156,9 @@ private:
   std::weak_ptr<DataArray<double>> m_MinkowskiBouligandDimensionPtr;
   double* m_MinkowskiBouligandDimension = nullptr;
 
-  DataArrayPath m_MaskArrayPath = {};
-  QString m_AttributeMatrixName = {};
-  QString m_MinkowskiBouligandDimensionArrayName = {};
+  DataArrayPath m_MaskArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Mask};
+  QString m_AttributeMatrixName = {"FractalData"};
+  QString m_MinkowskiBouligandDimensionArrayName = {"MinkowskiBouligandDimension"};
 
   void findSourceIndices(std::vector<size_t>& indices, size_t sourceDim, size_t index, size_t box[3], size_t imageDim);
 

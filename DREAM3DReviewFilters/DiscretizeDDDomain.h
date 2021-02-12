@@ -232,11 +232,11 @@ private:
   std::weak_ptr<DataArray<int32_t>> m_OutputArrayPtr;
   int32_t* m_OutputArray = nullptr;
 
-  DataArrayPath m_EdgeDataContainerName = {};
+  DataArrayPath m_EdgeDataContainerName = {SIMPL::Defaults::DataContainerName, "", ""};
   FloatVec3Type m_CellSize = {};
-  DataArrayPath m_OutputDataContainerName = {};
-  QString m_OutputAttributeMatrixName = {};
-  QString m_OutputArrayName = {};
+  DataArrayPath m_OutputDataContainerName = {SIMPL::Defaults::NewDataContainerName, "", ""};
+  QString m_OutputAttributeMatrixName = {SIMPL::Defaults::CellAttributeMatrixName};
+  QString m_OutputArrayName = {"DislocationLineDensity"};
 
 public:
   DiscretizeDDDomain(const DiscretizeDDDomain&) = delete;            // Copy Constructor Not Implemented

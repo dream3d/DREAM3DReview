@@ -63,15 +63,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Silhouette::Silhouette()
-: m_SelectedArrayPath("", "", "")
-, m_UseMask(false)
-, m_MaskArrayPath("", "", "Mask")
-, m_FeatureIdsArrayPath("", "", "ClusterIds")
-, m_SilhouetteArrayPath("", "", "Silhouette")
-, m_DistanceMetric(0)
-{
-}
+Silhouette::Silhouette() = default;
 
 // -----------------------------------------------------------------------------
 //

@@ -17,6 +17,7 @@
 #include <memory>
 
 #include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
@@ -184,12 +185,12 @@ protected:
   void initialize();
 
 private:
-  QString m_CLIFile = {};
-  QString m_EdgeDataContainerName = {};
-  QString m_VertexAttributeMatrixName = {};
-  QString m_EdgeAttributeMatrixName = {};
-  QString m_LayerIdsArrayName = {};
-  QString m_FeatureIdsArrayName = {};
+  QString m_CLIFile = {""};
+  QString m_EdgeDataContainerName = {SIMPL::Defaults::EdgeDataContainerName};
+  QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
+  QString m_EdgeAttributeMatrixName = {SIMPL::Defaults::EdgeAttributeMatrixName};
+  QString m_LayerIdsArrayName = {"LayerIds"};
+  QString m_FeatureIdsArrayName = {SIMPL::CellData::FeatureIds};
 
   ImportCLIFile(const ImportCLIFile&) = delete;  // Copy Constructor Not Implemented
   ImportCLIFile(ImportCLIFile&&) = delete;       // Move Constructor Not Implemented

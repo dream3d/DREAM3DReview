@@ -117,18 +117,7 @@ void mergeTriangleGeometries(std::vector<TriangleGeom::Pointer>& triangles)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-DelaunayTriangulation::DelaunayTriangulation()
-: m_InputGeometry("")
-, m_TriangleDataContainerName(SIMPL::Defaults::TriangleDataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_FaceAttributeMatrixName(SIMPL::Defaults::FaceAttributeMatrixName)
-, m_Offset(1.0)
-, m_Tolerance(0.00001)
-, m_TriangulateByFeature(false)
-, m_FeatureIdsArrayPath("", "", "")
-, m_FeatureIds(nullptr)
-{
-}
+DelaunayTriangulation::DelaunayTriangulation() = default;
 
 // -----------------------------------------------------------------------------
 //

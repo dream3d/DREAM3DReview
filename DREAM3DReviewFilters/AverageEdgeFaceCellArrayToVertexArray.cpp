@@ -55,11 +55,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-AverageEdgeFaceCellArrayToVertexArray::AverageEdgeFaceCellArrayToVertexArray()
-: m_SelectedArrayPath("", "", "")
-, m_AverageVertexArrayPath(SIMPL::Defaults::VertexDataContainerName, SIMPL::Defaults::VertexAttributeMatrixName, "")
-{
-}
+AverageEdgeFaceCellArrayToVertexArray::AverageEdgeFaceCellArrayToVertexArray() = default;
 
 // -----------------------------------------------------------------------------
 //

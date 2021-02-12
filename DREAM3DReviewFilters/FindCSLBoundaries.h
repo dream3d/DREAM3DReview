@@ -53,6 +53,7 @@
 #include "EbsdLib/LaueOps/LaueOps.h"
 #include "EbsdLib/LaueOps/OrthoRhombicOps.h"
 
+#include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
 
 class LaueOps;
@@ -301,16 +302,16 @@ private:
   std::weak_ptr<DataArray<float>> m_SurfaceMeshCSLBoundaryIncoherencePtr;
   float* m_SurfaceMeshCSLBoundaryIncoherence = nullptr;
 
-  float m_CSL = {};
-  float m_AxisTolerance = {};
-  float m_AngleTolerance = {};
-  DataArrayPath m_AvgQuatsArrayPath = {};
-  DataArrayPath m_FeaturePhasesArrayPath = {};
-  DataArrayPath m_CrystalStructuresArrayPath = {};
-  DataArrayPath m_SurfaceMeshFaceLabelsArrayPath = {};
-  DataArrayPath m_SurfaceMeshFaceNormalsArrayPath = {};
-  QString m_SurfaceMeshCSLBoundaryArrayName = {};
-  QString m_SurfaceMeshCSLBoundaryIncoherenceArrayName = {};
+  float m_CSL = {3.0f};
+  float m_AxisTolerance = {0.0f};
+  float m_AngleTolerance = {0.0f};
+  DataArrayPath m_AvgQuatsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::AvgQuats};
+  DataArrayPath m_FeaturePhasesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases};
+  DataArrayPath m_CrystalStructuresArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::CrystalStructures};
+  DataArrayPath m_SurfaceMeshFaceLabelsArrayPath = {SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels};
+  DataArrayPath m_SurfaceMeshFaceNormalsArrayPath = {SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceNormals};
+  QString m_SurfaceMeshCSLBoundaryArrayName = {TransformationPhaseConstants::SurfaceMeshCSLBoundary};
+  QString m_SurfaceMeshCSLBoundaryIncoherenceArrayName = {TransformationPhaseConstants::SurfaceMeshCSLBoundaryIncoherence};
 
   LaueOpsContainer m_OrientationOps;
   CubicOps::Pointer m_CubicOps;

@@ -67,10 +67,6 @@ enum createdPathID : RenameDataPath::DataID_t
 //
 // -----------------------------------------------------------------------------
 DiscretizeDDDomain::DiscretizeDDDomain()
-: m_EdgeDataContainerName(SIMPL::Defaults::DataContainerName)
-, m_OutputDataContainerName(SIMPL::Defaults::NewDataContainerName)
-, m_OutputAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
-, m_OutputArrayName("DislocationLineDensity")
 {
   m_CellSize[0] = 2.0;
   m_CellSize[1] = 2.0;

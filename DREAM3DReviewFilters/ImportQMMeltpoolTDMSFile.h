@@ -136,8 +136,8 @@ protected:
   void initialize();
 
 private:
-  QString m_InputFile = {};
-  DataArrayPath m_DataContainerName = {};
+  QString m_InputFile = {""};
+  DataArrayPath m_DataContainerName = {"", "", ""};
 
 public:
   /* Rule of 5: All special member functions should be defined if any are defined.

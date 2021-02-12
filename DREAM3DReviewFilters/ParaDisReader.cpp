@@ -74,19 +74,7 @@ enum createdPathID : RenameDataPath::DataID_t
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ParaDisReader::ParaDisReader()
-: m_EdgeDataContainerName(SIMPL::Defaults::DataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_EdgeAttributeMatrixName(SIMPL::Defaults::EdgeAttributeMatrixName)
-, m_InputFile("")
-, m_BurgersVector(2.5)
-, m_NumberOfArmsArrayName(SIMPL::VertexData::NumberOfArms)
-, m_NodeConstraintsArrayName(SIMPL::VertexData::NodeConstraints)
-, m_BurgersVectorsArrayName(SIMPL::EdgeData::BurgersVectors)
-, m_SlipPlaneNormalsArrayName(SIMPL::EdgeData::SlipPlaneNormals)
-, m_DomainBoundsArrayName("DomainBounds")
-{
-}
+ParaDisReader::ParaDisReader() = default;
 
 // -----------------------------------------------------------------------------
 //

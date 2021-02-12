@@ -244,7 +244,7 @@ private:
 
   AttributeMatrix::Type m_DestAttributeMatrixType;
 
-  int m_MaskShape = {};
+  int m_MaskShape = {0};
 
 public:
   GenerateMaskFromSimpleShapes(const GenerateMaskFromSimpleShapes&) = delete;            // Copy Constructor Not Implemented

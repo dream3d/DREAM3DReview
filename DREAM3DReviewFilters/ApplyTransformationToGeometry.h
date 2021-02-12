@@ -262,9 +262,9 @@ private:
   float* m_TransformationMatrix = nullptr;
 
   DynamicTableData m_ManualTransformationMatrix = {};
-  DataArrayPath m_ComputedTransformationMatrix = {};
-  DataArrayPath m_GeometryToTransform = {};
-  int m_TransformationMatrixType = {};
+  DataArrayPath m_ComputedTransformationMatrix = {"", "", "TransformationMatrix"};
+  DataArrayPath m_GeometryToTransform = {"", "", ""};
+  int m_TransformationMatrixType = {1};
   FloatVec3Type m_RotationAxis = {};
   float m_RotationAngle = {};
   FloatVec3Type m_Translation = {};

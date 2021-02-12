@@ -48,6 +48,7 @@
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
+#include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
 
 /**
@@ -562,39 +563,39 @@ private:
   std::weak_ptr<DataArray<uint32_t>> m_CrystalStructuresPtr;
   uint32_t* m_CrystalStructures = nullptr;
 
-  DataArrayPath m_DataContainerName = {};
+  DataArrayPath m_DataContainerName = {SIMPL::Defaults::SyntheticVolumeDataContainerName, "", ""};
   bool m_AlphaGlobPhasePresent = {};
-  int m_AlphaGlobPhase = {};
-  int m_MTRPhase = {};
-  float m_LatticeParameterA = {};
-  float m_LatticeParameterC = {};
+  int m_AlphaGlobPhase = {1};
+  int m_MTRPhase = {2};
+  float m_LatticeParameterA = {2.9131f};
+  float m_LatticeParameterC = {4.6572f};
   FloatVec3Type m_StressAxis = {};
-  int m_SubsurfaceDistance = {};
-  float m_ConsiderationFraction = {};
-  bool m_DoNotAssumeInitiatorPresence = {};
-  float m_InitiatorLowerThreshold = {};
-  float m_InitiatorUpperThreshold = {};
-  float m_HardFeatureLowerThreshold = {};
-  float m_HardFeatureUpperThreshold = {};
-  float m_SoftFeatureLowerThreshold = {};
-  float m_SoftFeatureUpperThreshold = {};
+  int m_SubsurfaceDistance = {0};
+  float m_ConsiderationFraction = {1.0f};
+  bool m_DoNotAssumeInitiatorPresence = {true};
+  float m_InitiatorLowerThreshold = {40.0f};
+  float m_InitiatorUpperThreshold = {50.0f};
+  float m_HardFeatureLowerThreshold = {0.0f};
+  float m_HardFeatureUpperThreshold = {25.0f};
+  float m_SoftFeatureLowerThreshold = {70.0f};
+  float m_SoftFeatureUpperThreshold = {90.0f};
   QString m_NewCellFeatureAttributeMatrixName = {};
-  QString m_SelectedFeaturesArrayName = {};
-  QString m_InitiatorsArrayName = {};
-  QString m_HardFeaturesArrayName = {};
-  QString m_SoftFeaturesArrayName = {};
-  QString m_HardSoftGroupsArrayName = {};
-  QString m_CellFeatureAttributeMatrixName = {};
-  DataArrayPath m_CellFeatureAttributeMatrixPath = {};
-  DataArrayPath m_FeatureIdsArrayPath = {};
-  QString m_CellParentIdsArrayName = {};
-  QString m_FeatureParentIdsArrayName = {};
-  QString m_ActiveArrayName = {};
-  DataArrayPath m_FeatureEulerAnglesArrayPath = {};
-  DataArrayPath m_FeaturePhasesArrayPath = {};
-  DataArrayPath m_NeighborListArrayPath = {};
-  DataArrayPath m_CentroidsArrayPath = {};
-  DataArrayPath m_CrystalStructuresArrayPath = {};
+  QString m_SelectedFeaturesArrayName = {TransformationPhaseConstants::SelectedFeatures};
+  QString m_InitiatorsArrayName = {TransformationPhaseConstants::Initiators};
+  QString m_HardFeaturesArrayName = {TransformationPhaseConstants::HardFeatures};
+  QString m_SoftFeaturesArrayName = {TransformationPhaseConstants::SoftFeatures};
+  QString m_HardSoftGroupsArrayName = {TransformationPhaseConstants::HardSoftGroups};
+  QString m_CellFeatureAttributeMatrixName = {SIMPL::Defaults::CellFeatureAttributeMatrixName};
+  DataArrayPath m_CellFeatureAttributeMatrixPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, ""};
+  DataArrayPath m_FeatureIdsArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
+  QString m_CellParentIdsArrayName = {SIMPL::CellData::ParentIds};
+  QString m_FeatureParentIdsArrayName = {SIMPL::FeatureData::ParentIds};
+  QString m_ActiveArrayName = {SIMPL::FeatureData::Active};
+  DataArrayPath m_FeatureEulerAnglesArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles};
+  DataArrayPath m_FeaturePhasesArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases};
+  DataArrayPath m_NeighborListArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::NeighborList};
+  DataArrayPath m_CentroidsArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids};
+  DataArrayPath m_CrystalStructuresArrayPath = {SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::CrystalStructures};
 
   // Feature Data - make sure these are all initialized to nullptr in the constructor
 

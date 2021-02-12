@@ -33,9 +33,6 @@
 //
 // -----------------------------------------------------------------------------
 ApproximatePointCloudHull::ApproximatePointCloudHull()
-: m_VertexDataContainerName(SIMPL::Defaults::VertexDataContainerName)
-, m_HullDataContainerName("HullDataContainer")
-, m_NumberOfEmptyNeighbors(1)
 {
   m_GridResolution[0] = 1.0f;
   m_GridResolution[1] = 1.0f;

@@ -260,14 +260,14 @@ private:
   std::weak_ptr<DataArray<int32_t>> m_FeatureIdsPtr;
   int32_t* m_FeatureIds = nullptr;
 
-  DataArrayPath m_SelectedArrayPath = {};
-  bool m_UseMask = {};
-  DataArrayPath m_MaskArrayPath = {};
-  QString m_FeatureIdsArrayName = {};
-  QString m_FeatureAttributeMatrixName = {};
-  float m_Epsilon = {};
-  int m_MinPnts = {};
-  int m_DistanceMetric = {};
+  DataArrayPath m_SelectedArrayPath = {"", "", ""};
+  bool m_UseMask = {false};
+  DataArrayPath m_MaskArrayPath = {"", "", ""};
+  QString m_FeatureIdsArrayName = {"ClusterIds"};
+  QString m_FeatureAttributeMatrixName = {"ClusterData"};
+  float m_Epsilon = {0.01f};
+  int m_MinPnts = {50};
+  int m_DistanceMetric = {0};
 
 public:
   DBSCAN(const DBSCAN&) = delete;            // Copy Constructor Not Implemented

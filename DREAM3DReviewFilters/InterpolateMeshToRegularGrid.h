@@ -247,14 +247,14 @@ protected:
   void initialize();
 
 private:
-  QString m_SelectedDataContainerName = {};
-  QString m_InterpolatedDataContainerName = {};
-  QString m_InterpolatedAttributeMatrixName = {};
-  int m_ScaleOrSpecifyNumCells = {};
-  int m_SetXDimension = {};
-  int m_SetYDimension = {};
-  int m_ScaleFactorNumCells = {};
-  int m_OutsideMeshIdentifier = {};
+  QString m_SelectedDataContainerName = {""};
+  QString m_InterpolatedDataContainerName = {""};
+  QString m_InterpolatedAttributeMatrixName = {""};
+  int m_ScaleOrSpecifyNumCells = {0};
+  int m_SetXDimension = {10};
+  int m_SetYDimension = {10};
+  int m_ScaleFactorNumCells = {1};
+  int m_OutsideMeshIdentifier = {999};
 
   QList<QString> m_AttrMatList;
   QMap<QString, QList<QString>> m_AttrArrayMap;

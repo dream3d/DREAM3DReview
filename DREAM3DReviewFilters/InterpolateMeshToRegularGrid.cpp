@@ -40,17 +40,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-InterpolateMeshToRegularGrid::InterpolateMeshToRegularGrid()
-: m_SelectedDataContainerName("")
-, m_InterpolatedDataContainerName("")
-, m_InterpolatedAttributeMatrixName("")
-, m_ScaleOrSpecifyNumCells(0)
-, m_SetXDimension(10)
-, m_SetYDimension(10)
-, m_ScaleFactorNumCells(1)
-, m_OutsideMeshIdentifier(999)
-{
-}
+InterpolateMeshToRegularGrid::InterpolateMeshToRegularGrid() = default;
 
 // -----------------------------------------------------------------------------
 //

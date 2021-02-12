@@ -54,6 +54,7 @@
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
+#include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/Quaternion.hpp"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
@@ -556,32 +557,32 @@ private:
   std::weak_ptr<DataArray<int32_t>> m_NumFeaturesPtr;
   int32_t* m_NumFeatures = nullptr;
 
-  int m_ParentPhase = {};
-  int m_TransCrystalStruct = {};
-  float m_TransformationPhaseMisorientation = {};
+  int m_ParentPhase = {1};
+  int m_TransCrystalStruct = {EbsdLib::CrystalStructure::UnknownCrystalStructure};
+  float m_TransformationPhaseMisorientation = {60.0f};
   FloatVec3Type m_TransformationPhaseHabitPlane = {};
-  bool m_DefineHabitPlane = {};
-  bool m_UseAllVariants = {};
-  float m_CoherentFrac = {};
-  float m_TransformationPhaseThickness = {};
-  int m_NumTransformationPhasesPerFeature = {};
-  float m_PeninsulaFrac = {};
-  DataArrayPath m_StatsGenCellEnsembleAttributeMatrixPath = {};
-  DataArrayPath m_CellFeatureAttributeMatrixName = {};
-  DataArrayPath m_FeatureIdsArrayPath = {};
-  DataArrayPath m_CellEulerAnglesArrayPath = {};
-  DataArrayPath m_CellPhasesArrayPath = {};
-  DataArrayPath m_AvgQuatsArrayPath = {};
-  DataArrayPath m_CentroidsArrayPath = {};
-  DataArrayPath m_EquivalentDiametersArrayPath = {};
-  DataArrayPath m_FeatureEulerAnglesArrayPath = {};
-  DataArrayPath m_FeaturePhasesArrayPath = {};
-  QString m_FeatureParentIdsArrayName = {};
-  DataArrayPath m_NumFeaturesPerParentArrayPath = {};
-  DataArrayPath m_CrystalStructuresArrayPath = {};
-  DataArrayPath m_PhaseTypesArrayPath = {};
-  DataArrayPath m_ShapeTypesArrayPath = {};
-  DataArrayPath m_NumFeaturesArrayPath = {};
+  bool m_DefineHabitPlane = {true};
+  bool m_UseAllVariants = {true};
+  float m_CoherentFrac = {1.0f};
+  float m_TransformationPhaseThickness = {0.2f};
+  int m_NumTransformationPhasesPerFeature = {1};
+  float m_PeninsulaFrac = {0.0f};
+  DataArrayPath m_StatsGenCellEnsembleAttributeMatrixPath = {SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, ""};
+  DataArrayPath m_CellFeatureAttributeMatrixName = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, ""};
+  DataArrayPath m_FeatureIdsArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
+  DataArrayPath m_CellEulerAnglesArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles};
+  DataArrayPath m_CellPhasesArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases};
+  DataArrayPath m_AvgQuatsArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::AvgQuats};
+  DataArrayPath m_CentroidsArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids};
+  DataArrayPath m_EquivalentDiametersArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EquivalentDiameters};
+  DataArrayPath m_FeatureEulerAnglesArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles};
+  DataArrayPath m_FeaturePhasesArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases};
+  QString m_FeatureParentIdsArrayName = {SIMPL::FeatureData::ParentIds};
+  DataArrayPath m_NumFeaturesPerParentArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::FeatureData::NumFeaturesPerParent};
+  DataArrayPath m_CrystalStructuresArrayPath = {SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::CrystalStructures};
+  DataArrayPath m_PhaseTypesArrayPath = {SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseTypes};
+  DataArrayPath m_ShapeTypesArrayPath = {SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::ShapeTypes};
+  DataArrayPath m_NumFeaturesArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::NumFeatures};
 
   LaueOpsContainer m_OrientationOps;
   // Cell Data - make sure these are all initialized to nullptr in the constructor

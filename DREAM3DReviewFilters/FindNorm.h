@@ -198,9 +198,9 @@ private:
   std::weak_ptr<DataArray<float>> m_NormPtr;
   float* m_Norm = nullptr;
 
-  DataArrayPath m_SelectedArrayPath = {};
-  DataArrayPath m_NormArrayPath = {};
-  float m_PSpace = {};
+  DataArrayPath m_SelectedArrayPath = {"", "", ""};
+  DataArrayPath m_NormArrayPath = {"", "", "Norm"};
+  float m_PSpace = {2.0f};
 
 public:
   FindNorm(const FindNorm&) = delete;            // Copy Constructor Not Implemented

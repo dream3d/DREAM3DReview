@@ -66,7 +66,6 @@
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/LaueOps/LaueOps.h"
 
-#include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
 /* Create Enumerations to allow the created Attribute Arrays to take part in renaming */
@@ -88,36 +87,6 @@ enum createdPathID : RenameDataPath::DataID_t
 //
 // -----------------------------------------------------------------------------
 TiDwellFatigueCrystallographicAnalysis::TiDwellFatigueCrystallographicAnalysis()
-: m_DataContainerName(SIMPL::Defaults::SyntheticVolumeDataContainerName)
-, m_AlphaGlobPhase(1)
-, m_MTRPhase(2)
-, m_LatticeParameterA(2.9131f)
-, m_LatticeParameterC(4.6572f)
-, m_SubsurfaceDistance(0)
-, m_ConsiderationFraction(1.0f)
-, m_DoNotAssumeInitiatorPresence(true)
-, m_InitiatorLowerThreshold(40.0f)
-, m_InitiatorUpperThreshold(50.0f)
-, m_HardFeatureLowerThreshold(0.0f)
-, m_HardFeatureUpperThreshold(25.0f)
-, m_SoftFeatureLowerThreshold(70.0f)
-, m_SoftFeatureUpperThreshold(90.0f)
-, m_SelectedFeaturesArrayName(TransformationPhaseConstants::SelectedFeatures)
-, m_InitiatorsArrayName(TransformationPhaseConstants::Initiators)
-, m_HardFeaturesArrayName(TransformationPhaseConstants::HardFeatures)
-, m_SoftFeaturesArrayName(TransformationPhaseConstants::SoftFeatures)
-, m_HardSoftGroupsArrayName(TransformationPhaseConstants::HardSoftGroups)
-, m_CellFeatureAttributeMatrixName(SIMPL::Defaults::CellFeatureAttributeMatrixName)
-, m_CellFeatureAttributeMatrixPath(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, "")
-, m_FeatureIdsArrayPath(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
-, m_CellParentIdsArrayName(SIMPL::CellData::ParentIds)
-, m_FeatureParentIdsArrayName(SIMPL::FeatureData::ParentIds)
-, m_ActiveArrayName(SIMPL::FeatureData::Active)
-, m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
-, m_FeaturePhasesArrayPath(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
-, m_NeighborListArrayPath(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::NeighborList)
-, m_CentroidsArrayPath(SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
-, m_CrystalStructuresArrayPath(SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::CrystalStructures)
 {
   m_StressAxis[0] = 0.0f;
   m_StressAxis[1] = 0.0f;

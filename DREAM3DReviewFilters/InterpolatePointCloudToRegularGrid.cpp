@@ -40,17 +40,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-InterpolatePointCloudToRegularGrid::InterpolatePointCloudToRegularGrid()
-: m_DataContainerName("")
-, m_ArraysToInterpolate(QVector<DataArrayPath>())
-, m_ArraysToCopy(QVector<DataArrayPath>())
-, m_VoxelIndicesArrayPath("", "", "VoxelIndices")
-, m_InterpolatedDataContainerName("Interpolated DataContainer")
-, m_InterpolatedAttributeMatrixName("Interpolated AttributeMatrix")
-, m_MaskArrayPath("", "", "")
-, m_KernelDistancesArrayName("KernelDistances")
-{
-}
+InterpolatePointCloudToRegularGrid::InterpolatePointCloudToRegularGrid() = default;
 
 // -----------------------------------------------------------------------------
 //

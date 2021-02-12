@@ -240,15 +240,15 @@ private:
   std::weak_ptr<DataArray<float>> m_LayerVarPtr;
   float* m_LayerVar = nullptr;
 
-  DataArrayPath m_SelectedArrayPath = {};
-  unsigned int m_Plane = {};
-  QString m_LayerIDsArrayName = {};
-  QString m_LayerAttributeMatrixName = {};
-  QString m_LayerMinArrayName = {};
-  QString m_LayerMaxArrayName = {};
-  QString m_LayerAvgArrayName = {};
-  QString m_LayerStdArrayName = {};
-  QString m_LayerVarArrayName = {};
+  DataArrayPath m_SelectedArrayPath = {"", "", ""};
+  unsigned int m_Plane = {0};
+  QString m_LayerIDsArrayName = {"LayerIDs"};
+  QString m_LayerAttributeMatrixName = {""};
+  QString m_LayerMinArrayName = {"LayerMin"};
+  QString m_LayerMaxArrayName = {"LayerMax"};
+  QString m_LayerAvgArrayName = {"LayerAvg"};
+  QString m_LayerStdArrayName = {"LayerStd"};
+  QString m_LayerVarArrayName = {"LayerVar"};
 
   FindLayerStatistics(const FindLayerStatistics&) = delete; // Copy Constructor Not Implemented
   FindLayerStatistics(FindLayerStatistics&&) = delete;      // Move Constructor Not Implemented

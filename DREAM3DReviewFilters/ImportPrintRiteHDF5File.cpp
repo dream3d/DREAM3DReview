@@ -28,14 +28,7 @@ namespace PRH = PrintRiteHelpers;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ImportPrintRiteHDF5File::ImportPrintRiteHDF5File()
-: m_InputFile("")
-, m_HFDataContainerName("HighFrequencyDataContainer")
-, m_HFDataName("HighFrequencyData")
-, m_HFSliceDataName("HF_SliceAttributeMatrix")
-, m_HFSliceIdsArrayName("LayerIds")
-{
-}
+ImportPrintRiteHDF5File::ImportPrintRiteHDF5File() = default;
 
 // -----------------------------------------------------------------------------
 //

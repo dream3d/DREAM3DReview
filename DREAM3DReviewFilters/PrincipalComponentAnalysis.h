@@ -256,14 +256,14 @@ private:
   std::weak_ptr<DataArray<double>> m_ProjectedDataSpacePtr;
   double* m_ProjectedDataSpace = nullptr;
 
-  QVector<DataArrayPath> m_SelectedDataArrayPaths = {};
-  QString m_PCAttributeMatrixName = {};
-  QString m_PCEigenvaluesName = {};
-  QString m_PCEigenvectorsName = {};
-  int m_MatrixApproach = {};
-  bool m_ProjectDataSpace = {};
-  int m_NumberOfDimensionsForProjection = {};
-  DataArrayPath m_ProjectedDataSpaceArrayPath = {};
+  QVector<DataArrayPath> m_SelectedDataArrayPaths = {QVector<DataArrayPath>()};
+  QString m_PCAttributeMatrixName = {"PrincipalComponentAnalysis"};
+  QString m_PCEigenvaluesName = {"PrincipalComponentEigenvalues"};
+  QString m_PCEigenvectorsName = {"PrincipalComponentEigenvectors"};
+  int m_MatrixApproach = {0};
+  bool m_ProjectDataSpace = {false};
+  int m_NumberOfDimensionsForProjection = {0};
+  DataArrayPath m_ProjectedDataSpaceArrayPath = {"", "", "ProjectedDataSpace"};
 
   std::vector<IDataArray::WeakPointer> m_SelectedWeakPtrVector;
 

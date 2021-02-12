@@ -31,7 +31,6 @@ GenerateMaskFromSimpleShapes::GenerateMaskFromSimpleShapes()
 , m_BoxDimensionsArrayPath("", "", "")
 , m_CylinderRadiusArrayPath("", "", "Radii")
 , m_CylinderHeightArrayPath("", "", "Heights")
-, m_MaskShape(0)
 {
   initialize();
 }

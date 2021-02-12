@@ -123,9 +123,6 @@ private:
 //
 // -----------------------------------------------------------------------------
 ApplyTransformationToGeometry::ApplyTransformationToGeometry()
-: m_ComputedTransformationMatrix("", "", "TransformationMatrix")
-, m_GeometryToTransform("")
-, m_TransformationMatrixType(1)
 {
   m_RotationAngle = 0.0f;
   m_RotationAxis[0] = 0.0f;

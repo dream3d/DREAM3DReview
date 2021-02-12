@@ -262,14 +262,14 @@ private:
   std::weak_ptr<DataArray<int32_t>> m_FeatureIdsPtr;
   int32_t* m_FeatureIds = nullptr;
 
-  DataArrayPath m_SelectedArrayPath = {};
-  bool m_UseMask = {};
-  DataArrayPath m_MaskArrayPath = {};
-  QString m_FeatureIdsArrayName = {};
-  QString m_MedoidsArrayName = {};
-  QString m_FeatureAttributeMatrixName = {};
-  int m_InitClusters = {};
-  int m_DistanceMetric = {};
+  DataArrayPath m_SelectedArrayPath = {"", "", ""};
+  bool m_UseMask = {false};
+  DataArrayPath m_MaskArrayPath = {"", "", ""};
+  QString m_FeatureIdsArrayName = {"ClusterIds"};
+  QString m_MedoidsArrayName = {"ClusterMedoids"};
+  QString m_FeatureAttributeMatrixName = {"ClusterData"};
+  int m_InitClusters = {1};
+  int m_DistanceMetric = {0};
 
 public:
   KMedoids(const KMedoids&) = delete;            // Copy Constructor Not Implemented

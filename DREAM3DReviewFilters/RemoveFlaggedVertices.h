@@ -192,9 +192,9 @@ private:
   std::weak_ptr<DataArray<bool>> m_MaskPtr;
   bool* m_Mask = nullptr;
 
-  DataArrayPath m_VertexGeometry = {};
-  DataArrayPath m_MaskArrayPath = {};
-  QString m_ReducedVertexGeometry = {};
+  DataArrayPath m_VertexGeometry = {SIMPL::Defaults::VertexDataContainerName, "", ""};
+  DataArrayPath m_MaskArrayPath = {SIMPL::Defaults::VertexDataContainerName, SIMPL::Defaults::VertexAttributeMatrixName, SIMPL::CellData::Mask};
+  QString m_ReducedVertexGeometry = {"ReducedVertexDataContainer"};
 
   QList<QString> m_AttrMatList;
 

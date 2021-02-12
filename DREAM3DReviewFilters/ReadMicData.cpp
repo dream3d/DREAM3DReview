@@ -101,19 +101,7 @@ ReadMicDataPrivate::ReadMicDataPrivate(ReadMicData* ptr)
 //
 // -----------------------------------------------------------------------------
 ReadMicData::ReadMicData()
-: m_DataContainerName(SIMPL::Defaults::ImageDataContainerName)
-, m_CellEnsembleAttributeMatrixName(SIMPL::Defaults::CellEnsembleAttributeMatrixName)
-, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
-, m_PhaseNameArrayName("")
-, m_MaterialNameArrayName(SIMPL::EnsembleData::PhaseName)
-, m_InputFile("")
-, m_CellEulerAnglesArrayName(SIMPL::CellData::EulerAngles)
-, m_CellPhasesArrayName(SIMPL::CellData::Phases)
-, m_CrystalStructuresArrayName(SIMPL::EnsembleData::CrystalStructures)
-, m_LatticeConstantsArrayName(SIMPL::EnsembleData::LatticeConstants)
-, m_RefFrameZDir(SIMPL::RefFrameZDir::UnknownRefFrameZDirection)
-, m_Manufacturer(EbsdLib::OEM::Unknown)
-, d_ptr(new ReadMicDataPrivate(this))
+: d_ptr(new ReadMicDataPrivate(this))
 {
 }
 

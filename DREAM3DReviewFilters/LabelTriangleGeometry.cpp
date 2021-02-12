@@ -32,12 +32,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-LabelTriangleGeometry::LabelTriangleGeometry()
-: m_CADDataContainerName("")
-, m_TriangleAttributeMatrixName("")
-, m_RegionIdArrayName("")
-{
-}
+LabelTriangleGeometry::LabelTriangleGeometry() = default;
 
 // -----------------------------------------------------------------------------
 //
