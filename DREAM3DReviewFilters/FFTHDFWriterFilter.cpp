@@ -34,7 +34,8 @@ FFTHDFWriterFilter::FFTHDFWriterFilter() = default;
 // -----------------------------------------------------------------------------
 FFTHDFWriterFilter::~FFTHDFWriterFilter()
 {
-  closeFile();
+  closeFile(m_FileId);
+  closeFile(m_FileIdEig);
 }
 
 // -----------------------------------------------------------------------------
@@ -45,8 +46,17 @@ void FFTHDFWriterFilter::setupFilterParameters()
   FilterParameterVectorType parameters;
 
   parameters.push_back(OutputFileFilterParameter::Create("Output File", "OutputFile", getOutputFile(), FilterParameter::Category::Parameter, SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, OutputFile),
-                                                         SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, OutputFile), "*.dream3d", ""));
-  //  parameters.push_back(BooleanFilterParameter::Create("Write Xdmf File", "WriteXdmfFile", getWriteXdmfFile(), FilterParameter::Category::Parameter, "ParaView Compatible File"));
+                                                      SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, OutputFile), "*.dream3d", ""));
+  //  parameters.push_back(BooleanFilterParameter::New("Write Xdmf File", "WriteXdmfFile", getWriteXdmfFile(), FilterParameter::Parameter, "ParaView Compatible File"));
+  QStringList linkedProps;
+  linkedProps << "EigenstrainsOutputFile"
+              << "CellEigenstrainsArrayPath";
+  parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Write Eigenstrains", WriteEigenstrains, FilterParameter::Category::Parameter, FFTHDFWriterFilter, linkedProps));
+
+  parameters.push_back(OutputFileFilterParameter::Create("Eigenstrain Output File", "EigenstrainsOutputFile", getEigenstrainsOutputFile(), FilterParameter::Category::Parameter,
+                                                      SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, EigenstrainsOutputFile), SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, EigenstrainsOutputFile),
+                                                      "*.dream3d", ""));
+
   //--------------
   parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
   {
@@ -67,6 +77,12 @@ void FFTHDFWriterFilter::setupFilterParameters()
                                                                    SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, CellPhasesArrayPath), SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, CellPhasesArrayPath),
                                                                    req));
   }
+  {
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 6, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    parameters.push_back(DataArraySelectionFilterParameter::Create("Eigenstrains", "CellEigenstrainsArrayPath", getCellEigenstrainsArrayPath(), FilterParameter::Category::RequiredArray,
+                                                                SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, CellEigenstrainsArrayPath),
+                                                                SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, CellEigenstrainsArrayPath), req));
+  }
 
   setFilterParameters(parameters);
 }
@@ -78,10 +94,13 @@ void FFTHDFWriterFilter::readFilterParameters(AbstractFilterParametersReader* re
 {
   reader->openFilterGroup(this, index);
   setOutputFile(reader->readString("OutputFile", getOutputFile()));
+  setWriteEigenstrains(reader->readValue("WriteEigenstrains", getWriteEigenstrains()));
+  setEigenstrainsOutputFile(reader->readString("EigenstrainsOutputFile", getEigenstrainsOutputFile()));
   //----------------------------
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
   setCellPhasesArrayPath(reader->readDataArrayPath("CellPhasesArrayPath", getCellPhasesArrayPath()));
   setFeatureIdsArrayPath(reader->readDataArrayPath("FeatureIdsArrayPath", getFeatureIdsArrayPath()));
+  setCellEigenstrainsArrayPath(reader->readDataArrayPath("CellEigenstrainsArrayPath", getCellEigenstrainsArrayPath()));
 
   reader->closeFilterGroup();
 }
@@ -102,7 +121,17 @@ void FFTHDFWriterFilter::dataCheck()
   {
     m_OutputFile.append(".dream3d");
   }
-  FileSystemPathHelper::CheckOutputFile(this, "Output File Name", getOutputFile(), true);
+  FileSystemPathHelper::CheckOutputFile(this, "Output File Name", getEigenstrainsOutputFile(), true);
+
+  if(m_WriteEigenstrains)
+  {
+    QFileInfo fiEig(getOutputFile());
+    if(fiEig.suffix().compare("") == 0)
+    {
+      m_EigenstrainsOutputFile.append(".dream3d");
+    }
+    FileSystemPathHelper::CheckOutputFile(this, "Eigenstrains Output File Name", getEigenstrainsOutputFile(), true);
+  }
 
   QVector<DataArrayPath> dataArrayPaths;
 
@@ -138,12 +167,25 @@ void FFTHDFWriterFilter::dataCheck()
     dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
   }
 
+  if(m_WriteEigenstrains)
+  {
+    cDims[0] = 6;
+    m_CellEigenstrainsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getCellEigenstrainsArrayPath(), cDims);
+    if(nullptr != m_CellEigenstrainsPtr.lock())
+    {
+      m_CellEigenstrains = m_CellEigenstrainsPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+    if(getErrorCode() >= 0)
+    {
+      dataArrayPaths.push_back(getCellEigenstrainsArrayPath());
+    }
+  }
+
   getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
 }
 
 // -----------------------------------------------------------------------------
 //
-// -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 void FFTHDFWriterFilter::execute()
 {
@@ -167,8 +209,8 @@ void FFTHDFWriterFilter::execute()
     return;
   }
 
-  err = openFile(m_AppendToExisting); // Do NOT append to any existing file
-  if(err < 0)
+  openFile(m_OutputFile, m_FileId, m_AppendToExisting); // Do NOT append to any existing file
+  if(m_FileId < 0)
   {
     QString ss = QObject::tr("The HDF5 file could not be opened or created.\n The given filename was:\n\t[%1]").arg(m_OutputFile);
     setErrorCondition(-11112, ss);
@@ -179,7 +221,6 @@ void FFTHDFWriterFilter::execute()
   H5ScopedFileSentinel scopedFileSentinel(m_FileId, true);
 
   // Create DataContainer group!
-
   err = H5Utilities::createGroupsFromPath(SIMPL::StringConstants::DataContainerGroupName.toLatin1().data(), m_FileId);
   if(err < 0)
   {
@@ -203,6 +244,49 @@ void FFTHDFWriterFilter::execute()
   attrMat = getDataContainerArray()->getAttributeMatrix(m_CellEulerAnglesArrayPath);
   tDims = attrMat->getTupleDimensions();
   m_CellEulerAnglesPtr.lock()->writeH5Data(dcaGid, tDims);
+
+  // MASSIF Eigenstrains file
+  if(m_WriteEigenstrains)
+  {
+    QFileInfo fiEig(m_EigenstrainsOutputFile);
+    QString parentPathEig = fiEig.path();
+    QDir dirEig;
+    if(!dirEig.mkpath(parentPathEig))
+    {
+      QString ss = QObject::tr("Error creating parent path '%1'").arg(parentPathEig);
+      setErrorCondition(-11110, ss);
+      return;
+    }
+
+    openFile(m_EigenstrainsOutputFile, m_FileIdEig, m_AppendToExisting); // Do NOT append to any existing file
+    if(m_FileIdEig < 0)
+    {
+      QString ss = QObject::tr("The HDF5 file could not be opened or created.\n The given filename was:\n\t[%1]").arg(m_EigenstrainsOutputFile);
+      setErrorCondition(-11113, ss);
+      return;
+    }
+
+    H5ScopedFileSentinel scopedFileSentinelEig(m_FileIdEig, true);
+
+    err = H5Utilities::createGroupsFromPath(SIMPL::StringConstants::DataContainerGroupName.toLatin1().data(), m_FileIdEig);
+    if(err < 0)
+    {
+      QString ss = QObject::tr("Error creating HDF5 Group '%1'").arg(SIMPL::StringConstants::DataContainerGroupName);
+      setErrorCondition(-60, ss);
+      return;
+    }
+
+    hid_t dcaGidEig = H5Gopen(m_FileIdEig, SIMPL::StringConstants::DataContainerGroupName.toLatin1().data(), H5P_DEFAULT);
+    scopedFileSentinelEig.addGroupId(dcaGidEig);
+
+    attrMat = getDataContainerArray()->getAttributeMatrix(m_FeatureIdsArrayPath);
+    tDims = attrMat->getTupleDimensions();
+    m_FeatureIdsPtr.lock()->writeH5Data(dcaGidEig, tDims);
+
+    attrMat = getDataContainerArray()->getAttributeMatrix(m_CellEigenstrainsArrayPath);
+    tDims = attrMat->getTupleDimensions();
+    m_CellEigenstrainsPtr.lock()->writeH5Data(dcaGidEig, tDims);
+  }
 
   // DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
 
@@ -246,30 +330,29 @@ void FFTHDFWriterFilter::writeXdmfFooter(QTextStream& xdmf)
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-hid_t FFTHDFWriterFilter::openFile(bool appendData)
+void FFTHDFWriterFilter::openFile(QString file, hid_t& fileId, bool appendData)
 {
   // Try to open a file to append data into
   if(appendData)
   {
-    m_FileId = QH5Utilities::openFile(m_OutputFile, false);
+    fileId = QH5Utilities::openFile(file, false);
   }
   // No file was found or we are writing new data only to a clean file
-  if(!appendData || m_FileId < 0)
+  if(!appendData || fileId < 0)
   {
-    m_FileId = QH5Utilities::createFile(m_OutputFile);
+    fileId = QH5Utilities::createFile(file);
   }
-  return m_FileId;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-herr_t FFTHDFWriterFilter::closeFile()
+herr_t FFTHDFWriterFilter::closeFile(hid_t fileId)
 {
   // Close the file when we are finished with it
-  if(m_FileId > 0)
+  if(fileId > 0)
   {
-    return QH5Utilities::closeFile(m_FileId);
+    return QH5Utilities::closeFile(fileId);
   }
   return 0;
 }
@@ -388,6 +471,30 @@ QString FFTHDFWriterFilter::getOutputFile() const
 }
 
 // -----------------------------------------------------------------------------
+void FFTHDFWriterFilter::setWriteEigenstrains(bool value)
+{
+  m_WriteEigenstrains = value;
+}
+
+// -----------------------------------------------------------------------------
+bool FFTHDFWriterFilter::getWriteEigenstrains() const
+{
+  return m_WriteEigenstrains;
+}
+
+// -----------------------------------------------------------------------------
+void FFTHDFWriterFilter::setEigenstrainsOutputFile(const QString& value)
+{
+  m_EigenstrainsOutputFile = value;
+}
+
+// -----------------------------------------------------------------------------
+QString FFTHDFWriterFilter::getEigenstrainsOutputFile() const
+{
+  return m_EigenstrainsOutputFile;
+}
+
+// -----------------------------------------------------------------------------
 void FFTHDFWriterFilter::setWritePipeline(bool value)
 {
   m_WritePipeline = value;
@@ -445,4 +552,16 @@ void FFTHDFWriterFilter::setCellEulerAnglesArrayPath(const DataArrayPath& value)
 DataArrayPath FFTHDFWriterFilter::getCellEulerAnglesArrayPath() const
 {
   return m_CellEulerAnglesArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void FFTHDFWriterFilter::setCellEigenstrainsArrayPath(const DataArrayPath& value)
+{
+  m_CellEigenstrainsArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath FFTHDFWriterFilter::getCellEigenstrainsArrayPath() const
+{
+  return m_CellEigenstrainsArrayPath;
 }

@@ -31,9 +31,12 @@ class DREAM3DReview_EXPORT FFTHDFWriterFilter : public AbstractFilter
   PYB11_SHARED_POINTERS(FFTHDFWriterFilter)
   PYB11_FILTER_NEW_MACRO(FFTHDFWriterFilter)
   PYB11_PROPERTY(QString OutputFile READ getOutputFile WRITE setOutputFile)
+  PYB11_PROPERTY(bool WriteEigenstrains READ getWriteEigenstrains WRITE setWriteEigenstrains)
+  PYB11_PROPERTY(QString EigenstrainsOutputFile READ getEigenstrainsOutputFile WRITE setEigenstrainsOutputFile)
   PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
+  PYB11_PROPERTY(DataArrayPath CellEigenstrainsArrayPath READ getCellEigenstrainsArrayPath WRITE setCellEigenstrainsArrayPath)
   PYB11_END_BINDINGS()
   // End Python bindings declarations
 
@@ -70,6 +73,17 @@ public:
   Q_PROPERTY(QString OutputFile READ getOutputFile WRITE setOutputFile)
 
   /**
+   * @brief Setter property for EigenstrainsOutputFile
+   */
+  void setEigenstrainsOutputFile(const QString& value);
+  /**
+   * @brief Getter property for EigenstrainsOutputFile
+   * @return Value of EigenstrainsOutputFile
+   */
+  QString getEigenstrainsOutputFile() const;
+  Q_PROPERTY(QString EigenstrainsOutputFile READ getEigenstrainsOutputFile WRITE setEigenstrainsOutputFile)
+
+  /**
    * @brief Setter property for WritePipeline
    */
   void setWritePipeline(bool value);
@@ -88,6 +102,17 @@ public:
    * @return Value of AppendToExisting
    */
   bool getAppendToExisting() const;
+
+  /**
+   * @brief Setter property for WriteEigenstrains
+   */
+  void setWriteEigenstrains(bool value);
+  /**
+   * @brief Getter property for WriteEigenstrains
+   * @return Value of WriteEigenstrains
+   */
+  bool getWriteEigenstrains() const;
+  Q_PROPERTY(bool WriteEigenstrains READ getWriteEigenstrains WRITE setWriteEigenstrains)
 
   //-------------------------------------------------------------------
 
@@ -123,6 +148,17 @@ public:
    */
   DataArrayPath getCellEulerAnglesArrayPath() const;
   Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
+
+  /**
+   * @brief Setter property for CellEigenstrainsArrayPath
+   */
+  void setCellEigenstrainsArrayPath(const DataArrayPath& value);
+  /**
+   * @brief Getter property for CellEigenstrainsArrayPath
+   * @return Value of CellEigenstrainsArrayPath
+   */
+  DataArrayPath getCellEigenstrainsArrayPath() const;
+  Q_PROPERTY(DataArrayPath CellEigenstrainsArrayPath READ getCellEigenstrainsArrayPath WRITE setCellEigenstrainsArrayPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -197,13 +233,13 @@ protected:
    * @param append Should a new file be created or append data to a currently existing file
    * @return
    */
-  hid_t openFile(bool append = false);
+  void openFile(QString file, hid_t& fileId, bool append = false);
 
   /**
    * @brief closeFile Closes the currently open file
    * @return Integer error value
    */
-  herr_t closeFile();
+  herr_t closeFile(hid_t fileId);
 
   /**
    * @brief writePipeline Writes the existing pipeline to the HDF5 file
@@ -230,15 +266,21 @@ private:
   int32_t* m_CellPhases = nullptr;
   std::weak_ptr<DataArray<float>> m_CellEulerAnglesPtr;
   float* m_CellEulerAngles = nullptr;
+  std::weak_ptr<DataArray<float>> m_CellEigenstrainsPtr;
+  float* m_CellEigenstrains = nullptr;
 
   QString m_OutputFile = {""};
+  QString m_EigenstrainsOutputFile = {""};
   bool m_WritePipeline = {true};
+  bool m_WriteEigenstrains = {false};
   bool m_AppendToExisting = {false};
   DataArrayPath m_FeatureIdsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
   DataArrayPath m_CellPhasesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases};
   DataArrayPath m_CellEulerAnglesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles};
+  DataArrayPath m_CellEigenstrainsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, "Eigenstrains"};
 
   hid_t m_FileId = -1;
+  hid_t m_FileIdEig = -2;
 
 public:
   FFTHDFWriterFilter(const FFTHDFWriterFilter&) = delete;            // Copy Constructor Not Implemented
