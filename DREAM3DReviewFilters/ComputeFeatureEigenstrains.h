@@ -36,7 +36,7 @@
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "DREAM3DReview/DREAM3DReviewPlugin.h"
-    
+
 /**
  * @brief The ComputeFeatureEigenstrains class. See [Filter documentation](@ref computefeatureeigenstrains) for details.
  */
@@ -68,7 +68,6 @@ class DREAM3DReview_EXPORT ComputeFeatureEigenstrains : public AbstractFilter
   // clang-format on
 
 public:
-
   using Self = ComputeFeatureEigenstrains;
   using Pointer = std::shared_ptr<Self>;
   using ConstPointer = std::shared_ptr<const Self>;
@@ -89,7 +88,7 @@ public:
   static QString ClassName();
 
   ~ComputeFeatureEigenstrains() override;
-  
+
   /**
    * @brief Setter property for PoissonRatio
    */
@@ -316,8 +315,8 @@ protected:
    * @brief Initializes all the private instance variables.
    */
   void initialize();
-  
-    /**
+
+  /**
    * @brief find_eigenstrains Calculates the eigenstrains for each feature
    */
   void find_eigenstrains();
@@ -327,7 +326,7 @@ protected:
    */
   void find_eshelby(double (&eshelbyTensor)[3][3][3][3], double a, double b, double c, double nu, bool ellipsoidal);
 
-private: 
+private:
   std::weak_ptr<DataArray<float>> m_AxisLengthsPtr;
   float* m_AxisLengths = nullptr;
   std::weak_ptr<DataArray<float>> m_AxisEulerAnglesPtr;
@@ -355,7 +354,6 @@ private:
 public:
   ComputeFeatureEigenstrains(const ComputeFeatureEigenstrains&) = delete;            // Copy Constructor Not Implemented
   ComputeFeatureEigenstrains& operator=(const ComputeFeatureEigenstrains&) = delete; // Copy Assignment Not Implemented
-  ComputeFeatureEigenstrains(ComputeFeatureEigenstrains &&) = delete;                // Move Constructor Not Implemented
+  ComputeFeatureEigenstrains(ComputeFeatureEigenstrains&&) = delete;                 // Move Constructor Not Implemented
   ComputeFeatureEigenstrains& operator=(ComputeFeatureEigenstrains&&) = delete;      // Move Assignment Not Implemented
 };
-

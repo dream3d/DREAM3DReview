@@ -46,7 +46,7 @@ void FFTHDFWriterFilter::setupFilterParameters()
   FilterParameterVectorType parameters;
 
   parameters.push_back(OutputFileFilterParameter::Create("Output File", "OutputFile", getOutputFile(), FilterParameter::Category::Parameter, SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, OutputFile),
-                                                      SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, OutputFile), "*.dream3d", ""));
+                                                         SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, OutputFile), "*.dream3d", ""));
   //  parameters.push_back(BooleanFilterParameter::New("Write Xdmf File", "WriteXdmfFile", getWriteXdmfFile(), FilterParameter::Parameter, "ParaView Compatible File"));
   QStringList linkedProps;
   linkedProps << "EigenstrainsOutputFile"
@@ -54,8 +54,8 @@ void FFTHDFWriterFilter::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Write Eigenstrains", WriteEigenstrains, FilterParameter::Category::Parameter, FFTHDFWriterFilter, linkedProps));
 
   parameters.push_back(OutputFileFilterParameter::Create("Eigenstrain Output File", "EigenstrainsOutputFile", getEigenstrainsOutputFile(), FilterParameter::Category::Parameter,
-                                                      SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, EigenstrainsOutputFile), SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, EigenstrainsOutputFile),
-                                                      "*.dream3d", ""));
+                                                         SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, EigenstrainsOutputFile), SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, EigenstrainsOutputFile),
+                                                         "*.dream3d", ""));
 
   //--------------
   parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
@@ -80,8 +80,8 @@ void FFTHDFWriterFilter::setupFilterParameters()
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 6, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(DataArraySelectionFilterParameter::Create("Eigenstrains", "CellEigenstrainsArrayPath", getCellEigenstrainsArrayPath(), FilterParameter::Category::RequiredArray,
-                                                                SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, CellEigenstrainsArrayPath),
-                                                                SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, CellEigenstrainsArrayPath), req));
+                                                                   SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, CellEigenstrainsArrayPath),
+                                                                   SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, CellEigenstrainsArrayPath), req));
   }
 
   setFilterParameters(parameters);

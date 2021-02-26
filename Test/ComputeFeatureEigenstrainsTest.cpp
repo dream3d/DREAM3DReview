@@ -36,12 +36,12 @@
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/Filtering/FilterPipeline.h"
-#include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
+#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
+#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 #include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
-#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 
 #include "UnitTestSupport.hpp"
 
@@ -52,13 +52,13 @@
 class ComputeFeatureEigenstrainsTest
 {
 
-  public:
-    ComputeFeatureEigenstrainsTest() = default;
-    ~ComputeFeatureEigenstrainsTest() = default;
-    ComputeFeatureEigenstrainsTest(const ComputeFeatureEigenstrainsTest&) = delete;            // Copy Constructor
-    ComputeFeatureEigenstrainsTest(ComputeFeatureEigenstrainsTest&&) = delete;                 // Move Constructor
-    ComputeFeatureEigenstrainsTest& operator=(const ComputeFeatureEigenstrainsTest&) = delete; // Copy Assignment
-    ComputeFeatureEigenstrainsTest& operator=(ComputeFeatureEigenstrainsTest&&) = delete;      // Move Assignment
+public:
+  ComputeFeatureEigenstrainsTest() = default;
+  ~ComputeFeatureEigenstrainsTest() = default;
+  ComputeFeatureEigenstrainsTest(const ComputeFeatureEigenstrainsTest&) = delete;            // Copy Constructor
+  ComputeFeatureEigenstrainsTest(ComputeFeatureEigenstrainsTest&&) = delete;                 // Move Constructor
+  ComputeFeatureEigenstrainsTest& operator=(const ComputeFeatureEigenstrainsTest&) = delete; // Copy Assignment
+  ComputeFeatureEigenstrainsTest& operator=(ComputeFeatureEigenstrainsTest&&) = delete;      // Move Assignment
 
   // -----------------------------------------------------------------------------
   //
@@ -69,11 +69,10 @@ class ComputeFeatureEigenstrainsTest
     QString filtName = "ComputeFeatureEigenstrains";
     FilterManager* fm = FilterManager::Instance();
     IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
-    if (nullptr == filterFactory.get())
+    if(nullptr == filterFactory.get())
     {
       std::stringstream ss;
-      ss << "The ComputeFeatureEigenstrainsTest Requires the use of the " << filtName.toStdString()
-         << " filter which is found in the DREAM3DReview Plugin";
+      ss << "The ComputeFeatureEigenstrainsTest Requires the use of the " << filtName.toStdString() << " filter which is found in the DREAM3DReview Plugin";
       DREAM3D_TEST_THROW_EXCEPTION(ss.str())
     }
     return 0;
@@ -136,8 +135,5 @@ class ComputeFeatureEigenstrainsTest
     DREAM3D_REGISTER_TEST(TestComputeFeatureEigenstrainsTest());
   }
 
-  private:
-
-
+private:
 };
-

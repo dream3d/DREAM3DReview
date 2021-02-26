@@ -30,7 +30,6 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-
 #include "ComputeFeatureEigenstrains.h"
 
 #include <QtCore/QTextStream>
@@ -57,7 +56,6 @@
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
-
 
 // -----------------------------------------------------------------------------
 //
@@ -91,18 +89,18 @@ void ComputeFeatureEigenstrains::setupFilterParameters()
 
   QStringList linkedProps;
   linkedProps << "AxisLengthsArrayPath"
-               << "AxisEulerAnglesArrayPath";
+              << "AxisEulerAnglesArrayPath";
   parameters.push_back(
       SIMPL_NEW_LINKED_BOOL_FP("Use Ellipsoidal Grains (versus spherical assumption)", UseEllipsoidalGrains, FilterParameter::Category::Parameter, ComputeFeatureEigenstrains, linkedProps));
 
   // Correctional matrix beta user inputs
   linkedProps.clear();
   linkedProps << "Beta11"
-               << "Beta22"
-               << "Beta33"
-               << "Beta23"
-               << "Beta13"
-               << "Beta12";
+              << "Beta22"
+              << "Beta33"
+              << "Beta23"
+              << "Beta13"
+              << "Beta12";
   parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Correctional Matrix", UseCorrectionalMatrix, FilterParameter::Category::Parameter, ComputeFeatureEigenstrains, linkedProps));
 
   parameters.push_back(SIMPL_NEW_FLOAT_FP("Beta11", Beta11, FilterParameter::Category::Parameter, ComputeFeatureEigenstrains));
@@ -341,7 +339,7 @@ void ComputeFeatureEigenstrains::find_eigenstrains()
   Eigen::Matrix<double, 3, 3> OMT;
   OM.setIdentity(3, 3); // Defaults to no orientation identity
   OMT.setIdentity(3, 3);
-    
+
   Eigen::Matrix<double, 3, 3> elasticStrainTensor;
   Eigen::Matrix<double, 3, 3> elasticStrainTensorRot;
 
@@ -658,7 +656,7 @@ void ComputeFeatureEigenstrains::find_eshelby(double (&eshelbyTensor)[3][3][3][3
 }
 
 // -----------------------------------------------------------------------------
-// Calculates 32-point Gaussian quadrature of the input function 
+// Calculates 32-point Gaussian quadrature of the input function
 // -----------------------------------------------------------------------------
 template <typename Functor>
 double ComputeFeatureEigenstrains::gauss_integration(Functor function, double lowerBound, double upperBound)
@@ -715,7 +713,7 @@ AbstractFilter::Pointer ComputeFeatureEigenstrains::newFilterInstance(bool copyF
 //
 // -----------------------------------------------------------------------------
 QString ComputeFeatureEigenstrains::getCompiledLibraryName() const
-{ 
+{
   return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
@@ -734,7 +732,7 @@ QString ComputeFeatureEigenstrains::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
-  vStream <<  DREAM3DReview::Version::Major() << "." << DREAM3DReview::Version::Minor() << "." << DREAM3DReview::Version::Patch();
+  vStream << DREAM3DReview::Version::Major() << "." << DREAM3DReview::Version::Minor() << "." << DREAM3DReview::Version::Patch();
   return version;
 }
 
@@ -742,7 +740,7 @@ QString ComputeFeatureEigenstrains::getFilterVersion() const
 //
 // -----------------------------------------------------------------------------
 QString ComputeFeatureEigenstrains::getGroupName() const
-{ 
+{
   return DREAM3DReviewConstants::FilterGroups::DREAM3DReviewFilters;
 }
 
@@ -750,7 +748,7 @@ QString ComputeFeatureEigenstrains::getGroupName() const
 //
 // -----------------------------------------------------------------------------
 QString ComputeFeatureEigenstrains::getSubGroupName() const
-{ 
+{
   return DREAM3DReviewConstants::FilterSubGroups::RegistrationFilters;
 }
 
@@ -758,8 +756,8 @@ QString ComputeFeatureEigenstrains::getSubGroupName() const
 //
 // -----------------------------------------------------------------------------
 QString ComputeFeatureEigenstrains::getHumanLabel() const
-{ 
-  return "Compute Eigenstrains by Feature (Grain/Inclusion)"; 
+{
+  return "Compute Eigenstrains by Feature (Grain/Inclusion)";
 }
 
 // -----------------------------------------------------------------------------
@@ -954,6 +952,3 @@ QString ComputeFeatureEigenstrains::getEigenstrainsArrayName() const
 {
   return m_EigenstrainsArrayName;
 }
-
-
-
