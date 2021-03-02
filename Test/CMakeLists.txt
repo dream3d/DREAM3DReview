@@ -13,7 +13,7 @@ set(TEST_NAMES
   CreateArrayofIndicesTest
   EstablishFoamMorphologyTest
   FFTHDFWriterFilterTest
-  #FindNeighborListStatisticsTest
+  FindNeighborListStatisticsTest
   GenerateFeatureIDsbyBoundingBoxesTest
   GenerateMaskFromSimpleShapesTest
   ImportMASSIFDataTest

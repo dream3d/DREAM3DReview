@@ -59,6 +59,8 @@ set(_PublicFilters
   RemoveFlaggedVertices
   Silhouette
   WaveFrontObjectFileWriter
+  RobustAutomaticThreshold
+
 
   # 2019-03-06 Filter AFRL Filter Release
   AlignGeometries
