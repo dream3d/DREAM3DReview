@@ -45,10 +45,10 @@ class DREAM3DReview_EXPORT ComputeFeatureEigenstrains : public AbstractFilter
   Q_OBJECT
 
   // clang-format off
-  PYB11_BEGIN_BINDINGS(CalculateEigenstrains SUPERCLASS AbstractFilter)
+  PYB11_BEGIN_BINDINGS(ComputeFeatureEigenstrains SUPERCLASS AbstractFilter)
   PYB11_FILTER()
-  PYB11_SHARED_POINTERS(CalculateEigenstrains)
-  PYB11_FILTER_NEW_MACRO(CalculateEigenstrains)
+  PYB11_SHARED_POINTERS(ComputeFeatureEigenstrains)
+  PYB11_FILTER_NEW_MACRO(ComputeFeatureEigenstrains)
 
   PYB11_PROPERTY(float PoissonRatio READ getPoissonRatio WRITE setPoissonRatio)
   PYB11_PROPERTY(bool UseEllipsoidalGrains READ getUseEllipsoidalGrains WRITE setUseEllipsoidalGrains)
@@ -283,11 +283,6 @@ public:
   void setupFilterParameters() override;
 
   /**
-   * @brief readFilterParameters Reimplemented from @see AbstractFilter class
-   */
-  void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
-
-  /**
    * @brief execute Reimplemented from @see AbstractFilter class
    */
   void execute() override;
@@ -296,12 +291,6 @@ public:
    * @brief preflight Reimplemented from @see AbstractFilter class
    */
   void preflight() override;
-
-  /**
-   * @brief gauss_integration Calculates 32-point Gaussian quadrature of the defined function
-   */
-  template <typename Functor>
-  double gauss_integration(Functor function, double lowerBound, double upperBound);
 
 protected:
   ComputeFeatureEigenstrains();
@@ -321,20 +310,11 @@ protected:
    */
   void find_eigenstrains();
 
-  /**
-   * @brief find_eshelby Calculates the Eshelby tensor for a specfic ellipsoid
-   */
-  void find_eshelby(double (&eshelbyTensor)[3][3][3][3], double a, double b, double c, double nu, bool ellipsoidal);
-
 private:
-  std::weak_ptr<DataArray<float>> m_AxisLengthsPtr;
-  float* m_AxisLengths = nullptr;
-  std::weak_ptr<DataArray<float>> m_AxisEulerAnglesPtr;
-  float* m_AxisEulerAngles = nullptr;
-  std::weak_ptr<DataArray<float>> m_ElasticStrainsPtr;
-  float* m_ElasticStrains = nullptr;
-  std::weak_ptr<DataArray<float>> m_EigenstrainsPtr;
-  float* m_Eigenstrains = nullptr;
+  std::weak_ptr<FloatArrayType> m_AxisLengthsPtr;
+  std::weak_ptr<FloatArrayType> m_AxisEulerAnglesPtr;
+  std::weak_ptr<FloatArrayType> m_ElasticStrainsPtr;
+  std::weak_ptr<FloatArrayType> m_EigenstrainsPtr;
 
   float m_PoissonRatio = {0.33f};
   bool m_UseEllipsoidalGrains = {true};

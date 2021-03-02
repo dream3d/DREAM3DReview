@@ -31,7 +31,6 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #pragma once
 
-#include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 
 #include "SIMPLib/SIMPLib.h"
@@ -63,53 +62,30 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  int TestFilterAvailability()
-  {
-    // Now instantiate the ComputeFeatureEigenstrainsTest Filter from the FilterManager
-    QString filtName = "ComputeFeatureEigenstrains";
-    FilterManager* fm = FilterManager::Instance();
-    IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
-    if(nullptr == filterFactory.get())
-    {
-      std::stringstream ss;
-      ss << "The ComputeFeatureEigenstrainsTest Requires the use of the " << filtName.toStdString() << " filter which is found in the DREAM3DReview Plugin";
-      DREAM3D_TEST_THROW_EXCEPTION(ss.str())
-    }
-    return 0;
-  }
-
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
   int TestFilterInputs()
   {
-    bool propWasSet;
-    int32_t err;
+    int32_t err = 0;
 
     ComputeFeatureEigenstrains::Pointer filter = ComputeFeatureEigenstrains::New();
-
     // Test setting impossible Poisson's ratio
-    propWasSet = filter->setProperty("PoissonRatio", 0.5f);
+    filter->setPoissonRatio(0.5F);
+    filter->preflight();
     err = filter->getErrorCode();
-    DREAM3D_REQUIRE(err < 0)
+    DREAM3D_REQUIRED(err, <, 0)
 
     // Test setting possible Poisson's ratio
-    propWasSet = filter->setProperty("PoissonRatio", 0.12345f);
-    DREAM3D_REQUIRE_EQUAL(propWasSet, true)
+    filter->setPoissonRatio(0.12345f);
+    filter->preflight();
     err = filter->getErrorCode();
-    DREAM3D_REQUIRE_EQUAL(err, 0)
+    DREAM3D_REQUIRE_EQUAL(err, -80002)
 
-    // Test setting UseElliposoidalGrains
-    propWasSet = filter->setProperty("UseElliposoidalGrains", false);
-    DREAM3D_REQUIRE_EQUAL(propWasSet, true)
-    err = filter->getErrorCode();
-    DREAM3D_REQUIRE_EQUAL(err, 0)
+    // filter->setUseEllipsoidalGrains(true);
 
     // Test setting UseCorrectionalMatrix
-    propWasSet = filter->setProperty("UseCorrectionalMatrix", true);
-    DREAM3D_REQUIRE_EQUAL(propWasSet, true)
+    filter->setUseCorrectionalMatrix(true);
+    filter->preflight();
     err = filter->getErrorCode();
-    DREAM3D_REQUIRE_EQUAL(err, 0)
+    DREAM3D_REQUIRE_EQUAL(err, -80002)
 
     return EXIT_SUCCESS;
   }
@@ -130,7 +106,6 @@ public:
   {
     int err = EXIT_SUCCESS;
 
-    DREAM3D_REGISTER_TEST(TestFilterAvailability());
     DREAM3D_REGISTER_TEST(TestFilterInputs());
     DREAM3D_REGISTER_TEST(TestComputeFeatureEigenstrainsTest());
   }
