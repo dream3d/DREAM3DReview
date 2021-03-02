@@ -62,7 +62,6 @@ namespace SIMPLMath = SIMPLib::Constants;
 
 namespace
 {
-
 /**
  *@brief Small structure/class to wrap the 81 elements of a 4D tensor and access them via i,j,k,l indices
  */
@@ -719,7 +718,6 @@ void ComputeFeatureEigenstrains::find_eigenstrains()
     eigenstrains[feature * 6 + 5] = eigenstrainTensorCorrected(0, 1);
   }
 }
-
 
 // -----------------------------------------------------------------------------
 //
