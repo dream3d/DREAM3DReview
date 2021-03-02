@@ -48,9 +48,9 @@ void FFTHDFWriterFilter::setupFilterParameters()
   parameters.push_back(OutputFileFilterParameter::Create("Output File", "OutputFile", getOutputFile(), FilterParameter::Category::Parameter, SIMPL_BIND_SETTER(FFTHDFWriterFilter, this, OutputFile),
                                                          SIMPL_BIND_GETTER(FFTHDFWriterFilter, this, OutputFile), "*.dream3d", ""));
   //  parameters.push_back(BooleanFilterParameter::New("Write Xdmf File", "WriteXdmfFile", getWriteXdmfFile(), FilterParameter::Parameter, "ParaView Compatible File"));
-  QStringList linkedProps;
-  linkedProps << "EigenstrainsOutputFile"
-              << "CellEigenstrainsArrayPath";
+  std::vector<QString> linkedProps;
+  linkedProps.push_back("EigenstrainsOutputFile");
+  linkedProps.push_back("CellEigenstrainsArrayPath");
   parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Write Eigenstrains", WriteEigenstrains, FilterParameter::Category::Parameter, FFTHDFWriterFilter, linkedProps));
 
   parameters.push_back(OutputFileFilterParameter::Create("Eigenstrain Output File", "EigenstrainsOutputFile", getEigenstrainsOutputFile(), FilterParameter::Category::Parameter,

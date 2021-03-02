@@ -87,20 +87,21 @@ void ComputeFeatureEigenstrains::setupFilterParameters()
   // Poisson's ratio user input
   parameters.push_back(SIMPL_NEW_FLOAT_FP("Poisson's Ratio", PoissonRatio, FilterParameter::Category::Parameter, ComputeFeatureEigenstrains));
 
-  QStringList linkedProps;
-  linkedProps << "AxisLengthsArrayPath"
-              << "AxisEulerAnglesArrayPath";
+  std::vector<QString> linkedProps;
+  linkedProps.push_back("AxisLengthsArrayPath");
+  linkedProps.push_back("AxisEulerAnglesArrayPath");
+
   parameters.push_back(
       SIMPL_NEW_LINKED_BOOL_FP("Use Ellipsoidal Grains (versus spherical assumption)", UseEllipsoidalGrains, FilterParameter::Category::Parameter, ComputeFeatureEigenstrains, linkedProps));
 
   // Correctional matrix beta user inputs
   linkedProps.clear();
-  linkedProps << "Beta11"
-              << "Beta22"
-              << "Beta33"
-              << "Beta23"
-              << "Beta13"
-              << "Beta12";
+  linkedProps.push_back("Beta11");
+  linkedProps.push_back("Beta22");
+  linkedProps.push_back("Beta33");
+  linkedProps.push_back("Beta23");
+  linkedProps.push_back("Beta13");
+  linkedProps.push_back("Beta12");
   parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Correctional Matrix", UseCorrectionalMatrix, FilterParameter::Category::Parameter, ComputeFeatureEigenstrains, linkedProps));
 
   parameters.push_back(SIMPL_NEW_FLOAT_FP("Beta11", Beta11, FilterParameter::Category::Parameter, ComputeFeatureEigenstrains));
