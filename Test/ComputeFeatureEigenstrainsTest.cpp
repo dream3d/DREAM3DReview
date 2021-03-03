@@ -95,6 +95,16 @@ public:
   // -----------------------------------------------------------------------------
   int TestComputeFeatureEigenstrainsTest()
   {
+    // Possible tests:
+    // Check the following to make sure transition between solution types is valid
+    // Eshelby tensor for a=1, b=1, c=1 should be very close to a=1.001, b=1. c=0.999
+    // Eshelby tensor for a=3, b=3, c=1 should be very close to a=3, b=2.999, c=1
+    // Eshelby tensor for a=3, b=1, c=1 should be very close to a=3, b=1, c=0.999
+    // Calculate Eshelby tensor for variety of grain shapes
+    // make sure a < b and b < c fails
+    // make sure nu > 0.4999 fails
+    // check that gauss integration code works for simple analytical functions
+    // check that pipeline runs and gives correct result
 
     return EXIT_SUCCESS;
   }

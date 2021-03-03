@@ -132,7 +132,7 @@ double gauss_integration(Functor function, double lowerBound, double upperBound)
 
 // -----------------------------------------------------------------------------
 // Calculates the fourth-rank Eshelby tensor using Poisson's ratio and ellipsoid information
-// Equations referenced come from pp. 77-79 "Micromechanics of Defects in Solids" 2nd Ed. by Toshio Mura, 1987
+// Equations referenced come from Chap. 2 in "Micromechanics of Defects in Solids" 2nd Ed. by Toshio Mura, 1987
 // -----------------------------------------------------------------------------
 Tensor4DType find_eshelby(double a, double b, double c, double nu, bool ellipsoidal)
 {
@@ -140,51 +140,72 @@ Tensor4DType find_eshelby(double a, double b, double c, double nu, bool ellipsoi
   eshelbyTensor.init(0.0);
 
   // Ellipsoidal solution criteria
-  if((abs(a - b) > 1e-5 || abs(b - c) > 1e-5) && ellipsoidal)
+  if((a - b > 1e-5 || b - c > 1e-5) && ellipsoidal)
   {
+    double IVector[3] = {0};
+    double IArray[3][3] = {0};
     double aa = pow(a, 2);
     double bb = pow(b, 2);
     double cc = pow(c, 2);
     double axesSq[3] = {aa, bb, cc};
 
-    // Functional form of elliptic integrals of first and second kind (Eq. 11.18)
-    double theta = asin(sqrt(1 - cc / aa));
-    double k = sqrt((aa - bb) / (aa - cc));
-    auto F = [k](const double& w) { return 1 / sqrt(1 - pow(k, 2) * pow(sin(w), 2)); };
-    auto E = [k](const double& w) { return sqrt(1 - pow(k, 2) * pow(sin(w), 2)); };
-
-    // Calculate elliptic integrals w/ 32-point Gauss quadrature integration
-    double FIntegral = gauss_integration(F, 0, theta);
-    double EIntegral = gauss_integration(E, 0, theta);
-
-    // This would be the boost implementation of 30-point integration
-    // boost::math::quadrature::gauss<double, 30> integrator;
-    // double FIntegral = integrator.integrate(F, 0, theta);
-    // double EIntegral = integrator.integrate(E, 0, theta);
-
-    // Solve I1, I2, I3 (Eq. 11.17 and Formula 1 in Eq. 11.19)
-    double IVector[3] = {0};
-    IVector[0] = ((4.0 * SIMPLMath::k_PiD * a * b * c) / ((aa - bb) * sqrt(aa - cc))) * (FIntegral - EIntegral);
-    IVector[2] = ((4.0 * SIMPLMath::k_PiD * a * b * c) / ((bb - cc) * sqrt(aa - cc))) * ((b * sqrt(aa - cc)) / (a * c) - EIntegral);
-    IVector[1] = 4.0 * SIMPLMath::k_PiD - IVector[0] - IVector[2];
-
-    // Solve for I off-diagonal terms (Formula 4 in Eq. 11.19)
-    double IArray[3][3] = {0};
-    for(size_t m = 0; m < 3; m++)
+    if(a - b < 1e-5 && b - c > 1e-5) // Oblate spheroid a = b > c (Eq. 11.28)
     {
-      for(size_t n = 0; n < 3; n++)
+      IVector[0] = IVector[1] = ((2 * SIMPLMath::k_PiD * aa * c) / pow((aa - cc), 1.5)) * (acos(c / a) - (c / a) * pow((1 - cc / aa), 0.5));
+      IVector[2] = 4 * SIMPLMath::k_PiD - 2 * IVector[0];
+
+      IArray[0][2] = IArray[2][0] = IArray[1][2] = IArray[2][1] = (IVector[0] - IVector[2]) / (cc - aa);
+      IArray[0][0] = IArray[1][1] = IArray[0][1] = IArray[1][0] = SIMPLMath::k_PiD / aa - IArray[0][2] / 4;
+      IArray[2][2] = ((4 * SIMPLMath::k_PiD) / cc - 2 * IArray[0][2]) / 3;
+    }
+    else if(a - b > 1e-5 && b - c < 1e-5) // Prolate spheroid a > b = c (Eq. 11.29)
+    {
+      IVector[1] = IVector[2] = ((2 * SIMPLMath::k_PiD * a * cc) / pow((aa - cc), 1.5)) * ((a / c) * pow((aa / cc - 1), 0.5) - acosh(a / c));
+      IVector[0] = 4 * SIMPLMath::k_PiD - 2 * IVector[1];
+
+      IArray[0][1] = IArray[1][0] = IArray[0][2] = IArray[2][0] = (IVector[1] - IVector[0]) / (aa - bb);
+      IArray[1][1] = IArray[2][2] = IArray[1][2] = IArray[2][1]  = SIMPLMath::k_PiD / bb - IArray[0][1] / 4;
+      IArray[0][0] = ((4 * SIMPLMath::k_PiD) / aa - 2 * IArray[0][1] ) / 3;
+    }
+    else // Ellipsoid
+    {
+      // Functional form of elliptic integrals of first and second kind (Eq. 11.18)
+      double theta = asin(sqrt(1 - cc / aa));
+      double k = sqrt((aa - bb) / (aa - cc));
+      auto F = [k](const double& w) { return 1 / sqrt(1 - pow(k, 2) * pow(sin(w), 2)); };
+      auto E = [k](const double& w) { return sqrt(1 - pow(k, 2) * pow(sin(w), 2)); };
+
+      // Calculate elliptic integrals w/ 32-point Gauss quadrature integration
+      double FIntegral = gauss_integration(F, 0, theta);
+      double EIntegral = gauss_integration(E, 0, theta);
+
+      // This would be the boost implementation of 30-point integration
+      // boost::math::quadrature::gauss<double, 30> integrator;
+      // double FIntegral = integrator.integrate(F, 0, theta);
+      // double EIntegral = integrator.integrate(E, 0, theta);
+
+      // Solve I1, I2, I3 (Eq. 11.17 and Formula 1 in Eq. 11.19)
+      IVector[0] = ((4.0 * SIMPLMath::k_PiD * a * b * c) / ((aa - bb) * sqrt(aa - cc))) * (FIntegral - EIntegral);
+      IVector[2] = ((4.0 * SIMPLMath::k_PiD * a * b * c) / ((bb - cc) * sqrt(aa - cc))) * ((b * sqrt(aa - cc)) / (a * c) - EIntegral);
+      IVector[1] = 4.0 * SIMPLMath::k_PiD - IVector[0] - IVector[2];
+
+      // Solve for I off-diagonal terms (Formula 4 in Eq. 11.19)
+      for(size_t m = 0; m < 3; m++)
       {
-        if(m != n)
+        for(size_t n = 0; n < 3; n++)
         {
-          IArray[m][n] = (IVector[n] - IVector[m]) / (axesSq[m] - axesSq[n]);
+          if(m != n)
+          {
+            IArray[m][n] = (IVector[n] - IVector[m]) / (axesSq[m] - axesSq[n]);
+          }
         }
       }
-    }
 
-    // Solve for I diagonal terms (Formula 2 in Eq. 11.19)
-    IArray[0][0] = (4.0 * SIMPLMath::k_PiD / axesSq[0] - IArray[0][1] - IArray[0][2]) / 3;
-    IArray[1][1] = (4.0 * SIMPLMath::k_PiD / axesSq[1] - IArray[1][0] - IArray[1][2]) / 3;
-    IArray[2][2] = (4.0 * SIMPLMath::k_PiD / axesSq[2] - IArray[2][0] - IArray[2][1]) / 3;
+      // Solve for I diagonal terms (Formula 2 in Eq. 11.19)
+      IArray[0][0] = (4.0 * SIMPLMath::k_PiD / axesSq[0] - IArray[0][1] - IArray[0][2]) / 3;
+      IArray[1][1] = (4.0 * SIMPLMath::k_PiD / axesSq[1] - IArray[1][0] - IArray[1][2]) / 3;
+      IArray[2][2] = (4.0 * SIMPLMath::k_PiD / axesSq[2] - IArray[2][0] - IArray[2][1]) / 3;
+    }
 
     // Ellipsoid cyclic permutation (Eq. 11.16)
     for(size_t i = 0; i < 3; i++)
