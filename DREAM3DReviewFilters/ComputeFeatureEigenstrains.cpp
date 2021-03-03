@@ -164,8 +164,8 @@ Tensor4DType find_eshelby(double a, double b, double c, double nu, bool ellipsoi
       IVector[0] = 4 * SIMPLMath::k_PiD - 2 * IVector[1];
 
       IArray[0][1] = IArray[1][0] = IArray[0][2] = IArray[2][0] = (IVector[1] - IVector[0]) / (aa - bb);
-      IArray[1][1] = IArray[2][2] = IArray[1][2] = IArray[2][1]  = SIMPLMath::k_PiD / bb - IArray[0][1] / 4;
-      IArray[0][0] = ((4 * SIMPLMath::k_PiD) / aa - 2 * IArray[0][1] ) / 3;
+      IArray[1][1] = IArray[2][2] = IArray[1][2] = IArray[2][1] = SIMPLMath::k_PiD / bb - IArray[0][1] / 4;
+      IArray[0][0] = ((4 * SIMPLMath::k_PiD) / aa - 2 * IArray[0][1]) / 3;
     }
     else // Ellipsoid
     {
