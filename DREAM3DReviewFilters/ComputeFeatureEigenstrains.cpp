@@ -151,7 +151,7 @@ Tensor4DType find_eshelby(double a, double b, double c, double nu, bool ellipsoi
 
     if(a - b < 1e-5 && b - c > 1e-5) // Oblate spheroid a = b > c (Eq. 11.28)
     {
-      IVector[0] = IVector[1] = ((2 * SIMPLMath::k_PiD * aa * c) / std::pow((aa - cc), 1.5)) * (std::acos(c / a) - (c / a) * std::pow((1 - cc / aa), 0.5));
+      IVector[0] = IVector[1] = ((2 * SIMPLMath::k_PiD * aa * c) / std::pow((aa - cc), 1.5)) * (std::acos(c / a) - (c / a) * std::sqrt(1 - cc / aa));
       IVector[2] = 4 * SIMPLMath::k_PiD - 2 * IVector[0];
 
       IArray[0][2] = IArray[2][0] = IArray[1][2] = IArray[2][1] = (IVector[0] - IVector[2]) / (cc - aa);
@@ -160,7 +160,7 @@ Tensor4DType find_eshelby(double a, double b, double c, double nu, bool ellipsoi
     }
     else if(a - b > 1e-5 && b - c < 1e-5) // Prolate spheroid a > b = c (Eq. 11.29)
     {
-      IVector[1] = IVector[2] = ((2 * SIMPLMath::k_PiD * a * cc) / std::pow((aa - cc), 1.5)) * ((a / c) * std::pow((aa / cc - 1), 0.5) - std::acosh(a / c));
+      IVector[1] = IVector[2] = ((2 * SIMPLMath::k_PiD * a * cc) / std::pow((aa - cc), 1.5)) * ((a / c) * std::sqrt(aa / cc - 1) - std::acosh(a / c));
       IVector[0] = 4 * SIMPLMath::k_PiD - 2 * IVector[1];
 
       IArray[0][1] = IArray[1][0] = IArray[0][2] = IArray[2][0] = (IVector[1] - IVector[0]) / (aa - bb);
