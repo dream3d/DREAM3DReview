@@ -172,8 +172,8 @@ Tensor4DType find_eshelby(double a, double b, double c, double nu, bool ellipsoi
       // Functional form of elliptic integrals of first and second kind (Eq. 11.18)
       double theta = std::asin(std::sqrt(1 - cc / aa));
       double k = std::sqrt((aa - bb) / (aa - cc));
-      auto F = [k](const double& w) { return 1 / std::sqrt(1 - std::pow(k, 2) * std::pow(std::sin(w), 2)); };
-      auto E = [k](const double& w) { return std::sqrt(1 - std::pow(k, 2) * std::pow(std::sin(w), 2)); };
+      auto F = [k](double w) { return 1 / std::sqrt(1 - std::pow(k, 2) * std::pow(std::sin(w), 2)); };
+      auto E = [k](double w) { return std::sqrt(1 - std::pow(k, 2) * std::pow(std::sin(w), 2)); };
 
       // Calculate elliptic integrals w/ 32-point Gauss quadrature integration
       double FIntegral = gauss_integration(F, 0, theta);
