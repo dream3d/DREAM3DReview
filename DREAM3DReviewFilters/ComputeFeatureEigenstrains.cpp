@@ -474,25 +474,6 @@ void ComputeFeatureEigenstrains::dataCheck()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ComputeFeatureEigenstrains::preflight()
-{
-  setInPreflight(true);
-  emit preflightAboutToExecute();
-  emit updateFilterParameters(this);
-  dataCheck();
-  if(getErrorCode() < 0)
-  {
-    emit preflightExecuted();
-    setInPreflight(false);
-    return;
-  }
-  emit preflightExecuted();
-  setInPreflight(false);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void ComputeFeatureEigenstrains::execute()
 {
   initialize();
