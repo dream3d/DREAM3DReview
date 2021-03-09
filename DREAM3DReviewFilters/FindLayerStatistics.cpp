@@ -109,7 +109,7 @@ public:
       }
       m_Std[i] /= count;
       m_Var[i] = m_Std[i];
-      m_Std[i] = sqrt(m_Std[i]);
+      m_Std[i] = std::sqrt(m_Std[i]);
     }
   }
 

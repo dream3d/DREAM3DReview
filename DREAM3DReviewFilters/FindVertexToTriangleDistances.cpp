@@ -331,14 +331,10 @@ void FindVertexToTriangleDistances::sendThreadSafeProgressMessage(int64_t counte
   m_ProgressCounter += counter;
   int64_t progressInt = static_cast<int64_t>((static_cast<float>(m_ProgressCounter) / m_TotalElements) * 100.0f);
 
-  int64_t progIncrement = m_TotalElements / 100;
-  int64_t prog = 1;
-
-  if(m_ProgressCounter > prog && m_LastProgressInt != progressInt)
+  if(m_ProgressCounter > 1 && m_LastProgressInt != progressInt)
   {
     QString ss = QObject::tr("Working on Vertex to Triangle Distances || %1% Completed").arg(progressInt);
     notifyStatusMessage(ss);
-    prog += progIncrement;
   }
 
   m_LastProgressInt = progressInt;
