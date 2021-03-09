@@ -36,12 +36,12 @@
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/Filtering/FilterPipeline.h"
-#include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
+#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
+#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 #include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
-#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 
 #include "UnitTestSupport.hpp"
 
@@ -50,13 +50,13 @@
 class ImportQMMeltpoolH5FileTest
 {
 
-  public:
-    ImportQMMeltpoolH5FileTest() = default;
-    ~ImportQMMeltpoolH5FileTest() = default;
-    ImportQMMeltpoolH5FileTest(const ImportQMMeltpoolH5FileTest&) = delete;            // Copy Constructor
-    ImportQMMeltpoolH5FileTest(ImportQMMeltpoolH5FileTest&&) = delete;                 // Move Constructor
-    ImportQMMeltpoolH5FileTest& operator=(const ImportQMMeltpoolH5FileTest&) = delete; // Copy Assignment
-    ImportQMMeltpoolH5FileTest& operator=(ImportQMMeltpoolH5FileTest&&) = delete;      // Move Assignment
+public:
+  ImportQMMeltpoolH5FileTest() = default;
+  ~ImportQMMeltpoolH5FileTest() = default;
+  ImportQMMeltpoolH5FileTest(const ImportQMMeltpoolH5FileTest&) = delete;            // Copy Constructor
+  ImportQMMeltpoolH5FileTest(ImportQMMeltpoolH5FileTest&&) = delete;                 // Move Constructor
+  ImportQMMeltpoolH5FileTest& operator=(const ImportQMMeltpoolH5FileTest&) = delete; // Copy Assignment
+  ImportQMMeltpoolH5FileTest& operator=(ImportQMMeltpoolH5FileTest&&) = delete;      // Move Assignment
 
   // -----------------------------------------------------------------------------
   //
@@ -74,11 +74,8 @@ class ImportQMMeltpoolH5FileTest
   {
     int err = EXIT_SUCCESS;
 
-    DREAM3D_REGISTER_TEST( TestImportQMMeltpoolH5FileTest() )
+    DREAM3D_REGISTER_TEST(TestImportQMMeltpoolH5FileTest())
   }
 
-  private:
-
-
+private:
 };
-

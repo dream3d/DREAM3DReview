@@ -46,7 +46,6 @@
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 
 #include "util/ClusteringAlgorithms/KMedoidsTemplate.hpp"
 

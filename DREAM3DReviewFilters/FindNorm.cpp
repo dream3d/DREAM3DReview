@@ -171,7 +171,7 @@ void FindNorm::execute()
     return;
   }
 
-  EXECUTE_FUNCTION_TEMPLATE(this, findPthNorm, m_InArrayPtr.lock(), m_InArrayPtr.lock(), m_NormPtr.lock(), m_PSpace);
+  EXECUTE_FUNCTION_TEMPLATE(this, findPthNorm, m_InArrayPtr.lock(), m_InArrayPtr.lock(), m_NormPtr.lock(), m_PSpace)
 }
 
 // -----------------------------------------------------------------------------

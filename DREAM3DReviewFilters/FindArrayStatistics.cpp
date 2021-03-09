@@ -37,7 +37,6 @@
 #include <cmath>
 #include <cstring>
 #include <functional>
-#include <numeric>
 #include <unordered_map>
 
 #include <QtCore/QTextStream>
@@ -45,19 +44,15 @@
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/DataArrays/NeighborList.hpp"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
-#include "SIMPLib/FilterParameters/DataArrayCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DoubleFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
-#include "SIMPLib/Math/SIMPLibMath.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -804,7 +799,7 @@ void FindArrayStatistics::execute()
   }
 
   EXECUTE_FUNCTION_TEMPLATE(this, findStatistics, m_InputArrayPtr.lock(), m_InputArrayPtr.lock(), m_FeatureIdsPtr.lock(), m_UseMask, m_Mask, m_FindLength, m_FindMin, m_FindMax, m_FindMean,
-                            m_FindMedian, m_FindStdDeviation, m_FindSummation, arrays, numFeatures, m_ComputeByIndex, m_FindHistogram, m_MinRange, m_MaxRange, m_UseFullRange, m_NumBins);
+                            m_FindMedian, m_FindStdDeviation, m_FindSummation, arrays, numFeatures, m_ComputeByIndex, m_FindHistogram, m_MinRange, m_MaxRange, m_UseFullRange, m_NumBins)
 
   if(m_StandardizeData)
   {

@@ -268,7 +268,7 @@ void PrincipalComponentAnalysis::execute()
 
   for(auto i = 0; i < numArrays; i++)
   {
-    EXECUTE_FUNCTION_TEMPLATE(this, copyDataArrays, m_SelectedWeakPtrVector[i].lock(), m_SelectedWeakPtrVector[i].lock(), inDataVector, i);
+    EXECUTE_FUNCTION_TEMPLATE(this, copyDataArrays, m_SelectedWeakPtrVector[i].lock(), m_SelectedWeakPtrVector[i].lock(), inDataVector, i)
   }
 
   // Interface our CovarianceMatrix typedef with our contiguous array in memory

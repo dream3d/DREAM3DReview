@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <random>
-#include <sstream>
 #include <unordered_set>
 #include <utility>
 
@@ -31,8 +30,6 @@
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
 #include "SIMPLib/Geometry/TriangleGeom.h"
-#include "SIMPLib/Geometry/VertexGeom.h"
-#include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/FilePathGenerator.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
@@ -47,28 +44,6 @@ namespace PRH = PrintRiteHelpers;
 //
 // -----------------------------------------------------------------------------
 ImportPrintRiteTDMSFiles::ImportPrintRiteTDMSFiles()
-: m_STLFilePath1("")
-, m_STLFilePath2("")
-, m_LayerThickness(0.02f)
-, m_LaserOnThreshold(2.5f)
-, m_LaserOnArrayOption(0)
-, m_OutputDirectory("")
-, m_OutputFilePrefix("Build_")
-, m_SpatialTransformOption(0)
-, m_DowncastRawData(true)
-, m_ScaleLaserPower(false)
-, m_ScalePyrometerTemperature(false)
-, m_SplitRegions1(false)
-, m_SplitRegions2(false)
-, m_LayerForScaling(0)
-, m_InputSpatialTransformFilePath("")
-, m_SearchRadius(0.05f)
-, m_NumParts(1)
-, m_NumLayers(0)
-, m_NumLayersToImport(0)
-, m_Offset(0)
-, m_STLFilePath("")
-, m_LocalStructure(nullptr)
 {
   m_InputFilesList.FileExtension = QString("tdms");
   m_InputFilesList.StartIndex = 0;
@@ -141,8 +116,8 @@ void ImportPrintRiteTDMSFiles::setupFilterParameters()
     choices.push_back("Compute Real Space Transformation");
     choices.push_back("Import Spatial Transformation Coefficients From File");
     parameter->setChoices(choices);
-    std::vector<QString> linkedProps = {"LayerForScaling", "SearchRadius", "SplitRegions1", "SplitRegions2", "STLFilePath1", "STLFilePath2", "InputSpatialTransformFilePath"};
-    parameter->setLinkedProperties(linkedProps);
+    std::vector<QString> linkedProps2 = {"LayerForScaling", "SearchRadius", "SplitRegions1", "SplitRegions2", "STLFilePath1", "STLFilePath2", "InputSpatialTransformFilePath"};
+    parameter->setLinkedProperties(linkedProps2);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Category::Parameter);
     parameters.push_back(parameter);
@@ -224,11 +199,9 @@ void ImportPrintRiteTDMSFiles::dataCheck()
                                                                   getInputFilesList().InputPath, getInputFilesList().FilePrefix, getInputFilesList().FileSuffix, getInputFilesList().FileExtension,
                                                                   getInputFilesList().PaddingDigits);
 
-  QString ss;
-
-  if(fileList.size() == 0)
+  if(fileList.empty())
   {
-    ss.clear();
+    QString ss;
     QTextStream out(&ss);
     out << " No files have been selected for import. Have you set the input directory and other values so that input files will be generated?\n";
     out << "InputPath: " << getInputFilesList().InputPath << "\n";
@@ -290,9 +263,9 @@ void ImportPrintRiteTDMSFiles::dataCheck()
     }
   }
 
-  if(missing_fnames.size() > 0)
+  if(!missing_fnames.empty())
   {
-    ss.clear();
+    QString ss;
     QTextStream out(&ss);
     out << " File name options have resulted in missing files. Have you correctly set the start and end indices; file prefix, suffix, and extension; and padding digits for your files?\n";
     out << "InputPath: " << getInputFilesList().InputPath << "\n";
@@ -323,7 +296,7 @@ void ImportPrintRiteTDMSFiles::dataCheck()
     break;
   }
   default: {
-    ss = QObject::tr("Invalid selection for array used to determine if laser is on");
+    QString ss = QObject::tr("Invalid selection for array used to determine if laser is on");
     setErrorCondition(-701, ss);
     break;
   }
@@ -452,7 +425,7 @@ void ImportPrintRiteTDMSFiles::dataCheck()
     break;
   }
   default: {
-    ss = QObject::tr("Invalid selection for spatial transform option");
+    QString ss = QObject::tr("Invalid selection for spatial transform option");
     setErrorCondition(-701, ss);
     break;
   }
@@ -664,7 +637,7 @@ void ImportPrintRiteTDMSFiles::writeMetaDataToHDF5Files()
   DoubleArrayType::Pointer polyCoefficients = nullptr;
   if(m_SpatialTransformOption == 0)
   {
-    std::vector<size_t> cDims(1, 2);
+    cDims = {2};
     polyCoefficients = DoubleArrayType::CreateArray(10, cDims, "Spatial Scaling Coefficients", true);
     polyCoefficients->initializeWithZeros();
   }
@@ -1225,7 +1198,7 @@ void ImportPrintRiteTDMSFiles::determinePointsForLeastSquares(const PRH::Polygon
               visitedEdges.insert(i);
               break;
             }
-            else if(edge[2 * i + 1] == startVertex)
+            if(edge[2 * i + 1] == startVertex)
             {
               woundVertices.vertices.emplace_back(verts[3 * edge[2 * i] + 0], verts[3 * edge[2 * i] + 1]);
               startVertex = edge[2 * i];
@@ -1288,7 +1261,7 @@ void ImportPrintRiteTDMSFiles::determinePointsForLeastSquares(const PRH::Polygon
               visitedEdges.insert(i);
               break;
             }
-            else if(edge[2 * i + 1] == startVertex)
+            if(edge[2 * i + 1] == startVertex)
             {
               woundVertices.vertices.emplace_back(verts[3 * edge[2 * i] + 0], verts[3 * edge[2 * i] + 1]);
               startVertex = edge[2 * i];
@@ -1684,7 +1657,7 @@ void ImportPrintRiteTDMSFiles::execute()
 
   QString ss;
 
-  if(fileList.size() == 0)
+  if(fileList.empty())
   {
     ss.clear();
     QTextStream out(&ss);
@@ -1769,13 +1742,10 @@ void ImportPrintRiteTDMSFiles::execute()
               fileForScaling = fileList[i];
               break;
             }
-            else
+            if(baseName.toUInt() == m_LayerForScaling)
             {
-              if(baseName.toUInt() == m_LayerForScaling)
-              {
-                fileForScaling = fileList[i];
-                break;
-              }
+              fileForScaling = fileList[i];
+              break;
             }
           }
         }

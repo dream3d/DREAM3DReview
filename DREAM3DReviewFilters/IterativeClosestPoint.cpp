@@ -1,6 +1,5 @@
 #include "IterativeClosestPoint.h"
 
-#include <Eigen/Dense>
 #include <Eigen/Geometry>
 
 #include "SIMPLib/Common/Constants.h"

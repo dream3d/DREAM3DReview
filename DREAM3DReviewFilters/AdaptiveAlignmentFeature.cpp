@@ -299,12 +299,11 @@ void AdaptiveAlignmentFeature::find_shifts(std::vector<int64_t>& xshifts, std::v
       int64_t minchangeiter = 0;
       float olderror = 0;
       float newerror = 0;
-      uint64_t progInt = 0;
+      uint64_t progInt2 = 0;
 
       do
       {
-        QString ss = QObject::tr("Aligning Anisotropic Sections || Correcting Shifts || Iteration %1").arg(++progInt);
-        ;
+        ss = QObject::tr("Aligning Anisotropic Sections || Correcting Shifts || Iteration %1").arg(++progInt2);
         notifyStatusMessage(ss);
         if(getCancel())
         {

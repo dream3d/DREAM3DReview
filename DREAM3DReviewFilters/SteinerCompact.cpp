@@ -34,8 +34,6 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "SteinerCompact.h"
 
-#include <fstream>
-
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -59,7 +57,6 @@
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
-#include "DREAM3DReview/DREAM3DReviewVersion.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -217,7 +214,7 @@ void SteinerCompact::rose_of_intersections(std::vector<std::vector<float>>& ROI)
 
   uint64_t directions = ROI[1].size();
 
-  SIMPL_RANDOMNG_NEW();
+  SIMPL_RANDOMNG_NEW()
 
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(m_FeatureIdsArrayPath.getDataContainerName());
   SizeVec3Type udims = m->getGeometryAs<ImageGeom>()->getDimensions();

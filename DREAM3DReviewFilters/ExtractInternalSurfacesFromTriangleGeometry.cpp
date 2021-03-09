@@ -132,7 +132,7 @@ void ExtractInternalSurfacesFromTriangleGeometry::dataCheck()
 
   arrays.push_back(tris->getVertices());
 
-  std::vector<size_t> cDims(1, 1);
+  std::vector<size_t> cDims = {1ULL};
 
   m_NodeTypesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>>(this, getNodeTypesArrayPath(), cDims);
   if(m_NodeTypesPtr.lock())
@@ -180,7 +180,7 @@ void ExtractInternalSurfacesFromTriangleGeometry::dataCheck()
           IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray(this, data_array, -90002);
           if(getErrorCode() >= 0)
           {
-            std::vector<size_t> cDims = tmpDataArray->getComponentDimensions();
+            cDims = tmpDataArray->getComponentDimensions();
             TemplateHelpers::CreateNonPrereqArrayFromArrayType()(this, tempPath, cDims, tmpDataArray);
           }
         }

@@ -113,13 +113,11 @@ void findVertexAverage(AbstractFilter* filter, IDataArray::Pointer inDataPtr, Da
   IGeometry::Pointer geom = m->getGeometry();
   IGeometry::Type geomType = geom->getGeometryType();
 
-  int32_t err = 0;
-
   if(weightAverage)
   {
     if(!geom->getElementCentroids())
     {
-      err = geom->findElementCentroids();
+      int32_t err = geom->findElementCentroids();
       if(err < 0)
       {
         QString ss = QObject::tr("Error computing Element centroids for Geometry type %1").arg(geom->getGeometryTypeAsString());

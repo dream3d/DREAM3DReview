@@ -7,53 +7,22 @@
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
 
-#include "SIMPLib/SIMPLibVersion.h"
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
-#include "SIMPLib/FilterParameters/AbstractFilterParametersWriter.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/H5FilterParametersWriter.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
-#include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
 
 #include "H5Support/H5ScopedSentinel.h"
-#include "H5Support/QH5Lite.h"
 #include "H5Support/QH5Utilities.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
-
-#define APPEND_DATA_TRUE 1
-#define APPEND_DATA_FALSE 0
-
-namespace Detail
-{
-class H5GroupAutoCloser
-{
-public:
-  explicit H5GroupAutoCloser(hid_t* groupId)
-  : gid(groupId)
-  {
-  }
-
-  virtual ~H5GroupAutoCloser()
-  {
-    if(*gid > 0)
-    {
-      H5Gclose(*gid);
-    }
-  }
-
-private:
-  hid_t* gid;
-};
-} // namespace Detail
 
 // -----------------------------------------------------------------------------
 //

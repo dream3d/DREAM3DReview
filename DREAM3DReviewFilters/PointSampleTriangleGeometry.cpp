@@ -36,7 +36,6 @@
 
 #include <cassert>
 #include <cstring>
-#include <ctime>
 
 #include <QtCore/QTextStream>
 
@@ -289,7 +288,7 @@ void PointSampleTriangleGeometry::dataCheck()
     {
       dataArrays.push_back(ptr.lock());
       m_SelectedWeakPtrVector.push_back(ptr);
-      std::vector<size_t> cDims = ptr.lock()->getComponentDimensions();
+      cDims = ptr.lock()->getComponentDimensions();
       DataArrayPath newPath(getVertexGeometry(), getVertexAttributeMatrixName(), ptr.lock()->getName());
       IDataArray::WeakPointer newPtr = TemplateHelpers::CreateNonPrereqArrayFromArrayType()(this, newPath, cDims, ptr.lock());
       m_CreatedWeakPtrVector.push_back(newPtr);
@@ -336,7 +335,7 @@ void PointSampleTriangleGeometry::sampleTriangle(float a[3], float b[3], float c
 
   for(std::vector<IDataArray::WeakPointer>::size_type i = 0; i < m_SelectedWeakPtrVector.size(); i++)
   {
-    EXECUTE_FUNCTION_TEMPLATE(this, copyDataToPoints, m_SelectedWeakPtrVector[i].lock(), m_SelectedWeakPtrVector[i].lock(), m_CreatedWeakPtrVector[i].lock(), tri, curVertex);
+    EXECUTE_FUNCTION_TEMPLATE(this, copyDataToPoints, m_SelectedWeakPtrVector[i].lock(), m_SelectedWeakPtrVector[i].lock(), m_CreatedWeakPtrVector[i].lock(), tri, curVertex)
   }
 }
 

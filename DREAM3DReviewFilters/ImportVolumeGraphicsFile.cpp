@@ -111,9 +111,13 @@ void ImportVolumeGraphicsFile::setupFilterParameters()
 void ImportVolumeGraphicsFile::initialize()
 {
   if(m_InHeaderStream.isOpen())
+  {
     m_InHeaderStream.close();
+  }
   if(m_InStream.isOpen())
+  {
     m_InStream.close();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -128,17 +132,17 @@ void ImportVolumeGraphicsFile::dataCheck()
 
   QFileInfo fiHdr(getVGHeaderFile());
 
-  if(getVGHeaderFile().isEmpty() == true)
+  if(getVGHeaderFile().isEmpty())
   {
     QString ss = QObject::tr("The Volume Graphics header file (.vgi) must be set");
     setErrorCondition(k_EmptyFileInput, ss);
   }
-  else if(fiHdr.isDir() == true)
+  else if(fiHdr.isDir())
   {
     QString ss = QObject::tr("The file path is a directory. Please select a file with the .vgi extension. '%1'").arg(getVGHeaderFile());
     setErrorCondition(k_FileIsDirectory, ss);
   }
-  else if(fiHdr.exists() == false)
+  else if(!fiHdr.exists())
   {
     QString ss = QObject::tr("The Volume Graphics header file (.vgi) file does not exist. '%1'").arg(getVGHeaderFile());
     setErrorCondition(k_FileDoesNotExist, ss);
@@ -149,7 +153,7 @@ void ImportVolumeGraphicsFile::dataCheck()
     return;
   }
 
-  if(m_InHeaderStream.isOpen() == true)
+  if(m_InHeaderStream.isOpen())
   {
     m_InHeaderStream.close();
   }
@@ -172,17 +176,17 @@ void ImportVolumeGraphicsFile::dataCheck()
   }
   QFileInfo fi(getVGDataFile());
 
-  if(getVGDataFile().isEmpty() == true)
+  if(getVGDataFile().isEmpty())
   {
     QString ss = QObject::tr("The Volume Graphics voxel file (.vol) must be set");
     setErrorCondition(k_EmptyFileInput, ss);
   }
-  else if(fi.isDir() == true)
+  else if(fi.isDir())
   {
     QString ss = QObject::tr("The file path is a directory. Please select a file with the .vgi extension. '%1'").arg(getVGDataFile());
     setErrorCondition(k_FileIsDirectory, ss);
   }
-  else if(fi.exists() == false)
+  else if(!fi.exists())
   {
     QString ss = QObject::tr("The Volume Graphics voxel file (.vol) file does not exist. '%1'").arg(getVGDataFile());
     setErrorCondition(k_FileDoesNotExist, ss);
@@ -212,7 +216,7 @@ void ImportVolumeGraphicsFile::dataCheck()
   DataArrayPath path(getDataContainerName(), getCellAttributeMatrixName(), getDensityArrayName());
 
   m_DensityPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<float>>(this, path, 0, cDims);
-  if(nullptr != m_DensityPtr.lock().get())
+  if(nullptr != m_DensityPtr.lock())
   {
     m_Density = m_DensityPtr.lock()->getPointer(0);
   }
@@ -271,7 +275,7 @@ int32_t ImportVolumeGraphicsFile::readVolFile()
   notifyStatusMessage(ss);
   if(fread(density.getTuplePointer(0), 1, filesize, f) != filesize)
   {
-    QString ss = QObject::tr("Error Reading .vol file. Not enough bytes read....");
+    ss = QObject::tr("Error Reading .vol file. Not enough bytes read....");
     setErrorCondition(k_VolReadError, ss);
     return getErrorCode();
   }
@@ -408,7 +412,7 @@ ImportVolumeGraphicsFile::FileBlock ParseFileBlock(ImportVolumeGraphicsFile* fil
   QList<QByteArray> tokens;
   bool ok = false;
 
-  while(buf[0] != '[' && in.atEnd() == false)
+  while(buf[0] != '[' && !in.atEnd())
   {
     tokens = buf.split(' ');
     if(tokens[0] == k_RegionOfInterestStart)
@@ -462,7 +466,7 @@ ImportVolumeGraphicsFile::GeometryBlock ParseGeometryBlock(ImportVolumeGraphicsF
   buf = buf.trimmed();
   QList<QByteArray> tokens;
 
-  while(buf[0] != '[' && in.atEnd() == false)
+  while(buf[0] != '[' && !in.atEnd())
   {
     tokens = buf.split(' ');
     if(tokens[0] == k_status)
@@ -514,7 +518,7 @@ void ImportVolumeGraphicsFile::readHeaderMetaData(ImageGeom::Pointer image)
   FileBlock fileBlock;
   GeometryBlock geomBlock;
 
-  while(m_InHeaderStream.atEnd() == false)
+  while(!m_InHeaderStream.atEnd())
   {
     buf = m_InHeaderStream.readLine();
     buf = buf.trimmed();

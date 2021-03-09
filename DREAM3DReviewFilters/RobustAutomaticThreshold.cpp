@@ -43,7 +43,6 @@
 #include "SIMPLib/FilterParameters/DataArrayCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
-#include "SIMPLib/ITK/Dream3DTemplateAliasMacro.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -206,7 +205,7 @@ void RobustAutomaticThreshold::execute()
 
   // float threshold = 0.0f;
 
-  EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(DataArray, this, findThreshold, m_InputArrayPtr.lock(), m_InputArrayPtr.lock(), m_GradientMagnitudePtr.lock(), m_FeatureIdsPtr.lock());
+  EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(DataArray, this, findThreshold, m_InputArrayPtr.lock(), m_InputArrayPtr.lock(), m_GradientMagnitudePtr.lock(), m_FeatureIdsPtr.lock())
 }
 
 // -----------------------------------------------------------------------------

@@ -36,7 +36,6 @@
 
 #include <QtCore/QTextStream>
 
-#include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
@@ -44,13 +43,11 @@
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
 #include "SIMPLib/Geometry/IGeometry2D.h"
 #include "SIMPLib/Geometry/IGeometry3D.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
 
-#include <Eigen/Dense>
 #include <Eigen/Geometry>
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"

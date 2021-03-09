@@ -50,7 +50,6 @@
 #include "SIMPLib/Geometry/EdgeGeom.h"
 #include "SIMPLib/Math/GeometryMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
-#include "SIMPLib/Math/SIMPLibRandom.h"
 
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
@@ -287,9 +286,9 @@ void IdentifyDislocationSegments::execute()
                 {
                   size = edgeslist.size();
                   edgeslist.resize(size + initialEdgesListSize);
-                  for(qint32 j = size; j < edgeslist.size(); ++j)
+                  for(qint32 jj = size; jj < edgeslist.size(); ++jj)
                   {
-                    edgeslist[j] = -1;
+                    edgeslist[jj] = -1;
                   }
                 }
               }

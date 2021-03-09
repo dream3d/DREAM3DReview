@@ -83,7 +83,7 @@ void FindSurfaceRoughness::dataCheck()
   std::vector<size_t> cDims(1, 1);
 
   m_BoundaryCellsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>>(this, getBoundaryCellsArrayPath(), cDims);
-  if(nullptr != m_BoundaryCellsPtr.lock().get())
+  if(nullptr != m_BoundaryCellsPtr.lock())
   {
     m_BoundaryCells = m_BoundaryCellsPtr.lock()->getPointer(0);
   }
@@ -102,7 +102,7 @@ void FindSurfaceRoughness::dataCheck()
   cDims[0] = 3;
 
   m_RoughnessParamsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>>(this, path, 0, cDims);
-  if(nullptr != m_RoughnessParamsPtr.lock().get())
+  if(nullptr != m_RoughnessParamsPtr.lock())
   {
     m_RoughnessParams = m_RoughnessParamsPtr.lock()->getPointer(0);
   }

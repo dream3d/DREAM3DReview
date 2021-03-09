@@ -116,12 +116,8 @@ void CombineStlFiles::dataCheck()
   QDir directory(getStlFilesPath());
   m_FileList = directory.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
-  size_t s = m_FileList.size();
-
   m_FileList.erase(std::remove_if(std::begin(m_FileList), std::end(m_FileList), [](decltype(*std::begin(m_FileList))& val) -> bool { return (val.suffix().toLower() != "stl"); }),
                    std::end(m_FileList));
-
-  s = m_FileList.size();
 
   if(m_FileList.isEmpty())
   {
@@ -146,7 +142,7 @@ void CombineStlFiles::dataCheck()
   std::vector<size_t> cDims(1, 3);
   DataArrayPath path(getTriangleDataContainerName(), getFaceAttributeMatrixName(), getFaceNormalsArrayName());
   m_FaceNormalsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<double>>(this, path, 0, cDims);
-  if(nullptr != m_FaceNormalsPtr.lock().get())
+  if(nullptr != m_FaceNormalsPtr.lock())
   {
     m_FaceNormals = m_FaceNormalsPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */

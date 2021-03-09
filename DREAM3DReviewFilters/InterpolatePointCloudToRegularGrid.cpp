@@ -31,7 +31,6 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
-#include "SIMPLib/ITK/Dream3DTemplateAliasMacro.h"
 #include "SIMPLib/Utilities/TimeUtilities.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
@@ -62,7 +61,7 @@ void InterpolatePointCloudToRegularGrid::setupFilterParameters()
     std::vector<QString> choices;
     choices.push_back("Uniform");
     choices.push_back("Gaussian");
-    std::vector<QString> linkedProps;
+    linkedProps.clear();
     linkedProps.push_back("Sigmas");
     LinkedChoicesFilterParameter::Pointer parameter = LinkedChoicesFilterParameter::New();
     parameter->setHumanLabel("Interpolation Technique");
@@ -328,7 +327,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
   }
 
   m_VoxelIndicesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<size_t>>(this, getVoxelIndicesArrayPath(), cDims);
-  if(nullptr != m_VoxelIndicesPtr.lock().get())
+  if(nullptr != m_VoxelIndicesPtr.lock())
   {
     m_VoxelIndices = m_VoxelIndicesPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -340,7 +339,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
   if(getUseMask())
   {
     m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<bool>>(this, getMaskArrayPath(), cDims);
-    if(nullptr != m_MaskPtr.lock().get())
+    if(nullptr != m_MaskPtr.lock())
     {
       m_Mask = m_MaskPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -592,7 +591,7 @@ void InterpolatePointCloudToRegularGrid::execute()
       }
     }
 
-    if(m_SourceArraysToCopy.size() > 0)
+    if(!m_SourceArraysToCopy.empty())
     {
       for(std::vector<IDataArray::WeakPointer>::size_type j = 0; j < m_SourceArraysToCopy.size(); j++)
       {

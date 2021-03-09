@@ -30,9 +30,7 @@
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
-#include "SIMPLib/Math/SIMPLibMath.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -58,9 +56,7 @@ public:
   , m_Dims(dims)
   {
   }
-  virtual ~CalcLayerStatsImpl()
-  {
-  }
+  virtual ~CalcLayerStatsImpl() = default;
 
   void convert(size_t start, size_t end) const
   {
@@ -121,15 +117,15 @@ public:
   }
 #endif
 private:
-  T* m_Data;
-  float* m_Min;
-  float* m_Max;
-  float* m_Avg;
-  float* m_Std;
-  float* m_Var;
-  int32_t* m_StartPoints;
-  size_t* m_Stride;
-  size_t* m_Dims;
+  T* m_Data = nullptr;
+  float* m_Min = nullptr;
+  float* m_Max = nullptr;
+  float* m_Avg = nullptr;
+  float* m_Std = nullptr;
+  float* m_Var = nullptr;
+  int32_t* m_StartPoints = nullptr;
+  size_t* m_Stride = nullptr;
+  size_t* m_Dims = nullptr;
 };
 
 // -----------------------------------------------------------------------------

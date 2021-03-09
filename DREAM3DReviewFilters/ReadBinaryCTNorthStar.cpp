@@ -322,7 +322,7 @@ int32_t ReadBinaryCTNorthStar::readBinaryCTFiles()
         size_t fpOffset = ((origDims[1] * origDims[0] * fileZSlice) + (origDims[0] * y) + m_StartVoxelCoord[0]) * sizeof(float);
         if(fseek(f, fpOffset, SEEK_SET) != 0)
         {
-          QString ss = QObject::tr("Could not seek to postion %1 in file %2").arg(fpOffset).arg(dataFileInput.first);
+          ss = QObject::tr("Could not seek to postion %1 in file %2").arg(fpOffset).arg(dataFileInput.first);
           setErrorCondition(-38707, ss);
           fclose(f);
           return getErrorCode();
@@ -332,7 +332,7 @@ int32_t ReadBinaryCTNorthStar::readBinaryCTFiles()
         ptr = density.getPointer(index);
         if(fread(ptr, sizeof(float), deltaX, f) != deltaX)
         {
-          QString ss = QObject::tr("Error reading file at position %1 in file %2").arg(fpOffset).arg(dataFileInput.first);
+          ss = QObject::tr("Error reading file at position %1 in file %2").arg(fpOffset).arg(dataFileInput.first);
           setErrorCondition(-387008, ss);
           fclose(f);
           return getErrorCode();

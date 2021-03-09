@@ -7,8 +7,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
-#include <QtCore/QDebug>
-
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"

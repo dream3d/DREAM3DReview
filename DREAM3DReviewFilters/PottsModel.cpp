@@ -34,12 +34,10 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "PottsModel.h"
 
-#include <cassert>
 #include <chrono>
 #include <deque>
 #include <exception>
 #include <random>
-#include <utility>
 
 #include <QtCore/QTextStream>
 

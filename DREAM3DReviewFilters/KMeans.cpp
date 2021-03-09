@@ -46,7 +46,6 @@
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 
 #include "util/ClusteringAlgorithms/KMeansTemplate.hpp"
 
@@ -274,14 +273,14 @@ void KMeans::execute()
 
   if(m_UseMask)
   {
-    EXECUTE_TEMPLATE(this, KMeansTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MeansArrayPtr.lock(), m_MaskPtr.lock(), m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric);
+    EXECUTE_TEMPLATE(this, KMeansTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MeansArrayPtr.lock(), m_MaskPtr.lock(), m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric)
   }
   else
   {
     size_t numTuples = m_InDataPtr.lock()->getNumberOfTuples();
     BoolArrayType::Pointer tmpMask = BoolArrayType::CreateArray(numTuples, std::string("_INTERNAL_USE_ONLY_tmpMask"), true);
     tmpMask->initializeWithValue(true);
-    EXECUTE_TEMPLATE(this, KMeansTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MeansArrayPtr.lock(), tmpMask, m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric);
+    EXECUTE_TEMPLATE(this, KMeansTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MeansArrayPtr.lock(), tmpMask, m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric)
   }
 }
 

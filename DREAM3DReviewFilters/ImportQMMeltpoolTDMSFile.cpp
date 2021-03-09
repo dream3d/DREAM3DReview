@@ -58,12 +58,12 @@ void ImportQMMeltpoolTDMSFile::dataCheck()
 
   QFileInfo fi(getInputFile());
 
-  if(getInputFile().isEmpty() == true)
+  if(getInputFile().isEmpty())
   {
     QString ss = QObject::tr("The input binary CT file must be set");
     setErrorCondition(-387, ss);
   }
-  else if(fi.exists() == false)
+  else if(!fi.exists())
   {
     QString ss = QObject::tr("The input binary CT file does not exist");
     setErrorCondition(-388, ss);

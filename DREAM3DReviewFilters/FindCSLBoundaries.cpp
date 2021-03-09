@@ -46,7 +46,6 @@
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Geometry/TriangleGeom.h"
 #include "SIMPLib/Math/GeometryMath.h"
@@ -55,8 +54,6 @@
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
-
-//#include "Statistics/StatisticsConstants.h"
 
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
@@ -77,13 +74,13 @@ class CalculateCSLBoundaryImpl
   int m_CSLIndex;
   float m_AxisTol;
   float m_AngTol;
-  int32_t* m_Labels;
-  double* m_Normals;
-  int32_t* m_Phases;
-  float* m_Quats;
-  bool* m_CSLBoundary;
-  float* m_CSLBoundaryIncoherence;
-  unsigned int* m_CrystalStructures;
+  int32_t* m_Labels = nullptr;
+  double* m_Normals = nullptr;
+  int32_t* m_Phases = nullptr;
+  float* m_Quats = nullptr;
+  bool* m_CSLBoundary = nullptr;
+  float* m_CSLBoundaryIncoherence = nullptr;
+  unsigned int* m_CrystalStructures = nullptr;
   LaueOpsContainer m_OrientationOps;
 
 public:
@@ -132,7 +129,7 @@ public:
     for(int i = 0; i < 3; ++i)
     {
       cslAxisNorm[i] = TransformationPhaseConstants::CSLAxisAngle[m_CSLIndex][i + 2] / cslAxisNormDenom;
-    };
+    }
     for(size_t i = start; i < end; i++)
     {
       feature1 = m_Labels[2 * i];

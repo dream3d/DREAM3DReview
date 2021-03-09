@@ -36,9 +36,6 @@
 
 #include "ParaDisReader.h"
 
-#include <QtCore/QtDebug>
-#include <fstream>
-
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
@@ -50,7 +47,6 @@
 #include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
 #include "SIMPLib/Math/MatrixMath.h"
 

@@ -55,10 +55,8 @@
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Math/MatrixMath.h"
-#include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Math/SIMPLibRandom.h"
 
 #include "EbsdLib/Core/Orientation.hpp"
@@ -74,9 +72,6 @@ enum createdPathID : RenameDataPath::DataID_t
   DataArrayID31 = 31,
   DataArrayID32 = 32,
 };
-
-#define ERROR_TXT_OUT 1
-#define ERROR_TXT_OUT1 1
 
 const static float m_pi = static_cast<float>(M_PI);
 

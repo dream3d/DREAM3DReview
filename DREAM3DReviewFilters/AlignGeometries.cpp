@@ -335,7 +335,6 @@ FloatVec3Type extractCentroid(const IGeometry::Pointer& geometry)
     centroid[1] /= static_cast<float>(geometry3d->getNumberOfVertices());
     centroid[2] /= static_cast<float>(geometry3d->getNumberOfVertices());
     return centroid;
-    ;
   }
   return centroid;
 }

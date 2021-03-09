@@ -135,7 +135,7 @@ void ExtractTripleLinesFromTriangleGeometry::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
   m_NodeTypesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int8_t>>(this, getNodeTypesArrayPath(), cDims);
-  if(nullptr != m_NodeTypesPtr.lock().get())
+  if(nullptr != m_NodeTypesPtr.lock())
   {
     m_NodeTypes = m_NodeTypesPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */

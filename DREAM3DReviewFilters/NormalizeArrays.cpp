@@ -325,7 +325,7 @@ void NormalizeArrays::execute()
 
   for(std::vector<double>::size_type i = 0; i < arrays.size(); i++)
   {
-    EXECUTE_FUNCTION_TEMPLATE(this, copyDataArrays, m_SelectedWeakPtrVector[i].lock(), m_SelectedWeakPtrVector[i].lock(), arrays[i], m_UseMask, m_Mask);
+    EXECUTE_FUNCTION_TEMPLATE(this, copyDataArrays, m_SelectedWeakPtrVector[i].lock(), m_SelectedWeakPtrVector[i].lock(), arrays[i], m_UseMask, m_Mask)
   }
 
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS

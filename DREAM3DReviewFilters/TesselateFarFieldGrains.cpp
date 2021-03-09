@@ -40,7 +40,6 @@
 #include <fstream>
 
 #include "SIMPLib/Common/Constants.h"
-#include "SIMPLib/CoreFilters/DataContainerWriter.h"
 #include "SIMPLib/DataArrays/NeighborList.hpp"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
@@ -56,9 +55,7 @@
 #include "SIMPLib/Math/MatrixMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Math/SIMPLibRandom.h"
-#include "SIMPLib/StatsData/PrimaryStatsData.h"
 #include "SIMPLib/Utilities/FilePathGenerator.h"
-#include "SIMPLib/Utilities/TimeUtilities.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/Orientation.hpp"

@@ -70,7 +70,7 @@
  */
 class FindEuclideanMap2
 {
-  DataContainer::Pointer m;
+  DataContainer::Pointer m_DataContainer;
   int32_t* m_FeatureIds;
   int32_t* m_NearestNeighbors;
   float* m_GBEuclideanDistances;
@@ -80,7 +80,7 @@ class FindEuclideanMap2
 
 public:
   FindEuclideanMap2(const DataContainer::Pointer& datacontainer, int32_t* fIds, int32_t* nearNeighs, float* gbDists, float* tjDists, float* qpDists, int32_t type)
-  : m(datacontainer)
+  : m_DataContainer(datacontainer)
   , m_FeatureIds(fIds)
   , m_NearestNeighbors(nearNeighs)
   , m_GBEuclideanDistances(gbDists)
@@ -94,18 +94,18 @@ public:
 
   void operator()() const
   {
-    size_t totalPoints = m->getGeometryAs<ImageGeom>()->getNumberOfElements();
+    size_t totalPoints = m_DataContainer->getGeometryAs<ImageGeom>()->getNumberOfElements();
     double euclideanDistance = 0.0f;
     size_t count = 1;
     size_t changed = 1;
     size_t neighpoint = 0;
     int64_t nearestneighbor;
     std::array<int64_t, 6> neighbors = {0, 0, 0, 0, 0, 0};
-    int64_t xpoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getXPoints());
-    int64_t ypoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getYPoints());
-    int64_t zpoints = static_cast<int64_t>(m->getGeometryAs<ImageGeom>()->getZPoints());
+    ImageGeom::Pointer imageGeom = m_DataContainer->getGeometryAs<ImageGeom>();
+    int64_t xpoints = static_cast<int64_t>(imageGeom->getXPoints());
+    int64_t ypoints = static_cast<int64_t>(imageGeom->getYPoints());
+    int64_t zpoints = static_cast<int64_t>(imageGeom->getZPoints());
 
-    ImageGeom::Pointer imageGeom = m->getGeometryAs<ImageGeom>();
     FloatVec3Type spacing = imageGeom->getSpacing();
 
     double resx = static_cast<double>(spacing[0]);
@@ -1389,14 +1389,14 @@ void EstablishFoamMorphology::place_features(const Int32ArrayType::Pointer& feat
 
     if((int32_t)i > progFeature + progFeatureInc)
     {
-      QString ss = QObject::tr("Placing Feature #%1/%2").arg(i).arg(totalFeatures);
+      ss = QObject::tr("Placing Feature #%1/%2").arg(i).arg(totalFeatures);
       notifyStatusMessage(ss);
       progFeature = i;
     }
 
     if(i == (totalFeatures - 1))
     {
-      QString ss = QObject::tr("Placing Feature #%1/%2").arg(i + 1).arg(totalFeatures);
+      ss = QObject::tr("Placing Feature #%1/%2").arg(i + 1).arg(totalFeatures);
       notifyStatusMessage(ss);
     }
 
@@ -1482,7 +1482,7 @@ void EstablishFoamMorphology::place_features(const Int32ArrayType::Pointer& feat
     currentMillis = QDateTime::currentMSecsSinceEpoch();
     if(currentMillis - millis > 1000)
     {
-      QString ss = QObject::tr("Swapping/Moving/Adding/Removing Features Iteration %1/%2").arg(iteration).arg(totalAdjustments);
+      ss = QObject::tr("Swapping/Moving/Adding/Removing Features Iteration %1/%2").arg(iteration).arg(totalAdjustments);
       timeDiff = ((float)iteration / (float)(currentMillis - startMillis));
       estimatedTime = (float)(totalAdjustments - iteration) / timeDiff;
 

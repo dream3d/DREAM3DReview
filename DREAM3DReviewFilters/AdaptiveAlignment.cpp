@@ -43,10 +43,8 @@
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
-#include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/MultiDataArraySelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/ITK/itkBridge.h"
@@ -56,7 +54,6 @@
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
 #include "itkHoughTransform2DCirclesImageFilter.h"
-#include "itkHoughTransform2DLinesImageFilter.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -94,7 +91,7 @@ void AdaptiveAlignment::setupFilterParameters()
     choices.push_back("Own Shifts");
 
     parameter->setChoices(choices);
-    std::vector<QString> linkedProps;
+    linkedProps.clear();
     linkedProps.push_back("ImageDataArrayPath");
     linkedProps.push_back("ShiftX");
     linkedProps.push_back("ShiftY");
@@ -268,7 +265,6 @@ void AdaptiveAlignment::flatten_image()
 
 bool AdaptiveAlignment::find_calibrating_circles()
 {
-  QString ss = "";
   bool found = true;
 
   notifyStatusMessage("Find circles");
@@ -323,7 +319,7 @@ bool AdaptiveAlignment::find_calibrating_circles()
     if(i == 0)
     {
       // extract slice and transform
-      ss = QObject::tr("Finding Calibrating Circles");
+      QString ss = QObject::tr("Finding Calibrating Circles");
       notifyStatusMessage(ss);
 
       // input slice here
@@ -384,7 +380,7 @@ bool AdaptiveAlignment::find_calibrating_circles()
     {
       // exponential smoothing in encapsulating square for finer (float) center
       // this is done for each slice to identify the circles
-      ss = QObject::tr("Exponential smoothing");
+      QString ss = QObject::tr("Exponential smoothing");
       notifyStatusMessage(ss);
 
       float weighting_factor = -0.01f;

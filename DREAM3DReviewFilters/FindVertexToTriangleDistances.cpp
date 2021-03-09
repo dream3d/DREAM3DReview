@@ -33,8 +33,6 @@
 
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
 #include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
 #endif
 
 class FindVertexToTriangleDistancesImpl

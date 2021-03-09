@@ -15,7 +15,6 @@
 #include "FindMinkowskiBouligandDimension.h"
 
 #include <cmath>
-#include <cstring>
 
 #include <QtCore/QTextStream>
 

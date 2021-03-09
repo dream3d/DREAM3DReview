@@ -51,20 +51,16 @@
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
 #include "SIMPLib/Filtering/FilterManager.h"
-#include "SIMPLib/Filtering/FilterPipeline.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Math/GeometryMath.h"
 #include "SIMPLib/Math/MatrixMath.h"
 #include "SIMPLib/Math/SIMPLibRandom.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
 
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
-#include "EbsdLib/LaueOps/LaueOps.h"
 
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 

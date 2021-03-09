@@ -26,7 +26,6 @@
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
-#include "SIMPLib/Math/MatrixMath.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -118,11 +117,11 @@ void LaplacianSmoothPointCloud::dataCheck()
     return;
   }
 
-  if(getUseMask() == true)
+  if(getUseMask())
   {
     std::vector<size_t> cDims(1, 1);
     m_MaskPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<bool>>(this, getMaskArrayPath(), cDims);
-    if(nullptr != m_MaskPtr.lock().get())
+    if(nullptr != m_MaskPtr.lock())
     {
       m_Mask = m_MaskPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */

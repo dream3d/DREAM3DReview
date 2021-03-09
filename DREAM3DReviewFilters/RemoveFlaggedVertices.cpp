@@ -186,7 +186,7 @@ void RemoveFlaggedVertices::dataCheck()
           IDataArray::Pointer tmpDataArray = tmpAttrMat->getPrereqIDataArray(this, data_array, -90002);
           if(getErrorCode() >= 0)
           {
-            std::vector<size_t> cDims = tmpDataArray->getComponentDimensions();
+            cDims = tmpDataArray->getComponentDimensions();
             TemplateHelpers::CreateNonPrereqArrayFromArrayType()(this, tempPath, cDims, tmpDataArray);
           }
         }

@@ -74,7 +74,7 @@ void LabelTriangleGeometry::updateTriangleInstancePointers()
   clearErrorCode();
   clearWarningCode();
 
-  if(nullptr != m_RegionIdPtr.lock().get())
+  if(nullptr != m_RegionIdPtr.lock())
   {
     m_RegionId = m_RegionIdPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -103,7 +103,7 @@ void LabelTriangleGeometry::dataCheck()
   std::vector<size_t> cDims(1, 1);
   tempPath.update(getCADDataContainerName().getDataContainerName(), getTriangleAttributeMatrixName(), getRegionIdArrayName());
   m_RegionIdPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, tempPath, 0, cDims);
-  if(nullptr != m_RegionIdPtr.lock().get())
+  if(nullptr != m_RegionIdPtr.lock())
   {
     m_RegionId = m_RegionIdPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */

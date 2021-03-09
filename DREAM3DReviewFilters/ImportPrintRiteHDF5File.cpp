@@ -17,7 +17,6 @@
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/HDF5/H5DataArrayReader.h"
-#include "SIMPLib/Math/SIMPLibMath.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -89,7 +88,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<bool>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<UInt8ArrayType>()(tmpIPtr))
   {
@@ -101,7 +102,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<uint8_t>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<Int8ArrayType>()(tmpIPtr))
   {
@@ -113,7 +116,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<int8_t>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<UInt16ArrayType>()(tmpIPtr))
   {
@@ -125,7 +130,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<uint16_t>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<Int16ArrayType>()(tmpIPtr))
   {
@@ -137,7 +144,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<int16_t>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<UInt32ArrayType>()(tmpIPtr))
   {
@@ -149,7 +158,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<uint32_t>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<Int32ArrayType>()(tmpIPtr))
   {
@@ -161,7 +172,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<int32_t>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<UInt64ArrayType>()(tmpIPtr))
   {
@@ -173,7 +186,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<uint64_t>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<Int64ArrayType>()(tmpIPtr))
   {
@@ -185,7 +200,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<int64_t>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<FloatArrayType>()(tmpIPtr))
   {
@@ -197,7 +214,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<float>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   else if(TemplateHelpers::CanDynamicCast<DoubleArrayType>()(tmpIPtr))
   {
@@ -209,7 +228,9 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
       err = QH5Lite::readPointerDataset<double>(gid, name, tmpRawPtr);
     }
     else
+    {
       err = -33;
+    }
   }
   if(err == -33)
   {
@@ -217,7 +238,8 @@ void ImportPrintRiteHDF5File::readArray(const DataArrayPath& path, const hid_t& 
     setErrorCondition(-388, ss);
     return;
   }
-  else if(err < 0)
+
+  if(err < 0)
   {
     QString ss = QObject::tr("Error reading data set with name %1.").arg(name);
     setErrorCondition(-389, ss);
@@ -248,12 +270,12 @@ void ImportPrintRiteHDF5File::dataCheck()
 
   QFileInfo fi(getInputFile());
 
-  if(getInputFile().isEmpty() == true)
+  if(getInputFile().isEmpty())
   {
     QString ss = QObject::tr("The input file must be set");
     setErrorCondition(-387, ss);
   }
-  else if(fi.exists() == false)
+  else if(!fi.exists())
   {
     QString ss = QObject::tr("The input file does not exist");
     setErrorCondition(-388, ss);
@@ -286,7 +308,7 @@ void ImportPrintRiteHDF5File::dataCheck()
   }
 
   err = QH5Utilities::getGroupObjects(layerGroupId, H5Utilities::CustomHDFDataTypes::Group, m_SliceGroups);
-  if(m_SliceGroups.size() == 0)
+  if(m_SliceGroups.empty())
   {
     QString ss = QObject::tr("No layer groups found in supplied HDF5 file");
     setErrorCondition(-388, ss);
@@ -345,14 +367,14 @@ void ImportPrintRiteHDF5File::dataCheck()
 
   for(QStringList::Iterator iter = std::next(m_SortedSliceGroups.begin()); iter != m_SortedSliceGroups.end(); ++iter)
   {
-    hid_t gid = H5Gopen(layerGroupId, (*iter).toStdString().c_str(), H5P_DEFAULT);
-    if(gid > 0)
+    hid_t gid1 = H5Gopen(layerGroupId, (*iter).toStdString().c_str(), H5P_DEFAULT);
+    if(gid1 > 0)
     {
       int32_t layerNum = (*iter).toInt();
       QString hfData = "High Frequency Data";
       QString lfData = "Low Frequency Data";
       QString unassociatedData = "Unassociated Data";
-      hid_t hfGroupId = H5Gopen(gid, hfData.toStdString().c_str(), H5P_DEFAULT);
+      hid_t hfGroupId = H5Gopen(gid1, hfData.toStdString().c_str(), H5P_DEFAULT);
       if(hfGroupId > 0)
       {
         tmpHFVerts = QH5Lite::getNumberOfElements(hfGroupId, m_HFDataSetNames[0]);
@@ -360,7 +382,7 @@ void ImportPrintRiteHDF5File::dataCheck()
         totalHFVertices += tmpHFVerts;
       }
       // TODO: once implemented, read lf data
-      // hid_t lfGroupId = H5Gopen(gid, lfData.toStdString().c_str(), H5P_DEFAULT);
+      // hid_t lfGroupId = H5Gopen(gid1, lfData.toStdString().c_str(), H5P_DEFAULT);
       // if(lfGroupId > 0)
       //{
       //  if(m_LFDataSetNames.size() > 0)
@@ -375,7 +397,7 @@ void ImportPrintRiteHDF5File::dataCheck()
       QH5Utilities::closeHDF5Object(hfGroupId);
       // QH5Utilities::closeHDF5Object(lfGroupId);
     }
-    QH5Utilities::closeHDF5Object(gid);
+    QH5Utilities::closeHDF5Object(gid1);
   }
 
   size_t tmpvertcounter = 0;
@@ -420,10 +442,6 @@ void ImportPrintRiteHDF5File::dataCheck()
 
   // TODO: correct validation for position array existence
 
-  bool haveXCoords = false;
-  bool haveYCoords = false;
-  // bool haveLayerThickness = false;
-  // size_t numElements = getDataContainerArray()->getDataContainer(hf_path.getDataContainerName())->getAttributeMatrix(hf_path.getAttributeMatrixName())->getNumberOfTuples();
   gid = H5Gopen(layerGroupId, m_SortedSliceGroups.front().toStdString().c_str(), H5P_DEFAULT);
   for(QStringList::Iterator iter = m_HFDataSetNames.begin(); iter != m_HFDataSetNames.end(); ++iter)
   {
@@ -445,12 +463,10 @@ void ImportPrintRiteHDF5File::dataCheck()
     if((*iter).compare("X Position") == 0)
     {
       m_XCoords = FloatArrayType::CreateArray(totalHFVertices, std::string("_INTERNAL_USE_ONLY_XPosition"), !getInPreflight());
-      haveXCoords = true;
     }
     else if((*iter).compare("Y Position") == 0)
     {
       m_YCoords = FloatArrayType::CreateArray(totalHFVertices, std::string("_INTERNAL_USE_ONLY_YPosition"), !getInPreflight());
-      haveYCoords = true;
     }
   }
   QH5Utilities::closeHDF5Object(gid);
@@ -460,7 +476,7 @@ void ImportPrintRiteHDF5File::dataCheck()
   hf_path.setDataArrayName(getHFSliceIdsArrayName());
   std::vector<size_t> cDims(1, 1);
   m_HFSliceIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<Int32ArrayType>(this, hf_path, 0, cDims);
-  if(nullptr != m_HFSliceIdsPtr.lock().get())
+  if(nullptr != m_HFSliceIdsPtr.lock())
   {
     m_HFSliceIds = m_HFSliceIdsPtr.lock()->getPointer(0);
   }

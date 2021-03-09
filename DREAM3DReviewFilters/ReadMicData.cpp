@@ -37,12 +37,9 @@
 #include "ReadMicData.h"
 
 #include <limits>
-#include <sstream>
 #include <vector>
 
 #include <QtCore/QFileInfo>
-
-#include "EbsdLib/EbsdLib.h"
 
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
@@ -51,7 +48,6 @@
 #include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
@@ -256,7 +252,7 @@ void ReadMicData::populateMicData(MicReader* reader, DataContainer::Pointer m, s
       setInputFile_Cache(m_InputFile);
 
       QFileInfo newFi(m_InputFile);
-      QDateTime timeStamp(newFi.lastModified());
+      timeStamp = newFi.lastModified();
       setTimeStamp_Cache(timeStamp);
     }
   }

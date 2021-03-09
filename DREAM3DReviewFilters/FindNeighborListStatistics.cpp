@@ -15,19 +15,16 @@
 #include "FindNeighborListStatistics.h"
 
 #include <functional>
-#include <numeric>
 
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/DataArrays/NeighborList.hpp"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
-#include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/ParallelDataAlgorithm.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
@@ -328,7 +325,7 @@ void FindNeighborListStatistics::execute()
   }
 
   EXECUTE_FUNCTION_TEMPLATE_NO_BOOL(NeighborList, this, findStatistics, m_InputArrayPtr.lock(), this, m_InputArrayPtr.lock(), m_FindLength, m_FindMin, m_FindMax, m_FindMean, m_FindMedian,
-                                    m_FindStdDeviation, m_FindSummation, arrays);
+                                    m_FindStdDeviation, m_FindSummation, arrays)
 }
 
 // -----------------------------------------------------------------------------
