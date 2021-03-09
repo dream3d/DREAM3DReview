@@ -35,6 +35,7 @@
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
@@ -47,6 +48,37 @@
 #include "DREAM3DReviewTestFileLocations.h"
 
 #include "DREAM3DReview/DREAM3DReviewFilters/ComputeFeatureEigenstrains.h"
+#include "DREAM3DReview/DREAM3DReviewFilters/util/EigenstrainsHelper.hpp"
+
+namespace SIMPLMath = SIMPLib::Constants;
+
+namespace
+{
+void compare_tensors(EigenstrainsHelper::Tensor4DType L, EigenstrainsHelper::Tensor4DType R, double eps)
+{
+  for(size_t i = 0; i < 3; i++)
+  {
+    for(size_t j = 0; j < 3; j++)
+    {
+      for(size_t k = 0; k < 3; k++)
+      {
+        for(size_t l = 0; l < 3; l++)
+        {
+          if(false == SIMPLibMath::closeEnough<>(L(i, j, k, l), R(i, j, k, l), eps))
+          {
+            QString buf;
+            QTextStream ss(&buf);
+            ss << "Your test required the following\n            '";
+            ss << "SIMPLibMath::closeEnough<>(" << L(i, j, k, l) << ", " << R(i, j, k, l) << ", " << eps << "'\n             but this condition was not met with eps=" << eps << "\n";
+            ss << "             S_" << i + 1 << j + 1 << k + 1 << l + 1 << ": " << L(i, j, k, l) << "==" << R(i, j, k, l);
+            DREAM3D_TEST_THROW_EXCEPTION(buf.toStdString());
+          }
+        }
+      }
+    }
+  }
+}
+} // namespace
 
 class ComputeFeatureEigenstrainsTest
 {
@@ -68,16 +100,16 @@ public:
 
     ComputeFeatureEigenstrains::Pointer filter = ComputeFeatureEigenstrains::New();
     // Test setting impossible Poisson's ratio
-    filter->setPoissonRatio(0.5F);
+    filter->setPoissonRatio(0.5f);
     filter->preflight();
     err = filter->getErrorCode();
-    DREAM3D_REQUIRED(err, <, 0)
+    DREAM3D_REQUIRED(err, <, 0);
 
     // Test setting possible Poisson's ratio
     filter->setPoissonRatio(0.12345f);
     filter->preflight();
     err = filter->getErrorCode();
-    DREAM3D_REQUIRE_EQUAL(err, -80002)
+    DREAM3D_REQUIRE_EQUAL(err, -80002);
 
     // filter->setUseEllipsoidalGrains(true);
 
@@ -85,7 +117,7 @@ public:
     filter->setUseCorrectionalMatrix(true);
     filter->preflight();
     err = filter->getErrorCode();
-    DREAM3D_REQUIRE_EQUAL(err, -80002)
+    DREAM3D_REQUIRE_EQUAL(err, -80002);
 
     return EXIT_SUCCESS;
   }
@@ -95,16 +127,135 @@ public:
   // -----------------------------------------------------------------------------
   int TestComputeFeatureEigenstrainsTest()
   {
-    // Possible tests:
-    // Check the following to make sure transition between solution types is valid
-    // Eshelby tensor for a=1, b=1, c=1 should be very close to a=1.001, b=1. c=0.999
-    // Eshelby tensor for a=3, b=3, c=1 should be very close to a=3, b=2.999, c=1
-    // Eshelby tensor for a=3, b=1, c=1 should be very close to a=3, b=1, c=0.999
-    // Calculate Eshelby tensor for variety of grain shapes
-    // make sure a < b and b < c fails
-    // make sure nu > 0.4999 fails
-    // check that gauss integration code works for simple analytical functions
     // check that pipeline runs and gives correct result
+
+    return EXIT_SUCCESS;
+  }
+
+  int GaussIntegrationTest()
+  {
+    double eps = 1e-6;
+    double trueValue, numericalValue;
+
+    // 1.) Integrate x^2
+    auto function = [](double x) { return std::pow(x, 2); };
+
+    // 0 to 1
+    trueValue = 1.0 / 3;
+    numericalValue = EigenstrainsHelper::gauss_integration(function, 0, 1);
+    DREAM3D_REQUIRED(std::abs(numericalValue - trueValue), <, eps);
+
+    // 0 to 4
+    trueValue = 64.0 / 3;
+    numericalValue = EigenstrainsHelper::gauss_integration(function, 0, 4);
+    DREAM3D_REQUIRED(std::abs(numericalValue - trueValue), <, eps);
+
+    // 3 to 7
+    trueValue = 316.0 / 3;
+    numericalValue = EigenstrainsHelper::gauss_integration(function, 3, 7);
+    DREAM3D_REQUIRED(std::abs(numericalValue - trueValue), <, eps);
+
+    // -4 to 5
+    trueValue = 63.0;
+    numericalValue = EigenstrainsHelper::gauss_integration(function, -4, 5);
+    DREAM3D_REQUIRED(std::abs(numericalValue - trueValue), <, eps);
+
+    // 2.) Integrate sin(x)
+    auto function2 = [](double x) { return std::sin(x); };
+
+    // 0 to pi
+    trueValue = 2.0;
+    numericalValue = EigenstrainsHelper::gauss_integration(function2, 0, SIMPLMath::k_PiD);
+    DREAM3D_REQUIRED(std::abs(numericalValue - trueValue), <, eps);
+
+    // -pi/4 to pi/4
+    trueValue = 0.0;
+    numericalValue = EigenstrainsHelper::gauss_integration(function2, -SIMPLMath::k_PiD / 4, SIMPLMath::k_PiD / 4);
+    DREAM3D_REQUIRED(std::abs(numericalValue - trueValue), <, eps);
+
+    // 3.) Integrate x / (1 + x)
+    auto function3 = [](double x) { return x / (1 + x); };
+
+    // 1 to 3
+    trueValue = 10.0 - std::log(11);
+    numericalValue = EigenstrainsHelper::gauss_integration(function3, 0, 10);
+    DREAM3D_REQUIRED(std::abs(numericalValue - trueValue), <, eps);
+
+    // 1 to 3
+    trueValue = 2.0 - std::log(2);
+    numericalValue = EigenstrainsHelper::gauss_integration(function3, 1, 3);
+    DREAM3D_REQUIRED(std::abs(numericalValue - trueValue), <, eps);
+
+    return EXIT_SUCCESS;
+  }
+
+  int FindEshelbyTest()
+  {
+    EigenstrainsHelper::Tensor4DType eshelbyTensor1, eshelbyTensor2;
+    double eps = 1e-3;
+    double nu1 = 0.15;
+    double nu2 = 0.33;
+    double nu3 = 0.40;
+
+    // Check that ellipsoid solution converges to spherical solution
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(1.0, 1.0, 1.0, nu1, true);
+    eshelbyTensor2 = EigenstrainsHelper::find_eshelby(1.0 + eps, 1.0, 1.0 - eps, nu1, true);
+    ::compare_tensors(eshelbyTensor1, eshelbyTensor2, eps);
+
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(1.0, 1.0, 1.0, nu2, true);
+    eshelbyTensor2 = EigenstrainsHelper::find_eshelby(1.0 + eps, 1.0, 1.0 - eps, nu2, true);
+    ::compare_tensors(eshelbyTensor1, eshelbyTensor2, eps);
+
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(1.0, 1.0, 1.0, nu3, true);
+    eshelbyTensor2 = EigenstrainsHelper::find_eshelby(1.0 + eps, 1.0, 1.0 - eps, nu3, true);
+    ::compare_tensors(eshelbyTensor1, eshelbyTensor2, eps);
+
+    // Check that ellipsoid solution converges to oblate spheroid solution
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(2.0, 2.0, 1.0, nu1, true);
+    eshelbyTensor2 = EigenstrainsHelper::find_eshelby(2.0 + eps, 2.0, 1.0, nu1, true);
+    ::compare_tensors(eshelbyTensor1, eshelbyTensor2, eps);
+
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(2.0, 2.0, 1.0, nu2, true);
+    eshelbyTensor2 = EigenstrainsHelper::find_eshelby(2.0 + eps, 2.0, 1.0, nu2, true);
+    ::compare_tensors(eshelbyTensor1, eshelbyTensor2, eps);
+
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(2.0, 2.0, 1.0, nu3, true);
+    eshelbyTensor2 = EigenstrainsHelper::find_eshelby(2.0 + eps, 2.0, 1.0, nu3, true);
+    ::compare_tensors(eshelbyTensor1, eshelbyTensor2, eps);
+
+    // Check that ellipsoid solution converges to prolate spheroid solution
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(2.0, 1.0, 1.0, nu1, true);
+    eshelbyTensor2 = EigenstrainsHelper::find_eshelby(2.0, 1.0, 1.0 - eps, nu1, true);
+    ::compare_tensors(eshelbyTensor1, eshelbyTensor2, eps);
+
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(2.0, 1.0, 1.0, nu2, true);
+    eshelbyTensor2 = EigenstrainsHelper::find_eshelby(2.0, 1.0, 1.0 - eps, nu2, true);
+    ::compare_tensors(eshelbyTensor1, eshelbyTensor2, eps);
+
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(2.0, 1.0, 1.0, nu3, true);
+    eshelbyTensor2 = EigenstrainsHelper::find_eshelby(2.0, 1.0, 1.0 - eps, nu3, true);
+    ::compare_tensors(eshelbyTensor1, eshelbyTensor2, eps);
+
+    double S1111, S1122, S1313;
+
+    // Test simple spherical case
+    eps = 1e-5;
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(1.0, 1.0, 1.0, 0, true);
+    S1111 = 7.0 / 15;
+    DREAM3D_REQUIRED(std::abs(S1111 - eshelbyTensor1(0, 0, 0, 0)), <, eps);
+    S1122 = -1.0 / 15;
+    DREAM3D_REQUIRED(std::abs(S1122 - eshelbyTensor1(0, 0, 1, 1)), <, eps);
+    S1313 = 4.0 / 15;
+    DREAM3D_REQUIRED(std::abs(S1313 - eshelbyTensor1(0, 2, 0, 2)), <, eps);
+
+    // Test elliptical values, probe for specific indices
+    eshelbyTensor1 = EigenstrainsHelper::find_eshelby(2.0, 1.0, 0.5, 0.3, true);
+    S1111 = 0.20843827;
+    DREAM3D_REQUIRED(std::abs(S1111 - eshelbyTensor1(0, 0, 0, 0)), <, eps);
+    S1122 = 0.00895464;
+    DREAM3D_REQUIRED(std::abs(S1122 - eshelbyTensor1(0, 0, 1, 1)), <, eps);
+    S1313 = 0.30071747;
+    DREAM3D_REQUIRED(std::abs(S1313 - eshelbyTensor1(0, 2, 0, 2)), <, eps);
 
     return EXIT_SUCCESS;
   }
@@ -118,6 +269,8 @@ public:
 
     DREAM3D_REGISTER_TEST(TestFilterInputs());
     DREAM3D_REGISTER_TEST(TestComputeFeatureEigenstrainsTest());
+    DREAM3D_REGISTER_TEST(GaussIntegrationTest());
+    DREAM3D_REGISTER_TEST(FindEshelbyTest());
   }
 
 private:
