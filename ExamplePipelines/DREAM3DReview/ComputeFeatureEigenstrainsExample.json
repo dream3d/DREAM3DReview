@@ -5,7 +5,7 @@
         "Filter_Human_Label": "Read DREAM.3D Data File",
         "Filter_Name": "DataContainerReader",
         "Filter_Uuid": "{043cbde5-3878-5718-958f-ae75714df0df}",
-        "InputFile": "G:\\Workspace\\DREAM3D_Plugins\\DREAM3DReview\\Data\\DREAM3DReview\\SyntheticComputeEigenstrainData.dream3d",
+        "InputFile": "Data/DREAM3DReview/SyntheticComputeEigenstrainData.dream3d",
         "InputFileDataContainerArrayProxy": {
             "Data Containers": [
                 {
@@ -273,7 +273,7 @@
             "Data Array Name": "Phases",
             "Data Container Name": "SyntheticVolumeDataContainer"
         },
-        "EigenstrainsOutputFile": "G:\\Workspace\\DREAM3D-build\\Release\\Bin\\Release\\Data\\Output\\DREAM3DReview\\EigenstrainsExampleMASSIF_EigenOutput.dream3d",
+        "EigenstrainsOutputFile": "Data/Output/DREAM3DReview/EigenstrainsExampleMASSIFEigen.dream3d",
         "FeatureIdsArrayPath": {
             "Attribute Matrix Name": "CellData",
             "Data Array Name": "FeatureIds",
@@ -284,7 +284,7 @@
         "Filter_Human_Label": "Export MASSIF Data (HDF5)",
         "Filter_Name": "FFTHDFWriterFilter",
         "Filter_Uuid": "{b6b1ba7c-14aa-5c6f-9436-8c46face6053}",
-        "OutputFile": "G:\\Workspace\\DREAM3D-build\\Release\\Bin\\Release\\Data\\Output\\DREAM3DReview\\EigenstrainsExampleMASSIF_Output.dream3d",
+        "OutputFile": "Data/Output/DREAM3DReview/EigenstrainsExampleMASSIF.dream3d",
         "WriteEigenstrains": 1
     },
     "6": {
@@ -293,7 +293,7 @@
         "Filter_Human_Label": "Write DREAM.3D Data File",
         "Filter_Name": "DataContainerWriter",
         "Filter_Uuid": "{3fcd4c43-9d75-5b86-aad4-4441bc914f37}",
-        "OutputFile": "G:\\Workspace\\DREAM3D-build\\Release\\Bin\\Release\\Data\\Output\\DREAM3DReview\\EigenstrainsExampleOutput.dream3d",
+        "OutputFile": "Data/Output/DREAM3DReview/EigenstrainsExample.dream3d",
         "WriteTimeSeries": 0,
         "WriteXdmfFile": 0
     },

@@ -32,10 +32,13 @@
 #pragma once
 
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QString>
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/FilterParameters/JsonFilterParametersReader.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
@@ -49,6 +52,7 @@
 
 #include "DREAM3DReview/DREAM3DReviewFilters/ComputeFeatureEigenstrains.h"
 #include "DREAM3DReview/DREAM3DReviewFilters/util/EigenstrainsHelper.hpp"
+#include "SIMPLib/CoreFilters/DataContainerReader.h"
 
 namespace SIMPLMath = SIMPLib::Constants;
 
@@ -64,7 +68,7 @@ void compare_tensors(EigenstrainsHelper::Tensor4DType L, EigenstrainsHelper::Ten
       {
         for(size_t l = 0; l < 3; l++)
         {
-          if(false == SIMPLibMath::closeEnough<>(L(i, j, k, l), R(i, j, k, l), eps))
+          if(!SIMPLibMath::closeEnough<>(L(i, j, k, l), R(i, j, k, l), eps))
           {
             QString buf;
             QTextStream ss(&buf);
@@ -82,6 +86,9 @@ void compare_tensors(EigenstrainsHelper::Tensor4DType L, EigenstrainsHelper::Ten
 
 class ComputeFeatureEigenstrainsTest
 {
+  const QString k_SyntheticVolumeDataContainer = {"SyntheticVolumeDataContainer"};
+  const QString k_GrainData = {"Grain Data"};
+  const QString k_Eigenstrains = {"Eigenstrains"};
 
 public:
   ComputeFeatureEigenstrainsTest() = default;
@@ -94,44 +101,160 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  int TestFilterInputs()
+  int TestFilterAvailability()
   {
-    int32_t err = 0;
+    QString filtName = "ComputeFeatureEigenstrains";
+    FilterManager* fm = FilterManager::Instance();
+    IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
 
-    ComputeFeatureEigenstrains::Pointer filter = ComputeFeatureEigenstrains::New();
-    // Test setting impossible Poisson's ratio
-    filter->setPoissonRatio(0.5f);
-    filter->preflight();
-    err = filter->getErrorCode();
-    DREAM3D_REQUIRED(err, <, 0);
+    if(nullptr != filterFactory.get())
+    {
+      AbstractFilter::Pointer filter = filterFactory->create();
+      bool propWasSet;
+      QVariant var;
+      QSet<QString> locationArray;
 
-    // Test setting possible Poisson's ratio
-    filter->setPoissonRatio(0.12345f);
-    filter->preflight();
-    err = filter->getErrorCode();
-    DREAM3D_REQUIRE_EQUAL(err, -80002);
-
-    // filter->setUseEllipsoidalGrains(true);
-
-    // Test setting UseCorrectionalMatrix
-    filter->setUseCorrectionalMatrix(true);
-    filter->preflight();
-    err = filter->getErrorCode();
-    DREAM3D_REQUIRE_EQUAL(err, -80002);
+      propWasSet = filter->setProperty("PoissonRatio", 0.33);
+      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      propWasSet = filter->setProperty("UseEllipsoidalGrains", true);
+      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      propWasSet = filter->setProperty("UseCorrectionalMatrix", true);
+      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      propWasSet = filter->setProperty("Beta11", 1.1);
+      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      propWasSet = filter->setProperty("Beta22", 1.1);
+      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      propWasSet = filter->setProperty("Beta33", 1.1);
+      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      propWasSet = filter->setProperty("Beta23", 1.1);
+      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      propWasSet = filter->setProperty("Beta13", 1.1);
+      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      propWasSet = filter->setProperty("Beta12", 1.1);
+      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      // locationArray = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::AxisLengths};
+      // var.setValue(locationArray);
+      // propWasSet = filter->setProperty("AxisLengthsArrayPath", var);
+      // DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      // locationArray = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::AxisEulerAngles};
+      // var.setValue(locationArray);
+      // propWasSet = filter->setProperty("AxisEulerAnglesArrayPath", var);
+      // DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+      // locationArray = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, "ElasticStrains"};
+      // var.setValue(locationArray);
+      // propWasSet = filter->setProperty("ElasticStrainsArrayPath", var);
+      // DREAM3D_REQUIRE_EQUAL(propWasSet, true);
+    }
+    else
+    {
+      QString ss = QObject::tr("Error creating '%1' filter.").arg(filtName);
+      qDebug() << ss;
+      DREAM3D_REQUIRE_EQUAL(0, 1)
+    }
 
     return EXIT_SUCCESS;
   }
 
   // -----------------------------------------------------------------------------
-  //
+  // Test compute feature eigenstrains example pipeline and compare the eigenstrains to a reference
   // -----------------------------------------------------------------------------
   int TestComputeFeatureEigenstrainsTest()
   {
-    // check that pipeline runs and gives correct result
+    // ComputeFeatureEigenstrains example pipeline
+    QString pipelineFile = UnitTest::PluginSourceDir + "/ExamplePipelines/" + UnitTest::PluginName + "/ComputeFeatureEigenstrainsExample.json";
+    QFileInfo fi(pipelineFile);
+    if(!fi.exists())
+    {
+      std::cout << "Compute feature eigenstrains example pipeline path: '" << pipelineFile.toStdString() << "' does not exist" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    // Read example pipeline
+    FilterPipeline::Pointer pipeline;
+    JsonFilterParametersReader::Pointer jsonReader = JsonFilterParametersReader::New();
+    pipeline = jsonReader->readPipelineFromFile(pipelineFile);
+    if(nullptr == pipeline.get())
+    {
+      std::cout << "An error occurred trying to read the pipeline file. Exiting now." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    // Create an Observer to report errors/progress from the executing pipeline
+    std::cout << "Pipeline Count: " << pipeline->size() << std::endl;
+    Observer obs;
+    pipeline->addMessageReceiver(&obs);
+
+    // Preflight the pipeline
+    int32_t err = pipeline->preflightPipeline();
+    if(err < 0)
+    {
+      std::cout << "Errors preflighting the pipeline. Exiting Now." << std::endl;
+    }
+    DREAM3D_REQUIRE(err >= 0)
+
+    // Execute the pipeline
+    DataContainerArray::Pointer dca = pipeline->execute();
+    err = pipeline->getErrorCode();
+    if(err < 0)
+    {
+      std::cout << "Error Condition of Pipeline: " << err << std::endl;
+    }
+    DREAM3D_REQUIRE(err >= 0)
+
+    // Get eigenstrains from output
+    DataContainer::Pointer dc = dca->getDataContainer(k_SyntheticVolumeDataContainer);
+    AttributeMatrix::Pointer featureAttrMat = dc->getAttributeMatrix(k_GrainData);
+    FloatArrayType::Pointer EigenstrainsArray = std::dynamic_pointer_cast<FloatArrayType>(featureAttrMat->getAttributeArray(k_Eigenstrains));
+
+    // Read reference eigenstrain HDF5 file
+    QString referenceFile = "Data/DREAM3DReview/ReferenceOutputSyntheticComputeEigenstrainData.dream3d";
+    DataContainerArray::Pointer dca2 = DataContainerArray::New();
+    DataContainerReader::Pointer reader2 = DataContainerReader::New();
+    reader2->setInputFile(referenceFile);
+    reader2->setDataContainerArray(dca2);
+
+    DataContainerArrayProxy dcaProxy = reader2->readDataContainerArrayStructure(referenceFile);
+    reader2->setInputFileDataContainerArrayProxy(dcaProxy);
+    reader2->execute();
+    AttributeMatrix::Pointer featureAttrMatRef = dc->getAttributeMatrix(k_GrainData);
+    FloatArrayType::Pointer EigenstrainsArrayRef = std::dynamic_pointer_cast<FloatArrayType>(featureAttrMat->getAttributeArray(k_Eigenstrains));
+
+    // Compare calculated eigenstrains to reference eigenstrains
+    size_t numTuples = EigenstrainsArray->getNumberOfTuples();
+    size_t numTuplesRef = EigenstrainsArray->getNumberOfTuples();
+    DREAM3D_REQUIRE_EQUAL(numTuples, numTuplesRef)
+
+    FloatArrayType& eigenstrains = *(EigenstrainsArray.get());
+    FloatArrayType& eigenstrainsRef = *(EigenstrainsArrayRef.get());
+    double eps = 1e-5;
+    double calc, ref, delta;
+    for(size_t feature = 0; feature < numTuples; feature++)
+    {
+      for(size_t idx = 0; idx < numTuples; idx++)
+      {
+        calc = eigenstrains[feature * 6 + idx];
+        ref = eigenstrainsRef[feature * 6 + idx];
+        delta = std::abs(calc - ref);
+        if(isnan(delta))
+        {
+          if(idx == 0)
+          {
+            std::cout << "Warning, featureID '" << feature << "' has NaN eigenstrains" << std::endl;
+          }
+        }
+        else
+        {
+          DREAM3D_REQUIRED(delta, <, eps);
+        }
+      }
+    }
 
     return EXIT_SUCCESS;
   }
 
+  // -----------------------------------------------------------------------------
+  // Test 32-point gauss integration on several functions
+  // -----------------------------------------------------------------------------
   int GaussIntegrationTest()
   {
     double eps = 1e-6;
@@ -189,6 +312,9 @@ public:
     return EXIT_SUCCESS;
   }
 
+  // -----------------------------------------------------------------------------
+  // Test Eshelby tensor calculations to verify continuity and accuracy
+  // -----------------------------------------------------------------------------
   int FindEshelbyTest()
   {
     EigenstrainsHelper::Tensor4DType eshelbyTensor1, eshelbyTensor2;
@@ -238,7 +364,7 @@ public:
 
     double S1111, S1122, S1313;
 
-    // Test simple spherical case
+    // Test simple spherical case, probe for specific indices
     eps = 1e-5;
     eshelbyTensor1 = EigenstrainsHelper::find_eshelby(1.0, 1.0, 1.0, 0, true);
     S1111 = 7.0 / 15;
@@ -265,9 +391,10 @@ public:
   // -----------------------------------------------------------------------------
   void operator()()
   {
+    std::cout << "###### ComputeFeatureEigenstrainsTest ######" << std::endl;
     int err = EXIT_SUCCESS;
 
-    DREAM3D_REGISTER_TEST(TestFilterInputs());
+    DREAM3D_REGISTER_TEST(TestFilterAvailability());
     DREAM3D_REGISTER_TEST(TestComputeFeatureEigenstrainsTest());
     DREAM3D_REGISTER_TEST(GaussIntegrationTest());
     DREAM3D_REGISTER_TEST(FindEshelbyTest());

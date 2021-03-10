@@ -320,7 +320,6 @@ private:
   float m_Beta23 = {1.0f};
   float m_Beta13 = {1.0f};
   float m_Beta12 = {1.0f};
-  DataArrayPath m_FeatureIdsArrayPath = {"", "", ""};
   DataArrayPath m_AxisLengthsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::AxisLengths};
   DataArrayPath m_AxisEulerAnglesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::AxisEulerAngles};
   DataArrayPath m_ElasticStrainsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, "ElasticStrains"};

@@ -121,11 +121,11 @@ void FFTHDFWriterFilter::dataCheck()
   {
     m_OutputFile.append(".dream3d");
   }
-  FileSystemPathHelper::CheckOutputFile(this, "Output File Name", getEigenstrainsOutputFile(), true);
+  FileSystemPathHelper::CheckOutputFile(this, "Output File Name", getOutputFile(), true);
 
   if(m_WriteEigenstrains)
   {
-    QFileInfo fiEig(getOutputFile());
+    QFileInfo fiEig(getEigenstrainsOutputFile());
     if(fiEig.suffix().compare("") == 0)
     {
       m_EigenstrainsOutputFile.append(".dream3d");
