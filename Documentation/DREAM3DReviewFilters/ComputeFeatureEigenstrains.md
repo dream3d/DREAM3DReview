@@ -54,7 +54,7 @@ Image
 
 ## Example Pipelines ##
 
-List the names of the example pipelines where this filter is used.
+ComputeFeatureEigenstrainsExample
 
 ## License & Copyright ##
 

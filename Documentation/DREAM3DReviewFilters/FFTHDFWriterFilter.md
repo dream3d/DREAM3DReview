@@ -36,8 +36,8 @@ Required Geometry Type -or- Not Applicable
 | **Element/Feature/Ensemble/etc. Attribute Array** | AttributeArray Name | int32_t/float/etc. | (1)/(3)/etc. | Description of object... |
 
 ## Example Pipelines ##
-
-
+ 
+ComputeFeatureEigenstrainsExample
 
 ## License & Copyright ##
 
