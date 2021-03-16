@@ -230,7 +230,7 @@ public:
     double calc, ref, delta;
     for(size_t feature = 0; feature < numTuples; feature++)
     {
-      for(size_t idx = 0; idx < numTuples; idx++)
+      for(size_t idx = 0; idx < 6; idx++)
       {
         calc = eigenstrains[feature * 6 + idx];
         ref = eigenstrainsRef[feature * 6 + idx];
