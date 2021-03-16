@@ -236,12 +236,6 @@ protected:
   void openFile(QString file, hid_t& fileId, bool append = false);
 
   /**
-   * @brief closeFile Closes the currently open file
-   * @return Integer error value
-   */
-  herr_t closeFile(hid_t fileId);
-
-  /**
    * @brief writePipeline Writes the existing pipeline to the HDF5 file
    * @return
    */

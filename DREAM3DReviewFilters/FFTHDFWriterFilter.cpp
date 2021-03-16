@@ -32,11 +32,7 @@ FFTHDFWriterFilter::FFTHDFWriterFilter() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-FFTHDFWriterFilter::~FFTHDFWriterFilter()
-{
-  closeFile(m_FileId);
-  closeFile(m_FileIdEig);
-}
+FFTHDFWriterFilter::~FFTHDFWriterFilter() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -244,6 +240,7 @@ void FFTHDFWriterFilter::execute()
   attrMat = getDataContainerArray()->getAttributeMatrix(m_CellEulerAnglesArrayPath);
   tDims = attrMat->getTupleDimensions();
   m_CellEulerAnglesPtr.lock()->writeH5Data(dcaGid, tDims);
+  H5GroupAutoCloser groupCloser(dcaGid);
 
   // MASSIF Eigenstrains file
   if(m_WriteEigenstrains)
@@ -286,6 +283,7 @@ void FFTHDFWriterFilter::execute()
     attrMat = getDataContainerArray()->getAttributeMatrix(m_CellEigenstrainsArrayPath);
     tDims = attrMat->getTupleDimensions();
     m_CellEigenstrainsPtr.lock()->writeH5Data(dcaGidEig, tDims);
+    H5GroupAutoCloser groupCloser(dcaGidEig);
   }
 
   // DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
@@ -342,19 +340,6 @@ void FFTHDFWriterFilter::openFile(QString file, hid_t& fileId, bool appendData)
   {
     fileId = QH5Utilities::createFile(file);
   }
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-herr_t FFTHDFWriterFilter::closeFile(hid_t fileId)
-{
-  // Close the file when we are finished with it
-  if(fileId > 0)
-  {
-    return QH5Utilities::closeFile(fileId);
-  }
-  return 0;
 }
 
 // -----------------------------------------------------------------------------
