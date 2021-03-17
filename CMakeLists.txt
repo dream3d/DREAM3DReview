@@ -242,6 +242,10 @@ if(NOT APPLE AND UNIX)
   set(${plug_target_name}_install_dest "lib")
 endif()
 
+if(DREAM3D_ANACONDA AND WIN32)
+  set(${plug_target_name}_install_dest "bin")
+endif()
+
 PluginProperties(TARGET_NAME ${plug_target_name}
                 DEBUG_EXTENSION "_debug"
                 VERSION "${DREAM3D_VERSION}"
@@ -291,11 +295,15 @@ if(EXISTS ${${PLUGIN_NAME}_SOURCE_DIR}/ExamplePipelines)
     set(INSTALL_DESTINATION "${DREAM3D_PACKAGE_DEST_PREFIX}/PrebuiltPipelines/Examples")
   endif()
 
-  install(DIRECTORY ${${PLUGIN_NAME}_SOURCE_DIR}/ExamplePipelines/
-          DESTINATION ${INSTALL_DESTINATION}
-          COMPONENT Applications )
-endif()
+  if(DREAM3D_ANACONDA)
+    set(INSTALL_DESTINATION "share/DREAM3D/PrebuiltPipelines/Examples")
+  endif()
 
+  install(DIRECTORY ${${PLUGIN_NAME}_SOURCE_DIR}/ExamplePipelines/
+    DESTINATION ${INSTALL_DESTINATION}
+    COMPONENT Applications
+  )
+endif()
 
 #-------------------------------------------------------------------------------
 #- This installs all the Data files.
@@ -314,9 +322,14 @@ if(EXISTS ${${PLUGIN_NAME}_SOURCE_DIR}/Data)
     set(INSTALL_DESTINATION "${DREAM3D_PACKAGE_DEST_PREFIX}")
   endif()
 
-  install(DIRECTORY ${${PLUGIN_NAME}_SOURCE_DIR}/Data
-          DESTINATION .
-          COMPONENT Applications )
+  if(DREAM3D_ANACONDA)
+    set(INSTALL_DESTINATION "share/DREAM3D/Data")
+  endif()
+
+  install(DIRECTORY ${${PLUGIN_NAME}_SOURCE_DIR}/Data/
+    DESTINATION ${INSTALL_DESTINATION}
+    COMPONENT Applications
+  )
 endif()
 # -- Include the GUI Plugin codes
 include(${${PLUGIN_NAME}_SOURCE_DIR}/Gui/CMakeLists.txt)
