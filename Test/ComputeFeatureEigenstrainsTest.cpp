@@ -36,6 +36,7 @@
 #include <QtCore/QString>
 
 #include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/CoreFilters/DataContainerReader.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/JsonFilterParametersReader.h"
@@ -43,7 +44,6 @@
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
-#include "SIMPLib/CoreFilters/DataContainerReader.h"
 
 #include "UnitTestSupport.hpp"
 
@@ -97,7 +97,6 @@ public:
   ComputeFeatureEigenstrainsTest& operator=(const ComputeFeatureEigenstrainsTest&) = delete; // Copy Assignment
   ComputeFeatureEigenstrainsTest& operator=(ComputeFeatureEigenstrainsTest&&) = delete;      // Move Assignment
 
-
   // -----------------------------------------------------------------------------
   // Test compute feature eigenstrains example pipeline and compare the eigenstrains to a reference
   // -----------------------------------------------------------------------------
@@ -127,7 +126,7 @@ public:
     Observer obs;
     pipeline->addMessageReceiver(&obs);
 
-    //Ensure we can find the input data because we don't know what directory the test will be run from.
+    // Ensure we can find the input data because we don't know what directory the test will be run from.
     QString inputFilePath;
     QTextStream ss(&inputFilePath);
     ss << UnitTest::PluginSourceDir << "/Data/DREAM3DReview/SyntheticComputeEigenstrainData.dream3d";
