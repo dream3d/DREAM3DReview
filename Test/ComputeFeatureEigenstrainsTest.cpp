@@ -42,9 +42,8 @@
 #include "SIMPLib/Filtering/FilterFactory.hpp"
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Filtering/FilterPipeline.h"
-#include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
-#include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
+#include "SIMPLib/CoreFilters/DataContainerReader.h"
 
 #include "UnitTestSupport.hpp"
 
@@ -98,62 +97,6 @@ public:
   ComputeFeatureEigenstrainsTest& operator=(const ComputeFeatureEigenstrainsTest&) = delete; // Copy Assignment
   ComputeFeatureEigenstrainsTest& operator=(ComputeFeatureEigenstrainsTest&&) = delete;      // Move Assignment
 
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  int TestFilterAvailability()
-  {
-    QString filtName = "ComputeFeatureEigenstrains";
-    FilterManager* fm = FilterManager::Instance();
-    IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
-
-    if(nullptr != filterFactory.get())
-    {
-      AbstractFilter::Pointer filter = filterFactory->create();
-      bool propWasSet;
-      QVariant var;
-      QSet<QString> locationArray;
-
-      propWasSet = filter->setProperty("PoissonRatio", 0.33);
-      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      propWasSet = filter->setProperty("UseEllipsoidalGrains", true);
-      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      propWasSet = filter->setProperty("UseCorrectionalMatrix", true);
-      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      propWasSet = filter->setProperty("Beta11", 1.1);
-      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      propWasSet = filter->setProperty("Beta22", 1.1);
-      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      propWasSet = filter->setProperty("Beta33", 1.1);
-      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      propWasSet = filter->setProperty("Beta23", 1.1);
-      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      propWasSet = filter->setProperty("Beta13", 1.1);
-      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      propWasSet = filter->setProperty("Beta12", 1.1);
-      DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      // locationArray = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::AxisLengths};
-      // var.setValue(locationArray);
-      // propWasSet = filter->setProperty("AxisLengthsArrayPath", var);
-      // DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      // locationArray = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::AxisEulerAngles};
-      // var.setValue(locationArray);
-      // propWasSet = filter->setProperty("AxisEulerAnglesArrayPath", var);
-      // DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-      // locationArray = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, "ElasticStrains"};
-      // var.setValue(locationArray);
-      // propWasSet = filter->setProperty("ElasticStrainsArrayPath", var);
-      // DREAM3D_REQUIRE_EQUAL(propWasSet, true);
-    }
-    else
-    {
-      QString ss = QObject::tr("Error creating '%1' filter.").arg(filtName);
-      qDebug() << ss;
-      DREAM3D_REQUIRE_EQUAL(0, 1)
-    }
-
-    return EXIT_SUCCESS;
-  }
 
   // -----------------------------------------------------------------------------
   // Test compute feature eigenstrains example pipeline and compare the eigenstrains to a reference
@@ -183,6 +126,13 @@ public:
     std::cout << "Pipeline Count: " << pipeline->size() << std::endl;
     Observer obs;
     pipeline->addMessageReceiver(&obs);
+
+    //Ensure we can find the input data because we don't know what directory the test will be run from.
+    QString inputFilePath;
+    QTextStream ss(&inputFilePath);
+    ss << UnitTest::PluginSourceDir << "/Data/DREAM3DReview/SyntheticComputeEigenstrainData.dream3d";
+    DataContainerReader::Pointer dataContainerReader = std::dynamic_pointer_cast<DataContainerReader>(pipeline->getFilterContainer()[0]);
+    dataContainerReader->setInputFile(inputFilePath);
 
     // Preflight the pipeline
     int32_t err = pipeline->preflightPipeline();
@@ -394,7 +344,6 @@ public:
     std::cout << "###### ComputeFeatureEigenstrainsTest ######" << std::endl;
     int err = EXIT_SUCCESS;
 
-    DREAM3D_REGISTER_TEST(TestFilterAvailability());
     DREAM3D_REGISTER_TEST(TestComputeFeatureEigenstrainsTest());
     DREAM3D_REGISTER_TEST(GaussIntegrationTest());
     DREAM3D_REGISTER_TEST(FindEshelbyTest());
