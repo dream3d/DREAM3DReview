@@ -339,7 +339,7 @@ void ComputeFeatureEigenstrains::find_eigenstrains()
       theta = axisEulerAngles[feature * 3 + 1];
       phi2 = axisEulerAngles[feature * 3 + 2];
 
-      if(isnan(phi1) || isnan(theta) || isnan(phi2))
+      if(std::isnan(phi1) || std::isnan(theta) || std::isnan(phi2))
       {
         QString ss = QObject::tr("NaN Axis Euler angle found in feature ID #%1, skipping").arg(feature);
         notifyStatusMessage(ss);
@@ -377,7 +377,7 @@ void ComputeFeatureEigenstrains::find_eigenstrains()
       semiAxisB = axisLengths[feature * 3 + 1];
       semiAxisC = axisLengths[feature * 3 + 2];
 
-      if(isnan(semiAxisA) || isnan(semiAxisB) || isnan(semiAxisC))
+      if(std::isnan(semiAxisA) || std::isnan(semiAxisB) || std::isnan(semiAxisC))
       {
         QString ss = QObject::tr("NaN Axis length found in feature ID #%1, skipping").arg(feature);
         notifyStatusMessage(ss);
