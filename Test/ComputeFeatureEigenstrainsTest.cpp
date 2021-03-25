@@ -184,7 +184,7 @@ public:
         calc = eigenstrains[feature * 6 + idx];
         ref = eigenstrainsRef[feature * 6 + idx];
         delta = std::abs(calc - ref);
-        if(isnan(delta))
+        if(std::isnan(delta))
         {
           if(idx == 0)
           {
