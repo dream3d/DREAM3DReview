@@ -72,7 +72,7 @@ endforeach()
 
 #------------------------------------------------------------------------------
 # If Python is enabled, then enable the Python unit tests for this plugin
-if(SIMPL_ENABLE_PYTHON)
+if(SIMPL_WRAP_PYTHON)
   set(PLUGIN_PYTHON_TESTS
     "Apply_Transformation_To_Geometry"
     "Average_EdgeFaceCell_Array_To_Vertex_Array"
