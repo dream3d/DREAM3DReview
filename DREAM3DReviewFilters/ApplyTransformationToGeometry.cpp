@@ -61,144 +61,148 @@
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
-namespace ApplyTransformationProgress
+,namespace ApplyTransformationProgress
 {
 struct RotateArgs
-{
-    int64_t xp = 0;
-    int64_t yp = 0;
-    int64_t zp = 0;
-    float xRes = 0.0f;
-    float yRes = 0.0f;
-    float zRes = 0.0f;
-    int64_t xpNew = 0;
-    int64_t ypNew = 0;
-    int64_t zpNew = 0;
-    float xResNew = 0.0f;
-    float yResNew = 0.0f;
-    float zResNew = 0.0f;
-    float xMinNew = 0.0f;
-    float yMinNew = 0.0f;
-    float zMinNew = 0.0f;
-};
+    {
+  int64_t xp = 0;
+  int64_t yp = 0;
+  int64_t zp = 0;
+  float xRes = 0.0f;
+  float yRes = 0.0f;
+  float zRes = 0.0f;
+  int64_t xpNew = 0;
+  int64_t ypNew = 0;
+  int64_t zpNew = 0;
+  float xResNew = 0.0f;
+  float yResNew = 0.0f;
+  float zResNew = 0.0f;
+  float xMinNew = 0.0f;
+  float yMinNew = 0.0f;
+  float zMinNew = 0.0f;
+    };
+
+const Eigen::Vector4f k_XAxis = Eigen::Vector4f::UnitX();
+const Eigen::Vector4f k_YAxis = Eigen::Vector4f::UnitY();
+const Eigen::Vector4f k_ZAxis = Eigen::Vector4f::UnitZ();
 
 // Function for determining new ImageGeom dimensions after transformation
-void determineMinMax(const Matrix4fR& rotationMatrix, const FloatVec4Type& spacing, size_t col, size_t row, size_t plane, float& xMin, float& xMax, float& yMin, float& yMax, float& zMin, float& zMax)
+void determineMinMax(const Eigen::Transform<float, 3, Affine>& rotationMatrix, const FloatVec4Type& spacing, size_t col, size_t row, size_t plane, float& xMin, float& xMax, float& yMin, float& yMax, float& zMin, float& zMax)
 {
-    Eigen::Vector4f coords(static_cast<float>(col) * spacing[0], static_cast<float>(row) * spacing[1], static_cast<float>(plane) * spacing[2]);
+  Eigen::Vector4f coords(static_cast<float>(col) * spacing[0], static_cast<float>(row) * spacing[1], static_cast<float>(plane) * spacing[2]);
 
-    Eigen::Vector4f newCoords = rotationMatrix * coords;
+  Eigen::Vector4f newCoords = rotationMatrix * coords;
 
-    xMin = std::min(newCoords[0], xMin);
-    xMax = std::max(newCoords[0], xMax);
+  xMin = std::min(newCoords[0], xMin);
+  xMax = std::max(newCoords[0], xMax);
 
-    yMin = std::min(newCoords[1], yMin);
-    yMax = std::max(newCoords[1], yMax);
+  yMin = std::min(newCoords[1], yMin);
+  yMax = std::max(newCoords[1], yMax);
 
-    zMin = std::min(newCoords[2], zMin);
-    zMax = std::max(newCoords[2], zMax);
+  zMin = std::min(newCoords[2], zMin);
+  zMax = std::max(newCoords[2], zMax);
 }
 
 float cosBetweenVectors(const Eigen::Vector4f& a, const Eigen::Vector4f& b)
 {
-    float normA = a.norm();
-    float normB = b.norm();
+  float normA = a.norm();
+  float normB = b.norm();
 
-    if(normA == 0.0f || normB == 0.0f)
-    {
-        return 1.0f;
-    }
+  if(normA == 0.0f || normB == 0.0f)
+  {
+    return 1.0f;
+  }
 
-    return a.dot(b) / (normA * normB);
+  return a.dot(b) / (normA * normB);
 }
 
 // Function for determining new ImageGeom Spacing between points for scaling
 float determineSpacing(const FloatVec4Type& spacing, const Eigen::Vector4f& axisNew)
 {
-    float xAngle = std::abs(cosBetweenVectors(k_XAxis, axisNew));
-    float yAngle = std::abs(cosBetweenVectors(k_YAxis, axisNew));
-    float zAngle = std::abs(cosBetweenVectors(k_ZAxis, axisNew));
+  float xAngle = std::abs(cosBetweenVectors(k_XAxis, axisNew));
+  float yAngle = std::abs(cosBetweenVectors(k_YAxis, axisNew));
+  float zAngle = std::abs(cosBetweenVectors(k_ZAxis, axisNew));
 
-    std::array<float, 3> axes = {xAngle, yAngle, zAngle};
+  std::array<float, 3> axes = {xAngle, yAngle, zAngle};
 
-    auto iter = std::max_element(axes.cbegin(), axes.cend());
+  auto iter = std::max_element(axes.cbegin(), axes.cend());
 
-    size_t index = std::distance(axes.cbegin(), iter);
+  size_t index = std::distance(axes.cbegin(), iter);
 
-    return spacing[index];
+  return spacing[index];
 }
 
-RotateArgs createRotateParams(const ImageGeom& imageGeom, const Matrix4fR& rotationMatrix)
+RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform<float, 3, Affine>& rotationMatrix)
 {
-    const SizeVec4Type origDims = imageGeom.getDimensions();
-    const FloatVec4Type spacing = imageGeom.getSpacing();
-    // const FloatVec3Type origin = imageGeom.getOrigin();
+  const SizeVec4Type origDims = imageGeom.getDimensions();
+  const FloatVec4Type spacing = imageGeom.getSpacing();
+  // const FloatVec3Type origin = imageGeom.getOrigin();
 
-    float xMin = std::numeric_limits<float>::max();
-    float xMax = std::numeric_limits<float>::min();
-    float yMin = std::numeric_limits<float>::max();
-    float yMax = std::numeric_limits<float>::min();
-    float zMin = std::numeric_limits<float>::max();
-    float zMax = std::numeric_limits<float>::min();
+  float xMin = std::numeric_limits<float>::max();
+  float xMax = std::numeric_limits<float>::min();
+  float yMin = std::numeric_limits<float>::max();
+  float yMax = std::numeric_limits<float>::min();
+  float zMin = std::numeric_limits<float>::max();
+  float zMax = std::numeric_limits<float>::min();
 
-    const std::vector<std::vector<size_t>> coords{{0, 0, 0},
-                                                  {origDims[0] - 1, 0, 0},
-                                                  {0, origDims[1] - 1, 0},
-                                                  {origDims[0] - 1, origDims[1] - 1, 0},
-                                                  {0, 0, origDims[2] - 1},
-                                                  {origDims[0] - 1, 0, origDims[2] - 1},
-                                                  {0, origDims[1] - 1, origDims[2] - 1},
-                                                  {origDims[0] - 1, origDims[1] - 1, origDims[2] - 1}};
+  const std::vector<std::vector<size_t>> coords{{0, 0, 0},
+                                                {origDims[0] - 1, 0, 0},
+                                                {0, origDims[1] - 1, 0},
+                                                {origDims[0] - 1, origDims[1] - 1, 0},
+                                                {0, 0, origDims[2] - 1},
+                                                {origDims[0] - 1, 0, origDims[2] - 1},
+                                                {0, origDims[1] - 1, origDims[2] - 1},
+                                                {origDims[0] - 1, origDims[1] - 1, origDims[2] - 1}};
 
-    for(const auto& item : coords)
-    {
-        determineMinMax(rotationMatrix, spacing, item[0], item[1], item[2], xMin, xMax, yMin, yMax, zMin, zMax);
-    }
+  for(const auto& item : coords)
+  {
+    determineMinMax(rotationMatrix, spacing, item[0], item[1], item[2], xMin, xMax, yMin, yMax, zMin, zMax);
+  }
 
-    Eigen::Vector4f xAxisNew = rotationMatrix * k_XAxis;
-    Eigen::Vector4f yAxisNew = rotationMatrix * k_YAxis;
-    Eigen::Vector4f zAxisNew = rotationMatrix * k_ZAxis;
+  Eigen::Vector4f xAxisNew = rotationMatrix * k_XAxis;
+  Eigen::Vector4f yAxisNew = rotationMatrix * k_YAxis;
+  Eigen::Vector4f zAxisNew = rotationMatrix * k_ZAxis;
 
-    float xResNew = determineSpacing(spacing, xAxisNew);
-    float yResNew = determineSpacing(spacing, yAxisNew);
-    float zResNew = determineSpacing(spacing, zAxisNew);
+  float xResNew = determineSpacing(spacing, xAxisNew);
+  float yResNew = determineSpacing(spacing, yAxisNew);
+  float zResNew = determineSpacing(spacing, zAxisNew);
 
-    MeshIndexType xpNew = static_cast<int64_t>(std::nearbyint((xMax - xMin) / xResNew) + 1);
-    MeshIndexType ypNew = static_cast<int64_t>(std::nearbyint((yMax - yMin) / yResNew) + 1);
-    MeshIndexType zpNew = static_cast<int64_t>(std::nearbyint((zMax - zMin) / zResNew) + 1);
+  MeshIndexType xpNew = static_cast<int64_t>(std::nearbyint((xMax - xMin) / xResNew) + 1);
+  MeshIndexType ypNew = static_cast<int64_t>(std::nearbyint((yMax - yMin) / yResNew) + 1);
+  MeshIndexType zpNew = static_cast<int64_t>(std::nearbyint((zMax - zMin) / zResNew) + 1);
 
-    RotateArgs params;
+  RotateArgs params;
 
-    params.xp = origDims[0];
-    params.xRes = spacing[0];
-    params.yp = origDims[1];
-    params.yRes = spacing[1];
-    params.zp = origDims[2];
-    params.zRes = spacing[2];
+  params.xp = origDims[0];
+  params.xRes = spacing[0];
+  params.yp = origDims[1];
+  params.yRes = spacing[1];
+  params.zp = origDims[2];
+  params.zRes = spacing[2];
 
-    params.xpNew = xpNew;
-    params.xResNew = xResNew;
-    params.xMinNew = xMin;
-    params.ypNew = ypNew;
-    params.yResNew = yResNew;
-    params.yMinNew = yMin;
-    params.zpNew = zpNew;
-    params.zResNew = zResNew;
-    params.zMinNew = zMin;
+  params.xpNew = xpNew;
+  params.xResNew = xResNew;
+  params.xMinNew = xMin;
+  params.ypNew = ypNew;
+  params.yResNew = yResNew;
+  params.yMinNew = yMin;
+  params.zpNew = zpNew;
+  params.zResNew = zResNew;
+  params.zMinNew = zMin;
 
-    return params;
+  return params;
 }
 
 void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params)
 {
-    FloatVec4Type origin = imageGeom.getOrigin();
+  FloatVec4Type origin = imageGeom.getOrigin();
 
-    imageGeom.setSpacing(params.xResNew, params.yResNew, params.zResNew);
-    imageGeom.setDimensions(params.xpNew, params.ypNew, params.zpNew);
-    origin[0] += params.xMinNew;
-    origin[1] += params.yMinNew;
-    origin[2] += params.zMinNew;
-    imageGeom.setOrigin(origin);
+  imageGeom.setSpacing(params.xResNew, params.yResNew, params.zResNew);
+  imageGeom.setDimensions(params.xpNew, params.ypNew, params.zpNew);
+  origin[0] += params.xMinNew;
+  origin[1] += params.yMinNew;
+  origin[2] += params.zMinNew;
+  imageGeom.setOrigin(origin);
 }
 
 /**
@@ -206,77 +210,77 @@ void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params)
  * actual computation of the rotation by applying the rotation to each Euler angle
  */
 class SampleRefFrameRotator
-{
-    DataArray<int64_t>::Pointer m_NewIndicesPtr;
-    float m_RotMatrixInv[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-    bool m_SliceBySlice = false;
-    RotateArgs m_Params;
+    {
+  DataArray<int64_t>::Pointer m_NewIndicesPtr;
+  float m_RotMatrixInv[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  bool m_SliceBySlice = false;
+  RotateArgs m_Params;
 
-        public:
-            SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, const RotateArgs& args, const Matrix3fR& rotationMatrix, bool sliceBySlice)
-            : m_NewIndicesPtr(newindices)
-            , m_SliceBySlice(sliceBySlice)
-            , m_Params(args)
+    public:
+      SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, const RotateArgs& args, const Matrix3fR& rotationMatrix, bool sliceBySlice)
+      : m_NewIndicesPtr(newindices)
+      , m_SliceBySlice(sliceBySlice)
+      , m_Params(args)
+      {
+        // We have to inline the 3x3 Maxtrix transpose here because of the "const" nature of the 'convert' function
+        Matrix3fR transpose = rotationMatrix.transpose();
+        // Need to use row based Eigen matrix so that the values get mapped to the right place in the raw array
+        // Raw array is faster than Eigen
+        Eigen::Map<Matrix3fR>(&m_RotMatrixInv[0][0], transpose.rows(), transpose.cols()) = transpose;
+      }
+
+      ~SampleRefFrameRotator() = default;
+
+      void convert(int64_t zStart, int64_t zEnd, int64_t yStart, int64_t yEnd, int64_t xStart, int64_t xEnd) const
+      {
+        int64_t* newindicies = m_NewIndicesPtr->getPointer(0);
+
+        for(int64_t k = zStart; k < zEnd; k++)
+        {
+          int64_t ktot = (m_Params.xpNew * m_Params.ypNew) * k;
+          for(int64_t j = yStart; j < yEnd; j++)
+          {
+            int64_t jtot = (m_Params.xpNew) * j;
+            for(int64_t i = xStart; i < xEnd; i++)
             {
-                // We have to inline the 3x3 Maxtrix transpose here because of the "const" nature of the 'convert' function
-                Matrix3fR transpose = rotationMatrix.transpose();
-                // Need to use row based Eigen matrix so that the values get mapped to the right place in the raw array
-                // Raw array is faster than Eigen
-                Eigen::Map<Matrix3fR>(&m_RotMatrixInv[0][0], transpose.rows(), transpose.cols()) = transpose;
+              int64_t index = ktot + jtot + i;
+              newindicies[index] = -1;
+
+              float coords[3] = {0.0f, 0.0f, 0.0f};
+              float coordsNew[3] = {0.0f, 0.0f, 0.0f};
+
+              coords[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew;
+              coords[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew;
+              coords[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew;
+
+              MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coords, coordsNew);
+
+              //Linear Interpolation Implementation
+              int64_t colOld = static_cast<int64_t>((std::floor(coordsNew[0]) / m_Params.xRes));
+              int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes));
+              int64_t planeOld = static_cast<int64_t>(std::nearbyint(coordsNew[2] / m_Params.zRes));
+
+              if(m_SliceBySlice)
+              {
+                planeOld = k;
+              }
+
+              if(colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
+              {
+                newindicies[index] = (m_Params.xp * m_Params.yp * planeOld) + (m_Params.xp * rowOld) + colOld;
+              }
             }
-
-            ~SampleRefFrameRotator() = default;
-
-            void convert(int64_t zStart, int64_t zEnd, int64_t yStart, int64_t yEnd, int64_t xStart, int64_t xEnd) const
-            {
-                int64_t* newindicies = m_NewIndicesPtr->getPointer(0);
-
-                for(int64_t k = zStart; k < zEnd; k++)
-                {
-                    int64_t ktot = (m_Params.xpNew * m_Params.ypNew) * k;
-                    for(int64_t j = yStart; j < yEnd; j++)
-                    {
-                        int64_t jtot = (m_Params.xpNew) * j;
-                        for(int64_t i = xStart; i < xEnd; i++)
-                        {
-                            int64_t index = ktot + jtot + i;
-                            newindicies[index] = -1;
-
-                            float coords[3] = {0.0f, 0.0f, 0.0f};
-                            float coordsNew[3] = {0.0f, 0.0f, 0.0f};
-
-                            coords[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew;
-                            coords[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew;
-                            coords[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew;
-
-                            MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coords, coordsNew);
-
-                            //Linear Interpolation Implementation
-                            int64_t colOld = static_cast<int64_t>((std::floor(coordsNew[0]) / m_Params.xRes));
-                            int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes));
-                            int64_t planeOld = static_cast<int64_t>(std::nearbyint(coordsNew[2] / m_Params.zRes));
-
-                            if(m_SliceBySlice)
-                            {
-                                planeOld = k;
-                            }
-
-                            if(colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
-                            {
-                                newindicies[index] = (m_Params.xp * m_Params.yp * planeOld) + (m_Params.xp * rowOld) + colOld;
-                            }
-                        }
-                    }
-                }
-            }
+          }
+        }
+      }
 
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
 void operator()(const tbb::blocked_range3d<int64_t, int64_t, int64_t>& r) const
 {
-                convert(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
+        convert(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
 }
 #endif
-};
+    };
 
 
 
@@ -292,85 +296,85 @@ void ApplyImageTransformation(){
 } // namespace ApplyTransformationProgress
 
 struct RotateSampleRefFrame::Impl
-{
-    Matrix4fR m_RotationMatrix = Matrix4fR::Zero();
-    RotateArgs m_Params;
-
-    void reset()
     {
-        m_RotationMatrix.setZero();
+  Matrix4fR m_RotationMatrix = Matrix4fR::Zero();
+  RotateArgs m_Params;
 
-        m_Params = RotateArgs();
-    }
-};
+  void reset()
+  {
+    m_RotationMatrix.setZero();
+
+    m_Params = RotateArgs();
+  }
+    };
 
 RotateSampleRefFrame::RotateSampleRefFrame()
 : p_Impl(std::make_unique<Impl>())
 {
-    std::vector<std::vector<double>> defaultTable{{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}};
+  std::vector<std::vector<double>> defaultTable{{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}};
 
-    m_RotationTable.setTableData(defaultTable);
-    m_RotationTable.setDynamicRows(false);
-    m_RotationTable.setDynamicCols(false);
-    m_RotationTable.setDefaultColCount(4);
-    m_RotationTable.setDefaultRowCount(4);
-    m_RotationTable.setMinCols(4);
-    m_RotationTable.setMinRows(4);
+  m_RotationTable.setTableData(defaultTable);
+  m_RotationTable.setDynamicRows(false);
+  m_RotationTable.setDynamicCols(false);
+  m_RotationTable.setDefaultColCount(4);
+  m_RotationTable.setDefaultRowCount(4);
+  m_RotationTable.setMinCols(4);
+  m_RotationTable.setMinRows(4);
 }
 
 
 
 class ApplyTransformationToGeometryImpl
-{
-
-public:
-  ApplyTransformationToGeometryImpl(ApplyTransformationToGeometry& filter, float* transformationMatrix, const SharedVertexList::Pointer verticesPtr)
-  : m_Filter(filter)
-  , m_TransformationMatrix(transformationMatrix)
-  , m_Vertices(verticesPtr)
-  {
-  }
-  ~ApplyTransformationToGeometryImpl() = default;
-
-  void convert(size_t start, size_t end) const
-  {
-    using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
-    Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
-
-    int64_t progCounter = 0;
-    int64_t totalElements = (end - start);
-    int64_t progIncrement = static_cast<int64_t>(totalElements / 100);
-
-    SharedVertexList& vertices = *(m_Vertices.get());
-    for(size_t i = start; i < end; i++)
     {
-      if(m_Filter.getCancel())
+
+    public:
+      ApplyTransformationToGeometryImpl(ApplyTransformationToGeometry& filter, float* transformationMatrix, const SharedVertexList::Pointer verticesPtr)
+      : m_Filter(filter)
+      , m_TransformationMatrix(transformationMatrix)
+      , m_Vertices(verticesPtr)
       {
-        return;
       }
-      Eigen::Vector4f position(vertices[3 * i + 0], vertices[3 * i + 1], vertices[3 * i + 2], 1);
-      Eigen::Vector4f transformedPosition = transformation * position;
-      vertices.setTuple(i, transformedPosition.data());
+      ~ApplyTransformationToGeometryImpl() = default;
 
-      if(progCounter > progIncrement)
+      void convert(size_t start, size_t end) const
       {
-        m_Filter.sendThreadSafeProgressMessage(progCounter);
-        progCounter = 0;
+        using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
+        Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
+
+        int64_t progCounter = 0;
+        int64_t totalElements = (end - start);
+        int64_t progIncrement = static_cast<int64_t>(totalElements / 100);
+
+        SharedVertexList& vertices = *(m_Vertices.get());
+        for(size_t i = start; i < end; i++)
+        {
+          if(m_Filter.getCancel())
+          {
+            return;
+          }
+          Eigen::Vector4f position(vertices[3 * i + 0], vertices[3 * i + 1], vertices[3 * i + 2], 1);
+          Eigen::Vector4f transformedPosition = transformation * position;
+          vertices.setTuple(i, transformedPosition.data());
+
+          if(progCounter > progIncrement)
+          {
+            m_Filter.sendThreadSafeProgressMessage(progCounter);
+            progCounter = 0;
+          }
+          progCounter++;
+        }
       }
-      progCounter++;
-    }
-  }
 
-  void operator()(const SIMPLRange& range) const
-  {
-    convert(range.min(), range.max());
-  }
+      void operator()(const SIMPLRange& range) const
+      {
+        convert(range.min(), range.max());
+      }
 
-private:
-  ApplyTransformationToGeometry& m_Filter;
-  float* m_TransformationMatrix = nullptr;
-  SharedVertexList::Pointer m_Vertices;
-};
+    private:
+      ApplyTransformationToGeometry& m_Filter;
+      float* m_TransformationMatrix = nullptr;
+      SharedVertexList::Pointer m_Vertices;
+    };
 
 // -----------------------------------------------------------------------------
 //
@@ -608,20 +612,20 @@ void ApplyTransformationToGeometry::dataCheck()
   //if ImageGeom found:
   if(std::dynamic_pointer_cast<ImageGeom>(igeom)
   {
-      DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-      ImageGeom::Pointer imageGeom = m->getGeometryAs<ImageGeom>();
-      p_Impl->m_RotationMatrix = transformationMatrix; //Parallel structures?
-      p_Impl->m_Params = createRotateParams(*imageGeom, p_Impl->m_RotationMatrix);
-      updateGeometry(*imageGeom, p_Impl->m_Params);
+    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
+    ImageGeom::Pointer imageGeom = m->getGeometryAs<ImageGeom>();
+    p_Impl->m_RotationMatrix = m_TransformationMatrix; //Parallel structures?
+    p_Impl->m_Params = createRotateParams(*imageGeom, p_Impl->m_RotationMatrix);
+    updateGeometry(*imageGeom, p_Impl->m_Params);
 
-      // Resize attribute matrix
+    // Resize attribute matrix
 
-      std::vector<size_t> tDims(3);
-      tDims[0] = p_Impl->m_Params.xpNew;
-      tDims[1] = p_Impl->m_Params.ypNew;
-      tDims[2] = p_Impl->m_Params.zpNew;
-      QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
-      m->getAttributeMatrix(attrMatName)->resizeAttributeArrays(tDims);
+    std::vector<size_t> tDims(3);
+    tDims[0] = p_Impl->m_Params.xpNew;
+    tDims[1] = p_Impl->m_Params.ypNew;
+    tDims[2] = p_Impl->m_Params.zpNew;
+    QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
+    m->getAttributeMatrix(attrMatName)->resizeAttributeArrays(tDims);
   }
 
 
@@ -656,7 +660,7 @@ void ApplyTransformationToGeometry::applyTransformation()
     vertexList = edge->getVertices();
   }
   else if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(igeom)){
-      imageTransform();//Function for applying Image Transformation
+    imageTransform();//Function for applying Image Transformation
   }
   else
   {
@@ -668,13 +672,13 @@ void ApplyTransformationToGeometry::applyTransformation()
   m_TotalElements = vertexList->getNumberOfTuples();
   // Allow data-based parallelization
 #if 1
-  ParallelDataAlgorithm dataAlg;
-  dataAlg.setRange(0, m_TotalElements);
-  dataAlg.execute(ApplyTransformationToGeometryImpl(*this, m_TransformationMatrix, vertexList));
+ParallelDataAlgorithm dataAlg;
+dataAlg.setRange(0, m_TotalElements);
+dataAlg.execute(ApplyTransformationToGeometryImpl(*this, m_TransformationMatrix, vertexList));
 #else
-  // THis chunk of code will FORCE single threaded mode. Don't do this unless you really mean it.
-  ApplyTransformationToGeometryImpl doThis(*this, m_TransformationMatrix, vertexList);
-  doThis({0, vertexList->getNumberOfTuples()});
+// THis chunk of code will FORCE single threaded mode. Don't do this unless you really mean it.
+ApplyTransformationToGeometryImpl doThis(*this, m_TransformationMatrix, vertexList);
+doThis({0, vertexList->getNumberOfTuples()});
 #endif
 }
 
@@ -813,8 +817,8 @@ ApplyTransformationToGeometry::Pointer ApplyTransformationToGeometry::NullPointe
 std::shared_ptr<ApplyTransformationToGeometry> ApplyTransformationToGeometry::New()
 {
   struct make_shared_enabler : public ApplyTransformationToGeometry
-  {
-  };
+      {
+      };
   std::shared_ptr<make_shared_enabler> val = std::make_shared<make_shared_enabler>();
   val->setupFilterParameters();
   return val;
