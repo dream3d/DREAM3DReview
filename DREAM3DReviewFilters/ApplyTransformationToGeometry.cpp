@@ -87,11 +87,11 @@ const Eigen::Vector4f k_YAxis = Eigen::Vector4f::UnitY();
 const Eigen::Vector4f k_ZAxis = Eigen::Vector4f::UnitZ();
 
 // Function for determining new ImageGeom dimensions after transformation
-void determineMinMax(const Eigen::Transform<float, 3, Affine>& rotationMatrix, const FloatVec4Type& spacing, size_t col, size_t row, size_t plane, float& xMin, float& xMax, float& yMin, float& yMax, float& zMin, float& zMax)
+void determineMinMax(const Matrix3fR& rotationMatrix, const FloatVec4Type& spacing, size_t col, size_t row, size_t plane, float& xMin, float& xMax, float& yMin, float& yMax, float& zMin, float& zMax)
 {
   Eigen::Vector4f coords(static_cast<float>(col) * spacing[0], static_cast<float>(row) * spacing[1], static_cast<float>(plane) * spacing[2]);
 
-  Eigen::Vector4f newCoords = rotationMatrix * coords;
+  Eigen::Vector3f newCoords = rotationMatrix * coords;
 
   xMin = std::min(newCoords[0], xMin);
   xMax = std::max(newCoords[0], xMax);
@@ -132,7 +132,7 @@ float determineSpacing(const FloatVec4Type& spacing, const Eigen::Vector4f& axis
   return spacing[index];
 }
 
-RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform<float, 3, Affine>& rotationMatrix)
+RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform<float, 3, Affine>& transformationMatrix)
 {
   const SizeVec4Type origDims = imageGeom.getDimensions();
   const FloatVec4Type spacing = imageGeom.getSpacing();
@@ -144,6 +144,9 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform<float,
   float yMax = std::numeric_limits<float>::min();
   float zMin = std::numeric_limits<float>::max();
   float zMax = std::numeric_limits<float>::min();
+
+  Eigen::Matrix3fR rotationMatrix = transformationMatrix.rotation();
+
 
   const std::vector<std::vector<size_t>> coords{{0, 0, 0},
                                                 {origDims[0] - 1, 0, 0},
@@ -478,6 +481,7 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
 //Need to add code in to create new image geom, in process, modifying updateGeometry, createRotateParams, determineMinMax
 void ApplyTransformationToGeometry::dataCheck()
 {
+  using TransformationObj = Eigen::Transformation<float, 3, Affine>;
   clearErrorCode();
   clearWarningCode();
 
@@ -614,6 +618,7 @@ void ApplyTransformationToGeometry::dataCheck()
   {
     DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
     ImageGeom::Pointer imageGeom = m->getGeometryAs<ImageGeom>();
+    Eigen::Map<TransformationObj> transformation(m_TransformationMatrix);
     p_Impl->m_RotationMatrix = m_TransformationMatrix; //Parallel structures?
     p_Impl->m_Params = createRotateParams(*imageGeom, p_Impl->m_RotationMatrix);
     updateGeometry(*imageGeom, p_Impl->m_Params);
