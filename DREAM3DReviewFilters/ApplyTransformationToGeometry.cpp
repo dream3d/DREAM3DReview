@@ -34,6 +34,12 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "ApplyTransformationToGeometry.h"
 
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+#include <tbb/blocked_range3d.h>
+#include <tbb/parallel_for.h>
+#include <tbb/partitioner.h>
+#endif
+
 #include <Eigen/Dense>
 
 #include <QtCore/QTextStream>
@@ -54,6 +60,7 @@
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/ParallelDataAlgorithm.h"
+#include "SIMPLib/Math/MatrixMath.h"
 
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
@@ -61,8 +68,8 @@
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
-,namespace ApplyTransformationProgress
-{
+using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
+
 struct RotateArgs
     {
   int64_t xp = 0;
@@ -82,12 +89,16 @@ struct RotateArgs
   float zMinNew = 0.0f;
     };
 
-const Eigen::Vector4f k_XAxis = Eigen::Vector4f::UnitX();
-const Eigen::Vector4f k_YAxis = Eigen::Vector4f::UnitY();
-const Eigen::Vector4f k_ZAxis = Eigen::Vector4f::UnitZ();
+
+namespace ApplyTransformationProgress
+{
+
+const Eigen::Vector3f k_XAxis = Eigen::Vector3f::UnitX();
+const Eigen::Vector3f k_YAxis = Eigen::Vector3f::UnitY();
+const Eigen::Vector3f k_ZAxis = Eigen::Vector3f::UnitZ();
 
 // Function for determining new ImageGeom dimensions after transformation
-void determineMinMax(const Matrix3fR& rotationMatrix, const FloatVec4Type& spacing, size_t col, size_t row, size_t plane, float& xMin, float& xMax, float& yMin, float& yMax, float& zMin, float& zMax)
+void determineMinMax(const Matrix3fR& rotationMatrix, const FloatVec3Type& spacing, size_t col, size_t row, size_t plane, float& xMin, float& xMax, float& yMin, float& yMax, float& zMin, float& zMax)
 {
   Eigen::Vector4f coords(static_cast<float>(col) * spacing[0], static_cast<float>(row) * spacing[1], static_cast<float>(plane) * spacing[2]);
 
@@ -117,7 +128,7 @@ float cosBetweenVectors(const Eigen::Vector4f& a, const Eigen::Vector4f& b)
 }
 
 // Function for determining new ImageGeom Spacing between points for scaling
-float determineSpacing(const FloatVec4Type& spacing, const Eigen::Vector4f& axisNew)
+float determineSpacing(const FloatVec3Type& spacing, const Eigen::Vector3f& axisNew)
 {
   float xAngle = std::abs(cosBetweenVectors(k_XAxis, axisNew));
   float yAngle = std::abs(cosBetweenVectors(k_YAxis, axisNew));
@@ -132,10 +143,10 @@ float determineSpacing(const FloatVec4Type& spacing, const Eigen::Vector4f& axis
   return spacing[index];
 }
 
-RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform<float, 3, Affine>& transformationMatrix)
+RotateArgs createRotateParams(const ImageGeom& imageGeom, const Eigen::Transform<float, 3, Eigen::Affine>& transformationMatrix)
 {
-  const SizeVec4Type origDims = imageGeom.getDimensions();
-  const FloatVec4Type spacing = imageGeom.getSpacing();
+  const SizeVec3Type origDims = imageGeom.getDimensions();
+  const FloatVec3Type spacing = imageGeom.getSpacing();
   // const FloatVec3Type origin = imageGeom.getOrigin();
 
   float xMin = std::numeric_limits<float>::max();
@@ -145,7 +156,7 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform<float,
   float zMin = std::numeric_limits<float>::max();
   float zMax = std::numeric_limits<float>::min();
 
-  Eigen::Matrix3fR rotationMatrix = transformationMatrix.rotation();
+  Matrix3fR rotationMatrix = transformationMatrix.rotation();
 
 
   const std::vector<std::vector<size_t>> coords{{0, 0, 0},
@@ -162,9 +173,9 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform<float,
     determineMinMax(rotationMatrix, spacing, item[0], item[1], item[2], xMin, xMax, yMin, yMax, zMin, zMax);
   }
 
-  Eigen::Vector4f xAxisNew = rotationMatrix * k_XAxis;
-  Eigen::Vector4f yAxisNew = rotationMatrix * k_YAxis;
-  Eigen::Vector4f zAxisNew = rotationMatrix * k_ZAxis;
+  Eigen::Vector3f xAxisNew = rotationMatrix * k_XAxis;
+  Eigen::Vector3f yAxisNew = rotationMatrix * k_YAxis;
+  Eigen::Vector3f zAxisNew = rotationMatrix * k_ZAxis;
 
   float xResNew = determineSpacing(spacing, xAxisNew);
   float yResNew = determineSpacing(spacing, yAxisNew);
@@ -198,7 +209,7 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform<float,
 
 void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params)
 {
-  FloatVec4Type origin = imageGeom.getOrigin();
+  FloatVec3Type origin = imageGeom.getOrigin();
 
   imageGeom.setSpacing(params.xResNew, params.yResNew, params.zResNew);
   imageGeom.setDimensions(params.xpNew, params.ypNew, params.zpNew);
@@ -283,7 +294,7 @@ void operator()(const tbb::blocked_range3d<int64_t, int64_t, int64_t>& r) const
         convert(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
 }
 #endif
-    };
+};
 
 
 
@@ -291,16 +302,15 @@ static size_t s_InstanceIndex = 0;
 static std::map<size_t, int64_t> s_ProgressValues;
 static std::map<size_t, int64_t> s_LastProgressInt;
 
-void ApplyImageTransformation(){
-
+void ApplyImageTransformation()
+{
+  return;
 }
-
-
 } // namespace ApplyTransformationProgress
 
-struct RotateSampleRefFrame::Impl
+struct ApplyTransformationToGeometry::Impl
     {
-  Matrix4fR m_RotationMatrix = Matrix4fR::Zero();
+  Matrix3fR m_RotationMatrix = Matrix3fR::Zero();
   RotateArgs m_Params;
 
   void reset()
@@ -311,18 +321,18 @@ struct RotateSampleRefFrame::Impl
   }
     };
 
-RotateSampleRefFrame::RotateSampleRefFrame()
+ApplyTransformationToGeometry::ApplyTransformationToGeometry()
 : p_Impl(std::make_unique<Impl>())
 {
   std::vector<std::vector<double>> defaultTable{{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}};
 
-  m_RotationTable.setTableData(defaultTable);
-  m_RotationTable.setDynamicRows(false);
-  m_RotationTable.setDynamicCols(false);
-  m_RotationTable.setDefaultColCount(4);
-  m_RotationTable.setDefaultRowCount(4);
-  m_RotationTable.setMinCols(4);
-  m_RotationTable.setMinRows(4);
+//  m_RotationTable.setTableData(defaultTable);
+//  m_RotationTable.setDynamicRows(false);
+//  m_RotationTable.setDynamicCols(false);
+//  m_RotationTable.setDefaultColCount(4);
+//  m_RotationTable.setDefaultRowCount(4);
+//  m_RotationTable.setMinCols(4);
+//  m_RotationTable.setMinRows(4);
 }
 
 
@@ -481,7 +491,8 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
 //Need to add code in to create new image geom, in process, modifying updateGeometry, createRotateParams, determineMinMax
 void ApplyTransformationToGeometry::dataCheck()
 {
-  using TransformationObj = Eigen::Transformation<float, 3, Affine>;
+  using TransformationObj = Eigen::Transform<float, 3, Eigen::Affine>;
+  TransformationObj transform;
   clearErrorCode();
   clearWarningCode();
 
@@ -614,12 +625,12 @@ void ApplyTransformationToGeometry::dataCheck()
   }
 
   //if ImageGeom found:
-  if(std::dynamic_pointer_cast<ImageGeom>(igeom)
+  if(std::dynamic_pointer_cast<ImageGeom>(igeom))
   {
     DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
     ImageGeom::Pointer imageGeom = m->getGeometryAs<ImageGeom>();
     Eigen::Map<TransformationObj> transformation(m_TransformationMatrix);
-    p_Impl->m_RotationMatrix = m_TransformationMatrix; //Parallel structures?
+    p_Impl->m_RotationMatrix = transform.rotation(); //Parallel structures?
     p_Impl->m_Params = createRotateParams(*imageGeom, p_Impl->m_RotationMatrix);
     updateGeometry(*imageGeom, p_Impl->m_Params);
 

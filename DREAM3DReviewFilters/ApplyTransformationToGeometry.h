@@ -284,4 +284,8 @@ public:
   ApplyTransformationToGeometry(ApplyTransformationToGeometry&&) = delete;                 // Move Constructor Not Implemented
   ApplyTransformationToGeometry& operator=(const ApplyTransformationToGeometry&) = delete; // Copy Assignment Not Implemented
   ApplyTransformationToGeometry& operator=(ApplyTransformationToGeometry&&) = delete;      // Move Assignment Not Implemented
+
+  private:
+  struct Impl;
+  std::unique_ptr<Impl> p_Impl;
 };
