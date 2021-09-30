@@ -68,6 +68,11 @@
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
+
+
+namespace ApplyTransformationProgress
+{
+
 using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
 
 struct RotateArgs
@@ -88,10 +93,6 @@ struct RotateArgs
   float yMinNew = 0.0f;
   float zMinNew = 0.0f;
     };
-
-
-namespace ApplyTransformationProgress
-{
 
 const Eigen::Vector3f k_XAxis = Eigen::Vector3f::UnitX();
 const Eigen::Vector3f k_YAxis = Eigen::Vector3f::UnitY();
@@ -294,7 +295,7 @@ void operator()(const tbb::blocked_range3d<int64_t, int64_t, int64_t>& r) const
         convert(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
 }
 #endif
-};
+    };
 
 
 
@@ -310,22 +311,22 @@ void ApplyImageTransformation()
 
 struct ApplyTransformationToGeometry::Impl
     {
-  Matrix3fR m_RotationMatrix = Matrix3fR::Zero();
-  RotateArgs m_Params;
+  ApplyTransformationProgress::Matrix3fR m_RotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+  ApplyTransformationProgress::RotateArgs m_Params;
 
   void reset()
   {
     m_RotationMatrix.setZero();
 
-    m_Params = RotateArgs();
+    m_Params = ApplyTransformationProgress::RotateArgs();
   }
     };
 
-ApplyTransformationToGeometry::ApplyTransformationToGeometry()
-: p_Impl(std::make_unique<Impl>())
-{
-  std::vector<std::vector<double>> defaultTable{{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}};
-
+//ApplyTransformationToGeometry::ApplyTransformationToGeometry()
+//: p_Impl(std::make_unique<Impl>())
+//{
+//  std::vector<std::vector<double>> defaultTable{{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}};
+//
 //  m_RotationTable.setTableData(defaultTable);
 //  m_RotationTable.setDynamicRows(false);
 //  m_RotationTable.setDynamicCols(false);
@@ -333,7 +334,7 @@ ApplyTransformationToGeometry::ApplyTransformationToGeometry()
 //  m_RotationTable.setDefaultRowCount(4);
 //  m_RotationTable.setMinCols(4);
 //  m_RotationTable.setMinRows(4);
-}
+//}
 
 
 
@@ -393,6 +394,7 @@ class ApplyTransformationToGeometryImpl
 //
 // -----------------------------------------------------------------------------
 ApplyTransformationToGeometry::ApplyTransformationToGeometry()
+: p_Impl(std::make_unique<Impl>())
 {
   m_RotationAngle = 0.0f;
   m_RotationAxis[0] = 0.0f;
@@ -456,7 +458,7 @@ void ApplyTransformationToGeometry::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Translation", Translation, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 4));
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Scale", Scale, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 5));
   DataContainerSelectionFilterParameter::RequirementType dcReq;
-  IGeometry::Types geomTypes = {IGeometry::Type::Vertex, IGeometry::Type::Edge, IGeometry::Type::Triangle, IGeometry::Type::Quad, IGeometry::Type::Tetrahedral};
+  IGeometry::Types geomTypes = {IGeometry::Type::Vertex, IGeometry::Type::Edge, IGeometry::Type::Triangle, IGeometry::Type::Quad, IGeometry::Type::Tetrahedral, IGeometry::Type::Image};
   dcReq.dcGeometryTypes = geomTypes;
   parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Geometry to Transform", GeometryToTransform, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dcReq));
   {
@@ -491,8 +493,10 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
 //Need to add code in to create new image geom, in process, modifying updateGeometry, createRotateParams, determineMinMax
 void ApplyTransformationToGeometry::dataCheck()
 {
-  using TransformationObj = Eigen::Transform<float, 3, Eigen::Affine>;
-  TransformationObj transform;
+  using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
+  using RotateMatrix = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
+  //  using TransformationObj = Eigen::Transform<float, 3, Eigen::Affine>;
+  //  TransformationObj transform;
   clearErrorCode();
   clearWarningCode();
 
@@ -627,11 +631,20 @@ void ApplyTransformationToGeometry::dataCheck()
   //if ImageGeom found:
   if(std::dynamic_pointer_cast<ImageGeom>(igeom))
   {
-    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-    ImageGeom::Pointer imageGeom = m->getGeometryAs<ImageGeom>();
-    Eigen::Map<TransformationObj> transformation(m_TransformationMatrix);
-    p_Impl->m_RotationMatrix = transform.rotation(); //Parallel structures?
-    p_Impl->m_Params = createRotateParams(*imageGeom, p_Impl->m_RotationMatrix);
+    //    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(m_GeometryToTransform);
+    ImageGeom::Pointer imageGeom =  std::dynamic_pointer_cast<ImageGeom>(igeom);
+    Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
+    Eigen::Transform<float, 3, Eigen::Affine> transform = Eigen::Transform<float, 3, Eigen::Affine>::Transform(transformation);
+    ApplyTransformationProgress::Matrix3fR rotMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+    rotMatrix.setZero();
+
+    for(size_t i=0; i<3; i++){
+      for(size_t j=0; j<3; j++){
+        rotMatrix[i][j] = &m_TransformationMatrix[4*i + j];
+      }
+    }
+    p_Impl->m_RotationMatrix = rotMatrix; //Parallel structures?
+    p_Impl->m_Params = ApplyTransformationProgress::createRotateParams(*imageGeom, p_Impl->m_RotationMatrix);
     updateGeometry(*imageGeom, p_Impl->m_Params);
 
     // Resize attribute matrix
@@ -640,6 +653,8 @@ void ApplyTransformationToGeometry::dataCheck()
     tDims[0] = p_Impl->m_Params.xpNew;
     tDims[1] = p_Impl->m_Params.ypNew;
     tDims[2] = p_Impl->m_Params.zpNew;
+    //    QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
+    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(m_GeometryToTransform);
     QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
     m->getAttributeMatrix(attrMatName)->resizeAttributeArrays(tDims);
   }
@@ -656,7 +671,6 @@ void ApplyTransformationToGeometry::applyTransformation()
 {
 
   IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(m_GeometryToTransform)->getGeometry();
-
   SharedVertexList::Pointer vertexList;
 
   if(IGeometry2D::Pointer igeom2D = std::dynamic_pointer_cast<IGeometry2D>(igeom))
@@ -676,7 +690,7 @@ void ApplyTransformationToGeometry::applyTransformation()
     vertexList = edge->getVertices();
   }
   else if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(igeom)){
-    imageTransform();//Function for applying Image Transformation
+    ApplyTransformationProgress::ApplyImageTransformation();//Function for applying Image Transformation
   }
   else
   {
