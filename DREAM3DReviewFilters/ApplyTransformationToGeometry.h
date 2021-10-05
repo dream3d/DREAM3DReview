@@ -257,7 +257,21 @@ protected:
    */
   void sendThreadSafeProgressMessage(int64_t counter);
 
+  /**
+   * @brief setCellAttributeMatrixPath
+   * @param value
+   */
+  void setCellAttributeMatrixPath(const DataArrayPath& value);
+
+  /**
+   * @brief getCellAttributeMatrixPath
+   */
+  DataArrayPath getCellAttributeMatrixPath();
+
 private:
+
+  DataArrayPath m_CellAttributeMatrixPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
+
   std::weak_ptr<DataArray<float>> m_TransformationMatrixPtr;
   float* m_TransformationMatrix = nullptr;
 
