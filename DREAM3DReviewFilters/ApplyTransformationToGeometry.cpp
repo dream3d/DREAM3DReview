@@ -48,16 +48,18 @@
 #include "SIMPLib/Common/SIMPLRange.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
+#include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
+#include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
 #include "SIMPLib/Geometry/IGeometry2D.h"
 #include "SIMPLib/Geometry/IGeometry3D.h"
-#include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
+#include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/ParallelDataAlgorithm.h"
 #include "SIMPLib/Math/MatrixMath.h"
@@ -466,6 +468,13 @@ void ApplyTransformationToGeometry::setupFilterParameters()
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Generic, IGeometry::Type::Any);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Transformation Matrix", ComputedTransformationMatrix, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
   }
+
+  parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
+  {
+    AttributeMatrixSelectionFilterParameter::RequirementType req = AttributeMatrixSelectionFilterParameter::CreateRequirement(AttributeMatrix::Type::Generic, IGeometry::Type::Any);
+    parameters.push_back(SIMPL_NEW_AM_SELECTION_FP("Cell Attribute Matrix", CellAttributeMatrixPath, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, req));
+  }
+
   setFilterParameters(parameters);
 }
 
@@ -475,6 +484,7 @@ void ApplyTransformationToGeometry::setupFilterParameters()
 void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
+  setCellAttributeMatrixPath(reader->readDataArrayPath("CellAttributeMatrixPath", getCellAttributeMatrixPath()));
   setManualTransformationMatrix(reader->readDynamicTableData("ManualTransformationMatrix", getManualTransformationMatrix()));
   setComputedTransformationMatrix(reader->readDataArrayPath("ComputedTransformationMatrix", getComputedTransformationMatrix()));
   setGeometryToTransform(reader->readDataArrayPath("GeometryToTransform", getGeometryToTransform()));
@@ -636,11 +646,10 @@ void ApplyTransformationToGeometry::dataCheck()
     Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
     Eigen::Transform<float, 3, Eigen::Affine> transform = Eigen::Transform<float, 3, Eigen::Affine>::Transform(transformation);
     ApplyTransformationProgress::Matrix3fR rotMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
-    rotMatrix.setZero();
 
     for(size_t i=0; i<3; i++){
       for(size_t j=0; j<3; j++){
-        rotMatrix[i][j] = &m_TransformationMatrix[4*i + j];
+        rotMatrix(i,j) = transform.data()[4*i + j];
       }
     }
     p_Impl->m_RotationMatrix = rotMatrix; //Parallel structures?
@@ -776,6 +785,21 @@ AbstractFilter::Pointer ApplyTransformationToGeometry::newFilterInstance(bool co
     copyFilterParameterInstanceVariables(filter.get());
   }
   return filter;
+}
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ApplyTransformationToGeometry::setCellAttributeMatrixPath(const DataArrayPath& value)
+{
+  m_CellAttributeMatrixPath = value;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+DataArrayPath ApplyTransformationToGeometry::getCellAttributeMatrixPath() const
+{
+  return m_CellAttributeMatrixPath;
 }
 
 // -----------------------------------------------------------------------------
