@@ -76,6 +76,7 @@ namespace ApplyTransformationProgress
 {
 
 using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
+using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
 
 struct RotateArgs
     {
@@ -103,7 +104,7 @@ const Eigen::Vector3f k_ZAxis = Eigen::Vector3f::UnitZ();
 // Function for determining new ImageGeom dimensions after transformation
 void determineMinMax(const Matrix3fR& rotationMatrix, const FloatVec3Type& spacing, size_t col, size_t row, size_t plane, float& xMin, float& xMax, float& yMin, float& yMax, float& zMin, float& zMax)
 {
-  Eigen::Vector4f coords(static_cast<float>(col) * spacing[0], static_cast<float>(row) * spacing[1], static_cast<float>(plane) * spacing[2]);
+  Eigen::Vector3f coords(static_cast<float>(col) * spacing[0], static_cast<float>(row) * spacing[1], static_cast<float>(plane) * spacing[2]);
 
   Eigen::Vector3f newCoords = rotationMatrix * coords;
 
@@ -117,7 +118,7 @@ void determineMinMax(const Matrix3fR& rotationMatrix, const FloatVec3Type& spaci
   zMax = std::max(newCoords[2], zMax);
 }
 
-float cosBetweenVectors(const Eigen::Vector4f& a, const Eigen::Vector4f& b)
+float cosBetweenVectors(const Eigen::Vector3f& a, const Eigen::Vector3f& b)
 {
   float normA = a.norm();
   float normB = b.norm();
@@ -146,11 +147,19 @@ float determineSpacing(const FloatVec3Type& spacing, const Eigen::Vector3f& axis
   return spacing[index];
 }
 
-RotateArgs createRotateParams(const ImageGeom& imageGeom, const Eigen::Transform<float, 3, Eigen::Affine>& transformationMatrix)
+RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f transformationMatrix)
 {
   const SizeVec3Type origDims = imageGeom.getDimensions();
   const FloatVec3Type spacing = imageGeom.getSpacing();
   // const FloatVec3Type origin = imageGeom.getOrigin();
+
+  ApplyTransformationProgress::Matrix3fR rotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+
+  for(size_t i=0; i<3; i++){
+    for(size_t j=0; j<3; j++){
+      rotationMatrix(i,j) = transformationMatrix.data()[i + 4*j];
+    }
+  }
 
   float xMin = std::numeric_limits<float>::max();
   float xMax = std::numeric_limits<float>::min();
@@ -158,9 +167,6 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Eigen::Transform
   float yMax = std::numeric_limits<float>::min();
   float zMin = std::numeric_limits<float>::max();
   float zMax = std::numeric_limits<float>::min();
-
-  Matrix3fR rotationMatrix = transformationMatrix.rotation();
-
 
   const std::vector<std::vector<size_t>> coords{{0, 0, 0},
                                                 {origDims[0] - 1, 0, 0},
@@ -459,15 +465,15 @@ void ApplyTransformationToGeometry::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Rotation Axis (ijk)", RotationAxis, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 3));
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Translation", Translation, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 4));
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Scale", Scale, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 5));
-  DataContainerSelectionFilterParameter::RequirementType dcReq;
-  IGeometry::Types geomTypes = {IGeometry::Type::Vertex, IGeometry::Type::Edge, IGeometry::Type::Triangle, IGeometry::Type::Quad, IGeometry::Type::Tetrahedral, IGeometry::Type::Image};
-  dcReq.dcGeometryTypes = geomTypes;
-  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Geometry to Transform", GeometryToTransform, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dcReq));
-  {
-    DataArraySelectionFilterParameter::RequirementType dasReq =
-        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Generic, IGeometry::Type::Any);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Transformation Matrix", ComputedTransformationMatrix, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
-  }
+//  DataContainerSelectionFilterParameter::RequirementType dcReq;
+//  IGeometry::Types geomTypes = {IGeometry::Type::Vertex, IGeometry::Type::Edge, IGeometry::Type::Triangle, IGeometry::Type::Quad, IGeometry::Type::Tetrahedral, IGeometry::Type::Image};
+//  dcReq.dcGeometryTypes = geomTypes;
+//  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Geometry to Transform", GeometryToTransform, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dcReq));
+//  {
+//    DataArraySelectionFilterParameter::RequirementType dasReq =
+//        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Generic, IGeometry::Type::Any);
+//    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Transformation Matrix", ComputedTransformationMatrix, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
+//  }
 
   parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
   {
@@ -487,8 +493,8 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
   setCellAttributeMatrixPath(reader->readDataArrayPath("CellAttributeMatrixPath", getCellAttributeMatrixPath()));
   setManualTransformationMatrix(reader->readDynamicTableData("ManualTransformationMatrix", getManualTransformationMatrix()));
   setComputedTransformationMatrix(reader->readDataArrayPath("ComputedTransformationMatrix", getComputedTransformationMatrix()));
-  setGeometryToTransform(reader->readDataArrayPath("GeometryToTransform", getGeometryToTransform()));
   setTransformationMatrixType(reader->readValue("TransformationMatrixType", getTransformationMatrixType()));
+//  setGeometryToTransform(getCellAttributeMatrixPath());
   setRotationAxis(reader->readFloatVec3("RotationAxis", getRotationAxis()));
   setRotationAngle(reader->readValue("RotationAngle", getRotationAngle()));
   setTranslation(reader->readFloatVec3("Translation", getTranslation()));
@@ -512,7 +518,7 @@ void ApplyTransformationToGeometry::dataCheck()
 
   p_Impl->reset();
 
-  IGeometry::Pointer igeom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getGeometryToTransform());
+  IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName())->getGeometry();
 
   if(getErrorCode() < 0)
   {
@@ -645,15 +651,7 @@ void ApplyTransformationToGeometry::dataCheck()
     ImageGeom::Pointer imageGeom =  std::dynamic_pointer_cast<ImageGeom>(igeom);
     Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
     Eigen::Transform<float, 3, Eigen::Affine> transform = Eigen::Transform<float, 3, Eigen::Affine>::Transform(transformation);
-    ApplyTransformationProgress::Matrix3fR rotMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
-
-    for(size_t i=0; i<3; i++){
-      for(size_t j=0; j<3; j++){
-        rotMatrix(i,j) = transform.data()[4*i + j];
-      }
-    }
-    p_Impl->m_RotationMatrix = rotMatrix; //Parallel structures?
-    p_Impl->m_Params = ApplyTransformationProgress::createRotateParams(*imageGeom, p_Impl->m_RotationMatrix);
+    p_Impl->m_Params = ApplyTransformationProgress::createRotateParams(*imageGeom, transform);
     updateGeometry(*imageGeom, p_Impl->m_Params);
 
     // Resize attribute matrix
@@ -663,7 +661,7 @@ void ApplyTransformationToGeometry::dataCheck()
     tDims[1] = p_Impl->m_Params.ypNew;
     tDims[2] = p_Impl->m_Params.zpNew;
     //    QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
-    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(m_GeometryToTransform);
+    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
     QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
     m->getAttributeMatrix(attrMatName)->resizeAttributeArrays(tDims);
   }
@@ -679,7 +677,7 @@ void ApplyTransformationToGeometry::dataCheck()
 void ApplyTransformationToGeometry::applyTransformation()
 {
 
-  IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(m_GeometryToTransform)->getGeometry();
+  IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName())->getGeometry();
   SharedVertexList::Pointer vertexList;
 
   if(IGeometry2D::Pointer igeom2D = std::dynamic_pointer_cast<IGeometry2D>(igeom))
@@ -915,16 +913,16 @@ DataArrayPath ApplyTransformationToGeometry::getComputedTransformationMatrix() c
 }
 
 // -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setGeometryToTransform(const DataArrayPath& value)
-{
-  m_GeometryToTransform = value;
-}
+//void ApplyTransformationToGeometry::setGeometryToTransform(const DataArrayPath& value)
+//{
+//  m_GeometryToTransform = value;
+//}
 
 // -----------------------------------------------------------------------------
-DataArrayPath ApplyTransformationToGeometry::getGeometryToTransform() const
-{
-  return m_GeometryToTransform;
-}
+//DataArrayPath ApplyTransformationToGeometry::getGeometryToTransform() const
+//{
+//  return m_GeometryToTransform;
+//}
 
 // -----------------------------------------------------------------------------
 void ApplyTransformationToGeometry::setTransformationMatrixType(int value)
