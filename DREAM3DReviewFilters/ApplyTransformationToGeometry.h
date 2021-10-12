@@ -60,7 +60,8 @@ class DREAM3DReview_EXPORT ApplyTransformationToGeometry : public AbstractFilter
   PYB11_FILTER_NEW_MACRO(ApplyTransformationToGeometry)
   PYB11_PROPERTY(DynamicTableData ManualTransformationMatrix READ getManualTransformationMatrix WRITE setManualTransformationMatrix)
   PYB11_PROPERTY(DataArrayPath ComputedTransformationMatrix READ getComputedTransformationMatrix WRITE setComputedTransformationMatrix)
-  PYB11_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
+  PYB11_PROPERTY(DataArrayPath CellAttributeMatrixPath READ getCellAttributeMatrixPath WRITE setCellAttributeMatrixPath)
+//  PYB11_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
   PYB11_PROPERTY(int TransformationMatrixType READ getTransformationMatrixType WRITE setTransformationMatrixType)
   PYB11_PROPERTY(FloatVec3Type RotationAxis READ getRotationAxis WRITE setRotationAxis)
   PYB11_PROPERTY(float RotationAngle READ getRotationAngle WRITE setRotationAngle)
@@ -112,16 +113,16 @@ public:
   DataArrayPath getComputedTransformationMatrix() const;
   Q_PROPERTY(DataArrayPath ComputedTransformationMatrix READ getComputedTransformationMatrix WRITE setComputedTransformationMatrix)
 
-  /**
-   * @brief Setter property for GeometryToTransform
-   */
-  void setGeometryToTransform(const DataArrayPath& value);
-  /**
-   * @brief Getter property for GeometryToTransform
-   * @return Value of GeometryToTransform
-   */
-  DataArrayPath getGeometryToTransform() const;
-  Q_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
+//  /**
+//   * @brief Setter property for GeometryToTransform
+//   */
+//  void setGeometryToTransform(const DataArrayPath& value);
+//  /**
+//   * @brief Getter property for GeometryToTransform
+//   * @return Value of GeometryToTransform
+//   */
+//  DataArrayPath getGeometryToTransform() const;
+//  Q_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
 
   /**
    * @brief Setter property for TransformationMatrixType
@@ -266,18 +267,21 @@ protected:
   /**
    * @brief getCellAttributeMatrixPath
    */
-  DataArrayPath getCellAttributeMatrixPath();
+  DataArrayPath getCellAttributeMatrixPath() const;
+
+  Q_PROPERTY(DataArrayPath CellAttributeMatrixPath READ getCellAttributeMatrixPath WRITE setCellAttributeMatrixPath)
+
 
 private:
 
-  DataArrayPath m_CellAttributeMatrixPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
+  DataArrayPath m_CellAttributeMatrixPath = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
 
   std::weak_ptr<DataArray<float>> m_TransformationMatrixPtr;
   float* m_TransformationMatrix = nullptr;
 
   DynamicTableData m_ManualTransformationMatrix = {};
   DataArrayPath m_ComputedTransformationMatrix = {"", "", "TransformationMatrix"};
-  DataArrayPath m_GeometryToTransform = {"", "", ""};
+//  DataArrayPath m_GeometryToTransform = {"", "", ""};
   int m_TransformationMatrixType = {1};
   FloatVec3Type m_RotationAxis = {};
   float m_RotationAngle = {};
