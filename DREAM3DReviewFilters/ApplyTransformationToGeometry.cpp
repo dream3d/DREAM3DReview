@@ -108,6 +108,8 @@ void determineMinMax(const Matrix3fR& rotationMatrix, const FloatVec3Type& spaci
 
   Eigen::Vector3f newCoords = rotationMatrix * coords;
 
+
+
   xMin = std::min(newCoords[0], xMin);
   xMax = std::max(newCoords[0], xMax);
 
@@ -154,12 +156,15 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
   // const FloatVec3Type origin = imageGeom.getOrigin();
 
   ApplyTransformationProgress::Matrix3fR rotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+  ApplyTransformationProgress::Matrix3fR scaleMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
 
-  for(size_t i=0; i<3; i++){
-    for(size_t j=0; j<3; j++){
-      rotationMatrix(i,j) = transformationMatrix.data()[i + 4*j];
-    }
-  }
+  transformationMatrix.computeRotationScaling(&rotationMatrix, &scaleMatrix);
+
+//  for(size_t i=0; i<3; i++){
+//    for(size_t j=0; j<3; j++){
+//      rotationMatrix(i,j) = transformationMatrix.data()[i + 4*j];
+//    }
+//  }
 
   float xMin = std::numeric_limits<float>::max();
   float xMax = std::numeric_limits<float>::min();
@@ -167,7 +172,7 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
   float yMax = std::numeric_limits<float>::min();
   float zMin = std::numeric_limits<float>::max();
   float zMax = std::numeric_limits<float>::min();
-
+  
   const std::vector<std::vector<size_t>> coords{{0, 0, 0},
                                                 {origDims[0] - 1, 0, 0},
                                                 {0, origDims[1] - 1, 0},
@@ -186,9 +191,9 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
   Eigen::Vector3f yAxisNew = rotationMatrix * k_YAxis;
   Eigen::Vector3f zAxisNew = rotationMatrix * k_ZAxis;
 
-  float xResNew = determineSpacing(spacing, xAxisNew);
-  float yResNew = determineSpacing(spacing, yAxisNew);
-  float zResNew = determineSpacing(spacing, zAxisNew);
+  float xResNew = determineSpacing(spacing, xAxisNew) * scaleMatrix(0,0);
+  float yResNew = determineSpacing(spacing, yAxisNew) * scaleMatrix(1,1);
+  float zResNew = determineSpacing(spacing, zAxisNew) * scaleMatrix(2,2);
 
   MeshIndexType xpNew = static_cast<int64_t>(std::nearbyint((xMax - xMin) / xResNew) + 1);
   MeshIndexType ypNew = static_cast<int64_t>(std::nearbyint((yMax - yMin) / yResNew) + 1);
@@ -311,40 +316,7 @@ static size_t s_InstanceIndex = 0;
 static std::map<size_t, int64_t> s_ProgressValues;
 static std::map<size_t, int64_t> s_LastProgressInt;
 
-void ApplyImageTransformation()
-{
-  return;
-}
 } // namespace ApplyTransformationProgress
-
-struct ApplyTransformationToGeometry::Impl
-    {
-  ApplyTransformationProgress::Matrix3fR m_RotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
-  ApplyTransformationProgress::RotateArgs m_Params;
-
-  void reset()
-  {
-    m_RotationMatrix.setZero();
-
-    m_Params = ApplyTransformationProgress::RotateArgs();
-  }
-    };
-
-//ApplyTransformationToGeometry::ApplyTransformationToGeometry()
-//: p_Impl(std::make_unique<Impl>())
-//{
-//  std::vector<std::vector<double>> defaultTable{{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}};
-//
-//  m_RotationTable.setTableData(defaultTable);
-//  m_RotationTable.setDynamicRows(false);
-//  m_RotationTable.setDynamicCols(false);
-//  m_RotationTable.setDefaultColCount(4);
-//  m_RotationTable.setDefaultRowCount(4);
-//  m_RotationTable.setMinCols(4);
-//  m_RotationTable.setMinRows(4);
-//}
-
-
 
 class ApplyTransformationToGeometryImpl
     {
@@ -397,6 +369,20 @@ class ApplyTransformationToGeometryImpl
       float* m_TransformationMatrix = nullptr;
       SharedVertexList::Pointer m_Vertices;
     };
+
+struct ApplyTransformationToGeometry::Impl
+{
+  ApplyTransformationProgress::Matrix3fR m_RotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+  ApplyTransformationProgress::RotateArgs m_Params;
+
+  void reset()
+  {
+    m_RotationMatrix.setZero();
+
+    m_Params = ApplyTransformationProgress::RotateArgs();
+  }
+};
+
 
 // -----------------------------------------------------------------------------
 //
@@ -651,6 +637,12 @@ void ApplyTransformationToGeometry::dataCheck()
     ImageGeom::Pointer imageGeom =  std::dynamic_pointer_cast<ImageGeom>(igeom);
     Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
     Eigen::Transform<float, 3, Eigen::Affine> transform = Eigen::Transform<float, 3, Eigen::Affine>::Transform(transformation);
+    ApplyTransformationProgress::Matrix3fR rotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+    ApplyTransformationProgress::Matrix3fR scaleMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+
+    transform.computeRotationScaling(&rotationMatrix, &scaleMatrix);
+    p_Impl->m_RotationMatrix = rotationMatrix;
+
     p_Impl->m_Params = ApplyTransformationProgress::createRotateParams(*imageGeom, transform);
     updateGeometry(*imageGeom, p_Impl->m_Params);
 
@@ -665,8 +657,67 @@ void ApplyTransformationToGeometry::dataCheck()
     QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
     m->getAttributeMatrix(attrMatName)->resizeAttributeArrays(tDims);
   }
+}
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 
+void ApplyTransformationToGeometry::ApplyImageTransformation()
+{
+  DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
+  int64_t newNumCellTuples = p_Impl->m_Params.xpNew * p_Impl->m_Params.ypNew * p_Impl->m_Params.zpNew;
+
+  DataArray<int64_t>::Pointer newIndiciesPtr = DataArray<int64_t>::CreateArray(newNumCellTuples, std::string("_INTERNAL_USE_ONLY_RotateSampleRef_NewIndicies"), true);
+  newIndiciesPtr->initializeWithValue(-1);
+  int64_t* newindicies = newIndiciesPtr->getPointer(0);
+
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+  tbb::parallel_for(tbb::blocked_range3d<int64_t, int64_t, int64_t>(0, p_Impl->m_Params.zpNew, 0, p_Impl->m_Params.ypNew, 0, p_Impl->m_Params.xpNew),
+                    ApplyTransformationProgress::SampleRefFrameRotator(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, m_SliceBySlice), tbb::auto_partitioner());
+#else
+  {
+    SampleRefFrameRotator serial(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, m_SliceBySlice);
+    serial.convert(0, p_Impl->m_Params.zpNew, 0, p_Impl->m_Params.ypNew, 0, p_Impl->m_Params.xpNew);
+  }
+#endif
+
+QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
+  QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
+
+  for(const auto& attrArrayName : voxelArrayNames)
+  {
+    IDataArray::Pointer p = m->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
+
+    // Make a copy of the 'p' array that has the same name. When placed into
+    // the data container this will over write the current array with
+    // the same name.
+
+    IDataArray::Pointer data = p->createNewArray(newNumCellTuples, p->getComponentDimensions(), p->getName());
+    int64_t newIndicies_I = 0;
+    for(size_t i = 0; i < static_cast<size_t>(newNumCellTuples); i++)
+    {
+      newIndicies_I = newindicies[i];
+      if(newIndicies_I >= 0)
+      {
+        if(!data->copyFromArray(i, p, newIndicies_I, 1))
+        {
+          QString ss = QObject::tr("copyFromArray Failed: ");
+          QTextStream out(&ss);
+          out << "Source Array Name: " << p->getName() << " Source Tuple Index: " << newIndicies_I << "\n";
+          out << "Dest Array Name: " << data->getName() << "  Dest. Tuple Index: " << i << "\n";
+          setErrorCondition(-45102, ss);
+          return;
+        }
+      }
+      else
+      {
+        int var = 0;
+        data->initializeTuple(i, &var);
+      }
+    }
+    m->getAttributeMatrix(attrMatName)->insertOrAssign(data);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -697,7 +748,8 @@ void ApplyTransformationToGeometry::applyTransformation()
     vertexList = edge->getVertices();
   }
   else if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(igeom)){
-    ApplyTransformationProgress::ApplyImageTransformation();//Function for applying Image Transformation
+    ApplyImageTransformation();//Function for applying Image Transformation
+    return;
   }
   else
   {
