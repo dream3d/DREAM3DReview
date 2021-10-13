@@ -271,8 +271,15 @@ protected:
 
   Q_PROPERTY(DataArrayPath CellAttributeMatrixPath READ getCellAttributeMatrixPath WRITE setCellAttributeMatrixPath)
 
+  /**
+   * @brief ApplyImageTransformation
+   */
+
+  void ApplyImageTransformation();
 
 private:
+  struct Impl;
+  std::unique_ptr<Impl> p_Impl;
 
   DataArrayPath m_CellAttributeMatrixPath = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
 
@@ -287,6 +294,7 @@ private:
   float m_RotationAngle = {};
   FloatVec3Type m_Translation = {};
   FloatVec3Type m_Scale = {};
+  bool m_SliceBySlice = false;
 
   FloatArrayType::Pointer m_TransformationReference;
 
@@ -302,8 +310,4 @@ public:
   ApplyTransformationToGeometry(ApplyTransformationToGeometry&&) = delete;                 // Move Constructor Not Implemented
   ApplyTransformationToGeometry& operator=(const ApplyTransformationToGeometry&) = delete; // Copy Assignment Not Implemented
   ApplyTransformationToGeometry& operator=(ApplyTransformationToGeometry&&) = delete;      // Move Assignment Not Implemented
-
-  private:
-  struct Impl;
-  std::unique_ptr<Impl> p_Impl;
 };
