@@ -172,7 +172,7 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
   float yMax = std::numeric_limits<float>::min();
   float zMin = std::numeric_limits<float>::max();
   float zMax = std::numeric_limits<float>::min();
-  
+
   const std::vector<std::vector<size_t>> coords{{0, 0, 0},
                                                 {origDims[0] - 1, 0, 0},
                                                 {0, origDims[1] - 1, 0},
@@ -238,7 +238,7 @@ void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params)
  * actual computation of the rotation by applying the rotation to each Euler angle
  */
 class SampleRefFrameRotator
-    {
+{
   DataArray<int64_t>::Pointer m_NewIndicesPtr;
   float m_RotMatrixInv[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
   bool m_SliceBySlice = false;
@@ -277,13 +277,15 @@ class SampleRefFrameRotator
               float coords[3] = {0.0f, 0.0f, 0.0f};
               float coordsNew[3] = {0.0f, 0.0f, 0.0f};
 
+
+              //TODO: Add in translation data here?
               coords[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew;
               coords[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew;
               coords[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew;
 
               MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coords, coordsNew);
 
-              //Linear Interpolation Implementation
+              //TODO: Linear Interpolation Implementation also scale this val after calculation
               int64_t colOld = static_cast<int64_t>((std::floor(coordsNew[0]) / m_Params.xRes));
               int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes));
               int64_t planeOld = static_cast<int64_t>(std::nearbyint(coordsNew[2] / m_Params.zRes));
@@ -308,7 +310,7 @@ void operator()(const tbb::blocked_range3d<int64_t, int64_t, int64_t>& r) const
         convert(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
 }
 #endif
-    };
+};
 
 
 
