@@ -77,9 +77,10 @@ namespace ApplyTransformationProgress
 
 using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
 using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
+using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
 
 struct RotateArgs
-    {
+{
   int64_t xp = 0;
   int64_t yp = 0;
   int64_t zp = 0;
@@ -95,7 +96,7 @@ struct RotateArgs
   float xMinNew = 0.0f;
   float yMinNew = 0.0f;
   float zMinNew = 0.0f;
-    };
+};
 
 const Eigen::Vector3f k_XAxis = Eigen::Vector3f::UnitX();
 const Eigen::Vector3f k_YAxis = Eigen::Vector3f::UnitY();
@@ -241,11 +242,13 @@ class SampleRefFrameRotator
 {
   DataArray<int64_t>::Pointer m_NewIndicesPtr;
   float m_RotMatrixInv[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  float m_ScalingMatrix[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  float m_TranslationMatrix[3][1] = {0.0f, 0.0f, 0.0f};
   bool m_SliceBySlice = false;
   RotateArgs m_Params;
 
     public:
-      SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, const RotateArgs& args, const Matrix3fR& rotationMatrix, bool sliceBySlice)
+  SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, const RotateArgs& args, const Matrix3fR& rotationMatrix, const Matrix3fR& scalingMatrix, const MatrixTranslation translationMatrix, bool sliceBySlice)
       : m_NewIndicesPtr(newindices)
       , m_SliceBySlice(sliceBySlice)
       , m_Params(args)
@@ -255,6 +258,8 @@ class SampleRefFrameRotator
         // Need to use row based Eigen matrix so that the values get mapped to the right place in the raw array
         // Raw array is faster than Eigen
         Eigen::Map<Matrix3fR>(&m_RotMatrixInv[0][0], transpose.rows(), transpose.cols()) = transpose;
+        Eigen::Map<Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
+        Eigen::Map<MatrixTranslation>(&m_TranslationMatrix[0][0], translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
       }
 
       ~SampleRefFrameRotator() = default;
@@ -279,16 +284,16 @@ class SampleRefFrameRotator
 
 
               //TODO: Add in translation data here?
-              coords[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew;
-              coords[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew;
-              coords[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew;
+              coords[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew + m_TranslationMatrix[0][0];
+              coords[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew + m_TranslationMatrix[1][0];
+              coords[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew + m_TranslationMatrix[2][0];
 
               MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coords, coordsNew);
 
               //TODO: Linear Interpolation Implementation also scale this val after calculation
-              int64_t colOld = static_cast<int64_t>((std::floor(coordsNew[0]) / m_Params.xRes));
-              int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes));
-              int64_t planeOld = static_cast<int64_t>(std::nearbyint(coordsNew[2] / m_Params.zRes));
+              int64_t colOld = static_cast<int64_t>((std::floor(coordsNew[0]) / m_Params.xRes)) * m_ScalingMatrix[3][0];
+              int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes)) * m_ScalingMatrix[3][1];
+              int64_t planeOld = static_cast<int64_t>(std::nearbyint(coordsNew[2] / m_Params.zRes)) * m_ScalingMatrix[3][2];
 
               if(m_SliceBySlice)
               {
@@ -375,7 +380,10 @@ class ApplyTransformationToGeometryImpl
 struct ApplyTransformationToGeometry::Impl
 {
   ApplyTransformationProgress::Matrix3fR m_RotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+  ApplyTransformationProgress::Matrix3fR m_ScalingMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+  ApplyTransformationProgress::MatrixTranslation m_TranslationMatrix = ApplyTransformationProgress::MatrixTranslation::Zero();
   ApplyTransformationProgress::RotateArgs m_Params;
+
 
   void reset()
   {
@@ -641,9 +649,16 @@ void ApplyTransformationToGeometry::dataCheck()
     Eigen::Transform<float, 3, Eigen::Affine> transform = Eigen::Transform<float, 3, Eigen::Affine>::Transform(transformation);
     ApplyTransformationProgress::Matrix3fR rotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
     ApplyTransformationProgress::Matrix3fR scaleMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+    ApplyTransformationProgress::MatrixTranslation translationMatrix = ApplyTransformationProgress::MatrixTranslation::Zero();
 
     transform.computeRotationScaling(&rotationMatrix, &scaleMatrix);
+    translationMatrix(0) = transform.data[3];
+    translationMatrix(1) = transform.data[7];
+    translationMatrix(2) = transform.data[11];
+
     p_Impl->m_RotationMatrix = rotationMatrix;
+    p_Impl->m_ScalingMatrix = scaleMatrix;
+    p_Impl->m_TranslationMatrix = translationMatrix;
 
     p_Impl->m_Params = ApplyTransformationProgress::createRotateParams(*imageGeom, transform);
     updateGeometry(*imageGeom, p_Impl->m_Params);
@@ -676,10 +691,10 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
 
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
   tbb::parallel_for(tbb::blocked_range3d<int64_t, int64_t, int64_t>(0, p_Impl->m_Params.zpNew, 0, p_Impl->m_Params.ypNew, 0, p_Impl->m_Params.xpNew),
-                    ApplyTransformationProgress::SampleRefFrameRotator(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, m_SliceBySlice), tbb::auto_partitioner());
+                    ApplyTransformationProgress::SampleRefFrameRotator(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, p_Impl->m_ScalingMatrix, p_Impl->m_TranslationMatrix, m_SliceBySlice), tbb::auto_partitioner());
 #else
   {
-    SampleRefFrameRotator serial(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, m_SliceBySlice);
+    SampleRefFrameRotator serial(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, p_Impl->m_ScalingMatrix, p_Impl->m_TranslationMatrix, m_SliceBySlice);
     serial.convert(0, p_Impl->m_Params.zpNew, 0, p_Impl->m_Params.ypNew, 0, p_Impl->m_Params.xpNew);
   }
 #endif
