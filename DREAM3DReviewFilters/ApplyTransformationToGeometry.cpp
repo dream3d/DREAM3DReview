@@ -80,7 +80,7 @@ using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
 using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
 
 struct RotateArgs
-{
+    {
   int64_t xp = 0;
   int64_t yp = 0;
   int64_t zp = 0;
@@ -96,7 +96,7 @@ struct RotateArgs
   float xMinNew = 0.0f;
   float yMinNew = 0.0f;
   float zMinNew = 0.0f;
-};
+    };
 
 const Eigen::Vector3f k_XAxis = Eigen::Vector3f::UnitX();
 const Eigen::Vector3f k_YAxis = Eigen::Vector3f::UnitY();
@@ -161,11 +161,11 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
 
   transformationMatrix.computeRotationScaling(&rotationMatrix, &scaleMatrix);
 
-//  for(size_t i=0; i<3; i++){
-//    for(size_t j=0; j<3; j++){
-//      rotationMatrix(i,j) = transformationMatrix.data()[i + 4*j];
-//    }
-//  }
+  //  for(size_t i=0; i<3; i++){
+  //    for(size_t j=0; j<3; j++){
+  //      rotationMatrix(i,j) = transformationMatrix.data()[i + 4*j];
+  //    }
+  //  }
 
   float xMin = std::numeric_limits<float>::max();
   float xMax = std::numeric_limits<float>::min();
@@ -239,18 +239,16 @@ void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params)
  * actual computation of the rotation by applying the rotation to each Euler angle
  */
 class SampleRefFrameRotator
-{
+    {
   DataArray<int64_t>::Pointer m_NewIndicesPtr;
   float m_RotMatrixInv[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
   float m_ScalingMatrix[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
   float m_TranslationMatrix[3][1] = {0.0f, 0.0f, 0.0f};
-  bool m_SliceBySlice = false;
   RotateArgs m_Params;
 
     public:
-  SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, const RotateArgs& args, const Matrix3fR& rotationMatrix, const Matrix3fR& scalingMatrix, const MatrixTranslation translationMatrix, bool sliceBySlice)
+      SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, const RotateArgs& args, const Matrix3fR& rotationMatrix, const Matrix3fR& scalingMatrix, const MatrixTranslation translationMatrix)
       : m_NewIndicesPtr(newindices)
-      , m_SliceBySlice(sliceBySlice)
       , m_Params(args)
       {
         // We have to inline the 3x3 Maxtrix transpose here because of the "const" nature of the 'convert' function
@@ -295,11 +293,6 @@ class SampleRefFrameRotator
               int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes)) * m_ScalingMatrix[3][1];
               int64_t planeOld = static_cast<int64_t>(std::nearbyint(coordsNew[2] / m_Params.zRes)) * m_ScalingMatrix[3][2];
 
-              if(m_SliceBySlice)
-              {
-                planeOld = k;
-              }
-
               if(colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
               {
                 newindicies[index] = (m_Params.xp * m_Params.yp * planeOld) + (m_Params.xp * rowOld) + colOld;
@@ -315,7 +308,7 @@ void operator()(const tbb::blocked_range3d<int64_t, int64_t, int64_t>& r) const
         convert(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
 }
 #endif
-};
+    };
 
 
 
@@ -378,7 +371,7 @@ class ApplyTransformationToGeometryImpl
     };
 
 struct ApplyTransformationToGeometry::Impl
-{
+    {
   ApplyTransformationProgress::Matrix3fR m_RotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
   ApplyTransformationProgress::Matrix3fR m_ScalingMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
   ApplyTransformationProgress::MatrixTranslation m_TranslationMatrix = ApplyTransformationProgress::MatrixTranslation::Zero();
@@ -391,7 +384,7 @@ struct ApplyTransformationToGeometry::Impl
 
     m_Params = ApplyTransformationProgress::RotateArgs();
   }
-};
+    };
 
 
 // -----------------------------------------------------------------------------
@@ -461,15 +454,15 @@ void ApplyTransformationToGeometry::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Rotation Axis (ijk)", RotationAxis, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 3));
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Translation", Translation, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 4));
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Scale", Scale, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 5));
-//  DataContainerSelectionFilterParameter::RequirementType dcReq;
-//  IGeometry::Types geomTypes = {IGeometry::Type::Vertex, IGeometry::Type::Edge, IGeometry::Type::Triangle, IGeometry::Type::Quad, IGeometry::Type::Tetrahedral, IGeometry::Type::Image};
-//  dcReq.dcGeometryTypes = geomTypes;
-//  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Geometry to Transform", GeometryToTransform, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dcReq));
-//  {
-//    DataArraySelectionFilterParameter::RequirementType dasReq =
-//        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Generic, IGeometry::Type::Any);
-//    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Transformation Matrix", ComputedTransformationMatrix, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
-//  }
+  //  DataContainerSelectionFilterParameter::RequirementType dcReq;
+  //  IGeometry::Types geomTypes = {IGeometry::Type::Vertex, IGeometry::Type::Edge, IGeometry::Type::Triangle, IGeometry::Type::Quad, IGeometry::Type::Tetrahedral, IGeometry::Type::Image};
+  //  dcReq.dcGeometryTypes = geomTypes;
+  //  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Geometry to Transform", GeometryToTransform, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dcReq));
+  //  {
+  //    DataArraySelectionFilterParameter::RequirementType dasReq =
+  //        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Generic, IGeometry::Type::Any);
+  //    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Transformation Matrix", ComputedTransformationMatrix, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
+  //  }
 
   parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
   {
@@ -490,7 +483,7 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
   setManualTransformationMatrix(reader->readDynamicTableData("ManualTransformationMatrix", getManualTransformationMatrix()));
   setComputedTransformationMatrix(reader->readDataArrayPath("ComputedTransformationMatrix", getComputedTransformationMatrix()));
   setTransformationMatrixType(reader->readValue("TransformationMatrixType", getTransformationMatrixType()));
-//  setGeometryToTransform(getCellAttributeMatrixPath());
+  //  setGeometryToTransform(getCellAttributeMatrixPath());
   setRotationAxis(reader->readFloatVec3("RotationAxis", getRotationAxis()));
   setRotationAngle(reader->readValue("RotationAngle", getRotationAngle()));
   setTranslation(reader->readFloatVec3("Translation", getTranslation()));
@@ -514,7 +507,7 @@ void ApplyTransformationToGeometry::dataCheck()
 
   p_Impl->reset();
 
-  IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName())->getGeometry();
+  IGeometry::Pointer igeom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getCellAttributeMatrixPath().getDataContainerName());
 
   if(getErrorCode() < 0)
   {
@@ -652,9 +645,9 @@ void ApplyTransformationToGeometry::dataCheck()
     ApplyTransformationProgress::MatrixTranslation translationMatrix = ApplyTransformationProgress::MatrixTranslation::Zero();
 
     transform.computeRotationScaling(&rotationMatrix, &scaleMatrix);
-    translationMatrix(0) = transform.data[3];
-    translationMatrix(1) = transform.data[7];
-    translationMatrix(2) = transform.data[11];
+    translationMatrix(0,0) = transform.data()[3];
+    translationMatrix(1,0) = transform.data()[7];
+    translationMatrix(2,0) = transform.data()[11];
 
     p_Impl->m_RotationMatrix = rotationMatrix;
     p_Impl->m_ScalingMatrix = scaleMatrix;
@@ -691,10 +684,10 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
 
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
   tbb::parallel_for(tbb::blocked_range3d<int64_t, int64_t, int64_t>(0, p_Impl->m_Params.zpNew, 0, p_Impl->m_Params.ypNew, 0, p_Impl->m_Params.xpNew),
-                    ApplyTransformationProgress::SampleRefFrameRotator(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, p_Impl->m_ScalingMatrix, p_Impl->m_TranslationMatrix, m_SliceBySlice), tbb::auto_partitioner());
+                    ApplyTransformationProgress::SampleRefFrameRotator(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, p_Impl->m_ScalingMatrix, p_Impl->m_TranslationMatrix), tbb::auto_partitioner());
 #else
   {
-    SampleRefFrameRotator serial(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, p_Impl->m_ScalingMatrix, p_Impl->m_TranslationMatrix, m_SliceBySlice);
+    SampleRefFrameRotator serial(newIndiciesPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, p_Impl->m_ScalingMatrix, p_Impl->m_TranslationMatrix);
     serial.convert(0, p_Impl->m_Params.zpNew, 0, p_Impl->m_Params.ypNew, 0, p_Impl->m_Params.xpNew);
   }
 #endif
