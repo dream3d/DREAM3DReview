@@ -192,9 +192,9 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
   Eigen::Vector3f yAxisNew = rotationMatrix * k_YAxis;
   Eigen::Vector3f zAxisNew = rotationMatrix * k_ZAxis;
 
-  float xResNew = determineSpacing(spacing, xAxisNew) * scaleMatrix(0,0);
-  float yResNew = determineSpacing(spacing, yAxisNew) * scaleMatrix(1,1);
-  float zResNew = determineSpacing(spacing, zAxisNew) * scaleMatrix(2,2);
+  float xResNew = determineSpacing(spacing, xAxisNew);
+  float yResNew = determineSpacing(spacing, yAxisNew);
+  float zResNew = determineSpacing(spacing, zAxisNew);
 
   MeshIndexType xpNew = static_cast<int64_t>(std::nearbyint((xMax - xMin) / xResNew) + 1);
   MeshIndexType ypNew = static_cast<int64_t>(std::nearbyint((yMax - yMin) / yResNew) + 1);
@@ -222,15 +222,33 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
   return params;
 }
 
-void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params)
+//void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params)
+//{
+//  FloatVec3Type origin = imageGeom.getOrigin();
+//
+//  imageGeom.setSpacing(params.xResNew, params.yResNew, params.zResNew);
+//  imageGeom.setDimensions(params.xpNew, params.ypNew, params.zpNew);
+//  origin[0] += params.xMinNew;
+//  origin[1] += params.yMinNew;
+//  origin[2] += params.zMinNew;
+//  imageGeom.setOrigin(origin);
+//}
+
+
+void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix3fR& scalingMatrix, const MatrixTranslation translationMatrix)
 {
+  float m_ScalingMatrix[3][3] =  {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  float m_TranslationMatrix[3][1] = {0.0f, 0.0f, 0.0f};
+
+  Eigen::Map<Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
+  Eigen::Map<MatrixTranslation>(&m_TranslationMatrix[0][0], translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
   FloatVec3Type origin = imageGeom.getOrigin();
 
-  imageGeom.setSpacing(params.xResNew, params.yResNew, params.zResNew);
+  imageGeom.setSpacing(params.xResNew * m_ScalingMatrix[0][0], params.yResNew * m_ScalingMatrix[1][1], params.zResNew * m_ScalingMatrix[2][2]);
   imageGeom.setDimensions(params.xpNew, params.ypNew, params.zpNew);
-  origin[0] += params.xMinNew;
-  origin[1] += params.yMinNew;
-  origin[2] += params.zMinNew;
+  origin[0] += params.xMinNew + m_TranslationMatrix[0][0];
+  origin[1] += params.yMinNew + m_TranslationMatrix[1][0];
+  origin[2] += params.zMinNew + m_TranslationMatrix[2][0];
   imageGeom.setOrigin(origin);
 }
 
@@ -282,20 +300,30 @@ class SampleRefFrameRotator
 
 
               //TODO: Add in translation data here?
-              coords[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew + m_TranslationMatrix[0][0];
-              coords[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew + m_TranslationMatrix[1][0];
-              coords[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew + m_TranslationMatrix[2][0];
+              coords[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew;
+              coords[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew;
+              coords[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew;
 
               MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coords, coordsNew);
 
+			  //coordsNew[0] += m_TranslationMatrix[0][0];
+     //         coordsNew[1] += m_TranslationMatrix[1][0];
+     //         coordsNew[2] += m_TranslationMatrix[2][0];
+
+
               //TODO: Linear Interpolation Implementation also scale this val after calculation
-              int64_t colOld = static_cast<int64_t>((std::floor(coordsNew[0]) / m_Params.xRes)) * m_ScalingMatrix[3][0];
-              int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes)) * m_ScalingMatrix[3][1];
-              int64_t planeOld = static_cast<int64_t>(std::nearbyint(coordsNew[2] / m_Params.zRes)) * m_ScalingMatrix[3][2];
+              int64_t colOld = static_cast<int64_t>(std::nearbyint(coordsNew[0] / m_Params.xRes));
+              int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes));
+              int64_t planeOld = static_cast<int64_t>(std::nearbyint(coordsNew[2] / m_Params.zRes));
+
+			  //colOld += m_TranslationMatrix[0][0];
+			  //rowOld += m_TranslationMatrix[1][0];
+			  //planeOld += m_TranslationMatrix[2][0];
+
 
               if(colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
               {
-                newindicies[index] = (m_Params.xp * m_Params.yp * planeOld) + (m_Params.xp * rowOld) + colOld;
+                newindicies[index] = ((m_Params.xp * m_Params.yp * planeOld) + (m_Params.xp * rowOld) + colOld);
               }
             }
           }
@@ -308,7 +336,7 @@ void operator()(const tbb::blocked_range3d<int64_t, int64_t, int64_t>& r) const
         convert(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
 }
 #endif
-    };
+};
 
 
 
@@ -371,7 +399,7 @@ class ApplyTransformationToGeometryImpl
     };
 
 struct ApplyTransformationToGeometry::Impl
-    {
+{
   ApplyTransformationProgress::Matrix3fR m_RotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
   ApplyTransformationProgress::Matrix3fR m_ScalingMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
   ApplyTransformationProgress::MatrixTranslation m_TranslationMatrix = ApplyTransformationProgress::MatrixTranslation::Zero();
@@ -384,7 +412,7 @@ struct ApplyTransformationToGeometry::Impl
 
     m_Params = ApplyTransformationProgress::RotateArgs();
   }
-    };
+};
 
 
 // -----------------------------------------------------------------------------
@@ -466,7 +494,7 @@ void ApplyTransformationToGeometry::setupFilterParameters()
 
   parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
   {
-    AttributeMatrixSelectionFilterParameter::RequirementType req = AttributeMatrixSelectionFilterParameter::CreateRequirement(AttributeMatrix::Type::Generic, IGeometry::Type::Any);
+    AttributeMatrixSelectionFilterParameter::RequirementType req = AttributeMatrixSelectionFilterParameter::CreateRequirement(AttributeMatrix::Type::Cell, IGeometry::Type::Any);
     parameters.push_back(SIMPL_NEW_AM_SELECTION_FP("Cell Attribute Matrix", CellAttributeMatrixPath, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, req));
   }
 
@@ -634,27 +662,34 @@ void ApplyTransformationToGeometry::dataCheck()
   }
 
   //if ImageGeom found:
-  if(std::dynamic_pointer_cast<ImageGeom>(igeom))
+  if(std::dynamic_pointer_cast<ImageGeom>(igeom) && m_TransformationMatrix != nullptr)
   {
     //    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(m_GeometryToTransform);
     ImageGeom::Pointer imageGeom =  std::dynamic_pointer_cast<ImageGeom>(igeom);
     Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
+
+	//Column Major can convert if needed
     Eigen::Transform<float, 3, Eigen::Affine> transform = Eigen::Transform<float, 3, Eigen::Affine>::Transform(transformation);
     ApplyTransformationProgress::Matrix3fR rotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
     ApplyTransformationProgress::Matrix3fR scaleMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
     ApplyTransformationProgress::MatrixTranslation translationMatrix = ApplyTransformationProgress::MatrixTranslation::Zero();
 
     transform.computeRotationScaling(&rotationMatrix, &scaleMatrix);
-    translationMatrix(0,0) = transform.data()[3];
-    translationMatrix(1,0) = transform.data()[7];
-    translationMatrix(2,0) = transform.data()[11];
+    //int len = sizeof(transform.data());
+    //for(int i = 0; i < len; i++)
+    //{
+    //  std::cout << transform.data()[i] << ' ';
+    //}
+    translationMatrix(0,0) = transform.data()[12];
+    translationMatrix(0,1) = transform.data()[13];
+    translationMatrix(0,2) = transform.data()[14];
 
-    p_Impl->m_RotationMatrix = rotationMatrix;
+    p_Impl->m_RotationMatrix =  rotationMatrix;
     p_Impl->m_ScalingMatrix = scaleMatrix;
     p_Impl->m_TranslationMatrix = translationMatrix;
 
     p_Impl->m_Params = ApplyTransformationProgress::createRotateParams(*imageGeom, transform);
-    updateGeometry(*imageGeom, p_Impl->m_Params);
+    updateGeometry(*imageGeom, p_Impl->m_Params, scaleMatrix, translationMatrix);
 
     // Resize attribute matrix
 
@@ -757,7 +792,8 @@ void ApplyTransformationToGeometry::applyTransformation()
   {
     vertexList = edge->getVertices();
   }
-  else if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(igeom)){
+  else if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(igeom))
+  {
     ApplyImageTransformation();//Function for applying Image Transformation
     return;
   }
