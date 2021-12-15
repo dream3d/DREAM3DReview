@@ -150,11 +150,11 @@ float determineSpacing(const FloatVec3Type& spacing, const Eigen::Vector3f& axis
   return spacing[index];
 }
 
+//Determines paramaters for image rotation
 RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f transformationMatrix)
 {
   const SizeVec3Type origDims = imageGeom.getDimensions();
   const FloatVec3Type spacing = imageGeom.getSpacing();
-  // const FloatVec3Type origin = imageGeom.getOrigin();
 
   ApplyTransformationProgress::Matrix3fR rotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
   ApplyTransformationProgress::Matrix3fR scaleMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
@@ -216,6 +216,7 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
   return params;
 }
 
+// Alters image parameters, scales and translates
 void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix3fR& scalingMatrix, const MatrixTranslation translationMatrix)
 {
   float m_ScalingMatrix[3][3] =  {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
@@ -477,7 +478,6 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
   setManualTransformationMatrix(reader->readDynamicTableData("ManualTransformationMatrix", getManualTransformationMatrix()));
   setComputedTransformationMatrix(reader->readDataArrayPath("ComputedTransformationMatrix", getComputedTransformationMatrix()));
   setTransformationMatrixType(reader->readValue("TransformationMatrixType", getTransformationMatrixType()));
-  //  setGeometryToTransform(getCellAttributeMatrixPath());
   setRotationAxis(reader->readFloatVec3("RotationAxis", getRotationAxis()));
   setRotationAngle(reader->readValue("RotationAngle", getRotationAngle()));
   setTranslation(reader->readFloatVec3("Translation", getTranslation()));
@@ -651,7 +651,6 @@ void ApplyTransformationToGeometry::dataCheck()
     updateGeometry(*imageGeom, p_Impl->m_Params, scaleMatrix, translationMatrix);
 
     // Resize attribute matrix
-
     std::vector<size_t> tDims(3);
     tDims[0] = p_Impl->m_Params.xpNew;
     tDims[1] = p_Impl->m_Params.ypNew;
@@ -752,7 +751,8 @@ void ApplyTransformationToGeometry::applyTransformation()
   }
   else if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(igeom))
   {
-    ApplyImageTransformation();//Function for applying Image Transformation
+    // Function for applying Image Transformation
+    ApplyImageTransformation();
     return;
   }
   else
