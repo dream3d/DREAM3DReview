@@ -41,6 +41,8 @@
 #include "H5Support/H5ScopedSentinel.h"
 #include "H5Support/H5Utilities.h"
 
+using namespace H5Support;
+
 #include "EbsdLib/EbsdLib.h"
 
 #include "SIMPLib/Common/Constants.h"
