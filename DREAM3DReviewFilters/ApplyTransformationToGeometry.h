@@ -63,6 +63,7 @@ class DREAM3DReview_EXPORT ApplyTransformationToGeometry : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath CellAttributeMatrixPath READ getCellAttributeMatrixPath WRITE setCellAttributeMatrixPath)
 //  PYB11_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
   PYB11_PROPERTY(int TransformationMatrixType READ getTransformationMatrixType WRITE setTransformationMatrixType)
+  PYB11_PROPERTY(int InterpolationType READ getInterpolationType WRITE setInterpolationType)
   PYB11_PROPERTY(FloatVec3Type RotationAxis READ getRotationAxis WRITE setRotationAxis)
   PYB11_PROPERTY(float RotationAngle READ getRotationAngle WRITE setRotationAngle)
   PYB11_PROPERTY(FloatVec3Type Translation READ getTranslation WRITE setTranslation)
@@ -134,6 +135,18 @@ public:
    */
   int getTransformationMatrixType() const;
   Q_PROPERTY(int TransformationMatrixType READ getTransformationMatrixType WRITE setTransformationMatrixType)
+
+  /**
+   * @brief Setter property for InterpolationType
+   */
+  void setInterpolationType(int value);
+  /**
+   * @brief Getter property for InterpolationType
+   * @return Value of InterpolationType
+   */
+  int getInterpolationType() const;
+  Q_PROPERTY(int InterpolationType READ getInterpolationType WRITE setInterpolationType)
+
 
   /**
    * @brief Setter property for RotationAxis
@@ -290,6 +303,7 @@ private:
   DataArrayPath m_ComputedTransformationMatrix = {"", "", "TransformationMatrix"};
 //  DataArrayPath m_GeometryToTransform = {"", "", ""};
   int m_TransformationMatrixType = {1};
+  int m_InterpolationType = {1};
   FloatVec3Type m_RotationAxis = {};
   float m_RotationAngle = {};
   FloatVec3Type m_Translation = {};
