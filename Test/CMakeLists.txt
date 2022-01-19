@@ -20,6 +20,7 @@ set(TEST_NAMES
   ImportQMMeltpoolH5FileTest
   ImportQMMeltpoolTDMSFileTest
   ImportVolumeGraphicsFileTest
+  ApplyTransformationToGeometryTest
 )
 
 #------------------------------------------------------------------------------

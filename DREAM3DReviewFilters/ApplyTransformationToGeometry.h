@@ -265,6 +265,8 @@ protected:
    */
   void dataCheck() override;
 
+  bool applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+
   /**
    * @brief sendThreadSafeProgressMessage
    * @param counter
