@@ -265,7 +265,24 @@ protected:
    */
   void dataCheck() override;
 
+  int64_t linearIndexes(float* LinearInterpolationData, int64_t tupleIndex);
+  
+  template <class T>
+  void linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], float xt, float yt, float zt);
+
+  template <class T>
+  bool linearIndexes(float* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], float xt, float yt, float zt);
+
+  bool applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<int16_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<uint16_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<int32_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<uint32_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
   bool applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<uint64_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<float>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<double>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
 
   /**
    * @brief sendThreadSafeProgressMessage
@@ -325,5 +342,6 @@ public:
   ApplyTransformationToGeometry(const ApplyTransformationToGeometry&) = delete;            // Copy Constructor Not Implemented
   ApplyTransformationToGeometry(ApplyTransformationToGeometry&&) = delete;                 // Move Constructor Not Implemented
   ApplyTransformationToGeometry& operator=(const ApplyTransformationToGeometry&) = delete; // Copy Assignment Not Implemented
-  ApplyTransformationToGeometry& operator=(ApplyTransformationToGeometry&&) = delete;      // Move Assignment Not Implemented
+  ApplyTransformationToGeometry& operator=(ApplyTransformationToGeometry&&) = delete;
+  // Move Assignment Not Implemented
 };
