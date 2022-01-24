@@ -765,16 +765,33 @@ void ApplyTransformationToGeometry::dataCheck()
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+template <class T>
+void ApplyTransformationToGeometry::linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], float xt, float yt, float zt)
+{
+  DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linI);
+  linEquivalent += (lin->getPointer(0)[linIntIndexes[0]] * (1 - xt) * (1 - yt) * (1 - zt));
+  linEquivalent += (lin->getPointer(0)[linIntIndexes[1]] * xt * (1 - yt) * (1 - zt));
+  linEquivalent += (lin->getPointer(0)[linIntIndexes[2]] * (1 - xt) * yt * (1 - zt));
+  linEquivalent += (lin->getPointer(0)[linIntIndexes[3]] * xt * yt * (1 - zt));
+  linEquivalent += (lin->getPointer(0)[linIntIndexes[4]] * (1 - xt) * (1 - yt) * zt);
+  linEquivalent += (lin->getPointer(0)[linIntIndexes[5]] * xt * (1 - yt) * zt);
+  linEquivalent += (lin->getPointer(0)[linIntIndexes[6]] * (1 - xt) * yt * zt);
+  linEquivalent += (lin->getPointer(0)[linIntIndexes[7]] * xt * yt * zt);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+template <class T>
+bool ApplyTransformationToGeometry::linearIndexes(float* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], float xt, float yt, float zt)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
-  bool success = true;
-  int tupleIndex = index * 9;
-  int linIndex = index * 8;
+  bool write = false;
 
-  float xt = LinearInterpolationData[tupleIndex];
-  float yt = LinearInterpolationData[tupleIndex + 1];
-  float zt = LinearInterpolationData[tupleIndex + 2];
+  xt = LinearInterpolationData[tupleIndex];
+  yt = LinearInterpolationData[tupleIndex + 1];
+  zt = LinearInterpolationData[tupleIndex + 2];
   float colOld0 = LinearInterpolationData[tupleIndex + 3];
   float colOld1 = LinearInterpolationData[tupleIndex + 4];
   float rowOld0 = LinearInterpolationData[tupleIndex + 5];
@@ -797,8 +814,6 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>:
     planeOld1++;
   }
 
-  int linIntIndexes[8];
-
   if(colOld0 >= 0 && colOld0 < m_Params.xp && colOld1 >= 0 && colOld1 < m_Params.xp && rowOld0 >= 0 && rowOld0 < m_Params.yp && rowOld1 >= 0 && rowOld1 < m_Params.yp && planeOld0 >= 0 &&
      planeOld0 < m_Params.zp && planeOld1 >= 0 && planeOld1 < m_Params.zp)
   {
@@ -812,39 +827,397 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>:
     linIntIndexes[6] = ((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld1) + colOld0);
     linIntIndexes[7] = ((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld1) + colOld1);
 
-    // for(size_t j = 0; j < 8; j++)
-    //{
-    //  if(!linDataTemp->copyFromArray(linIndex + j, p, linIntIndexes[j], 1))
-    //  {
-    //    LinearInterpolationData;
-    //    success = false;
-    //    return success;
-    //  }
-    //}
+    linearEquivalent<T>(linEquivalent, linI, linIntIndexes, xt, yt, zt);
+    write = true;
+  }
+  return write;
+}
 
-    float linEquivalent = 0;
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 
-    lin->getPointer(0)[linIntIndexes[0]];
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
 
-    linEquivalent += lin->getPointer(0)[linIntIndexes[0]] * (1 - xt) * (1 - yt) * (1 - zt);
-    linEquivalent += lin->getPointer(0)[linIntIndexes[1]] * xt * (1 - yt) * (1 - zt);
-    linEquivalent += lin->getPointer(0)[linIntIndexes[2]] * (1 - xt) * yt * (1 - zt);
-    linEquivalent += lin->getPointer(0)[linIntIndexes[3]] * xt * yt * (1 - zt);
-    linEquivalent += lin->getPointer(0)[linIntIndexes[4]] * (1 - xt) * (1 - yt) * zt;
-    linEquivalent += lin->getPointer(0)[linIntIndexes[5]] * xt * (1 - yt) * zt;
-    linEquivalent += lin->getPointer(0)[linIntIndexes[6]] * (1 - xt) * yt * zt;
-    linEquivalent += lin->getPointer(0)[linIntIndexes[7]] * xt * yt * zt;
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+  int8_t linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-    // if(lin->getPointer(0)[linIndex] != 0)
-    //{
-    //     lin->getPointer(0)[linIndex];
-    //}
-    if(linEquivalent != 0)
-    {
-      linEquivalent;
-    }
+  int64_t linIntIndexes[8];
+  bool wrote = linearIndexes<int8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
+  if(wrote)
+  {
     linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
+
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+
+  uint8_t linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+  int64_t linIntIndexes[8];
+  bool wrote = linearIndexes<uint8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+  if(wrote)
+  {
+    linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int16_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
+
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+
+  int16_t linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+  int64_t linIntIndexes[8];
+  bool wrote = linearIndexes<int16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+  if(wrote)
+  {
+    linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint16_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
+
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+
+  uint16_t linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+  int64_t linIntIndexes[8];
+  bool wrote = linearIndexes<uint16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+  if(wrote)
+  {
+    linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int32_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
+
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+
+  int32_t linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+  int64_t linIntIndexes[8];
+  bool wrote = linearIndexes<int32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+  if(wrote)
+  {
+    linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint32_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
+
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+
+  uint32_t linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+  int64_t linIntIndexes[8];
+  bool wrote = linearIndexes<uint32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+  if(wrote)
+  {
+    linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
+
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+
+  int64_t linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+  int64_t linIntIndexes[8];
+  bool wrote = linearIndexes<int64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+  if(wrote)
+  {
+    linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint64_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
+
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+
+  uint64_t linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+  int64_t linIntIndexes[8];
+
+  bool wrote = linearIndexes<uint64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+  if(wrote)
+  {
+    linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<float>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
+
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+
+  float linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+  int64_t linIntIndexes[8];
+  bool wrote = linearIndexes<float>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+  if(wrote)
+  {
+    linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<double>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 9;
+  int64_t linIndex = index * 8;
+
+  float xt = LinearInterpolationData[tupleIndex];
+  float yt = LinearInterpolationData[tupleIndex + 1];
+  float zt = LinearInterpolationData[tupleIndex + 2];
+
+  double linEquivalent = 0;
+  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+  int64_t linIntIndexes[8];
+  bool wrote = linearIndexes<double>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+  if(wrote)
+  {
+    linData->initializeTuple(index, &linEquivalent);
+  }
+  else
+  {
+    int var = 0;
+    linData->initializeTuple(index, &var);
   }
   return success;
 }
@@ -894,30 +1267,34 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
     IDataArray::Pointer linData = p->createNewArray(newNumCellTuples, p->getComponentDimensions(), p->getName());
     IDataArray::Pointer linPtr = p->createNewArray(p->getNumberOfTuples(), p->getComponentDimensions(), p->getName());
 
-	if(!linPtr->copyFromArray(0, p, 0, p->getNumberOfTuples()))
+    if(!linPtr->copyFromArray(0, p, 0, p->getNumberOfTuples()))
     {
-      QString ss = QObject::tr("copyFromArray Failed: ");
+      QString ss = QObject::tr("copyFromArray Failed: linPtr");
       QTextStream out(&ss);
       setErrorCondition(-45102, ss);
       return;
     }
 
-     DataArray<int64_t>::Pointer lin = DataArray<int64_t>::CreateArray(p->getNumberOfTuples(), p->getComponentDimensions(), p->getName(), true);
- //   lin->initializeWithValue(-1);
-	//IDataArray::Pointer linPtr = lin->createNewArray(p->getNumberOfTuples, p->getComponentDimensions(), p->getName(), true);
+    DataArray<int8_t>::Pointer lin0 = std::dynamic_pointer_cast<DataArray<int8_t>>(linPtr);
+    DataArray<uint8_t>::Pointer lin1 = std::dynamic_pointer_cast<DataArray<uint8_t>>(linPtr);
+    DataArray<int16_t>::Pointer lin2 = std::dynamic_pointer_cast<DataArray<int16_t>>(linPtr);
+    DataArray<uint16_t>::Pointer lin3 = std::dynamic_pointer_cast<DataArray<uint16_t>>(linPtr);
+    DataArray<int32_t>::Pointer lin4 = std::dynamic_pointer_cast<DataArray<int32_t>>(linPtr);
+    DataArray<uint32_t>::Pointer lin5 = std::dynamic_pointer_cast<DataArray<uint32_t>>(linPtr);
+    DataArray<int64_t>::Pointer lin6 = std::dynamic_pointer_cast<DataArray<int64_t>>(linPtr);
+    DataArray<uint64_t>::Pointer lin7 = std::dynamic_pointer_cast<DataArray<uint64_t>>(linPtr);
+    DataArray<float>::Pointer lin8 = std::dynamic_pointer_cast<DataArray<float>>(linPtr);
+    DataArray<double>::Pointer lin9 = std::dynamic_pointer_cast<DataArray<double>>(linPtr);
 
-    // IDataArray::Pointer linDataTemp = p->createNewArray(newNumCellTuples * 8, p->getComponentDimensions(), p->getName());
-
-    if(!lin->copyFromArray(0, p, 0, 1))
+    if(!lin0 && !lin1 && !lin2 && !lin3 && !lin4 && !lin5 && !lin6 && !lin7 && !lin8 && !lin9)
     {
-      QString ss = QObject::tr("copyFromArray Failed: ");
+      QString ss = QObject::tr("Array Cast Failed: lin");
       QTextStream out(&ss);
       setErrorCondition(-45102, ss);
       return;
     }
 
     int64_t newIndicies_I = 0;
-    int n = 0;
     if(getInterpolationType() == 0)
     {
       for(size_t i = 0; i < static_cast<size_t>(newNumCellTuples); i++)
@@ -925,7 +1302,6 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
         newIndicies_I = newindicies[i];
         if(newIndicies_I >= 0)
         {
-          n++;
           if(!data->copyFromArray(i, p, newIndicies_I, 1))
           {
             QString ss = QObject::tr("copyFromArray Failed: ");
@@ -942,7 +1318,6 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
           data->initializeTuple(i, &var);
         }
       }
-      n;
       m->getAttributeMatrix(attrMatName)->insertOrAssign(data);
     }
     else if(getInterpolationType() == 1)
@@ -951,12 +1326,14 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
       {
         if(i >= 0)
         {
-          if(!applyLinearInterpolation(lin, i, LinearInterpolationData, linData))
+          if(!applyLinearInterpolation(lin0, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin1, i, LinearInterpolationData, linData) &&
+             !applyLinearInterpolation(lin2, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin3, i, LinearInterpolationData, linData) &&
+             !applyLinearInterpolation(lin4, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin5, i, LinearInterpolationData, linData) &&
+             !applyLinearInterpolation(lin6, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin7, i, LinearInterpolationData, linData) &&
+             !applyLinearInterpolation(lin8, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin9, i, LinearInterpolationData, linData))
           {
-            QString ss = QObject::tr("copyFromArray Failed: ");
+            QString ss = QObject::tr("applyLinearInterpolation Failed: ");
             QTextStream out(&ss);
-            out << "Source Array Name: " << p->getName() << " Source Tuple Index: " << newIndicies_I << "\n";
-            out << "Dest Array Name: " << data->getName() << "  Dest. Tuple Index: " << i << "\n";
             setErrorCondition(-45102, ss);
             return;
           }
