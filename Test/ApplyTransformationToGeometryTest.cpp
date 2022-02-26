@@ -31,6 +31,9 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+/*
+TEST ONLY CHECKS FEATURES ADDED FOR IMAGE TRANSFORMATION BASED ON RotateSampleRefFrameTest
+*/
 #include <QtCore/QFile>
 
 #include <Eigen/Dense>
