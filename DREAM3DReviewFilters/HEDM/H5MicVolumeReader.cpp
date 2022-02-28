@@ -43,6 +43,8 @@
 #include "H5Support/H5Lite.h"
 #include "H5Support/H5Utilities.h"
 
+using namespace H5Support;
+
 #include "SIMPLib/Common/Constants.h"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"

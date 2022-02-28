@@ -1205,7 +1205,7 @@ AbstractFilter::Pointer TesselateFarFieldGrains::newFilterInstance(bool copyFilt
 // -----------------------------------------------------------------------------
 QString TesselateFarFieldGrains::getCompiledLibraryName() const
 {
-  return HEDMAnalysisConstants::HEDMAnalysisBaseName;
+  return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
 // -----------------------------------------------------------------------------

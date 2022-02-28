@@ -22,6 +22,8 @@
 #include "H5Support/QH5Lite.h"
 #include "H5Support/QH5Utilities.h"
 
+using namespace H5Support;
+
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
@@ -385,7 +387,7 @@ AbstractFilter::Pointer ImportMASSIFData::newFilterInstance(bool copyFilterParam
 // -----------------------------------------------------------------------------
 QString ImportMASSIFData::getCompiledLibraryName() const
 {
-  return MASSIFUtilitiesConstants::MASSIFUtilitiesBaseName;
+  return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
 // -----------------------------------------------------------------------------

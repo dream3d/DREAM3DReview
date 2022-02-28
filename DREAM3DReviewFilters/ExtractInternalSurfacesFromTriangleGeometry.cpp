@@ -58,7 +58,9 @@ enum createdPathID : RenameDataPath::DataID_t
 {
   AttributeMatrixID21 = 21,
 
-  DataContainerID = 1
+  AttributeMatrixID22 = 22,
+
+  DataContainerID01 = 1
 };
 
 // -----------------------------------------------------------------------------
@@ -146,7 +148,7 @@ void ExtractInternalSurfacesFromTriangleGeometry::dataCheck()
 
   getDataContainerArray()->validateNumberOfTuples(this, arrays);
 
-  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer(this, getInternalTrianglesName(), DataContainerID);
+  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer(this, getInternalTrianglesName(), DataContainerID01);
 
   if(getErrorCode() < 0)
   {
@@ -172,7 +174,8 @@ void ExtractInternalSurfacesFromTriangleGeometry::dataCheck()
       tempAttrMatType = tmpAttrMat->getType();
       if(tempAttrMatType == AttributeMatrix::Type::Vertex || tempAttrMatType == AttributeMatrix::Type::Face)
       {
-        dc->createNonPrereqAttributeMatrix(this, tmpAttrMat->getName(), tDims, tempAttrMatType, AttributeMatrixID21);
+        RenameDataPath::DataID_t amRenameIdValue = tempAttrMatType == AttributeMatrix::Type::Vertex ? AttributeMatrixID21 : AttributeMatrixID22;
+        dc->createNonPrereqAttributeMatrix(this, tmpAttrMat->getName(), tDims, tempAttrMatType, amRenameIdValue);
         tempDataArrayList = tmpAttrMat->getAttributeArrayNames();
         for(auto&& data_array : tempDataArrayList)
         {

@@ -567,7 +567,7 @@ AbstractFilter::Pointer ReadMicData::newFilterInstance(bool copyFilterParameters
 // -----------------------------------------------------------------------------
 QString ReadMicData::getCompiledLibraryName() const
 {
-  return HEDMAnalysisConstants::HEDMAnalysisBaseName;
+  return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
 // -----------------------------------------------------------------------------
