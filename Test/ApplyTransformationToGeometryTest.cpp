@@ -85,9 +85,11 @@ private:
 
   static bool imageGeomEqual(const ImageGeom& a, const ImageGeom& b)
   {
-    float min = .99;
-    float max = 1.01;
-    SizeVec3Type dimsA = a.getDimensions();
+    bool dimValid = true;
+    bool spaceValid = true;
+    bool originValid = true;
+
+	SizeVec3Type dimsA = a.getDimensions();
     FloatVec3Type originA = a.getOrigin();
     FloatVec3Type spacingA = a.getSpacing();
 
@@ -104,25 +106,25 @@ private:
 
     for(int i = 0; i < 3; i++)
     {
-      spacingBMax[i] = spacingB[i] * max;
-      spacingBMin[i] = spacingB[i] * min;
-    }
+      double dimDiff = std::abs(static_cast<double>(dimsA[i] - dimsB[i])) / dimsB[i];
+      double spaceDiff = abs(static_cast<double> (spacingA[i] - spacingB[i])) / spacingB[i];
+      double originDiff = abs(static_cast<double> (originA[i] - originB[i])) / originB[i];
 
-    bool spacingValid = true;
-
-    for(int i = 0; i < 3; i++)
-    {
-      if(!(spacingBMax[i] >= spacingA[i]))
+	  if(dimDiff > 0.01)
       {
-        spacingValid = false;
-	  }
-	  if(!(spacingBMin[i] <= spacingA[i]))
-	  {
-        spacingValid = false;
-	  }
+        dimValid = false;
+      }
+      if(spaceDiff > 0.01)
+      {
+        spaceValid = false;
+      }
+      if(originDiff > 0.01)
+      {
+        originValid = false;
+      }
     }
 
-	return (dimsA == dimsB) && (originA == originB) && spacingValid;
+	return dimValid && originValid && spaceValid;
   }
 
   static bool matrixEqual(const AttributeMatrix& a, const AttributeMatrix& b)
