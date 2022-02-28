@@ -22,6 +22,8 @@
 #include "H5Support/H5ScopedSentinel.h"
 #include "H5Support/QH5Utilities.h"
 
+using namespace H5Support;
+
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
@@ -361,7 +363,7 @@ AbstractFilter::Pointer FFTHDFWriterFilter::newFilterInstance(bool copyFilterPar
 // -----------------------------------------------------------------------------
 QString FFTHDFWriterFilter::getCompiledLibraryName() const
 {
-  return MASSIFUtilitiesConstants::MASSIFUtilitiesBaseName;
+  return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
 // -----------------------------------------------------------------------------

@@ -41,6 +41,8 @@
 #include "H5Support/H5ScopedSentinel.h"
 #include "H5Support/H5Utilities.h"
 
+using namespace H5Support;
+
 #include "EbsdLib/EbsdLib.h"
 
 #include "SIMPLib/Common/Constants.h"
@@ -96,9 +98,6 @@ const std::string k_Intensity = "Intensity";
 const std::string k_LaserTTL = "LaserTTL";
 const std::string k_XAxis = "X-Axis";
 const std::string k_YAxis = "Y-Axis";
-
-const std::string k_BitgainOS1 = "Bitgain OS 1";
-const std::string k_BitgainOS2 = "Bitgain OS 2";
 
 const std::string k_PartStartTime = "PartStartTime";
 const std::string k_PartEndTime = "PartEndTime";
@@ -188,6 +187,7 @@ ImportQMMeltpoolH5File::~ImportQMMeltpoolH5File() = default;
 void ImportQMMeltpoolH5File::createUpdateCacheEntries()
 {
   // Check all of the files
+  // Check all the files
   if(m_Caches.size() != m_InputFiles.size())
   {
     m_Caches.resize(m_InputFiles.size());
@@ -199,11 +199,18 @@ void ImportQMMeltpoolH5File::createUpdateCacheEntries()
     Cache& cache = m_Caches.at(i);
 
     fs::path ifPath = fs::path(inputFile);
-    auto timeStamp = fs::last_write_time(ifPath);
+    std::error_code errorCode;
+    auto timeStamp = fs::last_write_time(ifPath, errorCode);
+    if(errorCode.value() != 0)
+    {
+      setErrorCondition(::k_FileDoesNotExist, QString::fromStdString(errorCode.message()));
+      continue;
+    }
 
     if(!(cache.filePath == inputFile && timeStamp == cache.lastModified && cache.sliceRange == m_SliceRange))
     {
       // Read from the file and cache all of the slices and slice data
+      // Read from the file and cache all the slices and slice data
       // Will need to read the number of tuples in the X-Axis and store for each slice
       // User might be able to control which of the 3 data sets that they want to import
       // Building up the Data Structure with this information will allow the Geometry to be fully specified
@@ -255,7 +262,7 @@ void ImportQMMeltpoolH5File::dataCheck()
     return;
   }
 
-  // Check all of the files
+  // Check all the files
   for(const auto& inputFile : m_InputFiles)
   {
     std::pair<int32_t, std::string> result = ::checkFile(inputFile);
@@ -268,13 +275,15 @@ void ImportQMMeltpoolH5File::dataCheck()
   // Check the slice range
   if(m_SliceRange[0] < 0 || m_SliceRange[1] < 0)
   {
-    setErrorCondition(k_StartEndError, "Start/end must be 0 or positive");
+    QString msg = QString("Start and End slice must be zero or positive integers. Start Slice: %1. End Slice: %2").arg(m_SliceRange[0]).arg(m_SliceRange[1]);
+    setErrorCondition(k_StartEndError, msg);
     return;
   }
 
   if(m_SliceRange[1] - m_SliceRange[0] < 0)
   {
-    setErrorCondition(k_SliceRangeError, "Slice cannot be negative");
+    QString msg = QString("End slice value must be greater than or equal to the start slice value. Start Slice: %1. End Slice: %2").arg(m_SliceRange[0]).arg(m_SliceRange[1]);
+    setErrorCondition(k_SliceRangeError, msg);
     return;
   }
 

@@ -600,7 +600,7 @@ AbstractFilter::Pointer ParaDisReader::newFilterInstance(bool copyFilterParamete
 // -----------------------------------------------------------------------------
 QString ParaDisReader::getCompiledLibraryName() const
 {
-  return DDDAnalysisToolboxConstants::DDDAnalysisToolboxBaseName;
+  return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
 // -----------------------------------------------------------------------------

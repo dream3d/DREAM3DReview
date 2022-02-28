@@ -426,7 +426,7 @@ AbstractFilter::Pointer DiscretizeDDDomain::newFilterInstance(bool copyFilterPar
 // -----------------------------------------------------------------------------
 QString DiscretizeDDDomain::getCompiledLibraryName() const
 {
-  return DDDAnalysisToolboxConstants::DDDAnalysisToolboxBaseName;
+  return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
 // -----------------------------------------------------------------------------

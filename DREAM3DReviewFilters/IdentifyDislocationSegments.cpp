@@ -360,7 +360,7 @@ AbstractFilter::Pointer IdentifyDislocationSegments::newFilterInstance(bool copy
 // -----------------------------------------------------------------------------
 QString IdentifyDislocationSegments::getCompiledLibraryName() const
 {
-  return DDDAnalysisToolboxConstants::DDDAnalysisToolboxBaseName;
+  return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
 // -----------------------------------------------------------------------------

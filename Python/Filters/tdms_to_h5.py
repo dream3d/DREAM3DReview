@@ -15,7 +15,6 @@ from typing import List, Tuple, Union
 from dream3d.Filter import Filter, FilterDelegatePy
 from dream3d.simpl import *
 
-FILE_VERSION: int = 3
 VERSION_KEY: str = 'Version'
 SLICES_KEY: str = 'TDMSData'
 INDEX_KEY: str = 'Index'
@@ -71,8 +70,20 @@ def tdms2h5(file_info: StackFileListInfo, file_list: List, output_dir: Path, are
       slice_indices.append(slice_index)
 
       with nptdms.TdmsFile(path) as tdmsFile:
-        bitgain_os_1: float = tdmsFile.properties['Bitgain OS 1']
-        bitgain_os_2: float = tdmsFile.properties['Bitgain OS 2']
+        build_firmware_version: int = 3
+        try:
+          status_delegate.notifyStatusMessage(f'Trying to find old style Bitgain property..')
+          bitgain_os_1: float = tdmsFile.properties['Bitgain OS 1']
+          bitgain_os_2: float = tdmsFile.properties['Bitgain OS 2']
+        except:
+          try:
+            status_delegate.notifyStatusMessage(f'Trying to find new style Bitgain property..')
+            build_firmware_version = 4
+            bitgain_os_1: float = tdmsFile.properties['Scanner.Bitgain.OS1']
+            bitgain_os_2: float = tdmsFile.properties['Scanner.Bitgain.OS2']
+          except:
+            status_delegate.notifyStatusMessage(f'Bitgain Property not found. Unable to determine firmware version. Exiting Function.')
+            return
 
         group: nptdms.TdmsGroup
         for ind, group in enumerate(tdmsFile.groups()):
@@ -85,7 +96,7 @@ def tdms2h5(file_info: StackFileListInfo, file_list: List, output_dir: Path, are
           if group.name not in h5_files:
             h5_files[group.name] = exitStack.enter_context(h5py.File(output_file_path, 'w'))
             h5_file = h5_files[group.name]
-            h5_file.attrs[VERSION_KEY] = FILE_VERSION
+            h5_file.attrs[VERSION_KEY] = build_firmware_version
             h5_group = h5_file.create_group(SLICES_KEY)
             h5_group.attrs[TDMS_GROUP_NAME_KEY] = group.name
           h5_file = h5_files[group.name]
@@ -98,8 +109,10 @@ def tdms2h5(file_info: StackFileListInfo, file_list: List, output_dir: Path, are
           _write_tdms_properties(h5_group, tdmsFile.properties, layer_replacements)
 
           part_replacements = {
-            'StartTime': PART_START_TIME_KEY,
-            'EndTime': PART_END_TIME_KEY
+            'StartTime' : PART_START_TIME_KEY,
+            'EndTime' : PART_END_TIME_KEY,
+            'Part.StartTime': PART_START_TIME_KEY,
+            'Part.EndTime' : PART_END_TIME_KEY
           }
           _write_tdms_properties(h5_group, group.properties, part_replacements)
 

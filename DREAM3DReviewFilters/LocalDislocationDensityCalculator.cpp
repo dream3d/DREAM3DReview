@@ -547,7 +547,7 @@ AbstractFilter::Pointer LocalDislocationDensityCalculator::newFilterInstance(boo
 // -----------------------------------------------------------------------------
 QString LocalDislocationDensityCalculator::getCompiledLibraryName() const
 {
-  return DDDAnalysisToolboxConstants::DDDAnalysisToolboxBaseName;
+  return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
 // -----------------------------------------------------------------------------

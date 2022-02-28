@@ -1109,7 +1109,7 @@ AbstractFilter::Pointer SteinerCompact::newFilterInstance(bool copyFilterParamet
 // -----------------------------------------------------------------------------
 QString SteinerCompact::getCompiledLibraryName() const
 {
-  return AnisotropyConstants::AnisotropyBaseName;
+  return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
 
 // -----------------------------------------------------------------------------

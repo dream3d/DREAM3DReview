@@ -11,6 +11,8 @@
 #include <QtCore/QJsonDocument>
 
 #include "H5Support/QH5Utilities.h"
+
+using namespace H5Support;
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/DataContainers/DataContainer.h"

@@ -4,8 +4,12 @@
 
 #include "H5Support/QH5Lite.h"
 
+using namespace H5Support;
+
 #include "H5Support/H5ScopedSentinel.h"
 #include "H5Support/QH5Utilities.h"
+
+using namespace H5Support;
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/DataArrays/NeighborList.hpp"
