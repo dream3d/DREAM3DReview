@@ -1,46 +1,43 @@
 /* ============================================================================
- * Copyright (c) 2009-2020 BlueQuartz Software, LLC
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
- * contributors may be used to endorse or promote products derived from this software
- * without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * The code contained herein was partially funded by the following contracts:
- *    United States Air Force Prime Contract FA8650-07-D-5800
- *    United States Air Force Prime Contract FA8650-10-D-5210
- *    United States Prime Contract Navy N00173-07-C-2068
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+* Copyright (c) 2009-2016 BlueQuartz Software, LLC
+*
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+*
+* Redistributions of source code must retain the above copyright notice, this
+* list of conditions and the following disclaimer.
+*
+* Redistributions in binary form must reproduce the above copyright notice, this
+* list of conditions and the following disclaimer in the documentation and/or
+* other materials provided with the distribution.
+*
+* Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+* contributors may be used to endorse or promote products derived from this software
+* without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+* The code contained herein was partially funded by the followig contracts:
+*    United States Air Force Prime Contract FA8650-07-D-5800
+*    United States Air Force Prime Contract FA8650-10-D-5210
+*    United States Prime Contract Navy N00173-07-C-2068
+*
+* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 #include "ApplyTransformationToGeometry.h"
 
 #include <Eigen/Dense>
 
-#include <QtCore/QTextStream>
-
 #include "SIMPLib/Common/Constants.h"
-#include "SIMPLib/Common/SIMPLRange.h"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
@@ -51,111 +48,61 @@
 #include "SIMPLib/Geometry/IGeometry2D.h"
 #include "SIMPLib/Geometry/IGeometry3D.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
-#include "SIMPLib/Math/SIMPLibMath.h"
-#include "SIMPLib/Utilities/ParallelDataAlgorithm.h"
 
-#include "EbsdLib/Core/Orientation.hpp"
-#include "EbsdLib/Core/OrientationTransformation.hpp"
+#include "OrientationLib/OrientationMath/OrientationTransforms.hpp"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
 
-namespace ApplyTransformationProgress
-{
-static size_t s_InstanceIndex = 0;
-static std::map<size_t, int64_t> s_ProgressValues;
-static std::map<size_t, int64_t> s_LastProgressInt;
-} // namespace ApplyTransformationProgress
-
-class ApplyTransformationToGeometryImpl
-{
-
-public:
-  ApplyTransformationToGeometryImpl(ApplyTransformationToGeometry& filter, float* transformationMatrix, const SharedVertexList::Pointer verticesPtr)
-  : m_Filter(filter)
-  , m_TransformationMatrix(transformationMatrix)
-  , m_Vertices(verticesPtr)
-  {
-  }
-  ~ApplyTransformationToGeometryImpl() = default;
-
-  void convert(size_t start, size_t end) const
-  {
-    using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
-    Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
-
-    int64_t progCounter = 0;
-    int64_t totalElements = (end - start);
-    int64_t progIncrement = static_cast<int64_t>(totalElements / 100);
-
-    SharedVertexList& vertices = *(m_Vertices.get());
-    for(size_t i = start; i < end; i++)
-    {
-      if(m_Filter.getCancel())
-      {
-        return;
-      }
-      Eigen::Vector4f position(vertices[3 * i + 0], vertices[3 * i + 1], vertices[3 * i + 2], 1);
-      Eigen::Vector4f transformedPosition = transformation * position;
-      vertices.setTuple(i, transformedPosition.data());
-
-      if(progCounter > progIncrement)
-      {
-        m_Filter.sendThreadSafeProgressMessage(progCounter);
-        progCounter = 0;
-      }
-      progCounter++;
-    }
-  }
-
-  void operator()(const SIMPLRange& range) const
-  {
-    convert(range.min(), range.max());
-  }
-
-private:
-  ApplyTransformationToGeometry& m_Filter;
-  float* m_TransformationMatrix = nullptr;
-  SharedVertexList::Pointer m_Vertices;
-};
+// Include the MOC generated file for this class
+#include "moc_ApplyTransformationToGeometry.cpp"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 ApplyTransformationToGeometry::ApplyTransformationToGeometry()
+: AbstractFilter()
+, m_ManualTransformationMatrix()
+, m_ComputedTransformationMatrix("", "", "TransformationMatrix")
+, m_GeometryToTransform("")
+, m_TransformationMatrixType(1)
+, m_TransformationMatrix(nullptr)
 {
   m_RotationAngle = 0.0f;
-  m_RotationAxis[0] = 0.0f;
-  m_RotationAxis[1] = 0.0f;
-  m_RotationAxis[2] = 1.0f;
+  m_RotationAxis.x = 0.0f;
+  m_RotationAxis.y = 0.0f;
+  m_RotationAxis.z = 1.0f;
 
-  m_Translation[0] = 0.0f;
-  m_Translation[1] = 0.0f;
-  m_Translation[2] = 0.0f;
+  m_Translation.x = 0.0f;
+  m_Translation.y = 0.0f;
+  m_Translation.z = 0.0f;
 
-  m_Scale[0] = 0.0f;
-  m_Scale[1] = 0.0f;
-  m_Scale[2] = 0.0f;
+  m_Scale.x = 0.0f;
+  m_Scale.y = 0.0f;
+  m_Scale.z = 0.0f;
+
+  setupFilterParameters();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ApplyTransformationToGeometry::~ApplyTransformationToGeometry() = default;
+ApplyTransformationToGeometry::~ApplyTransformationToGeometry()
+= default;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void ApplyTransformationToGeometry::setupFilterParameters()
 {
-  FilterParameterVectorType parameters;
+  FilterParameterVector parameters;
   {
     LinkedChoicesFilterParameter::Pointer parameter = LinkedChoicesFilterParameter::New();
     parameter->setHumanLabel("Transformation Type");
     parameter->setPropertyName("TransformationMatrixType");
     parameter->setSetterCallback(SIMPL_BIND_SETTER(ApplyTransformationToGeometry, this, TransformationMatrixType));
     parameter->setGetterCallback(SIMPL_BIND_GETTER(ApplyTransformationToGeometry, this, TransformationMatrixType));
-    std::vector<QString> choices;
+    QVector<QString> choices;
     choices.push_back("No Transformation");
     choices.push_back("Pre-Computed Transformation Matrix");
     choices.push_back("Manual Transformation Matrix");
@@ -163,10 +110,10 @@ void ApplyTransformationToGeometry::setupFilterParameters()
     choices.push_back("Translation");
     choices.push_back("Scale");
     parameter->setChoices(choices);
-    std::vector<QString> linkedProps = {"ComputedTransformationMatrix", "ManualTransformationMatrix", "RotationAngle", "RotationAxis", "Translation", "Scale"};
+    QStringList linkedProps = {"ComputedTransformationMatrix", "ManualTransformationMatrix", "RotationAngle", "RotationAxis", "Translation", "Scale"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
-    parameter->setCategory(FilterParameter::Category::Parameter);
+    parameter->setCategory(FilterParameter::Parameter);
     parameters.push_back(parameter);
   }
   {
@@ -179,20 +126,20 @@ void ApplyTransformationToGeometry::setupFilterParameters()
       defaultTable.push_back(row);
     }
     m_ManualTransformationMatrix.setTableData(defaultTable);
-    parameters.push_back(SIMPL_NEW_DYN_TABLE_FP("Transformation Matrix", ManualTransformationMatrix, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 2));
+    parameters.push_back(SIMPL_NEW_DYN_TABLE_FP("Transformation Matrix", ManualTransformationMatrix, FilterParameter::Parameter, ApplyTransformationToGeometry, 2));
   }
-  parameters.push_back(SIMPL_NEW_FLOAT_FP("Rotation Angle (Degrees)", RotationAngle, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 3));
-  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Rotation Axis (ijk)", RotationAxis, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 3));
-  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Translation", Translation, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 4));
-  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Scale", Scale, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 5));
+  parameters.push_back(SIMPL_NEW_FLOAT_FP("Rotation Angle (Degrees)", RotationAngle, FilterParameter::Parameter, ApplyTransformationToGeometry, 3));
+  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Rotation Axis (ijk)", RotationAxis, FilterParameter::Parameter, ApplyTransformationToGeometry, 3));
+  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Translation", Translation, FilterParameter::Parameter, ApplyTransformationToGeometry, 4));
+  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Scale", Scale, FilterParameter::Parameter, ApplyTransformationToGeometry, 5));
   DataContainerSelectionFilterParameter::RequirementType dcReq;
   IGeometry::Types geomTypes = {IGeometry::Type::Vertex, IGeometry::Type::Edge, IGeometry::Type::Triangle, IGeometry::Type::Quad, IGeometry::Type::Tetrahedral};
   dcReq.dcGeometryTypes = geomTypes;
-  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Geometry to Transform", GeometryToTransform, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dcReq));
+  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Geometry to Transform", GeometryToTransform, FilterParameter::RequiredArray, ApplyTransformationToGeometry, dcReq));
   {
     DataArraySelectionFilterParameter::RequirementType dasReq =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Generic, IGeometry::Type::Any);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Transformation Matrix", ComputedTransformationMatrix, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Transformation Matrix", ComputedTransformationMatrix, FilterParameter::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
   }
   setFilterParameters(parameters);
 }
@@ -205,7 +152,7 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
   reader->openFilterGroup(this, index);
   setManualTransformationMatrix(reader->readDynamicTableData("ManualTransformationMatrix", getManualTransformationMatrix()));
   setComputedTransformationMatrix(reader->readDataArrayPath("ComputedTransformationMatrix", getComputedTransformationMatrix()));
-  setGeometryToTransform(reader->readDataArrayPath("GeometryToTransform", getGeometryToTransform()));
+  setGeometryToTransform(reader->readString("GeometryToTransform", getGeometryToTransform()));
   setTransformationMatrixType(reader->readValue("TransformationMatrixType", getTransformationMatrixType()));
   setRotationAxis(reader->readFloatVec3("RotationAxis", getRotationAxis()));
   setRotationAngle(reader->readValue("RotationAngle", getRotationAngle()));
@@ -219,35 +166,37 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
 // -----------------------------------------------------------------------------
 void ApplyTransformationToGeometry::dataCheck()
 {
-  clearErrorCode();
-  clearWarningCode();
+  setErrorCondition(0);
+  setWarningCondition(0);
 
-  IGeometry::Pointer igeom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getGeometryToTransform());
+  IGeometry::Pointer igeom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry, AbstractFilter>(this, getGeometryToTransform());
 
-  if(getErrorCode() < 0)
+  if(getErrorCondition() < 0)
   {
     return;
   }
 
   if(!std::dynamic_pointer_cast<IGeometry2D>(igeom) && !std::dynamic_pointer_cast<IGeometry3D>(igeom) && !std::dynamic_pointer_cast<VertexGeom>(igeom) && !std::dynamic_pointer_cast<EdgeGeom>(igeom))
   {
+    setErrorCondition(-702);
     QString ss =
         QObject::tr("Geometry to transform must be an unstructured geometry (Vertex, Edge, Triangle, Quadrilateral, or Tetrahedral), but the type is %1").arg(igeom->getGeometryTypeAsString());
-    setErrorCondition(-702, ss);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
   }
 
-  std::vector<size_t> cDims = {4, 4};
+  QVector<size_t> cDims = {4, 4};
 
   switch(getTransformationMatrixType())
   {
   case 0: // No-Op
   {
     QString ss = QObject::tr("No transformation has been selected, so this filter will perform no operations");
-    setWarningCondition(-701, ss);
+    setWarningCondition(-701);
+    notifyWarningMessage(getHumanLabel(), ss, getErrorCondition());
   }
   case 1: // Transformation matrix from array
   {
-    m_TransformationMatrixPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getComputedTransformationMatrix(), cDims);
+    m_TransformationMatrixPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getComputedTransformationMatrix(), cDims);
     if(m_TransformationMatrixPtr.lock())
     {
       m_TransformationMatrix = m_TransformationMatrixPtr.lock()->getPointer(0);
@@ -258,18 +207,20 @@ void ApplyTransformationToGeometry::dataCheck()
   {
     if(getManualTransformationMatrix().getNumRows() != 4)
     {
+      setErrorCondition(-702);
       QString ss = QObject::tr("Manually entered transformation matrix must have exactly 4 rows");
-      setErrorCondition(-702, ss);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
       return;
     }
     if(getManualTransformationMatrix().getNumCols() != 4)
     {
+      setErrorCondition(-703);
       QString ss = QObject::tr("Manually entered transformation matrix must have exactly 4 columns");
-      setErrorCondition(-703, ss);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
       return;
     }
     std::vector<std::vector<double>> tableData = getManualTransformationMatrix().getTableData();
-    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
+    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix");
     m_TransformationReference->initializeWithZeros();
     m_TransformationMatrixPtr = m_TransformationReference;
     if(m_TransformationMatrixPtr.lock())
@@ -288,10 +239,11 @@ void ApplyTransformationToGeometry::dataCheck()
   }
   case 3: // Rotation via axis-angle
   {
-    float rotAngle = m_RotationAngle * SIMPLib::Constants::k_PiOver180D;
-    OrientationF om = OrientationTransformation::ax2om<OrientationF, OrientationF>(OrientationF(m_RotationAxis[0], m_RotationAxis[1], m_RotationAxis[2], rotAngle));
+    float rotAngle = m_RotationAngle * SIMPLib::Constants::k_Pi / 180.0;
+    FOrientArrayType om(9);
+    FOrientTransformsType::ax2om(FOrientArrayType(m_RotationAxis.x, m_RotationAxis.y, m_RotationAxis.z, rotAngle), om);
 
-    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
+    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix");
     m_TransformationReference->initializeWithZeros();
     m_TransformationMatrixPtr = m_TransformationReference;
     if(m_TransformationMatrixPtr.lock())
@@ -310,7 +262,7 @@ void ApplyTransformationToGeometry::dataCheck()
   }
   case 4: // Translation
   {
-    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
+    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix");
     m_TransformationReference->initializeWithZeros();
     m_TransformationMatrixPtr = m_TransformationReference;
     if(m_TransformationMatrixPtr.lock())
@@ -319,34 +271,50 @@ void ApplyTransformationToGeometry::dataCheck()
       m_TransformationMatrix[4 * 0 + 0] = 1.0f;
       m_TransformationMatrix[4 * 1 + 1] = 1.0f;
       m_TransformationMatrix[4 * 2 + 2] = 1.0f;
-      m_TransformationMatrix[4 * 0 + 3] = m_Translation[0];
-      m_TransformationMatrix[4 * 1 + 3] = m_Translation[1];
-      m_TransformationMatrix[4 * 2 + 3] = m_Translation[2];
+      m_TransformationMatrix[4 * 0 + 3] = m_Translation.x;
+      m_TransformationMatrix[4 * 1 + 3] = m_Translation.y;
+      m_TransformationMatrix[4 * 2 + 3] = m_Translation.z;
       m_TransformationMatrix[4 * 3 + 3] = 1.0f;
     }
     break;
   }
   case 5: // Scale
   {
-    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
+    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix");
     m_TransformationReference->initializeWithZeros();
     m_TransformationMatrixPtr = m_TransformationReference;
     if(m_TransformationMatrixPtr.lock())
     {
       m_TransformationMatrix = m_TransformationMatrixPtr.lock()->getPointer(0);
-      m_TransformationMatrix[4 * 0 + 0] = m_Scale[0];
-      m_TransformationMatrix[4 * 1 + 1] = m_Scale[1];
-      m_TransformationMatrix[4 * 2 + 2] = m_Scale[2];
+      m_TransformationMatrix[4 * 0 + 0] = m_Scale.x;
+      m_TransformationMatrix[4 * 1 + 1] = m_Scale.y;
+      m_TransformationMatrix[4 * 2 + 2] = m_Scale.z;
       m_TransformationMatrix[4 * 3 + 3] = 1.0f;
     }
     break;
   }
-  default: {
+  default:
+  {
     QString ss = QObject::tr("Invalid selection for transformation type");
-    setErrorCondition(-701, ss);
+    setErrorCondition(-701);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     break;
   }
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ApplyTransformationToGeometry::preflight()
+{
+  // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
+  setInPreflight(true);              // Set the fact that we are preflighting.
+  emit preflightAboutToExecute();    // Emit this signal so that other widgets can do one file update
+  emit updateFilterParameters(this); // Emit this signal to have the widgets push their values down to the filter
+  dataCheck();                       // Run our DataCheck to make sure everthing is setup correctly
+  emit preflightExecuted();          // We are done preflighting this filter
+  setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
 // -----------------------------------------------------------------------------
@@ -354,45 +322,63 @@ void ApplyTransformationToGeometry::dataCheck()
 // -----------------------------------------------------------------------------
 void ApplyTransformationToGeometry::applyTransformation()
 {
-
   IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(m_GeometryToTransform)->getGeometry();
 
-  SharedVertexList::Pointer vertexList;
+  int64_t numVertices = 0;
+  float* vertices = nullptr;
 
   if(IGeometry2D::Pointer igeom2D = std::dynamic_pointer_cast<IGeometry2D>(igeom))
   {
-    vertexList = igeom2D->getVertices();
+    numVertices = igeom2D->getNumberOfVertices();
+    vertices = igeom2D->getVertexPointer(0);
   }
   else if(IGeometry3D::Pointer igeom3D = std::dynamic_pointer_cast<IGeometry3D>(igeom))
   {
-    vertexList = igeom3D->getVertices();
+    numVertices = igeom3D->getNumberOfVertices();
+    vertices = igeom3D->getVertexPointer(0);
   }
   else if(VertexGeom::Pointer vertex = std::dynamic_pointer_cast<VertexGeom>(igeom))
   {
-    vertexList = vertex->getVertices();
+    numVertices = vertex->getNumberOfVertices();
+    vertices = vertex->getVertexPointer(0);
   }
   else if(EdgeGeom::Pointer edge = std::dynamic_pointer_cast<EdgeGeom>(igeom))
   {
-    vertexList = edge->getVertices();
+    numVertices = edge->getNumberOfVertices();
+    vertices = vertex->getVertexPointer(0);
   }
   else
   {
     return;
   }
 
-  using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
+  typedef Eigen::Matrix<float, 4, 4, Eigen::RowMajor> ProjectiveMatrix;
   Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
-  m_TotalElements = vertexList->getNumberOfTuples();
-  // Allow data-based parallelization
-#if 1
-  ParallelDataAlgorithm dataAlg;
-  dataAlg.setRange(0, m_TotalElements);
-  dataAlg.execute(ApplyTransformationToGeometryImpl(*this, m_TransformationMatrix, vertexList));
-#else
-  // THis chunk of code will FORCE single threaded mode. Don't do this unless you really mean it.
-  ApplyTransformationToGeometryImpl doThis(*this, m_TransformationMatrix, vertexList);
-  doThis({0, vertexList->getNumberOfTuples()});
-#endif
+
+  int64_t progIncrement = numVertices / 100;
+  int64_t prog = 1;
+  int64_t progressInt = 0;
+  int64_t counter = 0;
+
+  for(int64_t i = 0; i < numVertices; i++)
+  {
+    if(getCancel())
+    {
+      return;
+    }
+    Eigen::Vector4f position(vertices[3 * i + 0], vertices[3 * i + 1], vertices[3 * i + 2], 1);
+    Eigen::Vector4f transformedPosition = transformation * position;
+    std::memcpy(vertices + (3 * i), transformedPosition.data(), sizeof(float) * 3);
+
+    if(counter > prog)
+    {
+      progressInt = static_cast<int64_t>((static_cast<float>(counter) / numVertices) * 100.0f);
+      QString ss = QObject::tr("Transforming Geometry || %1% Completed").arg(progressInt);
+      notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
+      prog = prog + progIncrement;
+    }
+    counter++;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -400,12 +386,14 @@ void ApplyTransformationToGeometry::applyTransformation()
 // -----------------------------------------------------------------------------
 void ApplyTransformationToGeometry::execute()
 {
+  setErrorCondition(0);
+  setWarningCondition(0);
   dataCheck();
-  if(getErrorCode() < 0)
+  if(getErrorCondition() < 0)
   {
     return;
   }
-  if(getWarningCode() < 0)
+  if(getWarningCondition() < 0)
   {
     return;
   }
@@ -414,44 +402,18 @@ void ApplyTransformationToGeometry::execute()
   {
     return;
   }
-  // Needed for Threaded Progress Messages
-  m_InstanceIndex = ++ApplyTransformationProgress::s_InstanceIndex;
-  ApplyTransformationProgress::s_ProgressValues[m_InstanceIndex] = 0;
-  ApplyTransformationProgress::s_LastProgressInt[m_InstanceIndex] = 0;
+  
+  
+    applyTransformation();
+  
 
-  applyTransformation();
+  notifyStatusMessage(getHumanLabel(), "Complete");
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::sendThreadSafeProgressMessage(int64_t counter)
-{
-  std::lock_guard<std::mutex> guard(m_ProgressMessage_Mutex);
-
-  int64_t& progCounter = ApplyTransformationProgress::s_ProgressValues[m_InstanceIndex];
-  progCounter += counter;
-  int64_t progressInt = static_cast<int64_t>((static_cast<float>(progCounter) / m_TotalElements) * 100.0f);
-
-  int64_t progIncrement = m_TotalElements / 100;
-  int64_t prog = 1;
-
-  int64_t& lastProgressInt = ApplyTransformationProgress::s_LastProgressInt[m_InstanceIndex];
-
-  if(progCounter > prog && lastProgressInt != progressInt)
-  {
-    QString ss = QObject::tr("Transforming || %1% Completed").arg(progressInt);
-    notifyStatusMessage(ss);
-    prog += progIncrement;
-  }
-
-  lastProgressInt = progressInt;
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-AbstractFilter::Pointer ApplyTransformationToGeometry::newFilterInstance(bool copyFilterParameters) const
+AbstractFilter::Pointer ApplyTransformationToGeometry::newFilterInstance(bool copyFilterParameters)
 {
   ApplyTransformationToGeometry::Pointer filter = ApplyTransformationToGeometry::New();
   if(copyFilterParameters)
@@ -464,7 +426,7 @@ AbstractFilter::Pointer ApplyTransformationToGeometry::newFilterInstance(bool co
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ApplyTransformationToGeometry::getCompiledLibraryName() const
+const QString ApplyTransformationToGeometry::getCompiledLibraryName()
 {
   return DREAM3DReviewConstants::DREAM3DReviewBaseName;
 }
@@ -472,7 +434,7 @@ QString ApplyTransformationToGeometry::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ApplyTransformationToGeometry::getBrandingString() const
+const QString ApplyTransformationToGeometry::getBrandingString()
 {
   return "DREAM3DReview";
 }
@@ -480,7 +442,7 @@ QString ApplyTransformationToGeometry::getBrandingString() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ApplyTransformationToGeometry::getFilterVersion() const
+const QString ApplyTransformationToGeometry::getFilterVersion()
 {
   QString version;
   QTextStream vStream(&version);
@@ -491,7 +453,7 @@ QString ApplyTransformationToGeometry::getFilterVersion() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ApplyTransformationToGeometry::getGroupName() const
+const QString ApplyTransformationToGeometry::getGroupName()
 {
   return DREAM3DReviewConstants::FilterGroups::DREAM3DReviewFilters;
 }
@@ -499,15 +461,7 @@ QString ApplyTransformationToGeometry::getGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QUuid ApplyTransformationToGeometry::getUuid() const
-{
-  return QUuid("{c681caf4-22f2-5885-bbc9-a0476abc72eb}");
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-QString ApplyTransformationToGeometry::getSubGroupName() const
+const QString ApplyTransformationToGeometry::getSubGroupName()
 {
   return DREAM3DReviewConstants::FilterSubGroups::RotationTransformationFilters;
 }
@@ -515,132 +469,7 @@ QString ApplyTransformationToGeometry::getSubGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-QString ApplyTransformationToGeometry::getHumanLabel() const
+const QString ApplyTransformationToGeometry::getHumanLabel()
 {
   return "Apply Transformation to Geometry";
-}
-
-// -----------------------------------------------------------------------------
-ApplyTransformationToGeometry::Pointer ApplyTransformationToGeometry::NullPointer()
-{
-  return Pointer(static_cast<Self*>(nullptr));
-}
-
-// -----------------------------------------------------------------------------
-std::shared_ptr<ApplyTransformationToGeometry> ApplyTransformationToGeometry::New()
-{
-  struct make_shared_enabler : public ApplyTransformationToGeometry
-  {
-  };
-  std::shared_ptr<make_shared_enabler> val = std::make_shared<make_shared_enabler>();
-  val->setupFilterParameters();
-  return val;
-}
-
-// -----------------------------------------------------------------------------
-QString ApplyTransformationToGeometry::getNameOfClass() const
-{
-  return QString("ApplyTransformationToGeometry");
-}
-
-// -----------------------------------------------------------------------------
-QString ApplyTransformationToGeometry::ClassName()
-{
-  return QString("ApplyTransformationToGeometry");
-}
-
-// -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setManualTransformationMatrix(const DynamicTableData& value)
-{
-  m_ManualTransformationMatrix = value;
-}
-
-// -----------------------------------------------------------------------------
-DynamicTableData ApplyTransformationToGeometry::getManualTransformationMatrix() const
-{
-  return m_ManualTransformationMatrix;
-}
-
-// -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setComputedTransformationMatrix(const DataArrayPath& value)
-{
-  m_ComputedTransformationMatrix = value;
-}
-
-// -----------------------------------------------------------------------------
-DataArrayPath ApplyTransformationToGeometry::getComputedTransformationMatrix() const
-{
-  return m_ComputedTransformationMatrix;
-}
-
-// -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setGeometryToTransform(const DataArrayPath& value)
-{
-  m_GeometryToTransform = value;
-}
-
-// -----------------------------------------------------------------------------
-DataArrayPath ApplyTransformationToGeometry::getGeometryToTransform() const
-{
-  return m_GeometryToTransform;
-}
-
-// -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setTransformationMatrixType(int value)
-{
-  m_TransformationMatrixType = value;
-}
-
-// -----------------------------------------------------------------------------
-int ApplyTransformationToGeometry::getTransformationMatrixType() const
-{
-  return m_TransformationMatrixType;
-}
-
-// -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setRotationAxis(const FloatVec3Type& value)
-{
-  m_RotationAxis = value;
-}
-
-// -----------------------------------------------------------------------------
-FloatVec3Type ApplyTransformationToGeometry::getRotationAxis() const
-{
-  return m_RotationAxis;
-}
-
-// -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setRotationAngle(float value)
-{
-  m_RotationAngle = value;
-}
-
-// -----------------------------------------------------------------------------
-float ApplyTransformationToGeometry::getRotationAngle() const
-{
-  return m_RotationAngle;
-}
-
-// -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setTranslation(const FloatVec3Type& value)
-{
-  m_Translation = value;
-}
-
-// -----------------------------------------------------------------------------
-FloatVec3Type ApplyTransformationToGeometry::getTranslation() const
-{
-  return m_Translation;
-}
-
-// -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setScale(const FloatVec3Type& value)
-{
-  m_Scale = value;
-}
-
-// -----------------------------------------------------------------------------
-FloatVec3Type ApplyTransformationToGeometry::getScale() const
-{
-  return m_Scale;
 }
