@@ -264,25 +264,23 @@ protected:
    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
    */
   void dataCheck() override;
-
-  int64_t linearIndexes(float* LinearInterpolationData, int64_t tupleIndex);
   
   template <class T>
-  void linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], float xt, float yt, float zt);
+  void linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], double xt, double yt, double zt);
 
   template <class T>
-  bool linearIndexes(float* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], float xt, float yt, float zt);
+  bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], double xt, double yt, double zt);
 
-  bool applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<int16_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<uint16_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<int32_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<uint32_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<uint64_t>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<float>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<double>::Pointer lin, int64_t index, float* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<int16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<uint16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<int32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<uint32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<uint64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<float>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  bool applyLinearInterpolation(DataArray<double>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
 
   /**
    * @brief sendThreadSafeProgressMessage
