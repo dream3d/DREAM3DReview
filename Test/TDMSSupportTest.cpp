@@ -5,7 +5,7 @@
 #include "DREAM3DReview/TDMSSupport/TDMSFileProxy.h"
 #include "DREAM3DReview/TDMSSupport/TDMSObject.h"
 
-#include "AFRLDistributionCTestFileLocations.h"
+#include "DREAM3DReviewTestFileLocations.h"
 #include "UnitTestSupport.hpp"
 
 class TDMSSupportTest

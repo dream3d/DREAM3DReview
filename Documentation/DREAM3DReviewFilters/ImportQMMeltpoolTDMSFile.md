@@ -3,7 +3,7 @@
 
 ## Group (Subgroup) ##
 
-AFRLDistributionC (AFRLDistributionC)
+DREAM3DReview (DREAM3DReview)
 
 ## Description ##
 

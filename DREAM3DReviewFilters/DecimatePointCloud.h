@@ -3,12 +3,12 @@
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
-#include "AFRLDistributionC/AFRLDistributionCDLLExport.h"
+#include "DREAM3DReview/DREAM3DReviewDLLExport.h"
 
 /**
  * @brief The DecimatePointCloud class. See [Filter documentation](@ref decimatepointcloud) for details.
  */
-class AFRLDistributionC_EXPORT DecimatePointCloud : public AbstractFilter
+class DREAM3DReview_EXPORT DecimatePointCloud : public AbstractFilter
 {
   Q_OBJECT
   // clang-format off
