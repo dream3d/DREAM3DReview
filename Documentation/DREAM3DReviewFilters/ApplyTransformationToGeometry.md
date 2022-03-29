@@ -6,7 +6,7 @@ DREAM3D Review (Rotation/Transformation)
 
 ## Description ##
 
-This **Filter** applies a spatial transformation to an unstructured **Geometry**.  An "unstructured" **Geometry** is any geometry that requires explicit definition of **Vertex** positions.  Specifically, **Vertex**, **Edge**, **Triangle**, **Quadrilateral**, and **Tetrahedral** **Geometries** may be transformed by this **Filter**.  The transformation is applied in place, so the input **Geometry** will be modified.
+This **Filter** applies a spatial transformation to an unstructured or Image **Geometry**.  An "unstructured" **Geometry** is any geometry that requires explicit definition of **Vertex** positions.  Specifically, **Vertex**, **Edge**, **Triangle**, **Quadrilateral**, and **Tetrahedral** **Geometries** may be transformed by this **Filter**.  The transformation is applied in place, so the input **Geometry** will be modified.
 
 The user may select from a variety of options for the type of transformation to apply:
 
@@ -47,6 +47,8 @@ None
 
 ## Example Pipelines ##
 
+
+## Add Image Transformation Example#
 
 
 ## License & Copyright ##

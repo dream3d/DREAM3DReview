@@ -266,10 +266,10 @@ protected:
   void dataCheck() override;
   
   template <class T>
-  void linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], double xt, double yt, double zt);
+  void linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt);
 
   template <class T>
-  bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], double xt, double yt, double zt);
+  bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt);
 
   bool applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
   bool applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
