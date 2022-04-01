@@ -54,6 +54,7 @@
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
+#include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
@@ -342,12 +343,12 @@ public:
             {
               zt = 0;
             }
-			else
-			{
+            else
+            {
               zt = (planeOld - z0) / (z1 - z0);
-			}
+            }
 
-          if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
+            if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
             {
               linearInterpolationDataPtr[index * 6] = xt;
               linearInterpolationDataPtr[index * 6 + 1] = yt;
@@ -504,7 +505,18 @@ void ApplyTransformationToGeometry::setupFilterParameters()
     parameter2->setChoices(choices);
     parameter2->setEditable(false);
     parameter2->setCategory(FilterParameter::Category::Parameter);
-    parameters.push_back(parameter2);
+	parameters.push_back(parameter2);
+  }
+  {
+    LinkedBooleanFilterParameter::Pointer parameter3 = LinkedBooleanFilterParameter::New();
+    parameter3->setHumanLabel("Select Data Arrays");
+    parameter3->setPropertyName("UseDataArraySelection");
+    parameter3->setSetterCallback(SIMPL_BIND_SETTER(ApplyTransformationToGeometry, this, UseDataArraySelection));
+    parameter3->setGetterCallback(SIMPL_BIND_GETTER(ApplyTransformationToGeometry, this, UseDataArraySelection));
+    std::vector<QString> linkedProps2 = {"DataArraySelection"};
+    parameter3->setConditionalProperties(linkedProps2);
+    parameter3->setCategory(FilterParameter::Category::Parameter);
+    parameters.push_back(parameter3);
   }
   {
     QStringList rHeaders, cHeaders;
@@ -524,9 +536,9 @@ void ApplyTransformationToGeometry::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Scale", Scale, FilterParameter::Category::Parameter, ApplyTransformationToGeometry, 5));
 
   {
-    DataArraySelectionFilterParameter::RequirementType dasReq =
+    DataArraySelectionFilterParameter::RequirementType datReq =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Generic, IGeometry::Type::Any);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Transformation Matrix", ComputedTransformationMatrix, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Transformation Matrix", ComputedTransformationMatrix, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, datReq, 1));
   }
 
   parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
@@ -539,6 +551,13 @@ void ApplyTransformationToGeometry::setupFilterParameters()
 
     parameters.push_back(SIMPL_NEW_AM_SELECTION_FP("Cell Attribute Matrix", CellAttributeMatrixPath, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, amReq));
   }
+
+  {
+    DataArraySelectionFilterParameter::RequirementType dasReq =
+        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Generic, IGeometry::Type::Any);
+      parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Data Array Selection", DataArraySelection, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
+  }
+
 
   setFilterParameters(parameters);
 }
@@ -558,6 +577,8 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
   setRotationAngle(reader->readValue("RotationAngle", getRotationAngle()));
   setTranslation(reader->readFloatVec3("Translation", getTranslation()));
   setScale(reader->readFloatVec3("Scale", getScale()));
+  setUseDataArraySelection(reader->readValue("UseDataArraySelection", getUseDataArraySelection()));
+  setDataArraySelection(reader->readDataArrayPath("DataArraySelection", getDataArraySelection()));
   reader->closeFilterGroup();
 }
 
@@ -1640,4 +1661,28 @@ void ApplyTransformationToGeometry::setScale(const FloatVec3Type& value)
 FloatVec3Type ApplyTransformationToGeometry::getScale() const
 {
   return m_Scale;
+}
+
+//------------------------------------------------------------------------------
+void ApplyTransformationToGeometry::setUseDataArraySelection(bool value)
+{
+  m_UseDataArraySelection = value;
+}
+
+//------------------------------------------------------------------------------
+bool ApplyTransformationToGeometry::getUseDataArraySelection() const
+{
+  return m_UseDataArraySelection;
+}
+
+// -----------------------------------------------------------------------------
+void ApplyTransformationToGeometry::setDataArraySelection(const DataArrayPath& value)
+{
+  m_DataArraySelection = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath ApplyTransformationToGeometry::getDataArraySelection() const
+{
+  return m_DataArraySelection;
 }

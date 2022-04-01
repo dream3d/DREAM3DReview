@@ -61,9 +61,11 @@ class DREAM3DReview_EXPORT ApplyTransformationToGeometry : public AbstractFilter
   PYB11_PROPERTY(DynamicTableData ManualTransformationMatrix READ getManualTransformationMatrix WRITE setManualTransformationMatrix)
   PYB11_PROPERTY(DataArrayPath ComputedTransformationMatrix READ getComputedTransformationMatrix WRITE setComputedTransformationMatrix)
   PYB11_PROPERTY(DataArrayPath CellAttributeMatrixPath READ getCellAttributeMatrixPath WRITE setCellAttributeMatrixPath)
-//  PYB11_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
+  //  PYB11_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
   PYB11_PROPERTY(int TransformationMatrixType READ getTransformationMatrixType WRITE setTransformationMatrixType)
   PYB11_PROPERTY(int InterpolationType READ getInterpolationType WRITE setInterpolationType)
+  PYB11_PROPERTY(bool UseDataArraySelection READ getUseDataArraySelection WRITE setUseDataArraySelection)
+  PYB11_PROPERTY(DataArrayPath DataArraySelection READ getDataArraySelection WRITE setDataArraySelection)
   PYB11_PROPERTY(FloatVec3Type RotationAxis READ getRotationAxis WRITE setRotationAxis)
   PYB11_PROPERTY(float RotationAngle READ getRotationAngle WRITE setRotationAngle)
   PYB11_PROPERTY(FloatVec3Type Translation READ getTranslation WRITE setTranslation)
@@ -114,16 +116,16 @@ public:
   DataArrayPath getComputedTransformationMatrix() const;
   Q_PROPERTY(DataArrayPath ComputedTransformationMatrix READ getComputedTransformationMatrix WRITE setComputedTransformationMatrix)
 
-//  /**
-//   * @brief Setter property for GeometryToTransform
-//   */
-//  void setGeometryToTransform(const DataArrayPath& value);
-//  /**
-//   * @brief Getter property for GeometryToTransform
-//   * @return Value of GeometryToTransform
-//   */
-//  DataArrayPath getGeometryToTransform() const;
-//  Q_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
+  //  /**
+  //   * @brief Setter property for GeometryToTransform
+  //   */
+  //  void setGeometryToTransform(const DataArrayPath& value);
+  //  /**
+  //   * @brief Getter property for GeometryToTransform
+  //   * @return Value of GeometryToTransform
+  //   */
+  //  DataArrayPath getGeometryToTransform() const;
+  //  Q_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
 
   /**
    * @brief Setter property for TransformationMatrixType
@@ -146,7 +148,6 @@ public:
    */
   int getInterpolationType() const;
   Q_PROPERTY(int InterpolationType READ getInterpolationType WRITE setInterpolationType)
-
 
   /**
    * @brief Setter property for RotationAxis
@@ -191,6 +192,30 @@ public:
    */
   FloatVec3Type getScale() const;
   Q_PROPERTY(FloatVec3Type Scale READ getScale WRITE setScale)
+
+  /**
+   * @brief Setter property for UseDataArraySelection
+   */
+  void setUseDataArraySelection(bool value);
+
+  /**
+   * @brief Getter property for UseDataArraySelection
+   * @return Value of UseDataArraySelection
+   */
+  bool getUseDataArraySelection() const;
+  Q_PROPERTY(bool UseDataArraySelection READ getUseDataArraySelection WRITE setUseDataArraySelection)
+
+  /**
+   * @brief Setter property for DataArraySelection
+   */
+  void setDataArraySelection(const DataArrayPath& value);
+
+  /**
+   * @brief Getter property for DataArraySelection
+   * @return Value of DataArraySelection
+   */
+  DataArrayPath getDataArraySelection() const;
+  Q_PROPERTY(DataArrayPath DataArraySelection READ getDataArraySelection WRITE setDataArraySelection)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -264,7 +289,7 @@ protected:
    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
    */
   void dataCheck() override;
-  
+
   template <class T>
   void linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt);
 
@@ -318,13 +343,15 @@ private:
 
   DynamicTableData m_ManualTransformationMatrix = {};
   DataArrayPath m_ComputedTransformationMatrix = {"", "", "TransformationMatrix"};
-//  DataArrayPath m_GeometryToTransform = {"", "", ""};
+  //  DataArrayPath m_GeometryToTransform = {"", "", ""};
   int m_TransformationMatrixType = {1};
   int m_InterpolationType = {1};
   FloatVec3Type m_RotationAxis = {};
   float m_RotationAngle = {};
   FloatVec3Type m_Translation = {};
   FloatVec3Type m_Scale = {};
+  bool m_UseDataArraySelection = false;
+  DataArrayPath m_DataArraySelection = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
   bool m_SliceBySlice = false;
 
   FloatArrayType::Pointer m_TransformationReference;
