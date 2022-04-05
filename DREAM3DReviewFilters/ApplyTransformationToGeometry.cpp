@@ -214,25 +214,28 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
 }
 
 // Alters image parameters, scales and translates
-void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix3fR& scalingMatrix, const MatrixTranslation translationMatrix)
+void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix3fR& scalingMatrix, const Matrix3fR& rotationMatrix, const MatrixTranslation translationMatrix)
 {
   float m_ScalingMatrix[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  //float m_TranslationMatrix[3][1] = {0.0f, 0.0f, 0.0f};
+  float m_TranslationMatrix[3][1] = {0.0f, 0.0f, 0.0f};
 
   Eigen::Map<Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
-  //Eigen::Map<MatrixTranslation>(&m_TranslationMatrix[0][0], translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
-  //FloatVec3Type origin = imageGeom.getOrigin();
+  Eigen::Map<MatrixTranslation>(&m_TranslationMatrix[0][0], translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
+  FloatVec3Type origin = imageGeom.getOrigin();
+  
+  Eigen::Vector3f original_origin(origin[0], origin[1], origin[2]);
+  Eigen::Vector3f original_origin_rot = rotationMatrix * original_origin;
 
   // Applies Scaling to Image
   imageGeom.setSpacing(params.xResNew * m_ScalingMatrix[0][0], params.yResNew * m_ScalingMatrix[1][1], params.zResNew * m_ScalingMatrix[2][2]);
 
   imageGeom.setDimensions(params.xpNew, params.ypNew, params.zpNew);
 
-  //// Applies Translation to Image
-  //origin[0] += params.xMinNew + m_TranslationMatrix[0][0];
-  //origin[1] += params.yMinNew + m_TranslationMatrix[1][0];
-  //origin[2] += params.zMinNew + m_TranslationMatrix[2][0];
-  //imageGeom.setOrigin(origin);
+  // Applies Translation to Image
+  origin[0] = params.xMinNew + m_TranslationMatrix[0][0] + original_origin_rot[0];
+  origin[1] = params.yMinNew + m_TranslationMatrix[1][0] + original_origin_rot[1];
+  origin[2] = params.zMinNew + m_TranslationMatrix[2][0] + original_origin_rot[2];
+  imageGeom.setOrigin(origin);
 }
 
 /**
@@ -773,7 +776,7 @@ void ApplyTransformationToGeometry::dataCheck()
     p_Impl->m_TranslationMatrix = translationMatrix;
 
     p_Impl->m_Params = ApplyTransformationProgress::createRotateParams(*imageGeom, transform);
-    updateGeometry(*imageGeom, p_Impl->m_Params, scaleMatrix, translationMatrix);
+    updateGeometry(*imageGeom, p_Impl->m_Params, scaleMatrix, rotationMatrix, translationMatrix);
 
     // Resize attribute matrix
     std::vector<size_t> tDims(3);
@@ -1405,18 +1408,6 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
       m->getAttributeMatrix(attrMatName)->insertOrAssign(linData);
     }
   }
-  IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName())->getGeometry();
-  ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(igeom);
-  FloatVec3Type origin = image->getOrigin();
-  float m_TranslationMatrix[3][1] = {0.0f, 0.0f, 0.0f};
-  m_TranslationMatrix[0][0] = p_Impl->m_TranslationMatrix(0, 0);
-  m_TranslationMatrix[1][0] = p_Impl->m_TranslationMatrix(0, 1);
-  m_TranslationMatrix[2][0] = p_Impl->m_TranslationMatrix(0, 2);
-
-  origin[0] += p_Impl->m_Params.xMinNew + m_TranslationMatrix[0][0];
-  origin[1] += p_Impl->m_Params.yMinNew + m_TranslationMatrix[1][0];
-  origin[2] += p_Impl->m_Params.zMinNew + m_TranslationMatrix[2][0];
-  image->setOrigin(origin);
 }
 
 // -----------------------------------------------------------------------------
