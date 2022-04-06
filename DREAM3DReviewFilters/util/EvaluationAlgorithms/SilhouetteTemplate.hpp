@@ -36,6 +36,7 @@
 #pragma once
 
 #include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "DREAM3DReview/DREAM3DReviewFilters/util/DistanceTemplate.hpp"
@@ -49,6 +50,7 @@ public:
   using ConstPointer = std::shared_ptr<const Self>;
   using WeakPointer = std::weak_ptr<Self>;
   using ConstWeakPointer = std::weak_ptr<const Self>;
+
   static Pointer NullPointer()
   {
     return Pointer(static_cast<Self*>(nullptr));
@@ -73,12 +75,15 @@ public:
     return QString("SilhouetteTemplate");
   }
 
-  SilhouetteTemplate()
-  {
-  }
-  virtual ~SilhouetteTemplate()
-  {
-  }
+  SilhouetteTemplate() = default;
+
+  virtual ~SilhouetteTemplate() = default;
+
+public:
+  SilhouetteTemplate(const SilhouetteTemplate&) = delete;            // Copy Constructor Not Implemented
+  SilhouetteTemplate(SilhouetteTemplate&&) = delete;                 // Move Constructor Not Implemented
+  SilhouetteTemplate& operator=(const SilhouetteTemplate&) = delete; // Copy Assignment Not Implemented
+  SilhouetteTemplate& operator=(SilhouetteTemplate&&) = delete;      // Move Assignment Not Implemented
 
   // -----------------------------------------------------------------------------
   //
@@ -91,28 +96,30 @@ public:
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
-  void Execute(AbstractFilter* filter, IDataArray::Pointer inputIDataArray, DoubleArrayType::Pointer outputDataArray, BoolArrayType::Pointer maskDataArray, size_t numClusters,
-               Int32ArrayType::Pointer fIds, int distMetric)
+  void Execute(AbstractFilter* filter, IDataArray::Pointer inputIDataArray, DoubleArrayType::Pointer outputDataArrayPtr, BoolArrayType::Pointer maskDataArrayPtr, size_t numClusters,
+               Int32ArrayType::Pointer featureIdsPtr, int distMetric)
   {
-    typename DataArray<T>::Pointer inputDataPtr = std::dynamic_pointer_cast<DataArray<T>>(inputIDataArray);
-    T* inputData = inputDataPtr->getPointer(0);
-    double* outputData = outputDataArray->getPointer(0);
-    int32_t* fPtr = fIds->getPointer(0);
-    bool* mask = maskDataArray->getPointer(0);
+    using DataArrayType = DataArray<T>;
+
+    typename DataArray<T>::Pointer inputDataPtr = std::dynamic_pointer_cast<DataArrayType>(inputIDataArray);
+    DataArrayType& inputData = *inputDataPtr;
+    DoubleArrayType& outputData = *outputDataArrayPtr;
+    Int32ArrayType& featureIds = *featureIdsPtr;
+    BoolArrayType& mask = *maskDataArrayPtr;
 
     size_t numTuples = inputDataPtr->getNumberOfTuples();
     size_t numCompDims = inputDataPtr->getNumberOfComponents();
 
     std::vector<double> inClusterDist(numTuples, 0.0);
     std::vector<double> outClusterMinDist(numTuples, 0.0);
-    std::vector<double> numTuplesPerFeature(numClusters, 0.0);
-    std::vector<std::vector<double>> clusterDist(numTuples, std::vector<double>(numClusters, 0.0));
+    std::vector<double> numTuplesPerFeature(numClusters + 1, 0.0);
+    std::vector<std::vector<double>> clusterDist(numTuples, std::vector<double>(numClusters + 1, 0.0));
 
     for(size_t i = 0; i < numTuples; i++)
     {
       if(mask[i])
       {
-        numTuplesPerFeature[fPtr[i]]++;
+        numTuplesPerFeature[featureIds[i]]++;
       }
     }
 
@@ -126,8 +133,8 @@ public:
         {
           if(mask[j])
           {
-            cluster = fPtr[j];
-            clusterDist[i][cluster] += DistanceTemplate::GetDistance<T, T, double>(inputData + (numCompDims * i), inputData + (numCompDims * j), numCompDims, distMetric);
+            cluster = featureIds[j];
+            clusterDist[i][cluster] += DistanceTemplate::GetDistance<T, T, double>(inputData.getPointer(numCompDims * i), inputData.getPointer(numCompDims * j), numCompDims, distMetric);
           }
         }
       }
@@ -137,7 +144,7 @@ public:
     {
       if(mask[i])
       {
-        for(size_t j = 0; j < numClusters; j++)
+        for(size_t j = 1; j < numClusters; j++)
         {
           clusterDist[i][j] /= numTuplesPerFeature[j];
         }
@@ -148,12 +155,12 @@ public:
     {
       if(mask[i])
       {
-        cluster = fPtr[i];
+        cluster = featureIds[i];
         inClusterDist[i] = clusterDist[i][cluster];
 
         double dist = 0.0;
         double minDist = std::numeric_limits<double>::max();
-        for(size_t j = 0; j < numClusters; j++)
+        for(size_t j = 1; j < numClusters; j++)
         {
           if(cluster != j)
           {
@@ -176,8 +183,4 @@ public:
       }
     }
   }
-
-private:
-  SilhouetteTemplate(const SilhouetteTemplate&); // Copy Constructor Not Implemented
-  void operator=(const SilhouetteTemplate&);     // Move assignment Not Implemented
 };
