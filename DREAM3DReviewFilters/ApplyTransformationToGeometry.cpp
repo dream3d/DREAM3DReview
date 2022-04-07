@@ -222,7 +222,7 @@ void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix
   Eigen::Map<Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
   Eigen::Map<MatrixTranslation>(&m_TranslationMatrix[0][0], translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
   FloatVec3Type origin = imageGeom.getOrigin();
-  
+
   Eigen::Vector3f original_origin(origin[0], origin[1], origin[2]);
   Eigen::Vector3f original_origin_rot = rotationMatrix * original_origin;
 
@@ -281,15 +281,12 @@ public:
         {
           int64_t index = ktot + jtot + i;
           newindicies[index] = -1;
-          linearInterpolationDataPtr[index * 9] = -1;
-          linearInterpolationDataPtr[index * 9 + 1] = -1;
-          linearInterpolationDataPtr[index * 9 + 2] = -1;
-          linearInterpolationDataPtr[index * 9 + 3] = -1;
-          linearInterpolationDataPtr[index * 9 + 4] = -1;
-          linearInterpolationDataPtr[index * 9 + 5] = -1;
-          linearInterpolationDataPtr[index * 9 + 6] = -1;
-          linearInterpolationDataPtr[index * 9 + 7] = -1;
-          linearInterpolationDataPtr[index * 9 + 8] = -1;
+          linearInterpolationDataPtr[index * 6] = -1;
+          linearInterpolationDataPtr[index * 6 + 1] = -1;
+          linearInterpolationDataPtr[index * 6 + 2] = -1;
+          linearInterpolationDataPtr[index * 6 + 3] = -1;
+          linearInterpolationDataPtr[index * 6 + 4] = -1;
+          linearInterpolationDataPtr[index * 6 + 5] = -1;
 
           float coords[3] = {0.0f, 0.0f, 0.0f};
           float coordsNew[3] = {0.0f, 0.0f, 0.0f};
@@ -306,8 +303,6 @@ public:
           double y1 = static_cast<float>(std::ceil(coordsNew[1] / m_Params.yRes));
           double z0 = static_cast<float>(std::floor(coordsNew[2] / m_Params.zRes));
           double z1 = static_cast<float>(std::ceil(coordsNew[2] / m_Params.zRes));
-
-          // TODO: Linear Interpolation Implementation
 
           int64_t colOld = static_cast<int64_t>(std::nearbyint(coordsNew[0] / m_Params.xRes));
           int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes));
@@ -350,61 +345,19 @@ public:
             {
               zt = 0;
             }
-			else
-			{
-              zt = (planeOld - z0) / (z1 - z0);
-			}
-
-            // if(x1 - x0 != 0)
-            //{
-            //  xt = (colOld - x0) / (x1 - x0);
-            //}
-
-            // if(y1 - y0 != 0)
-            //{
-            //  yt = (rowOld - y0) / (y1 - y0);
-            //}
-
-            // if(z1 - z0 != 0)
-            //{
-            //  zt = (planeOld - z0) / (z1 - z0);
-            //}
-
-            double colOld0 = colOld;
-            double colOld1 = colOld;
-            double rowOld0 = rowOld;
-            double rowOld1 = rowOld;
-            double planeOld0 = planeOld;
-            double planeOld1 = planeOld;
-
-            // float colOld0 = std::floor(colOld);
-            // float colOld1 = std::ceil(colOld);
-            // float rowOld0 = std::floor(rowOld);
-            // float rowOld1 = std::ceil(rowOld);
-            // float planeOld0 = std::floor(planeOld);
-            // float planeOld1 = std::ceil(planeOld);
-
-            if(colOld0 >= 0 && colOld0 < m_Params.xp && colOld1 >= 0 && colOld1 < m_Params.xp && rowOld0 >= 0 && rowOld0 < m_Params.yp && rowOld1 >= 0 && rowOld1 < m_Params.yp && planeOld0 >= 0 &&
-               planeOld0 < m_Params.zp && planeOld1 >= 0 && planeOld1 < m_Params.zp)
+            else
             {
-              // double v000 = ((m_Params.xp * m_Params.yp * planeOld0) + (m_Params.xp * rowOld0) + colOld0) * (1 - xt) * (1 - yt) * (1 - zt);
-              // double v001 = ((m_Params.xp * m_Params.yp * planeOld0) + (m_Params.xp * rowOld0) + colOld1) * xt * (1 - yt) * (1 - zt);
-              // double v010 = ((m_Params.xp * m_Params.yp * planeOld0) + (m_Params.xp * rowOld1) + colOld0) * (1 - xt) * yt * (1 - zt);
-              // double v011 = ((m_Params.xp * m_Params.yp * planeOld0) + (m_Params.xp * rowOld1) + colOld1) * xt * yt * (1 - zt);
-              // double v100 = ((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld0) + colOld0) * (1 - xt) * (1 - yt) * zt;
-              // double v101 = ((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld0) + colOld1) * xt * (1 - yt) * zt;
-              // double v110 = ((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld1) + colOld0) * (1 - xt) * yt * zt;
-              // double v111 = ((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld1) + colOld1) * xt * yt * zt;
+              zt = (planeOld - z0) / (z1 - z0);
+            }
 
-              linearInterpolationDataPtr[index * 9] = xt;
-              linearInterpolationDataPtr[index * 9 + 1] = yt;
-              linearInterpolationDataPtr[index * 9 + 2] = zt;
-              linearInterpolationDataPtr[index * 9 + 3] = colOld0;
-              linearInterpolationDataPtr[index * 9 + 4] = colOld1;
-              linearInterpolationDataPtr[index * 9 + 5] = rowOld0;
-              linearInterpolationDataPtr[index * 9 + 6] = rowOld1;
-              linearInterpolationDataPtr[index * 9 + 7] = planeOld0;
-              linearInterpolationDataPtr[index * 9 + 8] = planeOld1;
+            if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
+            {
+              linearInterpolationDataPtr[index * 6] = xt;
+              linearInterpolationDataPtr[index * 6 + 1] = yt;
+              linearInterpolationDataPtr[index * 6 + 2] = zt;
+              linearInterpolationDataPtr[index * 6 + 3] = colOld;
+              linearInterpolationDataPtr[index * 6 + 4] = rowOld;
+              linearInterpolationDataPtr[index * 6 + 5] = planeOld;
             }
           }
         }
@@ -794,17 +747,17 @@ void ApplyTransformationToGeometry::dataCheck()
 // -----------------------------------------------------------------------------
 
 template <class T>
-void ApplyTransformationToGeometry::linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], double xt, double yt, double zt)
+void ApplyTransformationToGeometry::linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt)
 {
   DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linI);
-  int index0 = linIntIndexes[0] - 1 - p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index1 = linIntIndexes[1] + 1 - p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index2 = linIntIndexes[2] - 1 + p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index3 = linIntIndexes[3] + 1 + p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index4 = linIntIndexes[4] - 1 - p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index5 = linIntIndexes[5] + 1 - p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index6 = linIntIndexes[6] - 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index7 = linIntIndexes[7] + 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index0 = linIntIndexes - 1 - p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index1 = linIntIndexes + 1 - p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index2 = linIntIndexes - 1 + p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index3 = linIntIndexes + 1 + p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index4 = linIntIndexes - 1 - p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index5 = linIntIndexes + 1 - p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index6 = linIntIndexes - 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index7 = linIntIndexes + 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
   if(index0 >= 0 && index0 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
     linEquivalent += (lin->getPointer(0)[index0] * (1 - xt) * (1 - yt) * (1 - zt));
@@ -844,50 +797,19 @@ void ApplyTransformationToGeometry::linearEquivalent(T& linEquivalent, IDataArra
 // -----------------------------------------------------------------------------
 
 template <class T>
-bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes[8], double xt, double yt,
+bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt,
                                                   double zt)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool write = false;
 
-  //xt = LinearInterpolationData[tupleIndex];
-  //yt = LinearInterpolationData[tupleIndex + 1];
-  //zt = LinearInterpolationData[tupleIndex + 2];
-  double colOld0 = LinearInterpolationData[tupleIndex + 3];
-  double colOld1 = LinearInterpolationData[tupleIndex + 4];
-  double rowOld0 = LinearInterpolationData[tupleIndex + 5];
-  double rowOld1 = LinearInterpolationData[tupleIndex + 6];
-  double planeOld0 = LinearInterpolationData[tupleIndex + 7];
-  double planeOld1 = LinearInterpolationData[tupleIndex + 8];
+  double colOld = LinearInterpolationData[tupleIndex + 3];
+  double rowOld = LinearInterpolationData[tupleIndex + 4];
+  double planeOld = LinearInterpolationData[tupleIndex + 5];
 
-  // if(colOld1 == colOld0)
-  //{
-  //  colOld1++;
-  //}
-
-  // if(rowOld1 == rowOld0)
-  //{
-  //  rowOld1++;
-  //}
-
-  // if(planeOld1 == planeOld0)
-  //{
-  //  planeOld1++;
-  //}
-
-  if(colOld0 >= 0 && colOld0 < m_Params.xp && colOld1 >= 0 && colOld1 < m_Params.xp && rowOld0 >= 0 && rowOld0 < m_Params.yp && rowOld1 >= 0 && rowOld1 < m_Params.yp && planeOld0 >= 0 &&
-     planeOld0 < m_Params.zp && planeOld1 >= 0 && planeOld1 < m_Params.zp)
+  if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
   {
-
-    linIntIndexes[0] = std::nearbyint((m_Params.xp * m_Params.yp * planeOld0) + (m_Params.xp * rowOld0) + colOld0);
-    linIntIndexes[1] = std::nearbyint((m_Params.xp * m_Params.yp * planeOld0) + (m_Params.xp * rowOld0) + colOld1);
-    linIntIndexes[2] = std::nearbyint((m_Params.xp * m_Params.yp * planeOld0) + (m_Params.xp * rowOld1) + colOld0);
-    linIntIndexes[3] = std::nearbyint((m_Params.xp * m_Params.yp * planeOld0) + (m_Params.xp * rowOld1) + colOld1);
-    linIntIndexes[4] = std::nearbyint((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld0) + colOld0);
-    linIntIndexes[5] = std::nearbyint((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld0) + colOld1);
-    linIntIndexes[6] = std::nearbyint((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld1) + colOld0);
-    linIntIndexes[7] = std::nearbyint((m_Params.xp * m_Params.yp * planeOld1) + (m_Params.xp * rowOld1) + colOld1);
-
+    linIntIndexes = std::nearbyint((m_Params.xp * m_Params.yp * planeOld) + (m_Params.xp * rowOld) + colOld);
     linearEquivalent<T>(linEquivalent, linI, linIntIndexes, xt, yt, zt);
     write = true;
   }
@@ -907,8 +829,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int8_t>::
     success = false;
     return success;
   }
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -916,7 +838,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int8_t>::
   int8_t linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
   bool wrote = linearIndexes<int8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
   if(wrote)
@@ -945,8 +867,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint8_t>:
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -955,7 +877,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint8_t>:
   uint8_t linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
   bool wrote = linearIndexes<uint8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
   if(wrote)
@@ -984,8 +906,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int16_t>:
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -994,7 +916,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int16_t>:
   int16_t linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
   bool wrote = linearIndexes<int16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
   if(wrote)
@@ -1023,8 +945,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint16_t>
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1033,7 +955,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint16_t>
   uint16_t linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
   bool wrote = linearIndexes<uint16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
   if(wrote)
@@ -1062,8 +984,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int32_t>:
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1072,7 +994,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int32_t>:
   int32_t linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
   bool wrote = linearIndexes<int32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
   if(wrote)
@@ -1101,8 +1023,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint32_t>
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1111,7 +1033,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint32_t>
   uint32_t linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
   bool wrote = linearIndexes<uint32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
   if(wrote)
@@ -1140,8 +1062,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>:
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1150,7 +1072,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>:
   int64_t linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
   bool wrote = linearIndexes<int64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
   if(wrote)
@@ -1179,8 +1101,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint64_t>
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1189,7 +1111,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint64_t>
   uint64_t linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
 
   bool wrote = linearIndexes<uint64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
@@ -1219,8 +1141,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<float>::P
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1229,7 +1151,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<float>::P
   float linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
   bool wrote = linearIndexes<float>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
   if(wrote)
@@ -1258,8 +1180,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<double>::
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1268,7 +1190,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<double>::
   double linEquivalent = 0;
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
-  int64_t linIntIndexes[8];
+  int64_t linIntIndexes = 0;
   bool wrote = linearIndexes<double>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
 
   if(wrote)
@@ -1291,9 +1213,7 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
 {
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
   int64_t newNumCellTuples = p_Impl->m_Params.xpNew * p_Impl->m_Params.ypNew * p_Impl->m_Params.zpNew;
-  int64_t newNumCellTuplesLinData = newNumCellTuples * 9;
-  float dim = 9;
-  DataArray<float>::comp_dims_type dims = std::vector<size_t>(9);
+  int64_t newNumCellTuplesLinData = newNumCellTuples * 6;
 
   QString name = "_INTERNAL_USE_ONLY_RotateSampleRef_LinearInterpolationData";
   DataArray<int64_t>::Pointer newIndiciesPtr = DataArray<int64_t>::CreateArray(newNumCellTuples, std::string("_INTERNAL_USE_ONLY_RotateSampleRef_NewIndicies"), true);
