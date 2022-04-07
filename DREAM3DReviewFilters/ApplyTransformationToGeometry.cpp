@@ -223,7 +223,7 @@ void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix
   Eigen::Map<Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
   Eigen::Map<MatrixTranslation>(&m_TranslationMatrix[0][0], translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
   FloatVec3Type origin = imageGeom.getOrigin();
-  
+
   Eigen::Vector3f original_origin(origin[0], origin[1], origin[2]);
   Eigen::Vector3f original_origin_rot = rotationMatrix * original_origin;
 
@@ -850,8 +850,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int8_t>::
     success = false;
     return success;
   }
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -888,8 +888,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint8_t>:
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -927,8 +927,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int16_t>:
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -966,8 +966,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint16_t>
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1005,8 +1005,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int32_t>:
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1044,8 +1044,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint32_t>
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1083,8 +1083,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>:
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1122,8 +1122,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint64_t>
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1162,8 +1162,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<float>::P
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
@@ -1201,8 +1201,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<double>::
     return success;
   }
 
-  int64_t tupleIndex = index * 9;
-  int64_t linIndex = index * 8;
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
