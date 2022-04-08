@@ -224,15 +224,6 @@ void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix
   FloatVec3Type origin = imageGeom.getOrigin();
 
   Eigen::Vector3f original_translation(m_TranslationMatrix[0][0], m_TranslationMatrix[1][0], m_TranslationMatrix[2][0]);
- // Eigen::Vector3f original_translation_rot = rotationMatrix * (original_translation);
-
- // for(int i = 0; i < 3; i++)
- // {
- //   if((original_translation_rot[i] == 0) && (original_translation[i] != 0))
-	//{
- //     original_translation_rot[i] = original_translation[i];
-	//}
- // }
 
   Eigen::Vector3f original_origin(origin[0], origin[1], origin[2]);
   Eigen::Vector3f original_origin_rot = rotationMatrix * original_origin;
