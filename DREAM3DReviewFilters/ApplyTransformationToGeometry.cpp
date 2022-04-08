@@ -218,10 +218,21 @@ void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix
 {
   float m_ScalingMatrix[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
   float m_TranslationMatrix[3][1] = {0.0f, 0.0f, 0.0f};
-
   Eigen::Map<Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
+
   Eigen::Map<MatrixTranslation>(&m_TranslationMatrix[0][0], translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
   FloatVec3Type origin = imageGeom.getOrigin();
+
+  Eigen::Vector3f original_translation(m_TranslationMatrix[0][0], m_TranslationMatrix[1][0], m_TranslationMatrix[2][0]);
+ // Eigen::Vector3f original_translation_rot = rotationMatrix * (original_translation);
+
+ // for(int i = 0; i < 3; i++)
+ // {
+ //   if((original_translation_rot[i] == 0) && (original_translation[i] != 0))
+	//{
+ //     original_translation_rot[i] = original_translation[i];
+	//}
+ // }
 
   Eigen::Vector3f original_origin(origin[0], origin[1], origin[2]);
   Eigen::Vector3f original_origin_rot = rotationMatrix * original_origin;
@@ -232,9 +243,9 @@ void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix
   imageGeom.setDimensions(params.xpNew, params.ypNew, params.zpNew);
 
   // Applies Translation to Image
-  origin[0] = params.xMinNew + m_TranslationMatrix[0][0] + original_origin_rot[0];
-  origin[1] = params.yMinNew + m_TranslationMatrix[1][0] + original_origin_rot[1];
-  origin[2] = params.zMinNew + m_TranslationMatrix[2][0] + original_origin_rot[2];
+  origin[0] = params.xMinNew * m_ScalingMatrix[0][0] + original_translation[0] + original_origin_rot[0] * params.xResNew * m_ScalingMatrix[0][0];
+  origin[1] = params.yMinNew * m_ScalingMatrix[1][1] + original_translation[1] + original_origin_rot[1] * params.yResNew * m_ScalingMatrix[1][1];
+  origin[2] = params.zMinNew * m_ScalingMatrix[2][2] + original_translation[2] + original_origin_rot[2] * params.zResNew * m_ScalingMatrix[2][2];
   imageGeom.setOrigin(origin);
 }
 
@@ -750,45 +761,47 @@ template <class T>
 void ApplyTransformationToGeometry::linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt)
 {
   DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linI);
-  int index0 = linIntIndexes - 1 - p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index1 = linIntIndexes + 1 - p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index2 = linIntIndexes - 1 + p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index3 = linIntIndexes + 1 + p_Impl->m_Params.xp - p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index4 = linIntIndexes - 1 - p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index5 = linIntIndexes + 1 - p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-  int index6 = linIntIndexes - 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index0 = linIntIndexes;
+  int index1 = linIntIndexes + 1;
+  int index2 = linIntIndexes + p_Impl->m_Params.xp;
+  int index3 = linIntIndexes + 1 + p_Impl->m_Params.xp;
+  int index4 = linIntIndexes + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index5 = linIntIndexes + 1 + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index6 = linIntIndexes + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
   int index7 = linIntIndexes + 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
   if(index0 >= 0 && index0 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += (lin->getPointer(0)[index0] * (1 - xt) * (1 - yt) * (1 - zt));
+    linEquivalent += lin->getPointer(0)[index0];
   }
   if(index1 >= 0 && index1 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += (lin->getPointer(0)[index1] * xt * (1 - yt) * (1 - zt));
+    linEquivalent += ((lin->getPointer(0)[index1] - lin->getPointer(0)[index0]) * xt);
   }
   if(index2 >= 0 && index2 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += (lin->getPointer(0)[index2] * (1 - xt) * yt * (1 - zt));
+    linEquivalent += ((lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) * yt);
   }
   if(index3 >= 0 && index3 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += (lin->getPointer(0)[index3] * xt * yt * (1 - zt));
+    linEquivalent += ((lin->getPointer(0)[index3] - lin->getPointer(0)[index2] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * yt);
   }
   if(index4 >= 0 && index4 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += (lin->getPointer(0)[index4] * (1 - xt) * (1 - yt) * zt);
+    linEquivalent += ((lin->getPointer(0)[index4] - lin->getPointer(0)[index0]) * zt);
   }
   if(index5 >= 0 && index5 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += (lin->getPointer(0)[index5] * xt * (1 - yt) * zt);
+    linEquivalent += ((lin->getPointer(0)[index5] - lin->getPointer(0)[index4] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * zt);
   }
   if(index6 >= 0 && index6 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += (lin->getPointer(0)[index6] * (1 - xt) * yt * zt);
+    linEquivalent += ((lin->getPointer(0)[index6] - lin->getPointer(0)[index4] - lin->getPointer(0)[index2] + lin->getPointer(0)[index0]) * yt * zt);
   }
   if(index7 >= 0 && index7 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += (lin->getPointer(0)[index7] * xt * yt * zt);
+    linEquivalent += ((lin->getPointer(0)[index7] - lin->getPointer(0)[index6] - lin->getPointer(0)[index5] - lin->getPointer(0)[index3] + lin->getPointer(0)[index1] + lin->getPointer(0)[index4] +
+                       lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) *
+                      xt * yt * zt);
   }
 }
 
@@ -809,7 +822,11 @@ bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationDat
 
   if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
   {
-    linIntIndexes = std::nearbyint((m_Params.xp * m_Params.yp * planeOld) + (m_Params.xp * rowOld) + colOld);
+    int planeFloor = std::floor(planeOld);
+    int rowFloor = std::floor(rowOld);
+    int colFloor = std::floor(colOld);
+
+    linIntIndexes = std::nearbyint((m_Params.xp * m_Params.yp * planeFloor) + (m_Params.xp * rowFloor) + colFloor);
     linearEquivalent<T>(linEquivalent, linI, linIntIndexes, xt, yt, zt);
     write = true;
   }
