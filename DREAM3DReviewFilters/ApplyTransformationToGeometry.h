@@ -65,7 +65,7 @@ class DREAM3DReview_EXPORT ApplyTransformationToGeometry : public AbstractFilter
   PYB11_PROPERTY(int TransformationMatrixType READ getTransformationMatrixType WRITE setTransformationMatrixType)
   PYB11_PROPERTY(int InterpolationType READ getInterpolationType WRITE setInterpolationType)
   PYB11_PROPERTY(bool UseDataArraySelection READ getUseDataArraySelection WRITE setUseDataArraySelection)
-  PYB11_PROPERTY(DataArrayPath DataArraySelection READ getDataArraySelection WRITE setDataArraySelection)
+  PYB11_PROPERTY(std::vector<DataArrayPath> DataArraySelection READ getDataArraySelection WRITE setDataArraySelection)
   PYB11_PROPERTY(FloatVec3Type RotationAxis READ getRotationAxis WRITE setRotationAxis)
   PYB11_PROPERTY(float RotationAngle READ getRotationAngle WRITE setRotationAngle)
   PYB11_PROPERTY(FloatVec3Type Translation READ getTranslation WRITE setTranslation)
@@ -208,14 +208,14 @@ public:
   /**
    * @brief Setter property for DataArraySelection
    */
-  void setDataArraySelection(const DataArrayPath& value);
+  void setDataArraySelection(const std::vector<DataArrayPath>& value);
 
   /**
    * @brief Getter property for DataArraySelection
    * @return Value of DataArraySelection
    */
-  DataArrayPath getDataArraySelection() const;
-  Q_PROPERTY(DataArrayPath DataArraySelection READ getDataArraySelection WRITE setDataArraySelection)
+  std::vector<DataArrayPath> getDataArraySelection() const;
+  Q_PROPERTY(std::vector<DataArrayPath> DataArraySelection READ getDataArraySelection WRITE setDataArraySelection)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -351,7 +351,7 @@ private:
   FloatVec3Type m_Translation = {};
   FloatVec3Type m_Scale = {};
   bool m_UseDataArraySelection = false;
-  DataArrayPath m_DataArraySelection = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
+  std::vector<DataArrayPath> m_DataArraySelection = {};
   bool m_SliceBySlice = false;
 
   FloatArrayType::Pointer m_TransformationReference;

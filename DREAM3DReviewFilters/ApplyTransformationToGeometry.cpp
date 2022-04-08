@@ -57,6 +57,7 @@
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
+#include "SIMPLib/FilterParameters/MultiDataArraySelectionFilterParameter.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
 #include "SIMPLib/Geometry/IGeometry2D.h"
 #include "SIMPLib/Geometry/IGeometry3D.h"
@@ -65,6 +66,8 @@
 #include "SIMPLib/Math/MatrixMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/ParallelDataAlgorithm.h"
+#include "SIMPLib/DataContainers/AttributeMatrixProxy.h"
+
 
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
@@ -558,11 +561,10 @@ void ApplyTransformationToGeometry::setupFilterParameters()
   }
 
   {
-    DataArraySelectionFilterParameter::RequirementType dasReq =
-        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Generic, IGeometry::Type::Any);
-      parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Data Array Selection", DataArraySelection, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq, 1));
+    MultiDataArraySelectionFilterParameter::RequirementType dasReq;
+    dasReq.amTypes = AttributeMatrix::Types(1, AttributeMatrix::Type::Any);
+      parameters.push_back(SIMPL_NEW_MDA_SELECTION_FP("Data Array Selection", DataArraySelection, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq));
   }
-
 
   setFilterParameters(parameters);
 }
@@ -583,7 +585,7 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
   setTranslation(reader->readFloatVec3("Translation", getTranslation()));
   setScale(reader->readFloatVec3("Scale", getScale()));
   setUseDataArraySelection(reader->readValue("UseDataArraySelection", getUseDataArraySelection()));
-  setDataArraySelection(reader->readDataArrayPath("DataArraySelection", getDataArraySelection()));
+  //setDataArraySelection(reader->readDataArrayPathVector("DataArraySelection", getDataArraySelection()));
   reader->closeFilterGroup();
 }
 
@@ -1265,6 +1267,15 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
   QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
   QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
 
+  if(m_UseDataArraySelection)
+  {
+    voxelArrayNames.clear();
+    for(const auto& dataArrayPath : m_DataArraySelection)
+    {
+      voxelArrayNames.append(dataArrayPath.getDataArrayName());
+    }
+  }
+
   for(const auto& attrArrayName : voxelArrayNames)
   {
     IDataArray::Pointer p = m->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
@@ -1364,8 +1375,27 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
 
 void ApplyTransformationToGeometry::applyTransformation()
 {
+  DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
+
+  QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
+  QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
+
+  if(m_UseDataArraySelection)
+  {
+    voxelArrayNames.clear();
+    for(const auto& dataArrayPath : m_DataArraySelection)
+    {
+      voxelArrayNames.append(dataArrayPath.getDataArrayName());
+    }
+  }
 
   IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName())->getGeometry();
+  igeom->getAttributeMatrix(attrMatName)->clearAttributeArrays();
+  for(const auto& attrArrayName : voxelArrayNames)
+  {
+   IDataArrayShPtrType dataArrayPath = igeom->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
+   igeom->getAttributeMatrix(attrMatName)->addOrReplaceAttributeArray(dataArrayPath);
+  }
   SharedVertexList::Pointer vertexList;
 
   if(IGeometry2D::Pointer igeom2D = std::dynamic_pointer_cast<IGeometry2D>(igeom))
@@ -1686,13 +1716,13 @@ bool ApplyTransformationToGeometry::getUseDataArraySelection() const
 }
 
 // -----------------------------------------------------------------------------
-void ApplyTransformationToGeometry::setDataArraySelection(const DataArrayPath& value)
+void ApplyTransformationToGeometry::setDataArraySelection(const std::vector<DataArrayPath>& value)
 {
   m_DataArraySelection = value;
 }
 
 // -----------------------------------------------------------------------------
-DataArrayPath ApplyTransformationToGeometry::getDataArraySelection() const
+std::vector<DataArrayPath> ApplyTransformationToGeometry::getDataArraySelection() const
 {
   return m_DataArraySelection;
 }
