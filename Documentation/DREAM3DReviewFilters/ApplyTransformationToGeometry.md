@@ -54,7 +54,8 @@ None
 ## Add Image Transformation Example#
 Image transformation requires the creation of a new expanded data container in the case of rotation as there may be more points in the rotated array than in the original. The extents of this new container are found by calculating the position of the corners of the original data container after rotation and using these values to determine the minimum and maximum values the data container will encompass. Then each point in the new container is interpolated back onto the original object to see what position it corresponds to and assigned a value thus creating a rotated version of the original image.
 
-Images/ImageTransformation.png
+|![Image Transform Before and After](Images/ImageTransformation.png)|
+
 
 ## License & Copyright ##
 
