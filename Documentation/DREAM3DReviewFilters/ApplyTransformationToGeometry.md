@@ -19,8 +19,11 @@ The user may select from a variety of options for the type of transformation to 
 | Translation | Translation by the supplied (x, y, z) values |
 | Scale | Scaling by the supplied (x, y, z) values |
 
+The user can choose what interpolation mode will be used by the filter (linear or nearest neighbor) when interpolating between points.*
+
 The user may also choose to select which data arrays will be transformed via the Data Array Selection checkbox, this will bring up a array selection window where the user can choose which arrays will be modified, default behavior is to alter all arrays.*
-*Only applies to image geometry transformations
+
+*Only applies to image geometry transformations otherwise has no effect
 
 ## Parameters ##
 
@@ -32,6 +35,9 @@ The user may also choose to select which data arrays will be transformed via the
 | Rotation Axis (ijk) | float (3x) | Rotation axis, if _Rotation_ is chosen for the _Transformation Type_ |
 | Translation | float (3x) | (x, y, z) translation values, if _Translation_ is chosen for the _Transformation Type_ |
 | Scale | float (3x) | (x, y, z) scale values, if _Scale_ is chosen for the _Transformation Type_ |
+| Interpolation Type | Enumeration | Type of interpolation to be used |
+| Select Data Arrays | bool | Switch for Data Array Selection |
+| Data Array Selection | Data Array | Selects which Data Arrays to transform (Image Geometries Only) |
 
 ## Required Geometry ###
 
@@ -51,11 +57,10 @@ None
 ## Example Pipelines ##
 
 
-## Add Image Transformation Example#
+## Image Transformation Example#
 Image transformation requires the creation of a new expanded data container in the case of rotation as there may be more points in the rotated array than in the original. The extents of this new container are found by calculating the position of the corners of the original data container after rotation and using these values to determine the minimum and maximum values the data container will encompass. Then each point in the new container is interpolated back onto the original object to see what position it corresponds to and assigned a value thus creating a rotated version of the original image.
 
-|![Image Transform Before and After](Images/ImageTransformation.PNG)|
-
+![Image Transform Before and After](Images/ImageTransformation.PNG)
 
 ## License & Copyright ##
 
