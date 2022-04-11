@@ -562,7 +562,7 @@ void ApplyTransformationToGeometry::setupFilterParameters()
 
   {
     MultiDataArraySelectionFilterParameter::RequirementType dasReq;
-    dasReq.amTypes = AttributeMatrix::Types(1, AttributeMatrix::Type::Any);
+    dasReq.amTypes = AttributeMatrix::Types(1, AttributeMatrix::Type::Cell);
       parameters.push_back(SIMPL_NEW_MDA_SELECTION_FP("Data Array Selection", DataArraySelection, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq));
   }
 
@@ -1375,28 +1375,29 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
 
 void ApplyTransformationToGeometry::applyTransformation()
 {
-  DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-
-  QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
-  QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
-
-  if(m_UseDataArraySelection)
-  {
-    voxelArrayNames.clear();
-    for(const auto& dataArrayPath : m_DataArraySelection)
-    {
-      voxelArrayNames.append(dataArrayPath.getDataArrayName());
-    }
-  }
-
   IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName())->getGeometry();
-  igeom->getAttributeMatrix(attrMatName)->clearAttributeArrays();
-  for(const auto& attrArrayName : voxelArrayNames)
-  {
-   IDataArrayShPtrType dataArrayPath = igeom->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
-   igeom->getAttributeMatrix(attrMatName)->addOrReplaceAttributeArray(dataArrayPath);
-  }
   SharedVertexList::Pointer vertexList;
+
+  //DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
+
+  //QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
+  //QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
+
+  //if(m_UseDataArraySelection)
+  //{
+  //  voxelArrayNames.clear();
+  //  for(const auto& dataArrayPath : m_DataArraySelection)
+  //  {
+  //    voxelArrayNames.append(dataArrayPath.getDataArrayName());
+  //  }
+  //}
+
+  //igeom->getAttributeMatrix(attrMatName)->clearAttributeArrays();
+  //for(const auto& attrArrayName : voxelArrayNames)
+  //{
+  // IDataArrayShPtrType dataArrayPath = igeom->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
+  // igeom->getAttributeMatrix(attrMatName)->addOrReplaceAttributeArray(dataArrayPath);
+  //}
 
   if(IGeometry2D::Pointer igeom2D = std::dynamic_pointer_cast<IGeometry2D>(igeom))
   {
