@@ -46,6 +46,7 @@
 
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Common/SIMPLRange.h"
+#include "SIMPLib/DataContainers/AttributeMatrixProxy.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
@@ -56,8 +57,8 @@
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
-#include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/MultiDataArraySelectionFilterParameter.h"
+#include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
 #include "SIMPLib/Geometry/IGeometry2D.h"
 #include "SIMPLib/Geometry/IGeometry3D.h"
@@ -66,8 +67,6 @@
 #include "SIMPLib/Math/MatrixMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/ParallelDataAlgorithm.h"
-#include "SIMPLib/DataContainers/AttributeMatrixProxy.h"
-
 
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
@@ -513,7 +512,7 @@ void ApplyTransformationToGeometry::setupFilterParameters()
     parameter2->setChoices(choices);
     parameter2->setEditable(false);
     parameter2->setCategory(FilterParameter::Category::Parameter);
-	parameters.push_back(parameter2);
+    parameters.push_back(parameter2);
   }
   {
     LinkedBooleanFilterParameter::Pointer parameter3 = LinkedBooleanFilterParameter::New();
@@ -563,7 +562,7 @@ void ApplyTransformationToGeometry::setupFilterParameters()
   {
     MultiDataArraySelectionFilterParameter::RequirementType dasReq;
     dasReq.amTypes = AttributeMatrix::Types(1, AttributeMatrix::Type::Cell);
-      parameters.push_back(SIMPL_NEW_MDA_SELECTION_FP("Data Array Selection", DataArraySelection, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq));
+    parameters.push_back(SIMPL_NEW_MDA_SELECTION_FP("Data Array Selection", DataArraySelection, FilterParameter::Category::RequiredArray, ApplyTransformationToGeometry, dasReq));
   }
 
   setFilterParameters(parameters);
@@ -585,7 +584,7 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
   setTranslation(reader->readFloatVec3("Translation", getTranslation()));
   setScale(reader->readFloatVec3("Scale", getScale()));
   setUseDataArraySelection(reader->readValue("UseDataArraySelection", getUseDataArraySelection()));
-  //setDataArraySelection(reader->readDataArrayPathVector("DataArraySelection", getDataArraySelection()));
+  // setDataArraySelection(reader->readDataArrayPathVector("DataArraySelection", getDataArraySelection()));
   reader->closeFilterGroup();
 }
 
@@ -772,9 +771,9 @@ void ApplyTransformationToGeometry::dataCheck()
 // -----------------------------------------------------------------------------
 
 template <class T>
-void ApplyTransformationToGeometry::linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt)
+void ApplyTransformationToGeometry::linearEquivalent(std::vector<T> linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt)
 {
-  DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linI);
+  DataArray<std::vector<T>>::Pointer lin = std::dynamic_pointer_cast<DataArray<std::vector<T>>>(linI);
   int index0 = linIntIndexes;
   int index1 = linIntIndexes + 1;
   int index2 = linIntIndexes + p_Impl->m_Params.xp;
@@ -785,37 +784,60 @@ void ApplyTransformationToGeometry::linearEquivalent(T& linEquivalent, IDataArra
   int index7 = linIntIndexes + 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
   if(index0 >= 0 && index0 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += lin->getPointer(0)[index0];
+    for(int i = 0; i < linEquivalent.size(); i++)
+    {
+      linEquivalent.at(i) += lin->getPointer(0)[index0].at(i);
+	}
   }
   if(index1 >= 0 && index1 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index1] - lin->getPointer(0)[index0]) * xt);
+    for(int i = 0; i < linEquivalent.size(); i++)
+    {
+	  linEquivalent.at(i) += ((lin->getPointer(0)[index1].at(i) - lin->getPointer(0)[index0].at(i)) * xt);
+    }
   }
   if(index2 >= 0 && index2 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) * yt);
+    for(int i = 0; i < linEquivalent.size(); i++)
+    {
+      linEquivalent.at(i) += ((lin->getPointer(0)[index2].at(i) - lin->getPointer(0)[index0].at(i)) * yt);
+	}
   }
   if(index3 >= 0 && index3 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index3] - lin->getPointer(0)[index2] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * yt);
+    for(int i = 0; i < linEquivalent.size(); i++)
+    {
+      linEquivalent.at(i) += ((lin->getPointer(0)[index3].at(i) - lin->getPointer(0)[index2].at(i) - lin->getPointer(0)[index1].at(i) + lin->getPointer(0)[index0].at(i)) * xt * yt);
+	}
   }
   if(index4 >= 0 && index4 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index4] - lin->getPointer(0)[index0]) * zt);
+    for(int i = 0; i < linEquivalent.size(); i++)
+    {   
+	  linEquivalent.at(i) += ((lin->getPointer(0)[index4].at(i) - lin->getPointer(0)[index0].at(i)) * zt);
+    }
   }
   if(index5 >= 0 && index5 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index5] - lin->getPointer(0)[index4] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * zt);
+    for(int i = 0; i < linEquivalent.size(); i++)
+    {    
+	  linEquivalent.at(i) += ((lin->getPointer(0)[index5].at(i) - lin->getPointer(0)[index4].at(i) - lin->getPointer(0)[index1].at(i) + lin->getPointer(0)[index0].at(i)) * xt * zt);
+    }
   }
   if(index6 >= 0 && index6 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index6] - lin->getPointer(0)[index4] - lin->getPointer(0)[index2] + lin->getPointer(0)[index0]) * yt * zt);
+    for(int i = 0; i < linEquivalent.size(); i++)
+    {    
+      linEquivalent.at(i) += ((lin->getPointer(0)[index6].at(i) - lin->getPointer(0)[index4].at(i) - lin->getPointer(0)[index2].at(i) + lin->getPointer(0)[index0].at(i)) * yt * zt);
+    }
+
   }
   if(index7 >= 0 && index7 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index7] - lin->getPointer(0)[index6] - lin->getPointer(0)[index5] - lin->getPointer(0)[index3] + lin->getPointer(0)[index1] + lin->getPointer(0)[index4] +
-                       lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) *
-                      xt * yt * zt);
+    for(int i = 0; i < linEquivalent.size(); i++)
+    {   
+	  linEquivalent.at(i) += ((lin->getPointer(0)[index7].at(i) - lin->getPointer(0)[index6].at(i) - lin->getPointer(0)[index5].at(i) - lin->getPointer(0)[index3].at(i) + lin->getPointer(0)[index1].at(i) + lin->getPointer(0)[index4].at(i) + lin->getPointer(0)[index2].at(i) - lin->getPointer(0)[index0].at(i)) * xt * yt * zt);
+    }
   }
 }
 
@@ -824,7 +846,7 @@ void ApplyTransformationToGeometry::linearEquivalent(T& linEquivalent, IDataArra
 // -----------------------------------------------------------------------------
 
 template <class T>
-bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt,
+bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, std::vector<T> linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt,
                                                   double zt)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
@@ -860,28 +882,31 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int8_t>::
     success = false;
     return success;
   }
-  int64_t tupleIndex = index * 6;
-  // int64_t linIndex = index * 8;
+int64_t tupleIndex = index * 6;
+// int64_t linIndex = index * 8;
 
-  double xt = LinearInterpolationData[tupleIndex];
-  double yt = LinearInterpolationData[tupleIndex + 1];
-  double zt = LinearInterpolationData[tupleIndex + 2];
-  int8_t linEquivalent = 0;
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+double xt = LinearInterpolationData[tupleIndex];
+double yt = LinearInterpolationData[tupleIndex + 1];
+double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int64_t linIntIndexes = 0;
-  bool wrote = linearIndexes<int8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+int numComponents = linData->getNumberOfComponents();
 
-  if(wrote)
-  {
-    linData->initializeTuple(index, &linEquivalent);
-  }
-  else
-  {
-    int var = 0;
-    linData->initializeTuple(index, &var);
-  }
-  return success;
+std::vector<int8_t> linEquivalent(numComponents);
+IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+int64_t linIntIndexes = 0;
+bool wrote = linearIndexes<int8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+if(wrote)
+{
+  linData->initializeTuple(index, &linEquivalent);
+}
+else
+{
+  int var = 0;
+  linData->initializeTuple(index, &var);
+}
+return success;
 }
 
 // -----------------------------------------------------------------------------
@@ -905,7 +930,9 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint8_t>:
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  uint8_t linEquivalent = 0;
+  int numComponents = linData->getNumberOfComponents();
+  std::vector<uint8_t> linEquivalent(numComponents);
+
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
   int64_t linIntIndexes = 0;
@@ -944,7 +971,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int16_t>:
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int16_t linEquivalent = 0;
+  int numComponents = linData->getNumberOfComponents();
+  std::vector<int16_t> linEquivalent(numComponents);
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
   int64_t linIntIndexes = 0;
@@ -983,7 +1011,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint16_t>
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  uint16_t linEquivalent = 0;
+  int numComponents = linData->getNumberOfComponents();
+  std::vector<uint16_t> linEquivalent(numComponents);
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
   int64_t linIntIndexes = 0;
@@ -1022,7 +1051,9 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int32_t>:
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int32_t linEquivalent = 0;
+  int numComponents = linData->getNumberOfComponents();
+  std::vector<int32_t> linEquivalent(numComponents);
+
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
   int64_t linIntIndexes = 0;
@@ -1061,7 +1092,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint32_t>
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  uint32_t linEquivalent = 0;
+  int numComponents = linData->getNumberOfComponents();
+  std::vector<uint32_t> linEquivalent(numComponents);
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
   int64_t linIntIndexes = 0;
@@ -1100,7 +1132,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>:
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int64_t linEquivalent = 0;
+  int numComponents = linData->getNumberOfComponents();
+  std::vector<int64_t> linEquivalent(numComponents);
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
   int64_t linIntIndexes = 0;
@@ -1139,7 +1172,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint64_t>
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  uint64_t linEquivalent = 0;
+  int numComponents = linData->getNumberOfComponents();
+  std::vector<uint64_t> linEquivalent(numComponents);
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
   int64_t linIntIndexes = 0;
@@ -1179,7 +1213,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<float>::P
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  float linEquivalent = 0;
+  int numComponents = linData->getNumberOfComponents();
+  std::vector<float> linEquivalent(numComponents);
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
   int64_t linIntIndexes = 0;
@@ -1218,7 +1253,8 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<double>::
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  double linEquivalent = 0;
+  int numComponents = linData->getNumberOfComponents();
+  std::vector<double> linEquivalent(numComponents);
   IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
 
   int64_t linIntIndexes = 0;
@@ -1378,27 +1414,6 @@ void ApplyTransformationToGeometry::applyTransformation()
 {
   IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName())->getGeometry();
   SharedVertexList::Pointer vertexList;
-
-  //DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-
-  //QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
-  //QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
-
-  //if(m_UseDataArraySelection)
-  //{
-  //  voxelArrayNames.clear();
-  //  for(const auto& dataArrayPath : m_DataArraySelection)
-  //  {
-  //    voxelArrayNames.append(dataArrayPath.getDataArrayName());
-  //  }
-  //}
-
-  //igeom->getAttributeMatrix(attrMatName)->clearAttributeArrays();
-  //for(const auto& attrArrayName : voxelArrayNames)
-  //{
-  // IDataArrayShPtrType dataArrayPath = igeom->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
-  // igeom->getAttributeMatrix(attrMatName)->addOrReplaceAttributeArray(dataArrayPath);
-  //}
 
   if(IGeometry2D::Pointer igeom2D = std::dynamic_pointer_cast<IGeometry2D>(igeom))
   {
