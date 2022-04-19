@@ -237,9 +237,9 @@ void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix
   imageGeom.setDimensions(params.xpNew, params.ypNew, params.zpNew);
 
   // Applies Translation to Image
-  origin[0] = params.xMinNew * m_ScalingMatrix[0][0] + original_translation[0] + original_origin_rot[0] * params.xResNew * m_ScalingMatrix[0][0];
-  origin[1] = params.yMinNew * m_ScalingMatrix[1][1] + original_translation[1] + original_origin_rot[1] * params.yResNew * m_ScalingMatrix[1][1];
-  origin[2] = params.zMinNew * m_ScalingMatrix[2][2] + original_translation[2] + original_origin_rot[2] * params.zResNew * m_ScalingMatrix[2][2];
+  origin[0] = params.xMinNew * m_ScalingMatrix[0][0] + original_translation[0] + original_origin_rot[0] * params.xResNew * m_ScalingMatrix[0][0] / params.xRes;
+  origin[1] = params.yMinNew * m_ScalingMatrix[1][1] + original_translation[1] + original_origin_rot[1] * params.yResNew * m_ScalingMatrix[1][1] / params.yRes;
+  origin[2] = params.zMinNew * m_ScalingMatrix[2][2] + original_translation[2] + original_origin_rot[2] * params.zResNew * m_ScalingMatrix[2][2] / params.zRes;
   imageGeom.setOrigin(origin);
 }
 
