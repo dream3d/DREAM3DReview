@@ -291,21 +291,27 @@ protected:
   void dataCheck() override;
 
   template <class T>
-  void linearEquivalent(std::vector<T> linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt);
+  void linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt);
 
   template <class T>
-  bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, std::vector<T> linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt);
+  void linearEquivalentRGB(T linEquivalent[3], IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt);
 
-  bool applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<int16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<uint16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<int32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<uint32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<uint64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<float>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
-  bool applyLinearInterpolation(DataArray<double>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData);
+  template <class T>
+  bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt);
+
+  template <class T>
+  bool linearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, T linEquivalent[3], IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt);
+
+  bool applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
+  bool applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
+  bool applyLinearInterpolation(DataArray<int16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
+  bool applyLinearInterpolation(DataArray<uint16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
+  bool applyLinearInterpolation(DataArray<int32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
+  bool applyLinearInterpolation(DataArray<uint32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
+  bool applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
+  bool applyLinearInterpolation(DataArray<uint64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
+  bool applyLinearInterpolation(DataArray<float>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
+  bool applyLinearInterpolation(DataArray<double>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
 
   /**
    * @brief sendThreadSafeProgressMessage

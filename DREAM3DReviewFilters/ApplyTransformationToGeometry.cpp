@@ -771,9 +771,9 @@ void ApplyTransformationToGeometry::dataCheck()
 // -----------------------------------------------------------------------------
 
 template <class T>
-void ApplyTransformationToGeometry::linearEquivalent(std::vector<T> linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt)
+void ApplyTransformationToGeometry::linearEquivalent(T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt)
 {
-  DataArray<std::vector<T>>::Pointer lin = std::dynamic_pointer_cast<DataArray<std::vector<T>>>(linI);
+  DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linI);
   int index0 = linIntIndexes;
   int index1 = linIntIndexes + 1;
   int index2 = linIntIndexes + p_Impl->m_Params.xp;
@@ -784,59 +784,112 @@ void ApplyTransformationToGeometry::linearEquivalent(std::vector<T> linEquivalen
   int index7 = linIntIndexes + 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
   if(index0 >= 0 && index0 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    for(int i = 0; i < linEquivalent.size(); i++)
-    {
-      linEquivalent.at(i) += lin->getPointer(0)[index0].at(i);
-	}
+    linEquivalent += lin->getPointer(0)[index0];
   }
   if(index1 >= 0 && index1 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    for(int i = 0; i < linEquivalent.size(); i++)
+    linEquivalent += ((lin->getPointer(0)[index1] - lin->getPointer(0)[index0]) * xt);
+  }
+  if(index2 >= 0 && index2 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+  {
+    linEquivalent += ((lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) * yt);
+  }
+  if(index3 >= 0 && index3 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+  {
+    linEquivalent += ((lin->getPointer(0)[index3] - lin->getPointer(0)[index2] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * yt);
+  }
+  if(index4 >= 0 && index4 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+  {
+    linEquivalent += ((lin->getPointer(0)[index4] - lin->getPointer(0)[index0]) * zt);
+  }
+  if(index5 >= 0 && index5 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+  {
+    linEquivalent += ((lin->getPointer(0)[index5] - lin->getPointer(0)[index4] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * zt);
+  }
+  if(index6 >= 0 && index6 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+  {
+    linEquivalent += ((lin->getPointer(0)[index6] - lin->getPointer(0)[index4] - lin->getPointer(0)[index2] + lin->getPointer(0)[index0]) * yt * zt);
+  }
+  if(index7 >= 0 && index7 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+  {
+    linEquivalent += ((lin->getPointer(0)[index7] - lin->getPointer(0)[index6] - lin->getPointer(0)[index5] - lin->getPointer(0)[index3] + lin->getPointer(0)[index1] + lin->getPointer(0)[index4] +
+                       lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) *
+                      xt * yt * zt);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+template <class T>
+void ApplyTransformationToGeometry::linearEquivalentRGB(T linEquivalent[3], IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt, double zt)
+{
+  DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linI);
+  int index0 = linIntIndexes;
+  int index1 = linIntIndexes + 1;
+  int index2 = linIntIndexes + p_Impl->m_Params.xp;
+  int index3 = linIntIndexes + 1 + p_Impl->m_Params.xp;
+  int index4 = linIntIndexes + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index5 = linIntIndexes + 1 + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index6 = linIntIndexes + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  int index7 = linIntIndexes + 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
+  if(index0 >= 0 && index0 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+  {
+    for(int i = 0; i < 3; i++)
     {
-	  linEquivalent.at(i) += ((lin->getPointer(0)[index1].at(i) - lin->getPointer(0)[index0].at(i)) * xt);
+      linEquivalent[i] += lin->getComponent(index0, i);
+    }
+  }
+  if(index1 >= 0 && index1 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+  {
+    for(int i = 0; i < 3; i++)
+    {
+      linEquivalent[i] += ((lin->getComponent(index1, i) - lin->getComponent(index0, i)) * xt);
     }
   }
   if(index2 >= 0 && index2 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    for(int i = 0; i < linEquivalent.size(); i++)
+    for(int i = 0; i < 3; i++)
     {
-      linEquivalent.at(i) += ((lin->getPointer(0)[index2].at(i) - lin->getPointer(0)[index0].at(i)) * yt);
-	}
+      linEquivalent[i] += ((lin->getComponent(index2, i) - lin->getComponent(index0, i)) * yt);
+    }
   }
   if(index3 >= 0 && index3 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    for(int i = 0; i < linEquivalent.size(); i++)
+    for(int i = 0; i < 3; i++)
     {
-      linEquivalent.at(i) += ((lin->getPointer(0)[index3].at(i) - lin->getPointer(0)[index2].at(i) - lin->getPointer(0)[index1].at(i) + lin->getPointer(0)[index0].at(i)) * xt * yt);
-	}
+      linEquivalent[i] += ((lin->getComponent(index3, i) - lin->getComponent(index2, i) - lin->getComponent(index1, i) + lin->getComponent(index0, i)) * xt * yt);
+    }
   }
   if(index4 >= 0 && index4 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    for(int i = 0; i < linEquivalent.size(); i++)
-    {   
-	  linEquivalent.at(i) += ((lin->getPointer(0)[index4].at(i) - lin->getPointer(0)[index0].at(i)) * zt);
+    for(int i = 0; i < 3; i++)
+    {
+      linEquivalent[i] += ((lin->getComponent(index4, i) - lin->getComponent(index0, i)) * zt);
     }
   }
   if(index5 >= 0 && index5 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    for(int i = 0; i < linEquivalent.size(); i++)
-    {    
-	  linEquivalent.at(i) += ((lin->getPointer(0)[index5].at(i) - lin->getPointer(0)[index4].at(i) - lin->getPointer(0)[index1].at(i) + lin->getPointer(0)[index0].at(i)) * xt * zt);
+    for(int i = 0; i < 3; i++)
+    {
+      linEquivalent[i] += ((lin->getComponent(index5, i) - lin->getComponent(index4, i) - lin->getComponent(index1, i) + lin->getComponent(index0, i)) * xt * zt);
     }
   }
   if(index6 >= 0 && index6 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    for(int i = 0; i < linEquivalent.size(); i++)
-    {    
-      linEquivalent.at(i) += ((lin->getPointer(0)[index6].at(i) - lin->getPointer(0)[index4].at(i) - lin->getPointer(0)[index2].at(i) + lin->getPointer(0)[index0].at(i)) * yt * zt);
+    for(int i = 0; i < 3; i++)
+    {
+      linEquivalent[i] += ((lin->getComponent(index6, i) - lin->getComponent(index4, i) - lin->getComponent(index2, i) + lin->getComponent(index0, i)) * yt * zt);
     }
-
   }
   if(index7 >= 0 && index7 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
   {
-    for(int i = 0; i < linEquivalent.size(); i++)
-    {   
-	  linEquivalent.at(i) += ((lin->getPointer(0)[index7].at(i) - lin->getPointer(0)[index6].at(i) - lin->getPointer(0)[index5].at(i) - lin->getPointer(0)[index3].at(i) + lin->getPointer(0)[index1].at(i) + lin->getPointer(0)[index4].at(i) + lin->getPointer(0)[index2].at(i) - lin->getPointer(0)[index0].at(i)) * xt * yt * zt);
+    for(int i = 0; i < 3; i++)
+    {
+      linEquivalent[i] += ((lin->getComponent(index7, i) - lin->getComponent(index6, i) - lin->getComponent(index5, i) - lin->getComponent(index3, i) + lin->getComponent(index1, i) +
+                            lin->getComponent(index4, i) + lin->getComponent(index2, i) - lin->getComponent(index0, i)) *
+                           xt * yt * zt);
     }
   }
 }
@@ -846,8 +899,8 @@ void ApplyTransformationToGeometry::linearEquivalent(std::vector<T> linEquivalen
 // -----------------------------------------------------------------------------
 
 template <class T>
-bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, std::vector<T> linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt,
-                                                  double zt)
+bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt,
+                                                  double yt, double zt)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool write = false;
@@ -872,48 +925,35 @@ bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationDat
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+template <class T>
+bool ApplyTransformationToGeometry::linearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, T linEquivalent[3], IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt,
+                                                     double zt)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
-  bool success = true;
-  if(!lin)
+  bool write = false;
+
+  double colOld = LinearInterpolationData[tupleIndex + 3];
+  double rowOld = LinearInterpolationData[tupleIndex + 4];
+  double planeOld = LinearInterpolationData[tupleIndex + 5];
+
+  if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
   {
-    success = false;
-    return success;
+    int planeFloor = std::floor(planeOld);
+    int rowFloor = std::floor(rowOld);
+    int colFloor = std::floor(colOld);
+
+    linIntIndexes = std::nearbyint((m_Params.xp * m_Params.yp * planeFloor) + (m_Params.xp * rowFloor) + colFloor);
+    linearEquivalentRGB<T>(linEquivalent, linI, linIntIndexes, xt, yt, zt);
+    write = true;
   }
-int64_t tupleIndex = index * 6;
-// int64_t linIndex = index * 8;
-
-double xt = LinearInterpolationData[tupleIndex];
-double yt = LinearInterpolationData[tupleIndex + 1];
-double zt = LinearInterpolationData[tupleIndex + 2];
-
-int numComponents = linData->getNumberOfComponents();
-
-std::vector<int8_t> linEquivalent(numComponents);
-IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-int64_t linIntIndexes = 0;
-bool wrote = linearIndexes<int8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-if(wrote)
-{
-  linData->initializeTuple(index, &linEquivalent);
-}
-else
-{
-  int var = 0;
-  linData->initializeTuple(index, &var);
-}
-return success;
+  return write;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool success = true;
@@ -922,30 +962,48 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint8_t>:
     success = false;
     return success;
   }
-
   int64_t tupleIndex = index * 6;
-  // int64_t linIndex = index * 8;
 
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int numComponents = linData->getNumberOfComponents();
-  std::vector<uint8_t> linEquivalent(numComponents);
-
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-  int64_t linIntIndexes = 0;
-  bool wrote = linearIndexes<uint8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-  if(wrote)
+  bool wrote = false;
+  if(RGB)
   {
-    linData->initializeTuple(index, &linEquivalent);
+    int8_t linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<int8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   else
   {
-    int var = 0;
-    linData->initializeTuple(index, &var);
+    int8_t linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexes<int8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   return success;
 }
@@ -954,7 +1012,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint8_t>:
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool success = true;
@@ -971,21 +1029,41 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int16_t>:
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int numComponents = linData->getNumberOfComponents();
-  std::vector<int16_t> linEquivalent(numComponents);
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-  int64_t linIntIndexes = 0;
-  bool wrote = linearIndexes<int16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-  if(wrote)
+  bool wrote = false;
+  if(RGB)
   {
-    linData->initializeTuple(index, &linEquivalent);
+    uint8_t linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<uint8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   else
   {
-    int var = 0;
-    linData->initializeTuple(index, &var);
+    uint8_t linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    bool wrote = linearIndexes<uint8_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   return success;
 }
@@ -994,7 +1072,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int16_t>:
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool success = true;
@@ -1011,21 +1089,42 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint16_t>
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int numComponents = linData->getNumberOfComponents();
-  std::vector<uint16_t> linEquivalent(numComponents);
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-  int64_t linIntIndexes = 0;
-  bool wrote = linearIndexes<uint16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-  if(wrote)
+  bool wrote = false;
+  if(RGB)
   {
-    linData->initializeTuple(index, &linEquivalent);
+    int16_t linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<int16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   else
   {
-    int var = 0;
-    linData->initializeTuple(index, &var);
+    int16_t linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    bool wrote = linearIndexes<int16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   return success;
 }
@@ -1034,7 +1133,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint16_t>
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint16_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool success = true;
@@ -1051,22 +1150,43 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int32_t>:
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int numComponents = linData->getNumberOfComponents();
-  std::vector<int32_t> linEquivalent(numComponents);
+  bool wrote = false;
 
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-  int64_t linIntIndexes = 0;
-  bool wrote = linearIndexes<int32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-  if(wrote)
+  if(RGB)
   {
-    linData->initializeTuple(index, &linEquivalent);
+    uint16_t linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<uint16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   else
   {
-    int var = 0;
-    linData->initializeTuple(index, &var);
+    uint16_t linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    bool wrote = linearIndexes<uint16_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   return success;
 }
@@ -1075,7 +1195,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int32_t>:
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool success = true;
@@ -1091,22 +1211,42 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint32_t>
   double xt = LinearInterpolationData[tupleIndex];
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
-
-  int numComponents = linData->getNumberOfComponents();
-  std::vector<uint32_t> linEquivalent(numComponents);
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-  int64_t linIntIndexes = 0;
-  bool wrote = linearIndexes<uint32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-  if(wrote)
+  bool wrote = false;
+  if(RGB)
   {
-    linData->initializeTuple(index, &linEquivalent);
+    int32_t linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<int32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   else
   {
-    int var = 0;
-    linData->initializeTuple(index, &var);
+    int32_t linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    bool wrote = linearIndexes<int32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   return success;
 }
@@ -1115,7 +1255,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint32_t>
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint32_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool success = true;
@@ -1132,21 +1272,42 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>:
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int numComponents = linData->getNumberOfComponents();
-  std::vector<int64_t> linEquivalent(numComponents);
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-  int64_t linIntIndexes = 0;
-  bool wrote = linearIndexes<int64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-  if(wrote)
+  bool wrote = false;
+  if(RGB)
   {
-    linData->initializeTuple(index, &linEquivalent);
+    uint32_t linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<uint32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   else
   {
-    int var = 0;
-    linData->initializeTuple(index, &var);
+    uint32_t linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    bool wrote = linearIndexes<uint32_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   return success;
 }
@@ -1155,7 +1316,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>:
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool success = true;
@@ -1172,22 +1333,41 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint64_t>
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int numComponents = linData->getNumberOfComponents();
-  std::vector<uint64_t> linEquivalent(numComponents);
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-  int64_t linIntIndexes = 0;
-
-  bool wrote = linearIndexes<uint64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-  if(wrote)
+  bool wrote = false;
+  if(RGB)
   {
-    linData->initializeTuple(index, &linEquivalent);
+    int64_t linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<int64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   else
   {
-    int var = 0;
-    linData->initializeTuple(index, &var);
+    int64_t linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    bool wrote = linearIndexes<int64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   return success;
 }
@@ -1196,7 +1376,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint64_t>
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<float>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<uint64_t>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool success = true;
@@ -1213,21 +1393,43 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<float>::P
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int numComponents = linData->getNumberOfComponents();
-  std::vector<float> linEquivalent(numComponents);
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-  int64_t linIntIndexes = 0;
-  bool wrote = linearIndexes<float>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-  if(wrote)
+  bool wrote = false;
+  if(RGB)
   {
-    linData->initializeTuple(index, &linEquivalent);
+    uint64_t linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<uint64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   else
   {
-    int var = 0;
-    linData->initializeTuple(index, &var);
+    uint64_t linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+
+    bool wrote = linearIndexes<uint64_t>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   return success;
 }
@@ -1236,7 +1438,7 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<float>::P
 //
 // -----------------------------------------------------------------------------
 
-bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<double>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData)
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<float>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool success = true;
@@ -1253,21 +1455,103 @@ bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<double>::
   double yt = LinearInterpolationData[tupleIndex + 1];
   double zt = LinearInterpolationData[tupleIndex + 2];
 
-  int numComponents = linData->getNumberOfComponents();
-  std::vector<double> linEquivalent(numComponents);
-  IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
-
-  int64_t linIntIndexes = 0;
-  bool wrote = linearIndexes<double>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
-
-  if(wrote)
+  bool wrote = false;
+  if(RGB)
   {
-    linData->initializeTuple(index, &linEquivalent);
+    float linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<float>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   else
   {
-    int var = 0;
-    linData->initializeTuple(index, &var);
+    float linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    bool wrote = linearIndexes<float>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
+  }
+  return success;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+bool ApplyTransformationToGeometry::applyLinearInterpolation(DataArray<double>::Pointer lin, int64_t index, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB)
+{
+  const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
+  bool success = true;
+  if(!lin)
+  {
+    success = false;
+    return success;
+  }
+
+  int64_t tupleIndex = index * 6;
+  // int64_t linIndex = index * 8;
+
+  double xt = LinearInterpolationData[tupleIndex];
+  double yt = LinearInterpolationData[tupleIndex + 1];
+  double zt = LinearInterpolationData[tupleIndex + 2];
+
+  bool wrote = false;
+  if(RGB)
+  {
+    double linEquivalent[3] = {0, 0, 0};
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    wrote = linearIndexesRGB<double>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
+  }
+  else
+  {
+    double linEquivalent = 0;
+    IDataArray::Pointer linI = std::dynamic_pointer_cast<IDataArray>(lin);
+
+    int64_t linIntIndexes = 0;
+    bool wrote = linearIndexes<double>(LinearInterpolationData, tupleIndex, linEquivalent, linI, linIntIndexes, xt, yt, zt);
+
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
   }
   return success;
 }
@@ -1323,6 +1607,13 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
     IDataArray::Pointer data = p->createNewArray(newNumCellTuples, p->getComponentDimensions(), p->getName());
     IDataArray::Pointer linData = p->createNewArray(newNumCellTuples, p->getComponentDimensions(), p->getName());
     IDataArray::Pointer linPtr = p->createNewArray(p->getNumberOfTuples(), p->getComponentDimensions(), p->getName());
+
+	bool RGB = false;
+
+	if (p->getNumberOfComponents() == 3)
+	{
+      RGB = true;
+	}
 
     if(!linPtr->copyFromArray(0, p, 0, p->getNumberOfTuples()))
     {
@@ -1383,11 +1674,11 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
       {
         if(i >= 0)
         {
-          if(!applyLinearInterpolation(lin0, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin1, i, LinearInterpolationData, linData) &&
-             !applyLinearInterpolation(lin2, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin3, i, LinearInterpolationData, linData) &&
-             !applyLinearInterpolation(lin4, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin5, i, LinearInterpolationData, linData) &&
-             !applyLinearInterpolation(lin6, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin7, i, LinearInterpolationData, linData) &&
-             !applyLinearInterpolation(lin8, i, LinearInterpolationData, linData) && !applyLinearInterpolation(lin9, i, LinearInterpolationData, linData))
+          if(!applyLinearInterpolation(lin0, i, LinearInterpolationData, linData, RGB) && !applyLinearInterpolation(lin1, i, LinearInterpolationData, linData, RGB) &&
+             !applyLinearInterpolation(lin2, i, LinearInterpolationData, linData, RGB) && !applyLinearInterpolation(lin3, i, LinearInterpolationData, linData, RGB) &&
+             !applyLinearInterpolation(lin4, i, LinearInterpolationData, linData, RGB) && !applyLinearInterpolation(lin5, i, LinearInterpolationData, linData, RGB) &&
+             !applyLinearInterpolation(lin6, i, LinearInterpolationData, linData, RGB) && !applyLinearInterpolation(lin7, i, LinearInterpolationData, linData, RGB) &&
+             !applyLinearInterpolation(lin8, i, LinearInterpolationData, linData, RGB) && !applyLinearInterpolation(lin9, i, LinearInterpolationData, linData, RGB))
           {
             QString ss = QObject::tr("applyLinearInterpolation Failed: ");
             QTextStream out(&ss);
