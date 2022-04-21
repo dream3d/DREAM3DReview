@@ -733,6 +733,31 @@ void ApplyTransformationToGeometry::dataCheck()
   // if ImageGeom found:
   if(std::dynamic_pointer_cast<ImageGeom>(igeom) && m_TransformationMatrix != nullptr)
   {
+    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
+    QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
+    QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
+
+    if(getInterpolationType() == 1)
+    {
+      if(m_UseDataArraySelection)
+      {
+        voxelArrayNames.clear();
+        for(const auto& dataArrayPath : m_DataArraySelection)
+        {
+          voxelArrayNames.append(dataArrayPath.getDataArrayName());
+        }
+      }
+
+      for(const auto& attrArrayName : voxelArrayNames)
+      {
+        IDataArray::Pointer p = m->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
+        if(p->getTypeAsString().compare("bool") == 0)
+        {
+          QString ss = QObject::tr("Input Type Error, cannot run linear interpolation on a boolean array");
+          setErrorCondition(-704, ss);
+        }
+      }
+    }
     ImageGeom::Pointer imageGeom = std::dynamic_pointer_cast<ImageGeom>(igeom);
     Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
 
@@ -760,8 +785,7 @@ void ApplyTransformationToGeometry::dataCheck()
     tDims[0] = p_Impl->m_Params.xpNew;
     tDims[1] = p_Impl->m_Params.ypNew;
     tDims[2] = p_Impl->m_Params.zpNew;
-    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-    QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
+
     m->getAttributeMatrix(attrMatName)->resizeAttributeArrays(tDims);
   }
 }
@@ -899,8 +923,8 @@ void ApplyTransformationToGeometry::linearEquivalentRGB(T linEquivalent[3], IDat
 // -----------------------------------------------------------------------------
 
 template <class T>
-bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt,
-                                                  double yt, double zt)
+bool ApplyTransformationToGeometry::linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linI, int64_t linIntIndexes, double xt, double yt,
+                                                  double zt)
 {
   const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
   bool write = false;
@@ -1608,12 +1632,12 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
     IDataArray::Pointer linData = p->createNewArray(newNumCellTuples, p->getComponentDimensions(), p->getName());
     IDataArray::Pointer linPtr = p->createNewArray(p->getNumberOfTuples(), p->getComponentDimensions(), p->getName());
 
-	bool RGB = false;
+    bool RGB = false;
 
-	if (p->getNumberOfComponents() == 3)
-	{
+    if(p->getNumberOfComponents() == 3)
+    {
       RGB = true;
-	}
+    }
 
     if(!linPtr->copyFromArray(0, p, 0, p->getNumberOfTuples()))
     {
@@ -1633,8 +1657,9 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
     DataArray<uint64_t>::Pointer lin7 = std::dynamic_pointer_cast<DataArray<uint64_t>>(linPtr);
     DataArray<float>::Pointer lin8 = std::dynamic_pointer_cast<DataArray<float>>(linPtr);
     DataArray<double>::Pointer lin9 = std::dynamic_pointer_cast<DataArray<double>>(linPtr);
+    DataArray<bool>::Pointer lin10 = std::dynamic_pointer_cast<DataArray<bool>>(linPtr);
 
-    if(!lin0 && !lin1 && !lin2 && !lin3 && !lin4 && !lin5 && !lin6 && !lin7 && !lin8 && !lin9)
+    if(!lin0 && !lin1 && !lin2 && !lin3 && !lin4 && !lin5 && !lin6 && !lin7 && !lin8 && !lin9 && !lin10)
     {
       QString ss = QObject::tr("Array Cast Failed: lin");
       QTextStream out(&ss);
