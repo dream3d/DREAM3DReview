@@ -200,8 +200,8 @@ private:
   double* m_Normals = nullptr;
   std::weak_ptr<FloatArrayType> m_DistancesPtr;
   float* m_Distances = nullptr;
-  std::weak_ptr<Int32ArrayType> m_ClosestTriangleIdsPtr;
-  int32_t* m_ClosestTriangleIds = nullptr;
+  std::weak_ptr<Int64ArrayType> m_ClosestTriangleIdsPtr;
+  int64_t* m_ClosestTriangleIds = nullptr;
 
   /**
    * @brief distance

@@ -39,7 +39,7 @@ class FindVertexToTriangleDistancesImpl
 {
 public:
   FindVertexToTriangleDistancesImpl(FindVertexToTriangleDistances* filter, std::vector<std::vector<size_t>>& tris, std::vector<std::vector<float>>& verts, float* sourceVerts, float* distances,
-                                    int32_t* closestTri, size_t numTris)
+                                    int64_t* closestTri, size_t numTris, float* triBounds)
   : m_Filter(filter)
   , m_Tris(tris)
   , m_Verts(verts)
@@ -47,6 +47,7 @@ public:
   , m_Distances(distances)
   , m_ClosestTri(closestTri)
   , m_NumTris(numTris)
+  , m_TriBounds(triBounds)
   {
   }
   virtual ~FindVertexToTriangleDistancesImpl() = default;
@@ -65,16 +66,31 @@ public:
         {
           return;
         }
-        int64_t p = m_Tris[t][0];
-        int64_t q = m_Tris[t][1];
-        int64_t r = m_Tris[t][2];
-        std::vector<float> gx = {m_SourceVerts[3 * v + 0], m_SourceVerts[3 * v + 1], m_SourceVerts[3 * v + 2]};
-        float d = m_Filter->point_triangle_distance(gx, m_Verts[p], m_Verts[q], m_Verts[r], t);
-        if(std::abs(d) < std::abs(m_Distances[v]))
+        if((m_SourceVerts[3 * v] >= m_TriBounds[6 * t] && m_SourceVerts[3 * v] <= m_TriBounds[6 * t + 1]) ||
+          (m_SourceVerts[3 * v + 1] >= m_TriBounds[6 * t + 2] && m_SourceVerts[3 * v + 1] <= m_TriBounds[6 * t + 3]) || 
+          (m_SourceVerts[3 * v + 2] >= m_TriBounds[6 * t + 4] && m_SourceVerts[3 * v + 2] <= m_TriBounds[6 * t + 5]))
         {
-          m_Distances[v] = d;
-          m_ClosestTri[v] = t;
+          int64_t p = m_Tris[t][0];
+          int64_t q = m_Tris[t][1];
+          int64_t r = m_Tris[t][2];
+          std::vector<float> gx = {m_SourceVerts[3 * v + 0], m_SourceVerts[3 * v + 1], m_SourceVerts[3 * v + 2]};
+          float d = m_Filter->point_triangle_distance(gx, m_Verts[p], m_Verts[q], m_Verts[r], t);
+          if(std::abs(d) < std::abs(m_Distances[v]))
+          {
+            m_Distances[v] = d;
+            m_ClosestTri[v] = t;
+          }
         }
+      }
+      if(m_Distances[v] >= 0.0f)
+      {
+        m_Distances[v] = std::sqrt(m_Distances[v]);
+      }
+      else
+      {
+        m_Distances[v] *= -1.0f;
+        m_Distances[v] = std::sqrt(m_Distances[v]);
+        m_Distances[v] *= -1.0f;
       }
 
       if(counter > progIncrement)
@@ -97,8 +113,9 @@ private:
   std::vector<std::vector<float>>& m_Verts;
   float* m_SourceVerts;
   float* m_Distances;
-  int32_t* m_ClosestTri;
+  int64_t* m_ClosestTri;
   int64_t m_NumTris;
+  float* m_TriBounds;
 };
 
 // -----------------------------------------------------------------------------
@@ -172,7 +189,7 @@ void FindVertexToTriangleDistances::dataCheck()
     m_Distances = m_DistancesPtr.lock()->getPointer(0);
   }
 
-  m_ClosestTriangleIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<Int32ArrayType>(this, getClosestTriangleIdArrayPath(), 0, cDims);
+  m_ClosestTriangleIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<Int64ArrayType>(this, getClosestTriangleIdArrayPath(), 0, cDims);
   if(m_ClosestTriangleIdsPtr.lock())
   {
     m_ClosestTriangleIds = m_ClosestTriangleIdsPtr.lock()->getPointer(0);
@@ -193,7 +210,8 @@ float FindVertexToTriangleDistances::distance(const std::vector<float>& vec1, co
     dist += (vec1[i] - vec2[i]) * (vec1[i] - vec2[i]);
   }
 
-  return std::sqrt(dist);
+  //  return std::sqrt(dist);
+  return dist;
 }
 
 // -----------------------------------------------------------------------------
@@ -311,7 +329,7 @@ float FindVertexToTriangleDistances::point_triangle_distance(const std::vector<f
 
   float normal[3] = {static_cast<float>(m_Normals[3 * triangle + 0]), static_cast<float>(m_Normals[3 * triangle + 1]), static_cast<float>(m_Normals[3 * triangle + 2])};
 
-  float cosTheta = GeometryMath::CosThetaBetweenVectors(normal, x0.data());
+  float cosTheta = GeometryMath::CosThetaBetweenVectors(normal, x03.data());
 
   if(cosTheta < 0.0f)
   {
@@ -368,10 +386,25 @@ void FindVertexToTriangleDistances::execute()
   std::vector<std::vector<size_t>> tmpTris;
   std::vector<std::vector<float>> tmpVerts;
 
+  std::vector<size_t> cDims(1, 6);
+  FloatArrayType::Pointer triBoundsPtr = FloatArrayType::CreateArray(numTris, cDims, "_internal_Tri_Bounds", true);
+  float* triBounds = triBoundsPtr->getPointer(0);
   for(size_t i = 0; i < numTris; i++)
   {
+    triBounds[6 * i] = std::numeric_limits<float>::max();
+    triBounds[6 * i + 1] = -std::numeric_limits<float>::max();
+    triBounds[6 * i + 2] = std::numeric_limits<float>::max();
+    triBounds[6 * i + 3] = -std::numeric_limits<float>::max();
+    triBounds[6 * i + 4] = std::numeric_limits<float>::max();
+    triBounds[6 * i + 5] = -std::numeric_limits<float>::max();
     std::vector<size_t> tmpTri = {triangles[3 * i + 0], triangles[3 * i + 1], triangles[3 * i + 2]};
     tmpTris.push_back(tmpTri);
+    triBounds[6 * i] = std::min({vertices[3 * triangles[3 * i]], vertices[3 * triangles[3 * i + 1]], vertices[3 * triangles[3 * i + 2]]});
+    triBounds[6 * i + 1] = std::max({vertices[3 * triangles[3 * i]], vertices[3 * triangles[3 * i + 1]], vertices[3 * triangles[3 * i + 2]]});
+    triBounds[6 * i + 2] = std::min({vertices[3 * triangles[3 * i] + 1], vertices[3 * triangles[3 * i + 1] + 1], vertices[3 * triangles[3 * i + 2] + 1]});
+    triBounds[6 * i + 3] = std::max({vertices[3 * triangles[3 * i] + 1], vertices[3 * triangles[3 * i + 1] + 1], vertices[3 * triangles[3 * i + 2] + 1]});
+    triBounds[6 * i + 4] = std::min({vertices[3 * triangles[3 * i] + 2], vertices[3 * triangles[3 * i + 1] + 2], vertices[3 * triangles[3 * i + 2] + 2]});
+    triBounds[6 * i + 5] = std::max({vertices[3 * triangles[3 * i] + 2], vertices[3 * triangles[3 * i + 1] + 2], vertices[3 * triangles[3 * i + 2] + 2]});
   }
 
   for(size_t i = 0; i < numVerts; i++)
@@ -388,7 +421,7 @@ void FindVertexToTriangleDistances::execute()
   // Allow data-based parallelization
   ParallelDataAlgorithm dataAlg;
   dataAlg.setRange(0, numSourceVerts);
-  dataAlg.execute(FindVertexToTriangleDistancesImpl(this, tmpTris, tmpVerts, sourceVerts, m_Distances, m_ClosestTriangleIds, numTris));
+  dataAlg.execute(FindVertexToTriangleDistancesImpl(this, tmpTris, tmpVerts, sourceVerts, m_Distances, m_ClosestTriangleIds, numTris, triBounds));
 }
 
 // -----------------------------------------------------------------------------

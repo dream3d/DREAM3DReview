@@ -11,6 +11,8 @@
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 
+#include <iostream>
+
 /**
  * @brief The DistanceTemplate class contains a templated function getDistance to find the distance, via a variety of
  * metrics, between two vectors of arbirtrary dimensons.  The developer should ensure that the pointers passed to
@@ -32,9 +34,6 @@ public:
   /**
    * @brief Returns the name of the class for DistanceTemplate
    */
-  /**
-   * @brief Returns the name of the class for DistanceTemplate
-   */
   QString getNameOfClass() const
   {
     return QString("DistanceTemplate");
@@ -48,12 +47,8 @@ public:
     return QString("DistanceTemplate");
   }
 
-  DistanceTemplate()
-  {
-  }
-  virtual ~DistanceTemplate()
-  {
-  }
+  DistanceTemplate() = default;
+  virtual ~DistanceTemplate() = default;
 
   // -----------------------------------------------------------------------------
   //
