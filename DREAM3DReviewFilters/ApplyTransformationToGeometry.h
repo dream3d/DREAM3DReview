@@ -520,19 +520,6 @@ protected:
     return true;
   }
 
-
-
-  bool applyLinearInterpolation(DataArray<int8_t>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-  bool applyLinearInterpolation(DataArray<uint8_t>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-  bool applyLinearInterpolation(DataArray<int16_t>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-  bool applyLinearInterpolation(DataArray<uint16_t>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-  bool applyLinearInterpolation(DataArray<int32_t>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-  bool applyLinearInterpolation(DataArray<uint32_t>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-  bool applyLinearInterpolation(DataArray<int64_t>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-  bool applyLinearInterpolation(DataArray<uint64_t>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-  bool applyLinearInterpolation(DataArray<float>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-  bool applyLinearInterpolation(DataArray<double>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, IDataArray::Pointer linData, bool RGB);
-
   /**
    * @brief sendThreadSafeProgressMessage
    * @param counter

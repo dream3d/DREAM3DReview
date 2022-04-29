@@ -889,39 +889,39 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
       {
         if(i >= 0)
         {
-          int64_t tupleIndex = i * 6;
-
+		  int64_t tupleIndex = i * 6;
+		  
 		  if (DataArray<int8_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<int8_t>>(linPtr))
 		  {
-	        applyLinearInterpolation<int8_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
+			applyLinearInterpolation<int8_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
 		  }
-          else if(DataArray<uint8_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<uint8_t>>(linPtr))
+		  else if(DataArray<uint8_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<uint8_t>>(linPtr))
 		  {
-            applyLinearInterpolation<uint8_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
+			applyLinearInterpolation<uint8_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
 		  }
 		  else if (DataArray<int16_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<int16_t>>(linPtr))
 		  {
-            applyLinearInterpolation<int16_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
+			applyLinearInterpolation<int16_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
 		  }
 		  else if (DataArray<uint16_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<uint16_t>>(linPtr))
 		  {
-		    applyLinearInterpolation<uint16_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
+			applyLinearInterpolation<uint16_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
 		  }
 		  else if(DataArray<int32_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<int32_t>>(linPtr))
 		  {
-            applyLinearInterpolation<int32_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
+			applyLinearInterpolation<int32_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
 		  }
 		  else if(DataArray<uint32_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<uint32_t>>(linPtr))
 		  {
-            applyLinearInterpolation<uint32_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
+			applyLinearInterpolation<uint32_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
 		  }
 		  else if(DataArray<int64_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<int64_t>>(linPtr))
 		  {
-		    applyLinearInterpolation<int64_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
+			applyLinearInterpolation<int64_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
 		  }
 		  else if (DataArray<uint64_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<uint64_t>>(linPtr))
 		  {
-            applyLinearInterpolation<uint64_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
+			applyLinearInterpolation<uint64_t>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
 		  }
 		  else if(DataArray<float>::Pointer lin = std::dynamic_pointer_cast<DataArray<float>>(linPtr))
 		  {
@@ -929,16 +929,16 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
 		  }
 		  else if(DataArray<double>::Pointer lin = std::dynamic_pointer_cast<DataArray<double>>(linPtr))
 		  {
-		     applyLinearInterpolation<double>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
+			applyLinearInterpolation<double>(lin, i, tupleIndex, LinearInterpolationData, linData, RGB);
 		  }
 		  else
 		  {
-            QString ss = QObject::tr("Casted Array Linear Interpolation Failed");
-            QTextStream out(&ss);
-            setErrorCondition(-45102, ss);
-            return;
-          }
-        }
+			QString ss = QObject::tr("Casted Array Linear Interpolation Failed");
+			QTextStream out(&ss);
+			setErrorCondition(-45102, ss);
+			return;
+		  }
+		}
         else
         {
           int var = 0;
