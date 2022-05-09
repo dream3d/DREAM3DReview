@@ -38,6 +38,8 @@
 #include <memory>
 #include <mutex>
 
+#include <Eigen/Dense>
+
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
 
 #include "SIMPLib/SIMPLib.h"
@@ -82,6 +84,29 @@ public:
   static Pointer NullPointer();
 
   static std::shared_ptr<ApplyTransformationToGeometry> New();
+
+  struct RotateArgs
+  {
+    int64_t xp = 0;
+    int64_t yp = 0;
+    int64_t zp = 0;
+    float xRes = 0.0f;
+    float yRes = 0.0f;
+    float zRes = 0.0f;
+    int64_t xpNew = 0;
+    int64_t ypNew = 0;
+    int64_t zpNew = 0;
+    float xResNew = 0.0f;
+    float yResNew = 0.0f;
+    float zResNew = 0.0f;
+    float xMinNew = 0.0f;
+    float yMinNew = 0.0f;
+    float zMinNew = 0.0f;
+  };
+
+  using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
+  using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
+  using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
 
   /**
    * @brief Returns the name of the class for ApplyTransformationToGeometry
@@ -277,6 +302,12 @@ public:
    */
   void execute() override;
 
+  /**
+   * @brief sendThreadSafeProgressMessage
+   * @param counter
+   */
+  void sendThreadSafeProgressMessage(int64_t counter);
+
 protected:
   ApplyTransformationToGeometry();
 
@@ -293,44 +324,44 @@ protected:
   template <class T>
   void linearEquivalent(T& linEquivalent, IDataArray::Pointer linIData, int64_t linIntIndexes, double xt, double yt, double zt)
   {
-    DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linIData);
+    typename DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linIData);
     int index0 = linIntIndexes;
     int index1 = linIntIndexes + 1;
-    int index2 = linIntIndexes + p_Impl->m_Params.xp;
-    int index3 = linIntIndexes + 1 + p_Impl->m_Params.xp;
-    int index4 = linIntIndexes + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-    int index5 = linIntIndexes + 1 + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-    int index6 = linIntIndexes + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-    int index7 = linIntIndexes + 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-    if(index0 >= 0 && index0 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    int index2 = linIntIndexes + m_Params.xp;
+    int index3 = linIntIndexes + 1 + m_Params.xp;
+    int index4 = linIntIndexes + m_Params.xp * m_Params.yp;
+    int index5 = linIntIndexes + 1 + m_Params.xp * m_Params.yp;
+    int index6 = linIntIndexes + m_Params.xp + m_Params.xp * m_Params.yp;
+    int index7 = linIntIndexes + 1 + m_Params.xp + m_Params.xp * m_Params.yp;
+    if(index0 >= 0 && index0 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       linEquivalent += lin->getPointer(0)[index0];
     }
-    if(index1 >= 0 && index1 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index1 >= 0 && index1 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       linEquivalent += ((lin->getPointer(0)[index1] - lin->getPointer(0)[index0]) * xt);
     }
-    if(index2 >= 0 && index2 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index2 >= 0 && index2 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       linEquivalent += ((lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) * yt);
     }
-    if(index3 >= 0 && index3 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index3 >= 0 && index3 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       linEquivalent += ((lin->getPointer(0)[index3] - lin->getPointer(0)[index2] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * yt);
     }
-    if(index4 >= 0 && index4 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index4 >= 0 && index4 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       linEquivalent += ((lin->getPointer(0)[index4] - lin->getPointer(0)[index0]) * zt);
     }
-    if(index5 >= 0 && index5 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index5 >= 0 && index5 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       linEquivalent += ((lin->getPointer(0)[index5] - lin->getPointer(0)[index4] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * zt);
     }
-    if(index6 >= 0 && index6 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index6 >= 0 && index6 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       linEquivalent += ((lin->getPointer(0)[index6] - lin->getPointer(0)[index4] - lin->getPointer(0)[index2] + lin->getPointer(0)[index0]) * yt * zt);
     }
-    if(index7 >= 0 && index7 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index7 >= 0 && index7 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       linEquivalent += ((lin->getPointer(0)[index7] - lin->getPointer(0)[index6] - lin->getPointer(0)[index5] - lin->getPointer(0)[index3] + lin->getPointer(0)[index1] + lin->getPointer(0)[index4] +
                          lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) *
@@ -341,65 +372,65 @@ protected:
   template <class T>
   void linearEquivalentRGB(T linEquivalent[3], IDataArray::Pointer linIData, int64_t linIntIndexes, double xt, double yt, double zt)
   {
-    DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linIData);
+    typename DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linIData);
     int index0 = linIntIndexes;
     int index1 = linIntIndexes + 1;
-    int index2 = linIntIndexes + p_Impl->m_Params.xp;
-    int index3 = linIntIndexes + 1 + p_Impl->m_Params.xp;
-    int index4 = linIntIndexes + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-    int index5 = linIntIndexes + 1 + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-    int index6 = linIntIndexes + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-    int index7 = linIntIndexes + 1 + p_Impl->m_Params.xp + p_Impl->m_Params.xp * p_Impl->m_Params.yp;
-    if(index0 >= 0 && index0 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    int index2 = linIntIndexes + m_Params.xp;
+    int index3 = linIntIndexes + 1 + m_Params.xp;
+    int index4 = linIntIndexes + m_Params.xp * m_Params.yp;
+    int index5 = linIntIndexes + 1 + m_Params.xp * m_Params.yp;
+    int index6 = linIntIndexes + m_Params.xp + m_Params.xp * m_Params.yp;
+    int index7 = linIntIndexes + 1 + m_Params.xp + m_Params.xp * m_Params.yp;
+    if(index0 >= 0 && index0 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       for(int i = 0; i < 3; i++)
       {
         linEquivalent[i] += lin->getComponent(index0, i);
       }
     }
-    if(index1 >= 0 && index1 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index1 >= 0 && index1 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       for(int i = 0; i < 3; i++)
       {
         linEquivalent[i] += ((lin->getComponent(index1, i) - lin->getComponent(index0, i)) * xt);
       }
     }
-    if(index2 >= 0 && index2 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index2 >= 0 && index2 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       for(int i = 0; i < 3; i++)
       {
         linEquivalent[i] += ((lin->getComponent(index2, i) - lin->getComponent(index0, i)) * yt);
       }
     }
-    if(index3 >= 0 && index3 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index3 >= 0 && index3 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       for(int i = 0; i < 3; i++)
       {
         linEquivalent[i] += ((lin->getComponent(index3, i) - lin->getComponent(index2, i) - lin->getComponent(index1, i) + lin->getComponent(index0, i)) * xt * yt);
       }
     }
-    if(index4 >= 0 && index4 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index4 >= 0 && index4 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       for(int i = 0; i < 3; i++)
       {
         linEquivalent[i] += ((lin->getComponent(index4, i) - lin->getComponent(index0, i)) * zt);
       }
     }
-    if(index5 >= 0 && index5 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index5 >= 0 && index5 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       for(int i = 0; i < 3; i++)
       {
         linEquivalent[i] += ((lin->getComponent(index5, i) - lin->getComponent(index4, i) - lin->getComponent(index1, i) + lin->getComponent(index0, i)) * xt * zt);
       }
     }
-    if(index6 >= 0 && index6 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index6 >= 0 && index6 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       for(int i = 0; i < 3; i++)
       {
         linEquivalent[i] += ((lin->getComponent(index6, i) - lin->getComponent(index4, i) - lin->getComponent(index2, i) + lin->getComponent(index0, i)) * yt * zt);
       }
     }
-    if(index7 >= 0 && index7 <= p_Impl->m_Params.xp * p_Impl->m_Params.yp * p_Impl->m_Params.zp)
+    if(index7 >= 0 && index7 <= m_Params.xp * m_Params.yp * m_Params.zp)
     {
       for(int i = 0; i < 3; i++)
       {
@@ -413,7 +444,6 @@ protected:
   template <class T>
   bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linIData)
   {
-    const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
     bool write = false;
     double xt = LinearInterpolationData[tupleIndex];
     double yt = LinearInterpolationData[tupleIndex + 1];
@@ -438,7 +468,6 @@ protected:
   template <class T>
   bool linearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, T linEquivalent[3], IDataArray::Pointer linIData)
   {
-    const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
     bool write = false;
 
     double xt = LinearInterpolationData[tupleIndex];
@@ -503,7 +532,6 @@ protected:
   template <typename T>
   bool applyLinearInterpolation(typename DataArray<T>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, typename IDataArray::Pointer linData, bool RGB)
   {
-    const ApplyTransformationProgress::RotateArgs& m_Params = p_Impl->m_Params;
     if(!lin)
     {
       return false;
@@ -519,12 +547,6 @@ protected:
     }
     return true;
   }
-
-  /**
-   * @brief sendThreadSafeProgressMessage
-   * @param counter
-   */
-  void sendThreadSafeProgressMessage(int64_t counter);
 
   /**
    * @brief setCellAttributeMatrixPath
@@ -545,10 +567,14 @@ protected:
 
   void ApplyImageTransformation();
 
-private:
-  struct Impl;
-  std::unique_ptr<Impl> p_Impl;
+  void reset()
+  {
+    m_RotationMatrix.setZero();
 
+    m_Params = ApplyTransformationToGeometry::RotateArgs();
+  }
+
+private:
   DataArrayPath m_CellAttributeMatrixPath = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
 
   std::weak_ptr<DataArray<float>> m_TransformationMatrixPtr;
@@ -574,7 +600,10 @@ private:
   size_t m_InstanceIndex = {0};
   int64_t m_TotalElements = {};
 
-  friend class ApplyTransformationToGeometryImpl;
+  Matrix3fR m_RotationMatrix = Matrix3fR::Zero();
+  Matrix3fR m_ScalingMatrix = Matrix3fR::Zero();
+  MatrixTranslation m_TranslationMatrix = MatrixTranslation::Zero();
+  ApplyTransformationToGeometry::RotateArgs m_Params;
 
 public:
   ApplyTransformationToGeometry(const ApplyTransformationToGeometry&) = delete;            // Copy Constructor Not Implemented
