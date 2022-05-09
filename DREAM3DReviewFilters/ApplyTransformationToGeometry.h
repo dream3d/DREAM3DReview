@@ -243,6 +243,19 @@ public:
   Q_PROPERTY(std::vector<DataArrayPath> DataArraySelection READ getDataArraySelection WRITE setDataArraySelection)
 
   /**
+   * @brief setCellAttributeMatrixPath
+   * @param value
+   */
+  void setCellAttributeMatrixPath(const DataArrayPath& value);
+
+  /**
+   * @brief getCellAttributeMatrixPath
+   */
+  DataArrayPath getCellAttributeMatrixPath() const;
+
+  Q_PROPERTY(DataArrayPath CellAttributeMatrixPath READ getCellAttributeMatrixPath WRITE setCellAttributeMatrixPath)
+
+  /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
    */
   QString getCompiledLibraryName() const override;
@@ -547,19 +560,6 @@ protected:
     }
     return true;
   }
-
-  /**
-   * @brief setCellAttributeMatrixPath
-   * @param value
-   */
-  void setCellAttributeMatrixPath(const DataArrayPath& value);
-
-  /**
-   * @brief getCellAttributeMatrixPath
-   */
-  DataArrayPath getCellAttributeMatrixPath() const;
-
-  Q_PROPERTY(DataArrayPath CellAttributeMatrixPath READ getCellAttributeMatrixPath WRITE setCellAttributeMatrixPath)
 
   /**
    * @brief ApplyImageTransformation
