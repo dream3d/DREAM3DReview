@@ -50,6 +50,22 @@
     </Attribute>
   </Grid>
   <!-- *************** END OF Apply_0.0_1.0_0.0_90.0 *************** -->
+  <!-- *************** START OF Apply_0.3574069_0.8628561_0.3574069_64.7368339646 *************** -->
+  <Grid Name="Apply_0.3574069_0.8628561_0.3574069_64.7368339646" GridType="Uniform">
+    <Topology TopologyType="3DCoRectMesh" Dimensions="32 27 34 "></Topology>
+    <Geometry Type="ORIGIN_DXDYDZ">
+      <!-- Origin  Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">-6.36396 -4.24695 -2.78249</DataItem>
+      <!-- DxDyDz (Spacing/Spacing) Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">1 1 1</DataItem>
+    </Geometry>
+    <Attribute Name="Data" AttributeType="Scalar" Center="Cell">
+      <DataItem Format="HDF" Dimensions="31 26 33 1" NumberType="UChar" Precision="1" >
+        ApplyTransformationToGeometryTest.dream3d:/DataContainers/Apply_0.3574069_0.8628561_0.3574069_64.7368339646/CellData/Data
+      </DataItem>
+    </Attribute>
+  </Grid>
+  <!-- *************** END OF Apply_0.3574069_0.8628561_0.3574069_64.7368339646 *************** -->
   <!-- *************** START OF Apply_1.0_0.0_0.0_90.0 *************** -->
   <Grid Name="Apply_1.0_0.0_0.0_90.0" GridType="Uniform">
     <Topology TopologyType="3DCoRectMesh" Dimensions="21 31 11 "></Topology>
