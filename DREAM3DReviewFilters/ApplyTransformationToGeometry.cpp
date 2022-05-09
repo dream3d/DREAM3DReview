@@ -40,8 +40,6 @@
 #include <tbb/partitioner.h>
 #endif
 
-#include <Eigen/Dense>
-
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
@@ -68,44 +66,101 @@
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/ParallelDataAlgorithm.h"
 
-#include "EbsdLib/Core/Orientation.hpp"
-#include "EbsdLib/Core/OrientationTransformation.hpp"
-
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
+
+namespace OrientationTransformation
+{
+
+/**
+ * The Orientation codes are written in such a way that the value of -1 indicates
+ * an Active Rotation and +1 indicates a passive rotation.
+ *
+ * DO NOT UNDER ANY CIRCUMSTANCE CHANGE THESE VARIABLES. THERE WILL BE BAD
+ * CONSEQUENCES IF THESE ARE CHANGED. EVERY PIECE OF CODE THAT RELIES ON THESE
+ * FUNCTIONS WILL BREAK. IN ADDITION, THE QUATERNION ARITHMETIC WILL NO LONGER
+ * BE CONSISTENT WITH ROTATION ARITHMETIC.
+ *
+ * YOU HAVE BEEN WARNED.
+ *
+ * Adam  Morawiec's book uses Passive rotations.
+ *
+ * This code was taken from "EbsdLib/Core/OrientationTransformation.hpp"
+ **/
+namespace Rotations::Constants
+{
+
+#define DREAM3D_PASSIVE_ROTATION
+
+#ifdef DREAM3D_PASSIVE_ROTATION
+constexpr float epsijk = 1.0f;
+// constexpr double epsijkd = 1.0;
+#elif DREAM3D_ACTIVE_ROTATION
+static const float epsijk = -1.0f;
+// static const double epsijkd = -1.0;
+#endif
+} // namespace Rotations::Constants
+template <typename InputType, typename OutputType>
+OutputType ax2om(const InputType& a)
+{
+  OutputType res(9);
+  using value_type = typename OutputType::value_type;
+  value_type q = 0.0L;
+  value_type c = 0.0L;
+  value_type s = 0.0L;
+  value_type omc = 0.0L;
+
+  c = cos(a[3]);
+  s = sin(a[3]);
+
+  omc = static_cast<value_type>(1.0 - c);
+
+  res[0] = a[0] * a[0] * omc + c;
+  res[4] = a[1] * a[1] * omc + c;
+  res[8] = a[2] * a[2] * omc + c;
+  int _01 = 1;
+  int _10 = 3;
+  int _12 = 5;
+  int _21 = 7;
+  int _02 = 2;
+  int _20 = 6;
+  // Check to see if we need to transpose
+  if(Rotations::Constants::epsijk == 1.0F)
+  {
+    _01 = 3;
+    _10 = 1;
+    _12 = 7;
+    _21 = 5;
+    _02 = 6;
+    _20 = 2;
+  }
+
+  q = omc * a[0] * a[1];
+  res[_01] = q + s * a[2];
+  res[_10] = q - s * a[2];
+  q = omc * a[1] * a[2];
+  res[_12] = q + s * a[0];
+  res[_21] = q - s * a[0];
+  q = omc * a[2] * a[0];
+  res[_02] = q - s * a[1];
+  res[_20] = q + s * a[1];
+
+  return res;
+}
+} // namespace OrientationTransformation
 
 namespace ApplyTransformationProgress
 {
 
-using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
-using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
-using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
-
-struct RotateArgs
-{
-  int64_t xp = 0;
-  int64_t yp = 0;
-  int64_t zp = 0;
-  float xRes = 0.0f;
-  float yRes = 0.0f;
-  float zRes = 0.0f;
-  int64_t xpNew = 0;
-  int64_t ypNew = 0;
-  int64_t zpNew = 0;
-  float xResNew = 0.0f;
-  float yResNew = 0.0f;
-  float zResNew = 0.0f;
-  float xMinNew = 0.0f;
-  float yMinNew = 0.0f;
-  float zMinNew = 0.0f;
-};
+} // namespace ApplyTransformationProgress
 
 const Eigen::Vector3f k_XAxis = Eigen::Vector3f::UnitX();
 const Eigen::Vector3f k_YAxis = Eigen::Vector3f::UnitY();
 const Eigen::Vector3f k_ZAxis = Eigen::Vector3f::UnitZ();
 
 // Function for determining new ImageGeom dimensions after transformation
-void determineMinMax(const Matrix3fR& rotationMatrix, const FloatVec3Type& spacing, size_t col, size_t row, size_t plane, float& xMin, float& xMax, float& yMin, float& yMax, float& zMin, float& zMax)
+void determineMinMax(const ApplyTransformationToGeometry::Matrix3fR& rotationMatrix, const FloatVec3Type& spacing, size_t col, size_t row, size_t plane, float& xMin, float& xMax, float& yMin,
+                     float& yMax, float& zMin, float& zMax)
 {
   Eigen::Vector3f coords(static_cast<float>(col) * spacing[0], static_cast<float>(row) * spacing[1], static_cast<float>(plane) * spacing[2]);
 
@@ -151,13 +206,13 @@ float determineSpacing(const FloatVec3Type& spacing, const Eigen::Vector3f& axis
 }
 
 // Determines paramaters for image rotation
-RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f transformationMatrix)
+ApplyTransformationToGeometry::RotateArgs createRotateParams(const ImageGeom& imageGeom, const ApplyTransformationToGeometry::Transform3f transformationMatrix)
 {
   const SizeVec3Type origDims = imageGeom.getDimensions();
   const FloatVec3Type spacing = imageGeom.getSpacing();
 
-  ApplyTransformationProgress::Matrix3fR rotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
-  ApplyTransformationProgress::Matrix3fR scaleMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
+  ApplyTransformationToGeometry::Matrix3fR rotationMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
+  ApplyTransformationToGeometry::Matrix3fR scaleMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
 
   transformationMatrix.computeRotationScaling(&rotationMatrix, &scaleMatrix);
 
@@ -194,7 +249,7 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
   MeshIndexType ypNew = static_cast<int64_t>(std::nearbyint((yMax - yMin) / yResNew) + 1);
   MeshIndexType zpNew = static_cast<int64_t>(std::nearbyint((zMax - zMin) / zResNew) + 1);
 
-  RotateArgs params;
+  ApplyTransformationToGeometry::RotateArgs params;
 
   params.xp = origDims[0];
   params.xRes = spacing[0];
@@ -217,16 +272,17 @@ RotateArgs createRotateParams(const ImageGeom& imageGeom, const Transform3f tran
 }
 
 // Alters image parameters, scales and translates
-void updateGeometry(ImageGeom& imageGeom, const RotateArgs& params, const Matrix3fR& scalingMatrix, const Matrix3fR& rotationMatrix, const MatrixTranslation translationMatrix)
+void updateGeometry(ImageGeom& imageGeom, const ApplyTransformationToGeometry::RotateArgs& params, const ApplyTransformationToGeometry::Matrix3fR& scalingMatrix,
+                    const ApplyTransformationToGeometry::Matrix3fR& rotationMatrix, const ApplyTransformationToGeometry::MatrixTranslation translationMatrix)
 {
   float m_ScalingMatrix[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  float m_TranslationMatrix[3][1] = {0.0f, 0.0f, 0.0f};
-  Eigen::Map<Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
+  float m_TranslationMatrix[3] = {0.0f, 0.0f, 0.0f};
+  Eigen::Map<ApplyTransformationToGeometry::Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
 
-  Eigen::Map<MatrixTranslation>(&m_TranslationMatrix[0][0], translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
+  Eigen::Map<ApplyTransformationToGeometry::MatrixTranslation>(m_TranslationMatrix, translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
   FloatVec3Type origin = imageGeom.getOrigin();
 
-  Eigen::Vector3f original_translation(m_TranslationMatrix[0][0], m_TranslationMatrix[1][0], m_TranslationMatrix[2][0]);
+  Eigen::Vector3f original_translation(m_TranslationMatrix[0], m_TranslationMatrix[1], m_TranslationMatrix[2]);
 
   Eigen::Vector3f original_origin(origin[0], origin[1], origin[2]);
   Eigen::Vector3f original_origin_rot = rotationMatrix * original_origin;
@@ -252,21 +308,22 @@ class SampleRefFrameRotator
   DataArray<int64_t>::Pointer m_NewIndicesPtr;
   DataArray<double>::Pointer m_LinearInterpolationDataPtr;
   float m_RotMatrixInv[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  RotateArgs m_Params;
+  ApplyTransformationToGeometry::RotateArgs m_Params;
   int interpolationType;
 
 public:
-  SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, DataArray<double>::Pointer linearInterpolationDataPtr, const RotateArgs& args, const Matrix3fR& rotationMatrix, int interpType)
+  SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, DataArray<double>::Pointer linearInterpolationDataPtr, const ApplyTransformationToGeometry::RotateArgs& args,
+                        const ApplyTransformationToGeometry::Matrix3fR& rotationMatrix, int interpType)
   : m_NewIndicesPtr(newindices)
   , m_LinearInterpolationDataPtr(linearInterpolationDataPtr)
   , m_Params(args)
   , interpolationType(interpType)
   {
     // We have to inline the 3x3 Maxtrix transpose here because of the "const" nature of the 'convert' function
-    Matrix3fR transpose = rotationMatrix.transpose();
+    ApplyTransformationToGeometry::Matrix3fR transpose = rotationMatrix.transpose();
     // Need to use row based Eigen matrix so that the values get mapped to the right place in the raw array
     // Raw array is faster than Eigen
-    Eigen::Map<Matrix3fR>(&m_RotMatrixInv[0][0], transpose.rows(), transpose.cols()) = transpose;
+    Eigen::Map<ApplyTransformationToGeometry::Matrix3fR>(&m_RotMatrixInv[0][0], transpose.rows(), transpose.cols()) = transpose;
   }
 
   ~SampleRefFrameRotator() = default;
@@ -382,8 +439,6 @@ static size_t s_InstanceIndex = 0;
 static std::map<size_t, int64_t> s_ProgressValues;
 static std::map<size_t, int64_t> s_LastProgressInt;
 
-} // namespace ApplyTransformationProgress
-
 class ApplyTransformationToGeometryImpl
 {
 
@@ -436,26 +491,10 @@ private:
   SharedVertexList::Pointer m_Vertices;
 };
 
-struct ApplyTransformationToGeometry::Impl
-{
-  ApplyTransformationProgress::Matrix3fR m_RotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
-  ApplyTransformationProgress::Matrix3fR m_ScalingMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
-  ApplyTransformationProgress::MatrixTranslation m_TranslationMatrix = ApplyTransformationProgress::MatrixTranslation::Zero();
-  ApplyTransformationProgress::RotateArgs m_Params;
-
-  void reset()
-  {
-    m_RotationMatrix.setZero();
-
-    m_Params = ApplyTransformationProgress::RotateArgs();
-  }
-};
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 ApplyTransformationToGeometry::ApplyTransformationToGeometry()
-: p_Impl(std::make_unique<Impl>())
 {
   m_RotationAngle = 0.0f;
   m_RotationAxis[0] = 0.0f;
@@ -595,12 +634,12 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
 void ApplyTransformationToGeometry::dataCheck()
 {
   using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
-  using RotateMatrix = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
+  // using RotateMatrix = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
 
   clearErrorCode();
   clearWarningCode();
 
-  p_Impl->reset();
+  reset();
 
   IGeometry::Pointer igeom = getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getCellAttributeMatrixPath().getDataContainerName());
 
@@ -670,7 +709,8 @@ void ApplyTransformationToGeometry::dataCheck()
   case 3: // Rotation via axis-angle
   {
     float rotAngle = m_RotationAngle * SIMPLib::Constants::k_PiOver180D;
-    OrientationF om = OrientationTransformation::ax2om<OrientationF, OrientationF>(OrientationF(m_RotationAxis[0], m_RotationAxis[1], m_RotationAxis[2], rotAngle));
+    using OrientationF = std::vector<float>;
+    OrientationF om = OrientationTransformation::ax2om<OrientationF, OrientationF>(OrientationF({m_RotationAxis[0], m_RotationAxis[1], m_RotationAxis[2], rotAngle}));
 
     m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
     m_TransformationReference->initializeWithZeros();
@@ -762,10 +802,10 @@ void ApplyTransformationToGeometry::dataCheck()
     Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
 
     // Column Major can convert if needed
-    Eigen::Transform<float, 3, Eigen::Affine> transform = Eigen::Transform<float, 3, Eigen::Affine>::Transform(transformation);
-    ApplyTransformationProgress::Matrix3fR rotationMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
-    ApplyTransformationProgress::Matrix3fR scaleMatrix = ApplyTransformationProgress::Matrix3fR::Zero();
-    ApplyTransformationProgress::MatrixTranslation translationMatrix = ApplyTransformationProgress::MatrixTranslation::Zero();
+    Eigen::Transform<float, 3, Eigen::Affine> transform = Eigen::Transform<float, 3, Eigen::Affine>(transformation);
+    ApplyTransformationToGeometry::Matrix3fR rotationMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
+    ApplyTransformationToGeometry::Matrix3fR scaleMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
+    ApplyTransformationToGeometry::MatrixTranslation translationMatrix = ApplyTransformationToGeometry::MatrixTranslation::Zero();
 
     transform.computeRotationScaling(&rotationMatrix, &scaleMatrix);
 
@@ -773,18 +813,18 @@ void ApplyTransformationToGeometry::dataCheck()
     translationMatrix(0, 1) = transform.data()[13];
     translationMatrix(0, 2) = transform.data()[14];
 
-    p_Impl->m_RotationMatrix = rotationMatrix;
-    p_Impl->m_ScalingMatrix = scaleMatrix;
-    p_Impl->m_TranslationMatrix = translationMatrix;
+    m_RotationMatrix = rotationMatrix;
+    m_ScalingMatrix = scaleMatrix;
+    m_TranslationMatrix = translationMatrix;
 
-    p_Impl->m_Params = ApplyTransformationProgress::createRotateParams(*imageGeom, transform);
-    updateGeometry(*imageGeom, p_Impl->m_Params, scaleMatrix, rotationMatrix, translationMatrix);
+    m_Params = ::createRotateParams(*imageGeom, transform);
+    ::updateGeometry(*imageGeom, m_Params, scaleMatrix, rotationMatrix, translationMatrix);
 
     // Resize attribute matrix
     std::vector<size_t> tDims(3);
-    tDims[0] = p_Impl->m_Params.xpNew;
-    tDims[1] = p_Impl->m_Params.ypNew;
-    tDims[2] = p_Impl->m_Params.zpNew;
+    tDims[0] = m_Params.xpNew;
+    tDims[1] = m_Params.ypNew;
+    tDims[2] = m_Params.zpNew;
 
     m->getAttributeMatrix(attrMatName)->resizeAttributeArrays(tDims);
   }
@@ -797,7 +837,7 @@ void ApplyTransformationToGeometry::dataCheck()
 void ApplyTransformationToGeometry::ApplyImageTransformation()
 {
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-  int64_t newNumCellTuples = p_Impl->m_Params.xpNew * p_Impl->m_Params.ypNew * p_Impl->m_Params.zpNew;
+  int64_t newNumCellTuples = m_Params.xpNew * m_Params.ypNew * m_Params.zpNew;
   int64_t newNumCellTuplesLinData = newNumCellTuples * 6;
 
   QString name = "_INTERNAL_USE_ONLY_RotateSampleRef_LinearInterpolationData";
@@ -809,13 +849,12 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
   double* LinearInterpolationData = LinearInterpolationDataPtr->getPointer(0);
 
 #ifdef SIMPL_USE_PARALLEL_ALGORITHMS
-  tbb::parallel_for(tbb::blocked_range3d<int64_t, int64_t, int64_t>(0, p_Impl->m_Params.zpNew, 0, p_Impl->m_Params.ypNew, 0, p_Impl->m_Params.xpNew),
-                    ApplyTransformationProgress::SampleRefFrameRotator(newIndiciesPtr, LinearInterpolationDataPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, m_InterpolationType),
-                    tbb::auto_partitioner());
+  tbb::parallel_for(tbb::blocked_range3d<int64_t, int64_t, int64_t>(0, m_Params.zpNew, 0, m_Params.ypNew, 0, m_Params.xpNew),
+                    ::SampleRefFrameRotator(newIndiciesPtr, LinearInterpolationDataPtr, m_Params, m_RotationMatrix, m_InterpolationType), tbb::auto_partitioner());
 #else
   {
-    SampleRefFrameRotator serial(newIndiciesPtr, LinearInterpolationDataPtr, p_Impl->m_Params, p_Impl->m_RotationMatrix, m_InterpolationType);
-    serial.convert(0, p_Impl->m_Params.zpNew, 0, p_Impl->m_Params.ypNew, 0, p_Impl->m_Params.xpNew);
+    SampleRefFrameRotator serial(newIndiciesPtr, LinearInterpolationDataPtr, m_Params, m_RotationMatrix, m_InterpolationType);
+    serial.convert(0, m_Params.zpNew, 0, m_Params.ypNew, 0, m_Params.xpNew);
   }
 #endif
 
@@ -1021,9 +1060,9 @@ void ApplyTransformationToGeometry::execute()
     return;
   }
   // Needed for Threaded Progress Messages
-  m_InstanceIndex = ++ApplyTransformationProgress::s_InstanceIndex;
-  ApplyTransformationProgress::s_ProgressValues[m_InstanceIndex] = 0;
-  ApplyTransformationProgress::s_LastProgressInt[m_InstanceIndex] = 0;
+  m_InstanceIndex = ++::s_InstanceIndex;
+  ::s_ProgressValues[m_InstanceIndex] = 0;
+  ::s_LastProgressInt[m_InstanceIndex] = 0;
 
   applyTransformation();
 }
@@ -1035,14 +1074,14 @@ void ApplyTransformationToGeometry::sendThreadSafeProgressMessage(int64_t counte
 {
   std::lock_guard<std::mutex> guard(m_ProgressMessage_Mutex);
 
-  int64_t& progCounter = ApplyTransformationProgress::s_ProgressValues[m_InstanceIndex];
+  int64_t& progCounter = ::s_ProgressValues[m_InstanceIndex];
   progCounter += counter;
   int64_t progressInt = static_cast<int64_t>((static_cast<float>(progCounter) / m_TotalElements) * 100.0f);
 
   int64_t progIncrement = m_TotalElements / 100;
   int64_t prog = 1;
 
-  int64_t& lastProgressInt = ApplyTransformationProgress::s_LastProgressInt[m_InstanceIndex];
+  int64_t& lastProgressInt = ::s_LastProgressInt[m_InstanceIndex];
 
   if(progCounter > prog && lastProgressInt != progressInt)
   {
