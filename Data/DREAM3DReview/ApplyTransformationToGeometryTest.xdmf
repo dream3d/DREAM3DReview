@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd"[]>
+<Xdmf xmlns:xi="http://www.w3.org/2003/XInclude" Version="2.2">
+ <Domain>
+  <!-- *************** START OF Original *************** -->
+  <Grid Name="Original" GridType="Uniform">
+    <Topology TopologyType="3DCoRectMesh" Dimensions="31 21 11 "></Topology>
+    <Geometry Type="ORIGIN_DXDYDZ">
+      <!-- Origin  Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">0 0 0</DataItem>
+      <!-- DxDyDz (Spacing/Spacing) Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">1 1 1</DataItem>
+    </Geometry>
+    <Attribute Name="Data" AttributeType="Scalar" Center="Cell">
+      <DataItem Format="HDF" Dimensions="30 20 10 1" NumberType="UChar" Precision="1" >
+        ApplyTransformationToGeometryTest.dream3d:/DataContainers/Original/CellData/Data
+      </DataItem>
+    </Attribute>
+  </Grid>
+  <!-- *************** END OF Original *************** -->
+  <!-- *************** START OF Apply_0.0_0.0_1.0_90.0 *************** -->
+  <Grid Name="Apply_0.0_0.0_1.0_90.0" GridType="Uniform">
+    <Topology TopologyType="3DCoRectMesh" Dimensions="31 11 21 "></Topology>
+    <Geometry Type="ORIGIN_DXDYDZ">
+      <!-- Origin  Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">0 -8.30516e-07 -19</DataItem>
+      <!-- DxDyDz (Spacing/Spacing) Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">1 1 1</DataItem>
+    </Geometry>
+    <Attribute Name="Data" AttributeType="Scalar" Center="Cell">
+      <DataItem Format="HDF" Dimensions="30 10 20 1" NumberType="UChar" Precision="1" >
+        ApplyTransformationToGeometryTest.dream3d:/DataContainers/Apply_0.0_0.0_1.0_90.0/CellData/Data
+      </DataItem>
+    </Attribute>
+  </Grid>
+  <!-- *************** END OF Apply_0.0_0.0_1.0_90.0 *************** -->
+  <!-- *************** START OF Apply_0.0_1.0_0.0_90.0 *************** -->
+  <Grid Name="Apply_0.0_1.0_0.0_90.0" GridType="Uniform">
+    <Topology TopologyType="3DCoRectMesh" Dimensions="11 21 31 "></Topology>
+    <Geometry Type="ORIGIN_DXDYDZ">
+      <!-- Origin  Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">-9 0 -3.93403e-07</DataItem>
+      <!-- DxDyDz (Spacing/Spacing) Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">1 1 1</DataItem>
+    </Geometry>
+    <Attribute Name="Data" AttributeType="Scalar" Center="Cell">
+      <DataItem Format="HDF" Dimensions="10 20 30 1" NumberType="UChar" Precision="1" >
+        ApplyTransformationToGeometryTest.dream3d:/DataContainers/Apply_0.0_1.0_0.0_90.0/CellData/Data
+      </DataItem>
+    </Attribute>
+  </Grid>
+  <!-- *************** END OF Apply_0.0_1.0_0.0_90.0 *************** -->
+  <!-- *************** START OF Apply_1.0_0.0_0.0_90.0 *************** -->
+  <Grid Name="Apply_1.0_0.0_0.0_90.0" GridType="Uniform">
+    <Topology TopologyType="3DCoRectMesh" Dimensions="21 31 11 "></Topology>
+    <Geometry Type="ORIGIN_DXDYDZ">
+      <!-- Origin  Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">-1.26763e-06 -29 0</DataItem>
+      <!-- DxDyDz (Spacing/Spacing) Z, Y, X -->
+      <DataItem Format="XML" Dimensions="3">1 1 1</DataItem>
+    </Geometry>
+    <Attribute Name="Data" AttributeType="Scalar" Center="Cell">
+      <DataItem Format="HDF" Dimensions="20 30 10 1" NumberType="UChar" Precision="1" >
+        ApplyTransformationToGeometryTest.dream3d:/DataContainers/Apply_1.0_0.0_0.0_90.0/CellData/Data
+      </DataItem>
+    </Attribute>
+  </Grid>
+  <!-- *************** END OF Apply_1.0_0.0_0.0_90.0 *************** -->
+ </Domain>
+</Xdmf>
