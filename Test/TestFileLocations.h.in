@@ -55,6 +55,12 @@ namespace UnitTest
     inline constexpr int32_t TestTifStartIndex = 0;
     inline constexpr int32_t TestTifEndIndex = 9;
   } // namespace AnisotropyTest
+  
+  namespace ApplyTransformationToGeometryTest
+  {
+    inline const QString TestFile1("@DREAM3DReview_SOURCE_DIR@/Data/DREAM3DReview/ApplyTransformationToGeometryTest.dream3d");
+  } // ApplyTransformationToGeometryTest
+
 } // namespace UnitTest
 
 // clang-format on

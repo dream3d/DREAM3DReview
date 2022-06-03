@@ -38,6 +38,8 @@
 #include <memory>
 #include <mutex>
 
+#include <Eigen/Dense>
+
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
 
 #include "SIMPLib/SIMPLib.h"
@@ -60,8 +62,12 @@ class DREAM3DReview_EXPORT ApplyTransformationToGeometry : public AbstractFilter
   PYB11_FILTER_NEW_MACRO(ApplyTransformationToGeometry)
   PYB11_PROPERTY(DynamicTableData ManualTransformationMatrix READ getManualTransformationMatrix WRITE setManualTransformationMatrix)
   PYB11_PROPERTY(DataArrayPath ComputedTransformationMatrix READ getComputedTransformationMatrix WRITE setComputedTransformationMatrix)
-  PYB11_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
+  PYB11_PROPERTY(DataArrayPath CellAttributeMatrixPath READ getCellAttributeMatrixPath WRITE setCellAttributeMatrixPath)
+  //  PYB11_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
   PYB11_PROPERTY(int TransformationMatrixType READ getTransformationMatrixType WRITE setTransformationMatrixType)
+  PYB11_PROPERTY(int InterpolationType READ getInterpolationType WRITE setInterpolationType)
+  PYB11_PROPERTY(bool UseDataArraySelection READ getUseDataArraySelection WRITE setUseDataArraySelection)
+  PYB11_PROPERTY(std::vector<DataArrayPath> DataArraySelection READ getDataArraySelection WRITE setDataArraySelection)
   PYB11_PROPERTY(FloatVec3Type RotationAxis READ getRotationAxis WRITE setRotationAxis)
   PYB11_PROPERTY(float RotationAngle READ getRotationAngle WRITE setRotationAngle)
   PYB11_PROPERTY(FloatVec3Type Translation READ getTranslation WRITE setTranslation)
@@ -78,6 +84,29 @@ public:
   static Pointer NullPointer();
 
   static std::shared_ptr<ApplyTransformationToGeometry> New();
+
+  struct RotateArgs
+  {
+    int64_t xp = 0;
+    int64_t yp = 0;
+    int64_t zp = 0;
+    float xRes = 0.0f;
+    float yRes = 0.0f;
+    float zRes = 0.0f;
+    int64_t xpNew = 0;
+    int64_t ypNew = 0;
+    int64_t zpNew = 0;
+    float xResNew = 0.0f;
+    float yResNew = 0.0f;
+    float zResNew = 0.0f;
+    float xMinNew = 0.0f;
+    float yMinNew = 0.0f;
+    float zMinNew = 0.0f;
+  };
+
+  using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
+  using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
+  using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
 
   /**
    * @brief Returns the name of the class for ApplyTransformationToGeometry
@@ -112,16 +141,16 @@ public:
   DataArrayPath getComputedTransformationMatrix() const;
   Q_PROPERTY(DataArrayPath ComputedTransformationMatrix READ getComputedTransformationMatrix WRITE setComputedTransformationMatrix)
 
-  /**
-   * @brief Setter property for GeometryToTransform
-   */
-  void setGeometryToTransform(const DataArrayPath& value);
-  /**
-   * @brief Getter property for GeometryToTransform
-   * @return Value of GeometryToTransform
-   */
-  DataArrayPath getGeometryToTransform() const;
-  Q_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
+  //  /**
+  //   * @brief Setter property for GeometryToTransform
+  //   */
+  //  void setGeometryToTransform(const DataArrayPath& value);
+  //  /**
+  //   * @brief Getter property for GeometryToTransform
+  //   * @return Value of GeometryToTransform
+  //   */
+  //  DataArrayPath getGeometryToTransform() const;
+  //  Q_PROPERTY(DataArrayPath GeometryToTransform READ getGeometryToTransform WRITE setGeometryToTransform)
 
   /**
    * @brief Setter property for TransformationMatrixType
@@ -133,6 +162,17 @@ public:
    */
   int getTransformationMatrixType() const;
   Q_PROPERTY(int TransformationMatrixType READ getTransformationMatrixType WRITE setTransformationMatrixType)
+
+  /**
+   * @brief Setter property for InterpolationType
+   */
+  void setInterpolationType(int value);
+  /**
+   * @brief Getter property for InterpolationType
+   * @return Value of InterpolationType
+   */
+  int getInterpolationType() const;
+  Q_PROPERTY(int InterpolationType READ getInterpolationType WRITE setInterpolationType)
 
   /**
    * @brief Setter property for RotationAxis
@@ -177,6 +217,43 @@ public:
    */
   FloatVec3Type getScale() const;
   Q_PROPERTY(FloatVec3Type Scale READ getScale WRITE setScale)
+
+  /**
+   * @brief Setter property for UseDataArraySelection
+   */
+  void setUseDataArraySelection(bool value);
+
+  /**
+   * @brief Getter property for UseDataArraySelection
+   * @return Value of UseDataArraySelection
+   */
+  bool getUseDataArraySelection() const;
+  Q_PROPERTY(bool UseDataArraySelection READ getUseDataArraySelection WRITE setUseDataArraySelection)
+
+  /**
+   * @brief Setter property for DataArraySelection
+   */
+  void setDataArraySelection(const std::vector<DataArrayPath>& value);
+
+  /**
+   * @brief Getter property for DataArraySelection
+   * @return Value of DataArraySelection
+   */
+  std::vector<DataArrayPath> getDataArraySelection() const;
+  Q_PROPERTY(std::vector<DataArrayPath> DataArraySelection READ getDataArraySelection WRITE setDataArraySelection)
+
+  /**
+   * @brief setCellAttributeMatrixPath
+   * @param value
+   */
+  void setCellAttributeMatrixPath(const DataArrayPath& value);
+
+  /**
+   * @brief getCellAttributeMatrixPath
+   */
+  DataArrayPath getCellAttributeMatrixPath() const;
+
+  Q_PROPERTY(DataArrayPath CellAttributeMatrixPath READ getCellAttributeMatrixPath WRITE setCellAttributeMatrixPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -238,6 +315,12 @@ public:
    */
   void execute() override;
 
+  /**
+   * @brief sendThreadSafeProgressMessage
+   * @param counter
+   */
+  void sendThreadSafeProgressMessage(int64_t counter);
+
 protected:
   ApplyTransformationToGeometry();
 
@@ -251,24 +334,264 @@ protected:
    */
   void dataCheck() override;
 
+  template <class T>
+  void linearEquivalent(T& linEquivalent, IDataArray::Pointer linIData, int64_t linIntIndexes, double xt, double yt, double zt)
+  {
+    typename DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linIData);
+    int index0 = linIntIndexes;
+    int index1 = linIntIndexes + 1;
+    int index2 = linIntIndexes + m_Params.xp;
+    int index3 = linIntIndexes + 1 + m_Params.xp;
+    int index4 = linIntIndexes + m_Params.xp * m_Params.yp;
+    int index5 = linIntIndexes + 1 + m_Params.xp * m_Params.yp;
+    int index6 = linIntIndexes + m_Params.xp + m_Params.xp * m_Params.yp;
+    int index7 = linIntIndexes + 1 + m_Params.xp + m_Params.xp * m_Params.yp;
+    if(index0 >= 0 && index0 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      linEquivalent += lin->getPointer(0)[index0];
+    }
+    if(index1 >= 0 && index1 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      linEquivalent += ((lin->getPointer(0)[index1] - lin->getPointer(0)[index0]) * xt);
+    }
+    if(index2 >= 0 && index2 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      linEquivalent += ((lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) * yt);
+    }
+    if(index3 >= 0 && index3 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      linEquivalent += ((lin->getPointer(0)[index3] - lin->getPointer(0)[index2] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * yt);
+    }
+    if(index4 >= 0 && index4 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      linEquivalent += ((lin->getPointer(0)[index4] - lin->getPointer(0)[index0]) * zt);
+    }
+    if(index5 >= 0 && index5 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      linEquivalent += ((lin->getPointer(0)[index5] - lin->getPointer(0)[index4] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * zt);
+    }
+    if(index6 >= 0 && index6 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      linEquivalent += ((lin->getPointer(0)[index6] - lin->getPointer(0)[index4] - lin->getPointer(0)[index2] + lin->getPointer(0)[index0]) * yt * zt);
+    }
+    if(index7 >= 0 && index7 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      linEquivalent += ((lin->getPointer(0)[index7] - lin->getPointer(0)[index6] - lin->getPointer(0)[index5] - lin->getPointer(0)[index3] + lin->getPointer(0)[index1] + lin->getPointer(0)[index4] +
+                         lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) *
+                        xt * yt * zt);
+    }
+  }
+
+  template <class T>
+  void linearEquivalentRGB(T linEquivalent[3], IDataArray::Pointer linIData, int64_t linIntIndexes, double xt, double yt, double zt)
+  {
+    typename DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linIData);
+    int index0 = linIntIndexes;
+    int index1 = linIntIndexes + 1;
+    int index2 = linIntIndexes + m_Params.xp;
+    int index3 = linIntIndexes + 1 + m_Params.xp;
+    int index4 = linIntIndexes + m_Params.xp * m_Params.yp;
+    int index5 = linIntIndexes + 1 + m_Params.xp * m_Params.yp;
+    int index6 = linIntIndexes + m_Params.xp + m_Params.xp * m_Params.yp;
+    int index7 = linIntIndexes + 1 + m_Params.xp + m_Params.xp * m_Params.yp;
+    if(index0 >= 0 && index0 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        linEquivalent[i] += lin->getComponent(index0, i);
+      }
+    }
+    if(index1 >= 0 && index1 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        linEquivalent[i] += ((lin->getComponent(index1, i) - lin->getComponent(index0, i)) * xt);
+      }
+    }
+    if(index2 >= 0 && index2 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        linEquivalent[i] += ((lin->getComponent(index2, i) - lin->getComponent(index0, i)) * yt);
+      }
+    }
+    if(index3 >= 0 && index3 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        linEquivalent[i] += ((lin->getComponent(index3, i) - lin->getComponent(index2, i) - lin->getComponent(index1, i) + lin->getComponent(index0, i)) * xt * yt);
+      }
+    }
+    if(index4 >= 0 && index4 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        linEquivalent[i] += ((lin->getComponent(index4, i) - lin->getComponent(index0, i)) * zt);
+      }
+    }
+    if(index5 >= 0 && index5 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        linEquivalent[i] += ((lin->getComponent(index5, i) - lin->getComponent(index4, i) - lin->getComponent(index1, i) + lin->getComponent(index0, i)) * xt * zt);
+      }
+    }
+    if(index6 >= 0 && index6 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        linEquivalent[i] += ((lin->getComponent(index6, i) - lin->getComponent(index4, i) - lin->getComponent(index2, i) + lin->getComponent(index0, i)) * yt * zt);
+      }
+    }
+    if(index7 >= 0 && index7 <= m_Params.xp * m_Params.yp * m_Params.zp)
+    {
+      for(int i = 0; i < 3; i++)
+      {
+        linEquivalent[i] += ((lin->getComponent(index7, i) - lin->getComponent(index6, i) - lin->getComponent(index5, i) - lin->getComponent(index3, i) + lin->getComponent(index1, i) +
+                              lin->getComponent(index4, i) + lin->getComponent(index2, i) - lin->getComponent(index0, i)) *
+                             xt * yt * zt);
+      }
+    }
+  }
+
+  template <class T>
+  bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linIData)
+  {
+    bool write = false;
+    double xt = LinearInterpolationData[tupleIndex];
+    double yt = LinearInterpolationData[tupleIndex + 1];
+    double zt = LinearInterpolationData[tupleIndex + 2];
+    double colOld = LinearInterpolationData[tupleIndex + 3];
+    double rowOld = LinearInterpolationData[tupleIndex + 4];
+    double planeOld = LinearInterpolationData[tupleIndex + 5];
+
+    if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
+    {
+      int planeFloor = std::floor(planeOld);
+      int rowFloor = std::floor(rowOld);
+      int colFloor = std::floor(colOld);
+
+      int64_t linIntIndexes = std::nearbyint((m_Params.xp * m_Params.yp * planeFloor) + (m_Params.xp * rowFloor) + colFloor);
+      linearEquivalent<T>(linEquivalent, linIData, linIntIndexes, xt, yt, zt);
+      write = true;
+    }
+    return write;
+  }
+
+  template <class T>
+  bool linearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, T linEquivalent[3], IDataArray::Pointer linIData)
+  {
+    bool write = false;
+
+    double xt = LinearInterpolationData[tupleIndex];
+    double yt = LinearInterpolationData[tupleIndex + 1];
+    double zt = LinearInterpolationData[tupleIndex + 2];
+    double colOld = LinearInterpolationData[tupleIndex + 3];
+    double rowOld = LinearInterpolationData[tupleIndex + 4];
+    double planeOld = LinearInterpolationData[tupleIndex + 5];
+
+    if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
+    {
+      int planeFloor = std::floor(planeOld);
+      int rowFloor = std::floor(rowOld);
+      int colFloor = std::floor(colOld);
+
+      int64_t linIntIndexes = std::nearbyint((m_Params.xp * m_Params.yp * planeFloor) + (m_Params.xp * rowFloor) + colFloor);
+      linearEquivalentRGB<T>(linEquivalent, linIData, linIntIndexes, xt, yt, zt);
+      write = true;
+    }
+    return write;
+  }
+
+  template <typename T>
+  void wrapLinearIndexes(double* LinearInterpolationData, int64_t tupleIndex, typename DataArray<T>::Pointer lin, typename IDataArray::Pointer linData)
+  {
+    bool wrote = false;
+    int index = tupleIndex / 6;
+
+    T linEquivalent = 0;
+    typename IDataArray::Pointer linIData = std::dynamic_pointer_cast<IDataArray>(lin);
+    wrote = linearIndexes<T>(LinearInterpolationData, tupleIndex, linEquivalent, linIData);
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
+  }
+
+  template <typename T>
+  void wrapLinearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, typename DataArray<T>::Pointer lin, typename IDataArray::Pointer linData)
+  {
+    bool wrote = false;
+    int index = tupleIndex / 6;
+    T linEquivalent[3] = {0, 0, 0};
+    typename IDataArray::Pointer linIData = std::dynamic_pointer_cast<IDataArray>(lin);
+    wrote = linearIndexesRGB<T>(LinearInterpolationData, tupleIndex, linEquivalent, linIData);
+    if(wrote)
+    {
+      linData->initializeTuple(index, &linEquivalent);
+    }
+    else
+    {
+      int var = 0;
+      linData->initializeTuple(index, &var);
+    }
+  }
+
+  template <typename T>
+  bool applyLinearInterpolation(typename DataArray<T>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, typename IDataArray::Pointer linData, bool RGB)
+  {
+    if(!lin)
+    {
+      return false;
+    }
+
+    if(RGB)
+    {
+      wrapLinearIndexesRGB<T>(LinearInterpolationData, tupleIndex, lin, linData);
+    }
+    else
+    {
+      wrapLinearIndexes<T>(LinearInterpolationData, tupleIndex, lin, linData);
+    }
+    return true;
+  }
+
   /**
-   * @brief sendThreadSafeProgressMessage
-   * @param counter
+   * @brief ApplyImageTransformation
    */
-  void sendThreadSafeProgressMessage(int64_t counter);
+
+  void ApplyImageTransformation();
+
+  void reset()
+  {
+    m_RotationMatrix.setZero();
+
+    m_Params = ApplyTransformationToGeometry::RotateArgs();
+  }
 
 private:
+  DataArrayPath m_CellAttributeMatrixPath = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
+
   std::weak_ptr<DataArray<float>> m_TransformationMatrixPtr;
   float* m_TransformationMatrix = nullptr;
 
   DynamicTableData m_ManualTransformationMatrix = {};
   DataArrayPath m_ComputedTransformationMatrix = {"", "", "TransformationMatrix"};
-  DataArrayPath m_GeometryToTransform = {"", "", ""};
+  //  DataArrayPath m_GeometryToTransform = {"", "", ""};
   int m_TransformationMatrixType = {1};
+  int m_InterpolationType = {1};
   FloatVec3Type m_RotationAxis = {};
   float m_RotationAngle = {};
   FloatVec3Type m_Translation = {};
   FloatVec3Type m_Scale = {};
+  bool m_UseDataArraySelection = false;
+  std::vector<DataArrayPath> m_DataArraySelection = {};
+  bool m_SliceBySlice = false;
 
   FloatArrayType::Pointer m_TransformationReference;
 
@@ -277,11 +600,15 @@ private:
   size_t m_InstanceIndex = {0};
   int64_t m_TotalElements = {};
 
-  friend class ApplyTransformationToGeometryImpl;
+  Matrix3fR m_RotationMatrix = Matrix3fR::Zero();
+  Matrix3fR m_ScalingMatrix = Matrix3fR::Zero();
+  MatrixTranslation m_TranslationMatrix = MatrixTranslation::Zero();
+  ApplyTransformationToGeometry::RotateArgs m_Params;
 
 public:
   ApplyTransformationToGeometry(const ApplyTransformationToGeometry&) = delete;            // Copy Constructor Not Implemented
   ApplyTransformationToGeometry(ApplyTransformationToGeometry&&) = delete;                 // Move Constructor Not Implemented
   ApplyTransformationToGeometry& operator=(const ApplyTransformationToGeometry&) = delete; // Copy Assignment Not Implemented
-  ApplyTransformationToGeometry& operator=(ApplyTransformationToGeometry&&) = delete;      // Move Assignment Not Implemented
+  ApplyTransformationToGeometry& operator=(ApplyTransformationToGeometry&&) = delete;
+  // Move Assignment Not Implemented
 };
