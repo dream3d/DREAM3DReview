@@ -44,12 +44,14 @@ def start_test():
                                                        [0, 1, 0, 0],
                                                        [0, 0, 1, 0],
                                                        [0, 0, 0, 1]])
-    err = dream3dreviewpy.apply_transformation_to_geometry(dca, transformation_matrix,
-                                                           simpl.DataArrayPath('', '', ''),
-                                                           simpl.DataArrayPath('DataContainer','',''),
-                                                           5, simpl.FloatVec3([0.0, 0.0, 0.0]),
-                                                           0, simpl.FloatVec3([0.0, 0.0, 0.0]),
-                                                           simpl.FloatVec3([1.0, 1.0, 2.5]))
+    err = dream3dreviewpy.apply_transformation_to_geometry(dca, manual_transformation_matrix=transformation_matrix,
+                                                           computed_transformation_matrix=simpl.DataArrayPath('', '', ''),
+                                                           cell_attribute_matrix_path=simpl.DataArrayPath('DataContainer','VertexData',''),
+                                                           transformation_matrix_type=5, 
+                                                           rotation_axis=simpl.FloatVec3([0.0, 0.0, 0.0]),
+                                                           rotation_angle=0, 
+                                                           translation=simpl.FloatVec3([0.0, 0.0, 0.0]),
+                                                           scale=simpl.FloatVec3([1.0, 1.0, 2.5]))
     assert err == 0, f'ApplyTransformationToGeometry -  ErrorCondition: {err}'
 
     # Write to DREAM3D File

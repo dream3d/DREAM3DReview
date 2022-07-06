@@ -49,12 +49,14 @@ def start_test():
                                                        [0, 2.5, 0, 0],
                                                        [-0.707, 0, 0.707, 2],
                                                        [0, 0, 0, 1]])
-    err = dream3dreviewpy.apply_transformation_to_geometry(dca, transformation_matrix,
-                                                           simpl.DataArrayPath('', '', ''),
-                                                           simpl.DataArrayPath('DataContainer','',''),
-                                                           2, simpl.FloatVec3([0.0, 0.0, 0.0]),
-                                                           0, simpl.FloatVec3([0.0, 0.0, 0.0]),
-                                                           simpl.FloatVec3([0.0, 0.0, 0.0]))
+    err = dream3dreviewpy.apply_transformation_to_geometry(dca, manual_transformation_matrix=transformation_matrix,
+                                                           computed_transformation_matrix=simpl.DataArrayPath('', '', ''),
+                                                           cell_attribute_matrix_path=simpl.DataArrayPath('DataContainer','VertexData',''),
+                                                           transformation_matrix_type=2, 
+                                                           rotation_axis=simpl.FloatVec3([0.0, 0.0, 0.0]),
+                                                           rotation_angle=0,
+                                                           translation=simpl.FloatVec3([0.0, 0.0, 0.0]),
+                                                           scale=simpl.FloatVec3([0.0, 0.0, 0.0]))
     assert err == 0, f'ApplyTransformationToGeometry #1 -  ErrorCondition: {err}'
 
     # Compute Umeyama Transform
