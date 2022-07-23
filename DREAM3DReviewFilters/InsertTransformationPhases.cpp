@@ -488,15 +488,15 @@ void InsertTransformationPhases::execute()
   DataContainerArray::Pointer dca = getDataContainerArray();
 
   // defining separate ensemble attribute matrix for statsgen & vol
-  AttributeMatrix::Pointer statsGenAttrMat = dca->getAttributeMatrix(getStatsGenCellEnsembleAttributeMatrixPath());
+  // AttributeMatrix::Pointer statsGenAttrMat = dca->getAttributeMatrix(getStatsGenCellEnsembleAttributeMatrixPath());
   AttributeMatrix::Pointer volAttrMat = dca->getAttributeMatrix(getNumFeaturesPerParentArrayPath());
 
   size_t totalFeatures = m_FeaturePhasesPtr.lock()->getNumberOfTuples();
   size_t numensembles = m_PhaseTypesPtr.lock()->getNumberOfTuples();
 
   // resizing statsgen attribute matrix to add new phase info
-  std::vector<size_t> tDims(1, numensembles + 1);
-  statsGenAttrMat->resizeAttributeArrays(tDims);
+  //    std::vector<size_t> tDims(1, numensembles + 1);
+  //  statsGenAttrMat->resizeAttributeArrays(tDims);
   updateStatsGenEnsembleInstancePointers();
 
   // hard-coded to the below stats for now
@@ -514,7 +514,7 @@ void InsertTransformationPhases::execute()
   numensembles = m_PhaseTypesPtr.lock()->getNumberOfTuples();
 
   // resizing vol attribute matrix
-  volAttrMat->resizeAttributeArrays(tDims);
+  volAttrMat->resizeAttributeArrays({numensembles + 1});
   updateVolEnsembleInstancePointers();
 
   // finding ensemble level number of features per phase
