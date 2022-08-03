@@ -112,7 +112,6 @@ set(_PublicFilters
   DelaunayTriangulation
   GenerateFeatureIDsbyBoundingBoxes
   GenerateMaskFromSimpleShapes
-  CreateArrayofIndices
   ComputeFeatureEigenstrains
 )
 

@@ -11,7 +11,6 @@ set(TEST_NAMES
   ApplyTransformationToGeometryTest
   ComputeFeatureEigenstrainsTest
   AnisotropyFilterTest
-  CreateArrayofIndicesTest
   EstablishFoamMorphologyTest
   FFTHDFWriterFilterTest
   FindNeighborListStatisticsTest
