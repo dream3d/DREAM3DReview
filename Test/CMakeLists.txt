@@ -56,6 +56,7 @@ set(PREBUILT_PIPELINE_NAMES
   "Open-Cell-Foam-Example"
   "ExtractInternalSurfacesFromTriangleGeometry"
   "WaveFront_Export"
+  "InsertTransformationPhase"
 )
 
 set(PREBUILT_SUPPORT_DIR "${${PLUGIN_NAME}_SOURCE_DIR}/ExamplePipelines/${PLUGIN_NAME}")
