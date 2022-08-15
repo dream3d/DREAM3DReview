@@ -127,40 +127,21 @@ def start_test():
     err = dream3dreviewpy.insert_transformation_phases(dca,
                                                              1, 1, 60, simpl.FloatVec3([1, 1, 1]), True, True, 1, 0.2, 1,
                                                              0,
-                                                             simpl.DataArrayPath('StatsGeneratorDataContainer',
-                                                                                 'CellEnsembleData', ''),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellFeatureData', ''),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellData', 'FeatureIds'),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellData', 'EulerAngles'),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellData', 'Phases'),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellFeatureData', 'AvgQuats'),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellFeatureData', 'Centroids'),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellFeatureData',
-                                                                                 'EquivalentDiameters'),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellFeatureData', 'EulerAngles'),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellFeatureData', 'Phases'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', ''),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData', 'FeatureIds'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData', 'EulerAngles'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData', 'Phases'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', 'AvgQuats'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', 'Centroids'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', 'EquivalentDiameters'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', 'EulerAngles'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', 'Phases'),
                                                              'ParentIds',
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellEnsembleData',
-                                                                                 'NumFeaturesPerParent'),
-                                                             simpl.DataArrayPath('StatsGeneratorDataContainer',
-                                                                                 'CellEnsembleData',
-                                                                                 'CrystalStructures'),
-                                                             simpl.DataArrayPath('StatsGeneratorDataContainer',
-                                                                                 'CellEnsembleData', 'PhaseTypes'),
-                                                             simpl.DataArrayPath('StatsGeneratorDataContainer',
-                                                                                 'CellEnsembleData', 'ShapeTypes'),
-                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                                 'CellEnsembleData', 'NumFeatures'))
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellEnsembleData', 'NumFeaturesPerParent'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellEnsembleData', 'CrystalStructures'),
+                                                             simpl.DataArrayPath('StatsGeneratorDataContainer', 'CellEnsembleData', 'PhaseTypes'),
+                                                             simpl.DataArrayPath('StatsGeneratorDataContainer', 'CellEnsembleData', 'ShapeTypes'),
+                                                             simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellEnsembleData', 'NumFeatures'))
     assert err == 0, f'InsertTransformationPhases ErrorCondition {err}'
 
     # Delete Data (using helper function)
@@ -179,20 +160,16 @@ def start_test():
 
     # Generate IPF Colors
     err = orientationanalysispy.generate_ipf_colors(dca, simpl.FloatVec3([0, 0, 1]),
-                                                    simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                        'CellData', 'Phases'),
-                                                    simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                                        'CellData', 'EulerAngles'),
-                                                    simpl.DataArrayPath('StatsGeneratorDataContainer',
-                                                                        'CellEnsembleData', 'CrystalStructures'),
+                                                    simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData', 'Phases'),
+                                                    simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData', 'EulerAngles'),
+                                                    simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellEnsembleData', 'CrystalStructures'),
                                                     False,
                                                     simpl.DataArrayPath('', '', ''), 'IPFColor')
     assert err == 0, f'GenerateIPFColors ErrorCondition: {err}'
 
     # Find Feature Sizes #2
     err = statstoolboxpy.find_sizes(dca, simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellFeatureData', ''),
-                                  simpl.DataArrayPath('SyntheticVolumeDataContainer',
-                                                      'CellData', 'FeatureIds'),
+                                  simpl.DataArrayPath('SyntheticVolumeDataContainer', 'CellData', 'FeatureIds'),
                                   'Volumes2', 'EquivalentDiameters', 'NumElements', False)
     assert err == 0, f'FindSizes #2 ErrorCondition {err}'
 

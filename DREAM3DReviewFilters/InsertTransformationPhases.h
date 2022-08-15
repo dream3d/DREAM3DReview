@@ -91,7 +91,6 @@ class DREAM3DReview_EXPORT InsertTransformationPhases : public AbstractFilter
   PYB11_PROPERTY(float TransformationPhaseThickness READ getTransformationPhaseThickness WRITE setTransformationPhaseThickness)
   PYB11_PROPERTY(int NumTransformationPhasesPerFeature READ getNumTransformationPhasesPerFeature WRITE setNumTransformationPhasesPerFeature)
   PYB11_PROPERTY(float PeninsulaFrac READ getPeninsulaFrac WRITE setPeninsulaFrac)
-  PYB11_PROPERTY(DataArrayPath StatsGenCellEnsembleAttributeMatrixPath READ getStatsGenCellEnsembleAttributeMatrixPath WRITE setStatsGenCellEnsembleAttributeMatrixPath)
   PYB11_PROPERTY(DataArrayPath CellFeatureAttributeMatrixName READ getCellFeatureAttributeMatrixName WRITE setCellFeatureAttributeMatrixName)
   PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
@@ -240,17 +239,6 @@ public:
    */
   float getPeninsulaFrac() const;
   Q_PROPERTY(float PeninsulaFrac READ getPeninsulaFrac WRITE setPeninsulaFrac)
-
-  /**
-   * @brief Setter property for StatsGenCellEnsembleAttributeMatrixPath
-   */
-  void setStatsGenCellEnsembleAttributeMatrixPath(const DataArrayPath& value);
-  /**
-   * @brief Getter property for StatsGenCellEnsembleAttributeMatrixPath
-   * @return Value of StatsGenCellEnsembleAttributeMatrixPath
-   */
-  DataArrayPath getStatsGenCellEnsembleAttributeMatrixPath() const;
-  Q_PROPERTY(DataArrayPath StatsGenCellEnsembleAttributeMatrixPath READ getStatsGenCellEnsembleAttributeMatrixPath WRITE setStatsGenCellEnsembleAttributeMatrixPath)
 
   /**
    * @brief Setter property for CellFeatureAttributeMatrixName
@@ -567,7 +555,6 @@ private:
   float m_TransformationPhaseThickness = {0.2f};
   int m_NumTransformationPhasesPerFeature = {1};
   float m_PeninsulaFrac = {0.0f};
-  DataArrayPath m_StatsGenCellEnsembleAttributeMatrixPath = {SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, ""};
   DataArrayPath m_CellFeatureAttributeMatrixName = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, ""};
   DataArrayPath m_FeatureIdsArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
   DataArrayPath m_CellEulerAnglesArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles};
@@ -583,6 +570,10 @@ private:
   DataArrayPath m_PhaseTypesArrayPath = {SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseTypes};
   DataArrayPath m_ShapeTypesArrayPath = {SIMPL::Defaults::StatsGenerator, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::ShapeTypes};
   DataArrayPath m_NumFeaturesArrayPath = {SIMPL::Defaults::SyntheticVolumeDataContainerName, SIMPL::Defaults::CellEnsembleAttributeMatrixName, SIMPL::EnsembleData::NumFeatures};
+
+  bool m_CopyCrystalStructures = false;
+  bool m_CopyPhaseTypes = false;
+  bool m_CopyShapeTypes = false;
 
   LaueOpsContainer m_OrientationOps;
   // Cell Data - make sure these are all initialized to nullptr in the constructor

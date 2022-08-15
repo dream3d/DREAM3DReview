@@ -179,11 +179,7 @@ void InsertTransformationPhases::setupFilterParameters()
   }
 
   parameters.push_back(SeparatorFilterParameter::Create("Cell Ensemble Data", FilterParameter::Category::RequiredArray));
-  {
-    AttributeMatrixSelectionFilterParameter::RequirementType req = AttributeMatrixSelectionFilterParameter::CreateRequirement(AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Any);
-    parameters.push_back(
-        SIMPL_NEW_AM_SELECTION_FP("Cell Ensemble Attribute Matrix", StatsGenCellEnsembleAttributeMatrixPath, FilterParameter::Category::RequiredArray, InsertTransformationPhases, req));
-  }
+
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateCategoryRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Category::Ensemble);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Crystal Structures", CrystalStructuresArrayPath, FilterParameter::Category::RequiredArray, InsertTransformationPhases, req));
@@ -229,7 +225,6 @@ void InsertTransformationPhases::readFilterParameters(AbstractFilterParametersRe
   setNumTransformationPhasesPerFeature(reader->readValue("NumTransformationPhasesPerFeature", getNumTransformationPhasesPerFeature()));
   setPeninsulaFrac(reader->readValue("PeninsulaFrac", getPeninsulaFrac()));
 
-  setStatsGenCellEnsembleAttributeMatrixPath(reader->readDataArrayPath("StatsGenCellEnsembleAttributeMatrixPath", getStatsGenCellEnsembleAttributeMatrixPath()));
   setCellFeatureAttributeMatrixName(reader->readDataArrayPath("CellFeatureAttributeMatrixName", getCellFeatureAttributeMatrixName()));
   setFeatureIdsArrayPath(reader->readDataArrayPath("FeatureIdsArrayPath", getFeatureIdsArrayPath()));
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
@@ -257,31 +252,31 @@ void InsertTransformationPhases::updateFeatureInstancePointers()
   if(nullptr != m_AvgQuatsPtr.lock())
   {
     m_AvgQuats = m_AvgQuatsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
   if(nullptr != m_CentroidsPtr.lock())
   {
     m_Centroids = m_CentroidsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
   if(nullptr != m_FeatureEulerAnglesPtr.lock())
   {
     m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
   if(nullptr != m_EquivalentDiametersPtr.lock())
   {
     m_EquivalentDiameters = m_EquivalentDiametersPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
   if(nullptr != m_FeaturePhasesPtr.lock())
   {
     m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
   if(nullptr != m_FeatureParentIdsPtr.lock())
   {
     m_FeatureParentIds = m_FeatureParentIdsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
   if(nullptr != m_NumFeaturesPerParentPtr.lock())
   {
     m_NumFeaturesPerParent = m_NumFeaturesPerParentPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -295,15 +290,15 @@ void InsertTransformationPhases::updateStatsGenEnsembleInstancePointers()
   if(nullptr != m_CrystalStructuresPtr.lock())
   {
     m_CrystalStructures = m_CrystalStructuresPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
   if(nullptr != m_PhaseTypesPtr.lock())
   {
     m_PhaseTypes = m_PhaseTypesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
   if(nullptr != m_ShapeTypesPtr.lock())
   {
     m_ShapeTypes = m_ShapeTypesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -317,7 +312,7 @@ void InsertTransformationPhases::updateVolEnsembleInstancePointers()
   if(nullptr != m_NumFeaturesPtr.lock())
   {
     m_NumFeatures = m_NumFeaturesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -343,11 +338,6 @@ void InsertTransformationPhases::dataCheck()
     return;
   }
 
-  AttributeMatrix::Pointer statsGenAttrMat = m->getPrereqAttributeMatrix(this, getStatsGenCellEnsembleAttributeMatrixPath().getAttributeMatrixName(), -301);
-  if(getErrorCode() < 0 || statsGenAttrMat == nullptr)
-  {
-    return;
-  }
   AttributeMatrix::Pointer volAttrMat = m->getPrereqAttributeMatrix(this, getNumFeaturesPerParentArrayPath().getAttributeMatrixName(), -301);
   if(getErrorCode() < 0 || volAttrMat == nullptr)
   {
@@ -362,25 +352,25 @@ void InsertTransformationPhases::dataCheck()
 
   std::vector<size_t> dims(1, 1);
   // Cell Data
-  m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getFeatureIdsArrayPath(), dims);
+  m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<Int32ArrayType>(this, getFeatureIdsArrayPath(), dims);
   if(nullptr != m_FeatureIdsPtr.lock())
   {
     m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   dims[0] = 3;
   m_CellEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getCellEulerAnglesArrayPath(), dims);
   if(nullptr != m_CellEulerAnglesPtr.lock())
   {
     m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   dims[0] = 1;
   m_CellPhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<Int32ArrayType>(this, getCellPhasesArrayPath(), dims);
   if(nullptr != m_CellEulerAnglesPtr.lock())
   {
     m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   // Feature Data
   dims[0] = 4;
@@ -388,75 +378,119 @@ void InsertTransformationPhases::dataCheck()
   if(nullptr != m_AvgQuatsPtr.lock())
   {
     m_AvgQuats = m_AvgQuatsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   dims[0] = 1;
   m_EquivalentDiametersPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getEquivalentDiametersArrayPath(), dims);
   if(nullptr != m_EquivalentDiametersPtr.lock())
   {
     m_EquivalentDiameters = m_EquivalentDiametersPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   dims[0] = 3;
   m_CentroidsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getCentroidsArrayPath(), dims);
   if(nullptr != m_CentroidsPtr.lock())
   {
     m_Centroids = m_CentroidsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), dims);
   if(nullptr != m_FeatureEulerAnglesPtr.lock())
   {
     m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   dims[0] = 1;
-  m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getFeaturePhasesArrayPath(), dims);
+  m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<Int32ArrayType>(this, getFeaturePhasesArrayPath(), dims);
   if(nullptr != m_FeaturePhasesPtr.lock())
   {
     m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   // New Feature Data
 
   tempPath.update(getCellFeatureAttributeMatrixName().getDataContainerName(), getCellFeatureAttributeMatrixName().getAttributeMatrixName(), getFeatureParentIdsArrayName());
-  m_FeatureParentIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, tempPath, -1, dims, "", DataArrayID31);
+  m_FeatureParentIdsPtr = getDataContainerArray()->createNonPrereqArrayFromPath<Int32ArrayType>(this, tempPath, -1, dims, "", DataArrayID31);
   if(nullptr != m_FeatureParentIdsPtr.lock())
   {
     m_FeatureParentIds = m_FeatureParentIdsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
   tempPath.update(getCellFeatureAttributeMatrixName().getDataContainerName(), getCellFeatureAttributeMatrixName().getAttributeMatrixName(), getNumFeaturesPerParentArrayPath().getDataArrayName());
-  m_NumFeaturesPerParentPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<int32_t>>(this, tempPath, 0, dims, "", DataArrayID32);
+  m_NumFeaturesPerParentPtr = getDataContainerArray()->createNonPrereqArrayFromPath<Int32ArrayType>(this, tempPath, 0, dims, "", DataArrayID32);
   if(nullptr != m_NumFeaturesPerParentPtr.lock())
   {
     m_NumFeaturesPerParent = m_NumFeaturesPerParentPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
+
+  m_NumFeaturesPtr = getDataContainerArray()->getPrereqArrayFromPath<Int32ArrayType>(this, getNumFeaturesArrayPath(), dims);
+  if(nullptr != m_NumFeaturesPtr.lock())
+  {
+    m_NumFeatures = m_NumFeaturesPtr.lock()->getPointer(0);
+  }
+  AttributeMatrix::Pointer outputAttributeMatrix = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getNumFeaturesArrayPath(), -10655);
 
   // Ensemble Data
-  m_CrystalStructuresPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<unsigned int>>(this, getCrystalStructuresArrayPath(), dims);
+  m_CrystalStructuresPtr = getDataContainerArray()->getPrereqArrayFromPath<UInt32ArrayType>(this, getCrystalStructuresArrayPath(), dims);
   if(nullptr != m_CrystalStructuresPtr.lock())
   {
     m_CrystalStructures = m_CrystalStructuresPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
+  UInt32ArrayType::Pointer xtals2 = outputAttributeMatrix->getPrereqArray<UInt32ArrayType>(this, getCrystalStructuresArrayPath().getDataArrayName(), -41232, {1});
 
-  m_PhaseTypesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<unsigned int>>(this, getPhaseTypesArrayPath(), dims);
+  //Is it the same xtalStructures?
+  if(xtals2 == nullptr) // There is NOT a crystal structures in the output Ensemble AM, 
+  {
+    m_CopyCrystalStructures = true;
+    outputAttributeMatrix->createNonPrereqArray<UInt32ArrayType>(this, getCrystalStructuresArrayPath().getDataArrayName(), 999, {1});
+  }
+  else if(m_CrystalStructuresPtr.lock().get() != xtals2.get()) // is not the same, do the copy
+  {
+    AttributeMatrix::Pointer am = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getCrystalStructuresArrayPath(), -10656);
+    if(am.get() != outputAttributeMatrix.get() && outputAttributeMatrix->doesAttributeArrayExist(getCrystalStructuresArrayPath().getDataArrayName()))
+    {
+      QString ss;
+      QTextStream out(&ss);
+      out << "The selected CrystalStructures at " << getCrystalStructuresArrayPath().serialize() << " is not within the output AttributeMatrix at "
+          << outputAttributeMatrix->getDataArrayPath().serialize()
+          << " but the output Attribute Matrix already contains a DataArray called "
+          << getCrystalStructuresArrayPath().getDataArrayName()
+          << ". Either select the "
+          << getCrystalStructuresArrayPath().getDataArrayName()
+          << " from the " << outputAttributeMatrix->getDataArrayPath().serialize() << " AttributeMatrix or rename one of the DataArrays";
+      setErrorCondition(-14345, ss);
+    }
+  }
+
+  m_PhaseTypesPtr = getDataContainerArray()->getPrereqArrayFromPath<UInt32ArrayType>(this, getPhaseTypesArrayPath(), dims);
   if(nullptr != m_PhaseTypesPtr.lock())
   {
     m_PhaseTypes = m_PhaseTypesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
+
+  {
+    AttributeMatrix::Pointer am = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getPhaseTypesArrayPath(), -10657);
+    if(am.get() != outputAttributeMatrix.get())
+    {
+      m_CopyPhaseTypes = true;
+      outputAttributeMatrix->createNonPrereqArray<UInt32ArrayType>(this, getPhaseTypesArrayPath().getDataArrayName(), 999, {1});
+    }
+  }
 
   m_ShapeTypesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<ShapeType::EnumType>>(this, getShapeTypesArrayPath(), dims);
   if(nullptr != m_ShapeTypesPtr.lock())
   {
     m_ShapeTypes = m_ShapeTypesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  }
 
-  m_NumFeaturesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getNumFeaturesArrayPath(), dims);
-  if(nullptr != m_NumFeaturesPtr.lock())
   {
-    m_NumFeatures = m_NumFeaturesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+    AttributeMatrix::Pointer am = getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getShapeTypesArrayPath(), -10658);
+    if(am.get() != outputAttributeMatrix.get())
+    {
+      m_CopyShapeTypes = true;
+      outputAttributeMatrix->createNonPrereqArray<UInt32ArrayType>(this, getShapeTypesArrayPath().getDataArrayName(), 999, {1});
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -488,15 +522,44 @@ void InsertTransformationPhases::execute()
   DataContainerArray::Pointer dca = getDataContainerArray();
 
   // defining separate ensemble attribute matrix for statsgen & vol
-  // AttributeMatrix::Pointer statsGenAttrMat = dca->getAttributeMatrix(getStatsGenCellEnsembleAttributeMatrixPath());
   AttributeMatrix::Pointer volAttrMat = dca->getAttributeMatrix(getNumFeaturesPerParentArrayPath());
 
   size_t totalFeatures = m_FeaturePhasesPtr.lock()->getNumberOfTuples();
-  size_t numensembles = m_PhaseTypesPtr.lock()->getNumberOfTuples();
+  size_t numensembles = volAttrMat->getNumberOfTuples();
 
   // resizing statsgen attribute matrix to add new phase info
-  //    std::vector<size_t> tDims(1, numensembles + 1);
-  //  statsGenAttrMat->resizeAttributeArrays(tDims);
+  volAttrMat->resizeAttributeArrays({numensembles + 1});
+
+  if(m_CopyCrystalStructures)
+  {
+    DataContainer::Pointer m = dca->getDataContainer(getCrystalStructuresArrayPath());
+    AttributeMatrix::Pointer am = m->getAttributeMatrix(getCrystalStructuresArrayPath());
+    IDataArray::Pointer arrayPtr = am->getAttributeArrayAs<UInt32ArrayType>(getCrystalStructuresArrayPath().getDataArrayName())->deepCopy();
+    arrayPtr->resizeTuples(volAttrMat->getNumberOfTuples());
+    volAttrMat->insertOrAssign(arrayPtr);
+    m_CrystalStructuresPtr = std::dynamic_pointer_cast<UInt32ArrayType>(arrayPtr);
+  }
+
+  if(m_CopyPhaseTypes)
+  {
+    DataContainer::Pointer m = dca->getDataContainer(getPhaseTypesArrayPath());
+    AttributeMatrix::Pointer am = m->getAttributeMatrix(getPhaseTypesArrayPath());
+    IDataArray::Pointer arrayPtr = am->getAttributeArrayAs<UInt32ArrayType>(getPhaseTypesArrayPath().getDataArrayName())->deepCopy();
+    arrayPtr->resizeTuples(volAttrMat->getNumberOfTuples());
+    volAttrMat->insertOrAssign(arrayPtr);
+    m_PhaseTypesPtr = std::dynamic_pointer_cast<UInt32ArrayType>(arrayPtr);
+  }
+
+  if(m_CopyShapeTypes)
+  {
+    DataContainer::Pointer m = dca->getDataContainer(getShapeTypesArrayPath());
+    AttributeMatrix::Pointer am = m->getAttributeMatrix(getShapeTypesArrayPath());
+    IDataArray::Pointer arrayPtr = am->getAttributeArrayAs<DataArray<ShapeType::EnumType>>(getShapeTypesArrayPath().getDataArrayName())->deepCopy();
+    arrayPtr->resizeTuples(volAttrMat->getNumberOfTuples());
+    volAttrMat->insertOrAssign(arrayPtr);
+    m_ShapeTypesPtr = std::dynamic_pointer_cast<UInt32ArrayType>(arrayPtr);
+  }
+
   updateStatsGenEnsembleInstancePointers();
 
   // hard-coded to the below stats for now
@@ -514,14 +577,9 @@ void InsertTransformationPhases::execute()
   numensembles = m_PhaseTypesPtr.lock()->getNumberOfTuples();
 
   // resizing vol attribute matrix
-  volAttrMat->resizeAttributeArrays({numensembles + 1});
   updateVolEnsembleInstancePointers();
-
+  m_NumFeaturesPtr.lock()->initializeWithZeros();
   // finding ensemble level number of features per phase
-  for(size_t i = 1; i < numensembles; ++i)
-  {
-    m_NumFeatures[i] = 0;
-  }
   for(size_t i = 1; i < totalFeatures; ++i)
   {
     ++m_NumFeatures[m_FeaturePhases[i]];
@@ -1242,17 +1300,6 @@ float InsertTransformationPhases::getPeninsulaFrac() const
   return m_PeninsulaFrac;
 }
 
-// -----------------------------------------------------------------------------
-void InsertTransformationPhases::setStatsGenCellEnsembleAttributeMatrixPath(const DataArrayPath& value)
-{
-  m_StatsGenCellEnsembleAttributeMatrixPath = value;
-}
-
-// -----------------------------------------------------------------------------
-DataArrayPath InsertTransformationPhases::getStatsGenCellEnsembleAttributeMatrixPath() const
-{
-  return m_StatsGenCellEnsembleAttributeMatrixPath;
-}
 
 // -----------------------------------------------------------------------------
 void InsertTransformationPhases::setCellFeatureAttributeMatrixName(const DataArrayPath& value)
