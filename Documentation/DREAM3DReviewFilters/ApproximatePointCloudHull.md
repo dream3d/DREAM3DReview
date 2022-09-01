@@ -1,4 +1,4 @@
-Downsample Vertex Geometry
+Approximate Point Cloud Hull
 =============
 
 ## Group (Subgroup) ##
