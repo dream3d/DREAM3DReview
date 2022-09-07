@@ -26,6 +26,7 @@
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Geometry/RectGridGeom.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
+#include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -59,22 +60,34 @@ void AlignGeometries::initialize()
 void AlignGeometries::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
-  DataContainerSelectionFilterParameter::RequirementType dcsReq;
-  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Moving Geometry", MovingGeometry, FilterParameter::Category::RequiredArray, AlignGeometries, dcsReq));
-  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Target Geometry", TargetGeometry, FilterParameter::Category::RequiredArray, AlignGeometries, dcsReq));
+
   {
     ChoiceFilterParameter::Pointer parameter = ChoiceFilterParameter::New();
     parameter->setHumanLabel("Alignment Type");
     parameter->setPropertyName("AlignmentType");
+    parameter->setSetterCallback(SIMPL_BIND_SETTER(AlignGeometries, this, AlignmentType));
+    parameter->setGetterCallback(SIMPL_BIND_GETTER(AlignGeometries, this, AlignmentType));
     std::vector<QString> choices;
     choices.push_back("Origin");
     choices.push_back("Centroid");
+    choices.push_back("Plane (XY Min)");
+    choices.push_back("Plane (XY Max)");
+    choices.push_back("Plane (XZ Min)");
+    choices.push_back("Plane (XZ Max)");
+    choices.push_back("Plane (YZ Min)");
+    choices.push_back("Plane (YZ Max)");
     parameter->setChoices(choices);
     parameter->setCategory(FilterParameter::Category::Parameter);
-    parameter->setSetterCallback(SIMPL_BIND_SETTER(AlignGeometries, this, AlignmentType));
-    parameter->setGetterCallback(SIMPL_BIND_GETTER(AlignGeometries, this, AlignmentType));
+    parameter->setEditable(false);
     parameters.push_back(parameter);
   }
+
+  DataContainerSelectionFilterParameter::RequirementType dcsReq;
+  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Moving Geometry", MovingGeometry, FilterParameter::Category::RequiredArray, AlignGeometries, dcsReq));
+  parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Target Geometry", TargetGeometry, FilterParameter::Category::RequiredArray, AlignGeometries, dcsReq));
+
+
+
   setFilterParameters(parameters);
 }
 
@@ -89,9 +102,9 @@ void AlignGeometries::dataCheck()
   getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getMovingGeometry());
   getDataContainerArray()->getPrereqGeometryFromDataContainer<IGeometry>(this, getTargetGeometry());
 
-  if(getAlignmentType() != 0 && getAlignmentType() != 1)
+  if(getAlignmentType() < 0 || getAlignmentType() > 7)
   {
-    QString ss = QObject::tr("Invalid selection for alignment type");
+    QString ss = QObject::tr("Invalid selection for alignment type. Alignments types are: Origin=0, Centroid=1, Plane=...");
     setErrorCondition(-1, ss);
   }
 }
@@ -340,6 +353,112 @@ FloatVec3Type extractCentroid(const IGeometry::Pointer& geometry)
 }
 
 // -----------------------------------------------------------------------------
+FloatVec6Type FindBoundingBox(const SharedVertexList & vertices)
+{
+  FloatVec6Type minMax;
+ // float* vertices = vertex->getVertexPointer(0);
+  minMax[0] = std::numeric_limits<float>::max();
+  minMax[1] = std::numeric_limits<float>::max();
+  minMax[2] = std::numeric_limits<float>::max();
+
+  minMax[3] = std::numeric_limits<float>::min();
+  minMax[4] = std::numeric_limits<float>::min();
+  minMax[5] = std::numeric_limits<float>::min();
+
+  for(MeshIndexType i = 0; i < vertices.getNumberOfTuples(); i++)
+  {
+    if( vertices[3 * i + 0] < minMax[0])
+    {
+      minMax[0] = vertices[3 * i + 0];
+    }
+    if( vertices[3 * i + 0] > minMax[3])
+    {
+      minMax[3] = vertices[3 * i + 0];
+    }
+
+    if( vertices[3 * i + 1] < minMax[1])
+    {
+      minMax[1] = vertices[3 * i + 1];
+    }
+    if( vertices[3 * i + 1] > minMax[4])
+    {
+      minMax[4] = vertices[3 * i + 1];
+    }
+
+    if( vertices[3 * i + 2] < minMax[2])
+    {
+      minMax[2] = vertices[3 * i + 2];
+    }
+    if( vertices[3 * i + 2] > minMax[5])
+    {
+      minMax[5] = vertices[3 * i + 2];
+    }
+  }
+
+  return minMax;
+}
+
+// -----------------------------------------------------------------------------
+FloatVec6Type extractBoundingBox(const IGeometry::Pointer& geometry)
+{
+  FloatVec6Type minMax(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+
+  if(ImageGeom::Pointer image = std::dynamic_pointer_cast<ImageGeom>(geometry))
+  {
+    SizeVec3Type dims = image->getDimensions();
+    FloatVec3Type origin = image->getOrigin();
+    FloatVec3Type res = image->getSpacing();
+
+    // Min Coordinate
+    minMax[0] = origin[0];
+    minMax[1] = origin[1];
+    minMax[2] = origin[2];
+    // Max Coordinate
+    minMax[3] = (static_cast<float>(dims[0]) * res[0] ) + origin[0];
+    minMax[4] = (static_cast<float>(dims[1]) * res[1] ) + origin[1];
+    minMax[5] = (static_cast<float>(dims[2]) * res[2] ) + origin[2];
+    return minMax;
+  }
+
+  if(RectGridGeom::Pointer rectGrid = std::dynamic_pointer_cast<RectGridGeom>(geometry))
+  {
+    FloatArrayType& xBounds = *rectGrid->getXBounds();
+    FloatArrayType& yBounds = *rectGrid->getYBounds();
+    FloatArrayType& zBounds = *rectGrid->getZBounds();
+
+    // Min Coordinate
+    minMax[0] = xBounds[0];
+    minMax[1] = yBounds[1];
+    minMax[2] = zBounds[2];
+
+    // Max Coordinate
+    minMax[3] = xBounds[xBounds.size() - 1];
+    minMax[4] = yBounds[xBounds.size() - 1];
+    minMax[5] = zBounds[xBounds.size() - 1];
+
+    return minMax;
+  }
+  if(VertexGeom::Pointer vertex = std::dynamic_pointer_cast<VertexGeom>(geometry))
+  {
+    return FindBoundingBox(*vertex->getVertices());
+  }
+  if(EdgeGeom::Pointer edge = std::dynamic_pointer_cast<EdgeGeom>(geometry))
+  {
+    return FindBoundingBox(*edge->getVertices());
+  }
+  if(IGeometry2D::Pointer geometry2d = std::dynamic_pointer_cast<IGeometry2D>(geometry))
+  {
+    return FindBoundingBox(*geometry2d->getVertices());
+  }
+  if(IGeometry3D::Pointer geometry3d = std::dynamic_pointer_cast<IGeometry3D>(geometry))
+  {
+    return FindBoundingBox(*geometry3d->getVertices());
+  }
+  return minMax;
+}
+
+
+// -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 void translateGeometry(const IGeometry::Pointer& geometry, const FloatVec3Type& translation)
@@ -448,6 +567,43 @@ void AlignGeometries::execute()
 
     float translation[3] = {targetCentroid[0] - movingCentroid[0], targetCentroid[0] - movingCentroid[0], targetCentroid[0] - movingCentroid[0]};
     translateGeometry(moving, translation);
+  }
+  else if(m_AlignmentType > 1 && m_AlignmentType < 8)
+  {
+    FloatVec6Type movingBoundingBox = extractBoundingBox(moving);
+    FloatVec6Type targetBoundingBox = extractBoundingBox(target);
+
+    if(m_AlignmentType == 2) // XY Min
+    {
+      float translation[3] = {0.0F, 0.0F, targetBoundingBox[2] - movingBoundingBox[2]}; // move in -Z direction
+      translateGeometry(moving, translation);
+    }
+    else if(m_AlignmentType == 3) // XY Max
+    {
+      float translation[3] = {0.0F, 0.0F, targetBoundingBox[5] - movingBoundingBox[5]}; // move in +Z direction
+      translateGeometry(moving, translation);
+    }
+    else if(m_AlignmentType == 4) // XZ Min
+    {
+      float translation[3] = {0.0F, targetBoundingBox[1] - movingBoundingBox[1], 0.0F}; // move in -Y direction
+      translateGeometry(moving, translation);
+    }
+    else if(m_AlignmentType == 5) // XZ Max
+    {
+      float translation[3] = {0.0F, targetBoundingBox[4] - movingBoundingBox[4], 0.0F}; // move in +Y direction
+      translateGeometry(moving, translation);
+    }
+    else if(m_AlignmentType == 6) // YZ Min
+    {
+      float translation[3] = { targetBoundingBox[0] - movingBoundingBox[0], 0.0F, 0.0F}; // move in -X direction
+      translateGeometry(moving, translation);
+    }
+    else if(m_AlignmentType == 7) // YZ Max
+    {
+      float translation[3] = {targetBoundingBox[3] - movingBoundingBox[3], 0.0F, 0.0F}; // move in +X direction
+      translateGeometry(moving, translation);
+    }
+
   }
   else
   {
