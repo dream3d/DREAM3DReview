@@ -943,24 +943,48 @@ void ApplyTransformationToGeometry::dataCheck()
   }
   case 3: // Rotation via axis-angle
   {
+    // Convert Degrees to Radians for the last element
     float rotAngle = m_RotationAngle * SIMPLib::Constants::k_PiOver180D;
-    using OrientationF = std::vector<float>;
-    OrientationF om = OrientationTransformation::ax2om<OrientationF, OrientationF>(OrientationF({m_RotationAxis[0], m_RotationAxis[1], m_RotationAxis[2], rotAngle}));
 
     m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
     m_TransformationReference->initializeWithZeros();
     m_TransformationMatrixPtr = m_TransformationReference;
+    m_TransformationMatrix = m_TransformationReference->getPointer(0);
     if(m_TransformationMatrixPtr.lock())
     {
-      m_TransformationMatrix = m_TransformationMatrixPtr.lock()->getPointer(0);
-      for(size_t i = 0; i < 3; i++)
-      {
-        m_TransformationMatrix[4 * i + 0] = om[3 * i + 0];
-        m_TransformationMatrix[4 * i + 1] = om[3 * i + 1];
-        m_TransformationMatrix[4 * i + 2] = om[3 * i + 2];
-        m_TransformationMatrix[4 * i + 3] = 0.0f;
-      }
-      m_TransformationMatrix[4 * 3 + 3] = 1.0f;
+      // Ensure the axis part is normalized
+      MatrixMath::Normalize3x1(m_RotationAxis.data());
+
+      float cosTheta = cos(rotAngle);
+      float oneMinusCosTheta = 1 - cosTheta;
+      float sinTheta = sin(rotAngle);
+      float l = m_RotationAxis[0];
+      float m = m_RotationAxis[1];
+      float n = m_RotationAxis[2];
+
+      // First Row:
+      m_TransformationMatrix[0] = l * l * (oneMinusCosTheta) + cosTheta;
+      m_TransformationMatrix[1] = m * l * (oneMinusCosTheta) - (n * sinTheta);
+      m_TransformationMatrix[2] = n * l * (oneMinusCosTheta) + (m * sinTheta);
+      m_TransformationMatrix[3] = 0.0F;
+
+      // Second Row:
+      m_TransformationMatrix[4] = l * m * (oneMinusCosTheta) + (n * sinTheta);
+      m_TransformationMatrix[5] = m * m * (oneMinusCosTheta) + cosTheta;
+      m_TransformationMatrix[6] = n * m * (oneMinusCosTheta) - (l * sinTheta);
+      m_TransformationMatrix[7] = 0.0F;
+
+      // Third Row:
+      m_TransformationMatrix[8] = l * n * (oneMinusCosTheta) - (m * sinTheta);
+      m_TransformationMatrix[9] = m * n * (oneMinusCosTheta) + (l * sinTheta);
+      m_TransformationMatrix[10] = n * n * (oneMinusCosTheta) + cosTheta;
+      m_TransformationMatrix[11] = 0.0F;
+
+      // Fourth Row:
+      m_TransformationMatrix[12] = 0.0F;
+      m_TransformationMatrix[13] = 0.0F;
+      m_TransformationMatrix[14] = 0.0F;
+      m_TransformationMatrix[15] = 1.0F;
     }
     break;
   }
@@ -1280,7 +1304,6 @@ void ApplyTransformationToGeometry::reset()
 
   m_Params = ApplyTransformationToGeometry::RotateArgs();
 }
-
 
 // -----------------------------------------------------------------------------
 //
