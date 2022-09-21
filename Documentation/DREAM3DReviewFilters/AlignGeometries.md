@@ -6,13 +6,24 @@ DREAM3DReview (DREAM3DReview)
 
 ## Description ##
 
-This **Filter** does the following...
+This **Filter** does will align 2 Geometry objects using 1 of several alignment methods:
+
+* Centroid
+* Origin
+* XY Min Plane
+* XY Max Plane
+* XZ Min Plane
+* XZ Max Plane
+* YZ Min Plane
+* YZ Max Plane
+
+The input geometries can be of any type. The *Moving* geometry is moved in space to the *Target* geometry.
 
 ## Parameters ##
 
 | Name | Type | Description |
 |------|------|------|
-| Parameter Name | Parameter Type | Description of parameter... |
+| Method | Integer | 0=Centroid, 1=Origin, 2-7 for the various planes |
 
 ## Required Geometry ##
 
@@ -22,17 +33,12 @@ Required Geometry Type -or- Not Applicable
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Data Container** | Data Container Name | N/A | N/A | Description of object... |
-| **Attribute Matrix** | Attribute Matrix Name | Element/Feature/Ensemble/etc. | N/A | Description of object... |
-| **Element/Feature/Ensemble/etc. Attribute Array** | AttributeArray Name | int32_t/float/etc. | (1)/(3)/etc. | Description of object... |
+| **Data Container** | Moving Geometry | Must have a geometry | N/A | The Geometry that is going to be moved |
+| **Data Container** | Target Geometry |Must have a geometry | N/A | The Target Geometry that the moving is going to be aligned to. |
 
 ## Created Objects ##
 
-| Kind | Default Name | Type | Component Dimensions | Description |
-|------|--------------|-------------|---------|-----|
-| **Data Container** | Data Container Name | N/A | N/A | Description of object... |
-| **Attribute Matrix** | Attribute Matrix Name | Element/Feature/Ensemble/etc. | N/A | Description of object... |
-| **Element/Feature/Ensemble/etc. Attribute Array** | AttributeArray Name | int32_t/float/etc. | (1)/(3)/etc. | Description of object... |
+None. The operation is done in place
 
 ## License & Copyright ##
 
