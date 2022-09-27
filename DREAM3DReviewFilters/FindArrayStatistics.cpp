@@ -720,16 +720,16 @@ void FindArrayStatistics::execute()
   }
 
   int32_t numFeatures = 0;
+  DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(m_DestinationAttributeMatrix.getDataContainerName());
+
 
   if(m_ComputeByIndex)
   {
-    AttributeMatrix::Pointer attrMat =
-        getDataContainerArray()->getDataContainer(m_DestinationAttributeMatrix.getDataContainerName())->getAttributeMatrix(m_DestinationAttributeMatrix.getAttributeMatrixName());
+    AttributeMatrix::Pointer attrMat = dc->getAttributeMatrix(m_DestinationAttributeMatrix.getAttributeMatrixName());
     numFeatures = static_cast<int32_t>(attrMat->getNumberOfTuples());
     bool mismatchedFeatures = false;
     int32_t largestFeature = 0;
     size_t totalPoints = m_FeatureIdsPtr.lock()->getNumberOfTuples();
-
     for(size_t i = 0; i < totalPoints; i++)
     {
       if(m_FeatureIds[i] > largestFeature)
@@ -745,14 +745,11 @@ void FindArrayStatistics::execute()
 
     if(mismatchedFeatures)
     {
-      QString ss = QObject::tr("The number of objects in the selected Attribute Matrix destination (%1) is larger than the largest Id in the Feature/Ensemble Ids array").arg(numFeatures);
-      setErrorCondition(-5555, ss);
-      return;
-    }
-
-    if(largestFeature != (numFeatures - 1))
-    {
-      QString ss = QObject::tr("The number of objects in the selected Attribute Matrix destination (%1) does not match the largest Id in the  Feature/Ensemble Ids array").arg(numFeatures);
+      QString ss = QObject::tr("The given FeatureIds Array %1 has a value that is larger than allowed by the given Feature Attribute Matrix %2.\n %3 >= %4")
+                       .arg(m_FeatureIdsArrayPath.serialize("/"))
+                       .arg(m_DestinationAttributeMatrix.serialize("/"))
+                       .arg(largestFeature)
+                       .arg(numFeatures);
       setErrorCondition(-5555, ss);
       return;
     }
