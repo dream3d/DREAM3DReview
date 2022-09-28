@@ -883,6 +883,14 @@ void ApplyTransformationToGeometry::dataCheck()
     return;
   }
 
+  QString matrixName = getCellAttributeMatrixPath().getAttributeMatrixName();
+  AttributeMatrixShPtr attriPtr = igeom->getAttributeMatrix(matrixName);
+
+  if(attriPtr == nullptr)
+  {
+    return;
+  }
+
   if(!std::dynamic_pointer_cast<IGeometry2D>(igeom) && !std::dynamic_pointer_cast<IGeometry3D>(igeom) && !std::dynamic_pointer_cast<VertexGeom>(igeom) && !std::dynamic_pointer_cast<EdgeGeom>(igeom) &&
      !std::dynamic_pointer_cast<ImageGeom>(igeom))
   {
