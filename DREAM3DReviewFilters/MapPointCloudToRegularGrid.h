@@ -228,9 +228,9 @@ protected:
   void initialize();
 
 private:
-  std::weak_ptr<DataArray<MeshIndexType>> m_VoxelIndicesPtr;
-  MeshIndexType* m_VoxelIndices = nullptr;
-  std::weak_ptr<DataArray<bool>> m_MaskPtr;
+  std::weak_ptr<UInt64ArrayType> m_VoxelIndicesPtr;
+  uint64_t* m_VoxelIndices = nullptr;
+  std::weak_ptr<BoolArrayType> m_MaskPtr;
   bool* m_Mask = nullptr;
 
   DataArrayPath m_DataContainerName = {"", "", ""};
