@@ -1043,7 +1043,7 @@ void ApplyTransformationToGeometry::dataCheck()
     QList<QString> voxelArrayNames;
     if(!this->getInPreflight())
     {
-      QList<QString> voxelArrayNames = attriPtr->getAttributeArrayNames();
+      voxelArrayNames = attriPtr->getAttributeArrayNames();
     }
     if(getInterpolationType() == 1)
     {
