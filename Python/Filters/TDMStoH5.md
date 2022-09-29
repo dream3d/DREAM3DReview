@@ -4,6 +4,11 @@
 
 Example(Sub Example)
 
+## Required Conda Packages ##
+
++ h5py
++ nptdms
+
 ## Description ##
 
 This **Filter** converts a series of TDMS files into individual part files, where each part is stored in an HDF5 file. Three offsets can be used for the camera, diode, and laser.
