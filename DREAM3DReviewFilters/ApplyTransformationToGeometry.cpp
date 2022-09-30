@@ -883,6 +883,14 @@ void ApplyTransformationToGeometry::dataCheck()
     return;
   }
 
+  int err = 0;
+  AttributeMatrixShPtr attriPtr = this->getDataContainerArray()->getPrereqAttributeMatrixFromPath(this, getCellAttributeMatrixPath(), err);
+
+  if(getErrorCode() < 0)
+  {
+    return;
+  }
+
   if(!std::dynamic_pointer_cast<IGeometry2D>(igeom) && !std::dynamic_pointer_cast<IGeometry3D>(igeom) && !std::dynamic_pointer_cast<VertexGeom>(igeom) && !std::dynamic_pointer_cast<EdgeGeom>(igeom) &&
      !std::dynamic_pointer_cast<ImageGeom>(igeom))
   {
@@ -1032,9 +1040,11 @@ void ApplyTransformationToGeometry::dataCheck()
   if(std::dynamic_pointer_cast<ImageGeom>(igeom) && m_TransformationMatrix != nullptr)
   {
     DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-    QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
-    QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
-
+    QList<QString> voxelArrayNames;
+    if(!this->getInPreflight())
+    {
+      voxelArrayNames = attriPtr->getAttributeArrayNames();
+    }
     if(getInterpolationType() == 1)
     {
       if(m_UseDataArraySelection)
@@ -1048,7 +1058,7 @@ void ApplyTransformationToGeometry::dataCheck()
 
       for(const auto& attrArrayName : voxelArrayNames)
       {
-        IDataArray::Pointer p = m->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
+        IDataArray::Pointer p = attriPtr->getAttributeArray(attrArrayName);
         if(p->getTypeAsString().compare("bool") == 0)
         {
           QString ss = QObject::tr("Input Type Error, cannot run linear interpolation on a boolean array");
@@ -1084,7 +1094,10 @@ void ApplyTransformationToGeometry::dataCheck()
     tDims[1] = m_Params.ypNew;
     tDims[2] = m_Params.zpNew;
 
-    m->getAttributeMatrix(attrMatName)->resizeAttributeArrays(tDims);
+    if(!this->getInPreflight())
+    {
+      attriPtr->resizeAttributeArrays(tDims);
+    }
   }
 }
 
