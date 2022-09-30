@@ -53,10 +53,11 @@ endif()
 # !!! NO Spaces in the following names. NO subdirectories either
 # The names MUST match the names of the files on DISK including cApiTaliZation
 set(PREBUILT_PIPELINE_NAMES
-  "Open-Cell-Foam-Example"
   "ExtractInternalSurfacesFromTriangleGeometry"
-  "WaveFront_Export"
+  "ImportQMMeltpoolH5File"
   "InsertTransformationPhase"
+  "Open-Cell-Foam-Example"
+  "WaveFront_Export"
 )
 
 set(PREBUILT_SUPPORT_DIR "${${PLUGIN_NAME}_SOURCE_DIR}/ExamplePipelines/${PLUGIN_NAME}")

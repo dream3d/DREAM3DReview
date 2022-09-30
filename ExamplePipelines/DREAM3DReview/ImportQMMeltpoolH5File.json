@@ -1,0 +1,197 @@
+{
+    "0": {
+        "DataContainerPath": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": "MeltPool Data"
+        },
+        "FilterVersion": "1.0.1203",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Import QM Meltpool HDF5 File",
+        "Filter_Name": "ImportQMMeltpoolH5File",
+        "Filter_Uuid": "{14f85d76-2400-57b8-9650-438563a8b8eb}",
+        "InputFiles": [
+            "Data/DREAM3DReview/QMMeltPool_Data.h5"
+        ],
+        "Power": 10,
+        "SliceRange": {
+            "x": 200,
+            "y": 204
+        },
+        "VertexAttributeMatrixName": "Vertex Data"
+    },
+    "1": {
+        "DestinationArrayName": "Mask",
+        "FilterVersion": "2.0.470",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Threshold Objects (Advanced)",
+        "Filter_Name": "MultiThresholdObjects2",
+        "Filter_Uuid": "{686d5393-2b02-5c86-b887-dd81a8ae80f2}",
+        "ScalarType": 10,
+        "SelectedThresholds": {
+            "Attribute Matrix Name": "Vertex Data",
+            "Data Container Name": "MeltPool Data",
+            "Thresholds": [
+                {
+                    "Attribute Array Name": "LaserTTL",
+                    "Comparison Operator": 1,
+                    "Comparison Value": 0,
+                    "Union Operator": 0
+                }
+            ]
+        }
+    },
+    "2": {
+        "CreatedImageDataContainerName": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": "ImageDataContainer"
+        },
+        "DataContainerName": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": "MeltPool Data"
+        },
+        "FilterVersion": "1.0.1203",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Map Point Cloud to Regular Grid",
+        "Filter_Name": "MapPointCloudToRegularGrid",
+        "Filter_Uuid": "{9fe34deb-99e1-5f3a-a9cc-e90c655b47ee}",
+        "GridDimensions": {
+            "x": 2048,
+            "y": 2048,
+            "z": 5
+        },
+        "ImageDataContainerPath": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": ""
+        },
+        "MaskArrayPath": {
+            "Attribute Matrix Name": "Vertex Data",
+            "Data Array Name": "Mask",
+            "Data Container Name": "MeltPool Data"
+        },
+        "SamplingGridType": 0,
+        "UseMask": 1,
+        "VoxelIndicesArrayPath": {
+            "Attribute Matrix Name": "Vertex Data",
+            "Data Array Name": "VoxelIndices",
+            "Data Container Name": "MeltPool Data"
+        }
+    },
+    "3": {
+        "ArraysToCopy": [
+            {
+                "Attribute Matrix Name": "Vertex Data",
+                "Data Array Name": "Area",
+                "Data Container Name": "MeltPool Data"
+            },
+            {
+                "Attribute Matrix Name": "Vertex Data",
+                "Data Array Name": "Intensity",
+                "Data Container Name": "MeltPool Data"
+            }
+        ],
+        "ArraysToInterpolate": [
+            {
+                "Attribute Matrix Name": "Vertex Data",
+                "Data Array Name": "Area",
+                "Data Container Name": "MeltPool Data"
+            },
+            {
+                "Attribute Matrix Name": "Vertex Data",
+                "Data Array Name": "Intensity",
+                "Data Container Name": "MeltPool Data"
+            }
+        ],
+        "CopySuffix": " [Copied]",
+        "DataContainerName": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": "MeltPool Data"
+        },
+        "FilterVersion": "1.0.1203",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Interpolate Point Cloud to Regular Grid",
+        "Filter_Name": "InterpolatePointCloudToRegularGrid",
+        "Filter_Uuid": "{4b551c15-418d-5081-be3f-d3aeb62408e5}",
+        "InterpolatedAttributeMatrixName": "InterpolatedAttributeMatrix",
+        "InterpolatedDataContainerName": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": "ImageDataContainer"
+        },
+        "InterpolatedSuffix": " [Interpolated]",
+        "InterpolationTechnique": 0,
+        "KernelDistancesArrayName": "KernelDistances",
+        "KernelSize": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "MaskArrayPath": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": ""
+        },
+        "Sigmas": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "StoreKernelDistances": 0,
+        "UseMask": 0,
+        "VoxelIndicesArrayPath": {
+            "Attribute Matrix Name": "Vertex Data",
+            "Data Array Name": "VoxelIndices",
+            "Data Container Name": "MeltPool Data"
+        }
+    },
+    "4": {
+        "DestinationAttributeMatrix": {
+            "Attribute Matrix Name": "InterpolatedAttributeMatrix",
+            "Data Array Name": "",
+            "Data Container Name": "ImageDataContainer"
+        },
+        "FilterVersion": "1.0.1203",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Find NeighborList Statistics",
+        "Filter_Name": "FindNeighborListStatistics",
+        "Filter_Uuid": "{73ee33b6-7622-5004-8b88-4d145514fb6a}",
+        "FindLength": 0,
+        "FindMax": 1,
+        "FindMean": 1,
+        "FindMedian": 0,
+        "FindMin": 0,
+        "FindStdDeviation": 0,
+        "FindSummation": 0,
+        "LengthArrayName": "Length",
+        "MaximumArrayName": "Maximum",
+        "MeanArrayName": "Mean",
+        "MedianArrayName": "Median",
+        "MinimumArrayName": "Minimum",
+        "SelectedArrayPath": {
+            "Attribute Matrix Name": "InterpolatedAttributeMatrix",
+            "Data Array Name": "Area [Interpolated]",
+            "Data Container Name": "ImageDataContainer"
+        },
+        "StdDeviationArrayName": "StandardDeviation",
+        "SummationArrayName": "Summation"
+    },
+    "5": {
+        "FilterVersion": "2.0.470",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Write DREAM.3D Data File",
+        "Filter_Name": "DataContainerWriter",
+        "Filter_Uuid": "{3fcd4c43-9d75-5b86-aad4-4441bc914f37}",
+        "OutputFile": "Data/Output/DREAM3DReview/QMMeltPool_Data.dream3d",
+        "WriteTimeSeries": 0,
+        "WriteXdmfFile": 1
+    },
+    "PipelineBuilder": {
+        "Name": "ImportQMMeltPool",
+        "Number_Filters": 6,
+        "Version": 6
+    }
+}

@@ -91,7 +91,7 @@ void InterpolatePointCloudToRegularGrid::setupFilterParameters()
   parameters.push_back(SeparatorFilterParameter::Create("Vertex Data", FilterParameter::Category::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::SizeT, 1, AttributeMatrix::Type::Vertex, IGeometry::Type::Vertex);
-    req.daTypes = {SIMPL::TypeNames::SizeT, SIMPL::TypeNames::UInt64};
+    req.daTypes = {SIMPL::TypeNames::UInt64};
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Voxel Indices", VoxelIndicesArrayPath, FilterParameter::Category::RequiredArray, InterpolatePointCloudToRegularGrid, req));
   }
   {
@@ -326,7 +326,7 @@ void InterpolatePointCloudToRegularGrid::dataCheck()
     }
   }
 
-  m_VoxelIndicesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<size_t>>(this, getVoxelIndicesArrayPath(), cDims);
+  m_VoxelIndicesPtr = getDataContainerArray()->getPrereqArrayFromPath<UInt64ArrayType>(this, getVoxelIndicesArrayPath(), cDims);
   if(nullptr != m_VoxelIndicesPtr.lock())
   {
     m_VoxelIndices = m_VoxelIndicesPtr.lock()->getPointer(0);
