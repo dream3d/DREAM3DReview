@@ -182,7 +182,7 @@ void MapPointCloudToRegularGrid::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
 
-  m_VoxelIndicesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<DataArray<size_t>>(this, getVoxelIndicesArrayPath(), 0, cDims);
+  m_VoxelIndicesPtr = getDataContainerArray()->createNonPrereqArrayFromPath<UInt64ArrayType>(this, getVoxelIndicesArrayPath(), 0, cDims);
   if(nullptr != m_VoxelIndicesPtr.lock())
   {
     m_VoxelIndices = m_VoxelIndicesPtr.lock()->getPointer(0);
