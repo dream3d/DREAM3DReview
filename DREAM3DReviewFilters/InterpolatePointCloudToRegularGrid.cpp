@@ -75,7 +75,7 @@ void InterpolatePointCloudToRegularGrid::setupFilterParameters()
   }
   parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Kernel Size", KernelSize, FilterParameter::Category::Parameter, InterpolatePointCloudToRegularGrid));
 
-  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Gaussian Sigmas", Sigmas, FilterParameter::Category::Parameter, InterpolatePointCloudToRegularGrid, 1));
+  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Gaussian Sigmas", Sigmas, FilterParameter::Category::Parameter, InterpolatePointCloudToRegularGrid, {1}));
   {
     DataContainerSelectionFilterParameter::RequirementType req;
     IGeometry::Types reqGeom = {IGeometry::Type::Vertex};

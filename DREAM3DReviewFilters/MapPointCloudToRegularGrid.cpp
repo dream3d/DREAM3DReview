@@ -79,13 +79,13 @@ void MapPointCloudToRegularGrid::setupFilterParameters()
     parameter->setCategory(FilterParameter::Category::Parameter);
     parameters.push_back(parameter);
   }
-  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Grid Dimensions", GridDimensions, FilterParameter::Category::Parameter, MapPointCloudToRegularGrid, k_CreateSamplingGrid));
+  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Grid Dimensions", GridDimensions, FilterParameter::Category::Parameter, MapPointCloudToRegularGrid, {k_CreateSamplingGrid}));
   {
     DataContainerSelectionFilterParameter::RequirementType req;
     IGeometry::Types reqGeom = {IGeometry::Type::Image};
     req.dcGeometryTypes = reqGeom;
     parameters.push_back(
-        SIMPL_NEW_DC_SELECTION_FP("ImageDataContainerPath", ImageDataContainerPath, FilterParameter::Category::RequiredArray, MapPointCloudToRegularGrid, req, k_UseExistingSamplingGrid));
+        SIMPL_NEW_DC_SELECTION_FP("ImageDataContainerPath", ImageDataContainerPath, FilterParameter::Category::RequiredArray, MapPointCloudToRegularGrid, req, {k_UseExistingSamplingGrid}));
   }
   {
     DataContainerSelectionFilterParameter::RequirementType req;
@@ -107,7 +107,7 @@ void MapPointCloudToRegularGrid::setupFilterParameters()
   }
 
   parameters.push_back(
-      SIMPL_NEW_DC_CREATION_FP("Created Image DataContainer", CreatedImageDataContainerName, FilterParameter::Category::CreatedArray, MapPointCloudToRegularGrid, k_CreateSamplingGrid));
+      SIMPL_NEW_DC_CREATION_FP("Created Image DataContainer", CreatedImageDataContainerName, FilterParameter::Category::CreatedArray, MapPointCloudToRegularGrid, {k_CreateSamplingGrid}));
   setFilterParameters(parameters);
 }
 

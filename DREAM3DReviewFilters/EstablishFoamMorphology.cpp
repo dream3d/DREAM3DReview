@@ -563,7 +563,7 @@ void EstablishFoamMorphology::setupFilterParameters()
   parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", InputCellFeatureIdsArrayPath, FilterParameter::Category::RequiredArray, EstablishFoamMorphology, req, 1));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", InputCellFeatureIdsArrayPath, FilterParameter::Category::RequiredArray, EstablishFoamMorphology, req, {1}));
   }
 
   parameters.push_back(SeparatorFilterParameter::Create("Cell Ensemble Data", FilterParameter::Category::CreatedArray));
@@ -574,7 +574,7 @@ void EstablishFoamMorphology::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_STRING_FP("Cell Feature Attribute Matrix", OutputCellFeatureAttributeMatrixName, FilterParameter::Category::CreatedArray, EstablishFoamMorphology));
 
   parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::CreatedArray));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Feature Ids", FeatureIdsArrayName, FilterParameter::Category::CreatedArray, EstablishFoamMorphology, 0));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Feature Ids", FeatureIdsArrayName, FilterParameter::Category::CreatedArray, EstablishFoamMorphology, {0}));
   parameters.push_back(SIMPL_NEW_STRING_FP("Mask", MaskArrayName, FilterParameter::Category::CreatedArray, EstablishFoamMorphology));
   parameters.push_back(SIMPL_NEW_STRING_FP("Phases", CellPhasesArrayName, FilterParameter::Category::CreatedArray, EstablishFoamMorphology));
   parameters.push_back(SIMPL_NEW_STRING_FP("Quadruple Point Euclidean Distances", QPEuclideanDistancesArrayName, FilterParameter::Category::CreatedArray, EstablishFoamMorphology));

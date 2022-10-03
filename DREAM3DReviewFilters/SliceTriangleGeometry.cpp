@@ -74,8 +74,8 @@ void SliceTriangleGeometry::setupFilterParameters()
     parameter->setCategory(FilterParameter::Category::Parameter);
     parameters.push_back(parameter);
   }
-  parameters.push_back(SIMPL_NEW_FLOAT_FP("Slicing Start", Zstart, FilterParameter::Category::Parameter, SliceTriangleGeometry, 1));
-  parameters.push_back(SIMPL_NEW_FLOAT_FP("Slicing End", Zend, FilterParameter::Category::Parameter, SliceTriangleGeometry, 1));
+  parameters.push_back(SIMPL_NEW_FLOAT_FP("Slicing Start", Zstart, FilterParameter::Category::Parameter, SliceTriangleGeometry, {1}));
+  parameters.push_back(SIMPL_NEW_FLOAT_FP("Slicing End", Zend, FilterParameter::Category::Parameter, SliceTriangleGeometry, {1}));
 
   parameters.push_back(SIMPL_NEW_FLOAT_FP("Slice Spacing", SliceResolution, FilterParameter::Category::Parameter, SliceTriangleGeometry));
 

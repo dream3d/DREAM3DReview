@@ -103,8 +103,8 @@ void NormalizeArrays::setupFilterParameters()
   std::vector<QString> linkedProps = {"MaskArrayPath", "DefaultValue"};
   parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Mask", UseMask, FilterParameter::Category::Parameter, NormalizeArrays, linkedProps));
   parameters.push_back(SIMPL_NEW_DOUBLE_FP("Default Masked Value", DefaultValue, FilterParameter::Category::Parameter, NormalizeArrays));
-  parameters.push_back(SIMPL_NEW_DOUBLE_FP("Range Minimum", RangeMin, FilterParameter::Category::Parameter, NormalizeArrays, 0));
-  parameters.push_back(SIMPL_NEW_DOUBLE_FP("Range Maximum", RangeMax, FilterParameter::Category::Parameter, NormalizeArrays, 0));
+  parameters.push_back(SIMPL_NEW_DOUBLE_FP("Range Minimum", RangeMin, FilterParameter::Category::Parameter, NormalizeArrays, {0}));
+  parameters.push_back(SIMPL_NEW_DOUBLE_FP("Range Maximum", RangeMax, FilterParameter::Category::Parameter, NormalizeArrays, {0}));
   MultiDataArraySelectionFilterParameter::RequirementType req =
       MultiDataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::Any, IGeometry::Type::Any);
   parameters.push_back(SIMPL_NEW_MDA_SELECTION_FP("Attribute Arrays to Normalize", SelectedDataArrayPaths, FilterParameter::Category::RequiredArray, NormalizeArrays, req));

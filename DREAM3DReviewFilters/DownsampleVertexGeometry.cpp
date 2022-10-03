@@ -69,9 +69,9 @@ void DownsampleVertexGeometry::setupFilterParameters()
     parameter->setCategory(FilterParameter::Category::Parameter);
     parameters.push_back(parameter);
   }
-  parameters.push_back(SIMPL_NEW_INTEGER_FP("Decimation Frequency", DecimationFreq, FilterParameter::Category::Parameter, DownsampleVertexGeometry, 0));
-  parameters.push_back(SIMPL_NEW_FLOAT_FP("Fraction to Remove", DecimationFraction, FilterParameter::Category::Parameter, DownsampleVertexGeometry, 1));
-  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Grid Resolution", GridResolution, FilterParameter::Category::Parameter, DownsampleVertexGeometry, 2));
+  parameters.push_back(SIMPL_NEW_INTEGER_FP("Decimation Frequency", DecimationFreq, FilterParameter::Category::Parameter, DownsampleVertexGeometry, {0}));
+  parameters.push_back(SIMPL_NEW_FLOAT_FP("Fraction to Remove", DecimationFraction, FilterParameter::Category::Parameter, DownsampleVertexGeometry, {1}));
+  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Grid Resolution", GridResolution, FilterParameter::Category::Parameter, DownsampleVertexGeometry, {2}));
   parameters.push_back(SeparatorFilterParameter::Create("Vertex Data", FilterParameter::Category::RequiredArray));
   {
     AttributeMatrixSelectionFilterParameter::RequirementType req;
