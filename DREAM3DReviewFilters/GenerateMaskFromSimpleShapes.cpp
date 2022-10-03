@@ -82,10 +82,10 @@ void GenerateMaskFromSimpleShapes::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_DA_CREATION_FP("Mask", MaskArrayPath, FilterParameter::Category::CreatedArray, GenerateMaskFromSimpleShapes, dacReq));
   DataArraySelectionFilterParameter::RequirementType dasReq;
   parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Centers", CentersArrayPath, FilterParameter::Category::RequiredArray, GenerateMaskFromSimpleShapes, dasReq));
-  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Ellipsoid Axes Lengths", AxesLengthArrayPath, FilterParameter::Category::RequiredArray, GenerateMaskFromSimpleShapes, dasReq, 0));
-  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Box Dimensions", BoxDimensionsArrayPath, FilterParameter::Category::RequiredArray, GenerateMaskFromSimpleShapes, dasReq, 1));
-  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Cylinder Radii", CylinderRadiusArrayPath, FilterParameter::Category::RequiredArray, GenerateMaskFromSimpleShapes, dasReq, 2));
-  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Cylinder Heights", CylinderHeightArrayPath, FilterParameter::Category::RequiredArray, GenerateMaskFromSimpleShapes, dasReq, 2));
+  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Ellipsoid Axes Lengths", AxesLengthArrayPath, FilterParameter::Category::RequiredArray, GenerateMaskFromSimpleShapes, dasReq, {0}));
+  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Box Dimensions", BoxDimensionsArrayPath, FilterParameter::Category::RequiredArray, GenerateMaskFromSimpleShapes, dasReq, {1}));
+  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Cylinder Radii", CylinderRadiusArrayPath, FilterParameter::Category::RequiredArray, GenerateMaskFromSimpleShapes, dasReq, {2}));
+  parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Cylinder Heights", CylinderHeightArrayPath, FilterParameter::Category::RequiredArray, GenerateMaskFromSimpleShapes, dasReq, {2}));
   setFilterParameters(parameters);
 }
 

@@ -109,11 +109,11 @@ void AdaptiveAlignment::setupFilterParameters()
       cDims.push_back(std::vector<size_t>(1, 3));
       cDims.push_back(std::vector<size_t>(1, 4));
       req.componentDimensions = cDims;
-      parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Image Data", ImageDataArrayPath, FilterParameter::Category::RequiredArray, AdaptiveAlignment, req, 1));
+      parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Image Data", ImageDataArrayPath, FilterParameter::Category::RequiredArray, AdaptiveAlignment, req, {1}));
     }
 
-    parameters.push_back(SIMPL_NEW_FLOAT_FP("Total Shift In X-Direction (Microns)", ShiftX, FilterParameter::Category::Parameter, AdaptiveAlignment, 2));
-    parameters.push_back(SIMPL_NEW_FLOAT_FP("Total Shift In Y-Direction (Microns)", ShiftY, FilterParameter::Category::Parameter, AdaptiveAlignment, 2));
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Total Shift In X-Direction (Microns)", ShiftX, FilterParameter::Category::Parameter, AdaptiveAlignment, {2}));
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Total Shift In Y-Direction (Microns)", ShiftY, FilterParameter::Category::Parameter, AdaptiveAlignment, {2}));
   }
   {
     MultiDataArraySelectionFilterParameter::RequirementType req;
