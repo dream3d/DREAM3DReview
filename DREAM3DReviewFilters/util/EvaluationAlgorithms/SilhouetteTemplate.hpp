@@ -109,11 +109,11 @@ public:
 
     size_t numTuples = inputDataPtr->getNumberOfTuples();
     size_t numCompDims = inputDataPtr->getNumberOfComponents();
-
+    size_t totalClusters = numClusters + 1;
     std::vector<double> inClusterDist(numTuples, 0.0);
     std::vector<double> outClusterMinDist(numTuples, 0.0);
-    std::vector<double> numTuplesPerFeature(numClusters + 1, 0.0);
-    std::vector<std::vector<double>> clusterDist(numTuples, std::vector<double>(numClusters + 1, 0.0));
+    std::vector<double> numTuplesPerFeature(totalClusters, 0.0);
+    std::vector<std::vector<double>> clusterDist(numTuples, std::vector<double>(totalClusters, 0.0));
 
     for(size_t i = 0; i < numTuples; i++)
     {
@@ -144,7 +144,7 @@ public:
     {
       if(mask[i])
       {
-        for(size_t j = 1; j < numClusters; j++)
+        for(size_t j = 1; j < totalClusters; j++)
         {
           clusterDist[i][j] /= numTuplesPerFeature[j];
         }
@@ -160,7 +160,7 @@ public:
 
         double dist = 0.0;
         double minDist = std::numeric_limits<double>::max();
-        for(size_t j = 1; j < numClusters; j++)
+        for(size_t j = 1; j < totalClusters; j++)
         {
           if(cluster != j)
           {
