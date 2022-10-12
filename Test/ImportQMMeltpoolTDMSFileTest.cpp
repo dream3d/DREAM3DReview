@@ -55,7 +55,7 @@ public:
     ImportQMMeltpoolTDMSFile::Pointer filter = ImportQMMeltpoolTDMSFile::New();
     filter->preflight();
     int32_t err = filter->getErrorCode();
-    DREAM3D_REQUIRE_EQUAL(err, -1)
+    DREAM3D_REQUIRE_EQUAL(err, -387)
     return 0;
   }
 
