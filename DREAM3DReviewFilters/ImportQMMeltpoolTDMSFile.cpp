@@ -62,11 +62,13 @@ void ImportQMMeltpoolTDMSFile::dataCheck()
   {
     QString ss = QObject::tr("The input binary CT file must be set");
     setErrorCondition(-387, ss);
+    return;
   }
-  else if(!fi.exists())
+  if(!fi.exists())
   {
     QString ss = QObject::tr("The input binary CT file does not exist");
     setErrorCondition(-388, ss);
+    return;
   }
 
   TDMSFileProxy::Pointer proxy = nullptr;
