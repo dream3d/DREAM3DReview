@@ -77,7 +77,6 @@ set(_PublicFilters
   ImportVolumeGraphicsFile
  # InterpolateMeshToRegularGrid
   InterpolatePointCloudToRegularGrid
-  LabelTriangleGeometry
   LaplacianSmoothPointCloud
   MapPointCloudToRegularGrid
   ReadBinaryCTNorthStar
