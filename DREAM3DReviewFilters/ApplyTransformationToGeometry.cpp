@@ -1109,7 +1109,7 @@ void ApplyTransformationToGeometry::dataCheck()
 void ApplyTransformationToGeometry::ApplyImageTransformation()
 {
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-  int64_t newNumCellTuples = m_Params.xpNew * m_Params.ypNew * m_Params.zpNew;
+  int64_t newNumCellTuples = std::abs(m_Params.xpNew * m_Params.ypNew * m_Params.zpNew);
   int64_t newNumCellTuplesLinData = newNumCellTuples * 6;
 
   QString name = "_INTERNAL_USE_ONLY_RotateSampleRef_LinearInterpolationData";
