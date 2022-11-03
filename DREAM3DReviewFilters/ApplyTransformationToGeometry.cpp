@@ -1087,6 +1087,11 @@ void ApplyTransformationToGeometry::dataCheck()
     m_TranslationMatrix = translationMatrix;
 
     m_Params = ::createRotateParams(*imageGeom, transform);
+    if(m_Params.xRes < 0 || m_Params.yRes < 0 || m_Params.zRes < 0)
+    {
+      QString ss = QObject::tr("Negative pixel spacings are invalid");
+      setErrorCondition(-701, ss);
+    }
     ::updateGeometry(*imageGeom, m_Params, scaleMatrix, rotationMatrix, translationMatrix);
 
     // Resize attribute matrix
@@ -1109,7 +1114,7 @@ void ApplyTransformationToGeometry::dataCheck()
 void ApplyTransformationToGeometry::ApplyImageTransformation()
 {
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-  int64_t newNumCellTuples = std::abs(m_Params.xpNew * m_Params.ypNew * m_Params.zpNew);
+  int64_t newNumCellTuples = m_Params.xpNew * m_Params.ypNew * m_Params.zpNew;
   int64_t newNumCellTuplesLinData = newNumCellTuples * 6;
 
   QString name = "_INTERNAL_USE_ONLY_RotateSampleRef_LinearInterpolationData";
