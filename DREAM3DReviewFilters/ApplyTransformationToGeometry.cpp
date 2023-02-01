@@ -50,9 +50,9 @@
 #include "SIMPLib/FilterParameters/AttributeMatrixSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
+#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/MultiDataArraySelectionFilterParameter.h"
@@ -65,6 +65,7 @@
 #include "SIMPLib/Math/MatrixMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/ParallelDataAlgorithm.h"
+#include "SIMPLib/Utilities/ParallelTaskAlgorithm.h"
 
 #include "DREAM3DReview/DREAM3DReviewConstants.h"
 #include "DREAM3DReview/DREAM3DReviewVersion.h"
@@ -153,7 +154,7 @@ namespace
 {
 
 template <class T>
-void linearEquivalent(T& linEquivalent, IDataArray::Pointer linIData, int64_t linIntIndexes, double xt, double yt, double zt, const ApplyTransformationToGeometry::RotateArgs& m_Params)
+void linearEquivalent(T& linEquivalent, IDataArray::Pointer linIData, int64_t linIntIndexes, double xt, double yt, double zt, const ImageRotationUtilities::RotateArgs& m_Params)
 {
   typename DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linIData);
   int index0 = linIntIndexes;
@@ -166,42 +167,42 @@ void linearEquivalent(T& linEquivalent, IDataArray::Pointer linIData, int64_t li
   int index7 = linIntIndexes + 1 + m_Params.xp + m_Params.xp * m_Params.yp;
   if(index0 >= 0 && index0 <= m_Params.xp * m_Params.yp * m_Params.zp)
   {
-    linEquivalent += lin->getPointer(0)[index0];
+    linEquivalent += lin->getPointer(0)[index0]; // P1
   }
   if(index1 >= 0 && index1 <= m_Params.xp * m_Params.yp * m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index1] - lin->getPointer(0)[index0]) * xt);
+    linEquivalent += ((lin->getPointer(0)[index1] - lin->getPointer(0)[index0]) * xt); // u(P2-P1)
   }
   if(index2 >= 0 && index2 <= m_Params.xp * m_Params.yp * m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) * yt);
+    linEquivalent += ((lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) * yt); // v(P4-P1)
   }
   if(index3 >= 0 && index3 <= m_Params.xp * m_Params.yp * m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index3] - lin->getPointer(0)[index2] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * yt);
+    linEquivalent += ((lin->getPointer(0)[index3] - lin->getPointer(0)[index2] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * yt); // uv(P1-P2+P3-P4)
   }
   if(index4 >= 0 && index4 <= m_Params.xp * m_Params.yp * m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index4] - lin->getPointer(0)[index0]) * zt);
+    linEquivalent += ((lin->getPointer(0)[index4] - lin->getPointer(0)[index0]) * zt); // w(P5-P1)
   }
   if(index5 >= 0 && index5 <= m_Params.xp * m_Params.yp * m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index5] - lin->getPointer(0)[index4] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * zt);
+    linEquivalent += ((lin->getPointer(0)[index5] - lin->getPointer(0)[index4] - lin->getPointer(0)[index1] + lin->getPointer(0)[index0]) * xt * zt); // uw(P1-P2-P5+P6)
   }
   if(index6 >= 0 && index6 <= m_Params.xp * m_Params.yp * m_Params.zp)
   {
-    linEquivalent += ((lin->getPointer(0)[index6] - lin->getPointer(0)[index4] - lin->getPointer(0)[index2] + lin->getPointer(0)[index0]) * yt * zt);
+    linEquivalent += ((lin->getPointer(0)[index6] - lin->getPointer(0)[index4] - lin->getPointer(0)[index2] + lin->getPointer(0)[index0]) * yt * zt); // vw(P1-P4-P5+P8)
   }
   if(index7 >= 0 && index7 <= m_Params.xp * m_Params.yp * m_Params.zp)
   {
     linEquivalent += ((lin->getPointer(0)[index7] - lin->getPointer(0)[index6] - lin->getPointer(0)[index5] - lin->getPointer(0)[index3] + lin->getPointer(0)[index1] + lin->getPointer(0)[index4] +
                        lin->getPointer(0)[index2] - lin->getPointer(0)[index0]) *
-                      xt * yt * zt);
+                      xt * yt * zt); // uvw(-P1+P2-P3+P4-P5+P6-P7+P8)
   }
 }
 
 template <class T>
-void linearEquivalentRGB(T linEquivalent[3], IDataArray::Pointer linIData, int64_t linIntIndexes, double xt, double yt, double zt, const ApplyTransformationToGeometry::RotateArgs& m_Params)
+void linearEquivalentRGB(T linEquivalent[3], IDataArray::Pointer linIData, int64_t linIntIndexes, double xt, double yt, double zt, const ImageRotationUtilities::RotateArgs& m_Params)
 {
   typename DataArray<T>::Pointer lin = std::dynamic_pointer_cast<DataArray<T>>(linIData);
   int index0 = linIntIndexes;
@@ -273,7 +274,7 @@ void linearEquivalentRGB(T linEquivalent[3], IDataArray::Pointer linIData, int64
 }
 
 template <class T>
-bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linIData, const ApplyTransformationToGeometry::RotateArgs& m_Params)
+bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEquivalent, IDataArray::Pointer linIData, const ImageRotationUtilities::RotateArgs& m_Params)
 {
   bool write = false;
   double xt = LinearInterpolationData[tupleIndex];
@@ -297,7 +298,7 @@ bool linearIndexes(double* LinearInterpolationData, int64_t tupleIndex, T& linEq
 }
 
 template <class T>
-bool linearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, T linEquivalent[3], IDataArray::Pointer linIData, const ApplyTransformationToGeometry::RotateArgs& m_Params)
+bool linearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, T linEquivalent[3], IDataArray::Pointer linIData, const ImageRotationUtilities::RotateArgs& m_Params)
 {
   bool write = false;
 
@@ -323,7 +324,7 @@ bool linearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, T lin
 
 template <typename T>
 void wrapLinearIndexes(double* LinearInterpolationData, int64_t tupleIndex, typename DataArray<T>::Pointer lin, typename IDataArray::Pointer linData,
-                       const ApplyTransformationToGeometry::RotateArgs& m_Params)
+                       const ImageRotationUtilities::RotateArgs& m_Params)
 {
   bool wrote = false;
   int index = tupleIndex / 6;
@@ -344,7 +345,7 @@ void wrapLinearIndexes(double* LinearInterpolationData, int64_t tupleIndex, type
 
 template <typename T>
 void wrapLinearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, typename DataArray<T>::Pointer lin, typename IDataArray::Pointer linData,
-                          const ApplyTransformationToGeometry::RotateArgs& m_Params)
+                          const ImageRotationUtilities::RotateArgs& m_Params)
 {
   bool wrote = false;
   int index = tupleIndex / 6;
@@ -364,7 +365,7 @@ void wrapLinearIndexesRGB(double* LinearInterpolationData, int64_t tupleIndex, t
 
 template <typename T>
 bool applyLinearInterpolation(typename DataArray<T>::Pointer lin, int64_t index, int64_t tupleIndex, double* LinearInterpolationData, typename IDataArray::Pointer linData, bool RGB,
-                              const ApplyTransformationToGeometry::RotateArgs& m_Params)
+                              const ImageRotationUtilities::RotateArgs& m_Params)
 {
   if(!lin)
   {
@@ -441,7 +442,7 @@ float determineSpacing(const FloatVec3Type& spacing, const Eigen::Vector3f& axis
 }
 
 // Determines paramaters for image rotation
-ApplyTransformationToGeometry::RotateArgs createRotateParams(const ImageGeom& imageGeom, const ApplyTransformationToGeometry::Transform3f transformationMatrix)
+ImageRotationUtilities::RotateArgs createRotateParams(const ImageGeom& imageGeom, const ApplyTransformationToGeometry::Transform3f transformationMatrix)
 {
   const SizeVec3Type origDims = imageGeom.getDimensions();
   const FloatVec3Type spacing = imageGeom.getSpacing();
@@ -457,16 +458,18 @@ ApplyTransformationToGeometry::RotateArgs createRotateParams(const ImageGeom& im
   float yMax = std::numeric_limits<float>::min();
   float zMin = std::numeric_limits<float>::max();
   float zMax = std::numeric_limits<float>::min();
+  // auto origImageGeomBoundingBox = imageGeom.getBoundingBox();
 
+  // clang-format off
   const std::vector<std::vector<size_t>> coords{{0, 0, 0},
-                                                {origDims[0] - 1, 0, 0},
-                                                {0, origDims[1] - 1, 0},
-                                                {origDims[0] - 1, origDims[1] - 1, 0},
-                                                {0, 0, origDims[2] - 1},
-                                                {origDims[0] - 1, 0, origDims[2] - 1},
-                                                {0, origDims[1] - 1, origDims[2] - 1},
-                                                {origDims[0] - 1, origDims[1] - 1, origDims[2] - 1}};
-
+                                                {origDims[0], 0, 0},
+                                                {origDims[0], origDims[1], 0},
+                                                {0, origDims[1], 0},
+                                                {0, 0, origDims[2]},
+                                                {origDims[0], 0, origDims[2]},
+                                                {origDims[0], origDims[1], origDims[2]},
+                                                {0, origDims[1], origDims[2]}};
+  // clang-format on
   for(const auto& item : coords)
   {
     determineMinMax(rotationMatrix, spacing, item[0], item[1], item[2], xMin, xMax, yMin, yMax, zMin, zMax);
@@ -480,11 +483,16 @@ ApplyTransformationToGeometry::RotateArgs createRotateParams(const ImageGeom& im
   float yResNew = determineSpacing(spacing, yAxisNew);
   float zResNew = determineSpacing(spacing, zAxisNew);
 
-  MeshIndexType xpNew = static_cast<int64_t>(std::nearbyint((xMax - xMin) / xResNew) + 1);
-  MeshIndexType ypNew = static_cast<int64_t>(std::nearbyint((yMax - yMin) / yResNew) + 1);
-  MeshIndexType zpNew = static_cast<int64_t>(std::nearbyint((zMax - zMin) / zResNew) + 1);
+  MeshIndexType xpNew = static_cast<int64_t>(std::nearbyint((xMax - xMin) / xResNew));
+  MeshIndexType ypNew = static_cast<int64_t>(std::nearbyint((yMax - yMin) / yResNew));
+  MeshIndexType zpNew = static_cast<int64_t>(std::nearbyint((zMax - zMin) / zResNew));
 
-  ApplyTransformationToGeometry::RotateArgs params;
+  ImageRotationUtilities::RotateArgs params;
+
+  params.origImageGeom = ImageGeom::New();
+  params.origImageGeom->setSpacing(imageGeom.getSpacing());
+  params.origImageGeom->setDimensions(imageGeom.getDimensions());
+  params.origImageGeom->setOrigin(imageGeom.getOrigin());
 
   params.xp = origDims[0];
   params.xRes = spacing[0];
@@ -492,6 +500,11 @@ ApplyTransformationToGeometry::RotateArgs createRotateParams(const ImageGeom& im
   params.yRes = spacing[1];
   params.zp = origDims[2];
   params.zRes = spacing[2];
+
+  params.transformedImageGeom = ImageGeom::New();
+  params.transformedImageGeom->setSpacing(xResNew, yResNew, zResNew);
+  params.transformedImageGeom->setDimensions(xpNew, ypNew, zpNew);
+  params.transformedImageGeom->setOrigin(xMin, yMin, zMin);
 
   params.xpNew = xpNew;
   params.xResNew = xResNew;
@@ -507,7 +520,7 @@ ApplyTransformationToGeometry::RotateArgs createRotateParams(const ImageGeom& im
 }
 
 // Alters image parameters, scales and translates
-void updateGeometry(ImageGeom& imageGeom, const ApplyTransformationToGeometry::RotateArgs& params, const ApplyTransformationToGeometry::Matrix3fR& scalingMatrix,
+void updateGeometry(ImageGeom& imageGeom, const ImageRotationUtilities::RotateArgs& params, const ApplyTransformationToGeometry::Matrix3fR& scalingMatrix,
                     const ApplyTransformationToGeometry::Matrix3fR& rotationMatrix, const ApplyTransformationToGeometry::MatrixTranslation translationMatrix)
 {
   float m_ScalingMatrix[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
@@ -543,11 +556,11 @@ class SampleRefFrameRotator
   DataArray<int64_t>::Pointer m_NewIndicesPtr;
   DataArray<double>::Pointer m_LinearInterpolationDataPtr;
   float m_RotMatrixInv[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  ApplyTransformationToGeometry::RotateArgs m_Params;
+  ImageRotationUtilities::RotateArgs m_Params;
   int interpolationType;
 
 public:
-  SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, DataArray<double>::Pointer linearInterpolationDataPtr, const ApplyTransformationToGeometry::RotateArgs& args,
+  SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, DataArray<double>::Pointer linearInterpolationDataPtr, const ImageRotationUtilities::RotateArgs& args,
                         const ApplyTransformationToGeometry::Matrix3fR& rotationMatrix, int interpType)
   : m_NewIndicesPtr(newindices)
   , m_LinearInterpolationDataPtr(linearInterpolationDataPtr)
@@ -568,6 +581,7 @@ public:
     int64_t* newindicies = m_NewIndicesPtr->getPointer(0);
     double* linearInterpolationDataPtr = m_LinearInterpolationDataPtr->getPointer(0);
 
+    // Loop over the Transformed Image Geometry
     for(int64_t k = zStart; k < zEnd; k++)
     {
       int64_t ktot = (m_Params.xpNew * m_Params.ypNew) * k;
@@ -578,44 +592,50 @@ public:
         {
           int64_t index = ktot + jtot + i;
           newindicies[index] = -1;
-          linearInterpolationDataPtr[index * 6] = -1;
-          linearInterpolationDataPtr[index * 6 + 1] = -1;
-          linearInterpolationDataPtr[index * 6 + 2] = -1;
-          linearInterpolationDataPtr[index * 6 + 3] = -1;
-          linearInterpolationDataPtr[index * 6 + 4] = -1;
-          linearInterpolationDataPtr[index * 6 + 5] = -1;
 
-          float coords[3] = {0.0f, 0.0f, 0.0f};
-          float coordsNew[3] = {0.0f, 0.0f, 0.0f};
+          // Get the voxel center coordinate
+          // clang-format off
+          float coordsTransformed[3] = {(static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew,
+                                        (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew,
+                                        (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew};
+          // clang-format on
 
-          coords[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew;
-          coords[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew;
-          coords[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew;
+          float coordsOriginal[3] = {0.0f, 0.0f, 0.0f};
+          // Map the transformed coordinate back to the original voxel from the original image geometry
+          MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coordsTransformed, coordsOriginal);
 
-          MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coords, coordsNew);
+          int64_t colOldIndex = static_cast<int64_t>(std::nearbyint(coordsOriginal[0] / m_Params.xRes));
+          int64_t rowOldIndex = static_cast<int64_t>(std::nearbyint(coordsOriginal[1] / m_Params.yRes));
+          int64_t planeOldIndex = static_cast<int64_t>(std::nearbyint(coordsOriginal[2] / m_Params.zRes));
 
-          double x0 = static_cast<float>(std::floor(coordsNew[0] / m_Params.xRes));
-          double x1 = static_cast<float>(std::ceil(coordsNew[0] / m_Params.xRes));
-          double y0 = static_cast<float>(std::floor(coordsNew[1] / m_Params.yRes));
-          double y1 = static_cast<float>(std::ceil(coordsNew[1] / m_Params.yRes));
-          double z0 = static_cast<float>(std::floor(coordsNew[2] / m_Params.zRes));
-          double z1 = static_cast<float>(std::ceil(coordsNew[2] / m_Params.zRes));
-
-          int64_t colOld = static_cast<int64_t>(std::nearbyint(coordsNew[0] / m_Params.xRes));
-          int64_t rowOld = static_cast<int64_t>(std::nearbyint(coordsNew[1] / m_Params.yRes));
-          int64_t planeOld = static_cast<int64_t>(std::nearbyint(coordsNew[2] / m_Params.zRes));
-
-          if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
+          if(colOldIndex >= 0 && colOldIndex < m_Params.xp && colOldIndex >= 0 && colOldIndex < m_Params.xp && rowOldIndex >= 0 && rowOldIndex < m_Params.yp && planeOldIndex >= 0 &&
+             planeOldIndex < m_Params.zp)
           {
-            newindicies[index] = ((m_Params.xp * m_Params.yp * planeOld) + (m_Params.xp * rowOld) + colOld);
+            newindicies[index] = ((m_Params.xp * m_Params.yp * planeOldIndex) + (m_Params.xp * rowOldIndex) + colOldIndex);
           }
 
           if(interpolationType == 1)
           {
+            linearInterpolationDataPtr[index * 6] = -1;
+            linearInterpolationDataPtr[index * 6 + 1] = -1;
+            linearInterpolationDataPtr[index * 6 + 2] = -1;
+            linearInterpolationDataPtr[index * 6 + 3] = -1;
+            linearInterpolationDataPtr[index * 6 + 4] = -1;
+            linearInterpolationDataPtr[index * 6 + 5] = -1;
 
-            double colOld = static_cast<double>(coordsNew[0] / m_Params.xRes);
-            double rowOld = static_cast<double>(coordsNew[1] / m_Params.yRes);
-            double planeOld = static_cast<double>(coordsNew[2] / m_Params.zRes);
+            // Get the min/max axis index based on the coordinate
+            double x0 = static_cast<float>(std::floor(coordsOriginal[0] / m_Params.xRes));
+            double x1 = static_cast<float>(std::ceil(coordsOriginal[0] / m_Params.xRes));
+
+            double y0 = static_cast<float>(std::floor(coordsOriginal[1] / m_Params.yRes));
+            double y1 = static_cast<float>(std::ceil(coordsOriginal[1] / m_Params.yRes));
+
+            double z0 = static_cast<float>(std::floor(coordsOriginal[2] / m_Params.zRes));
+            double z1 = static_cast<float>(std::ceil(coordsOriginal[2] / m_Params.zRes));
+
+            double colOld = static_cast<double>(coordsOriginal[0] / m_Params.xRes);
+            double rowOld = static_cast<double>(coordsOriginal[1] / m_Params.yRes);
+            double planeOld = static_cast<double>(coordsOriginal[2] / m_Params.zRes);
 
             double xt = 0.5;
             double yt = 0.5;
@@ -1108,6 +1128,71 @@ void ApplyTransformationToGeometry::dataCheck()
 
 void ApplyTransformationToGeometry::ApplyImageTransformation()
 {
+
+#if 1
+
+  DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
+
+  if(m == nullptr)
+  {
+    QString ss = QObject::tr("Failed to get DataContainer '%1'").arg(getCellAttributeMatrixPath().getDataContainerName());
+    setErrorCondition(-45101, ss);
+    return;
+  }
+
+  int64_t newNumCellTuples = m_Params.xpNew * m_Params.ypNew * m_Params.zpNew;
+
+  QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
+  AttributeMatrix::Pointer targetAttributeMatrix = m->getAttributeMatrix(attrMatName);
+
+  QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
+
+  if(m_UseDataArraySelection)
+  {
+    voxelArrayNames.clear();
+    for(const auto& dataArrayPath : m_DataArraySelection)
+    {
+      voxelArrayNames.append(dataArrayPath.getDataArrayName());
+    }
+  }
+
+  ParallelTaskAlgorithm taskRunner;
+  taskRunner.setParallelizationEnabled(false);
+
+  for(const auto& attrArrayName : voxelArrayNames)
+  {
+    // Needed for Threaded Progress Messages
+    //    m_InstanceIndex = ++RotateSampleRefFrameProgress::s_InstanceIndex;
+    //    RotateSampleRefFrameProgress::s_ProgressValues[m_InstanceIndex] = 0;
+    //    RotateSampleRefFrameProgress::s_LastProgressInt[m_InstanceIndex] = 0;
+
+    m_TotalElements = newNumCellTuples;
+
+    //    auto start = std::chrono::steady_clock::now();
+    notifyStatusMessage(QString("Rotating DataArray '%1'").arg(attrArrayName));
+
+    IDataArray::Pointer sourceArray = m->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
+    IDataArray::Pointer targetArray = sourceArray->createNewArray(newNumCellTuples, sourceArray->getComponentDimensions(), sourceArray->getName());
+
+    // So this little work-around is because if we just try to resize the DataArray<T> will think the sizes are the same
+    // and never actually allocate the data. So we just resize to 1 tuple, and then to the real size.
+    targetArray->resizeTuples(1);                // Allocate the memory for this data array
+    targetArray->resizeTuples(newNumCellTuples); // Allocate the memory for this data array
+
+    ImageRotationUtilities::ExecuteParallelFunction<ImageRotationUtilities::RotateWithInterpolation>(sourceArray, taskRunner, this, sourceArray, targetArray, m_Params, m_RotationMatrix);
+
+    //    else
+    //    {
+    //      QString ss = QObject::tr("Casted Array Linear Interpolation Failed");
+    //      QTextStream out(&ss);
+    //      setErrorCondition(-45102, ss);
+    //      return;
+    //    }
+    m->getAttributeMatrix(attrMatName)->insertOrAssign(targetArray);
+  }
+  taskRunner.wait();
+
+#else
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
   int64_t newNumCellTuples = m_Params.xpNew * m_Params.ypNew * m_Params.zpNew;
   int64_t newNumCellTuplesLinData = newNumCellTuples * 6;
@@ -1120,7 +1205,7 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
   int64_t* newindicies = newIndiciesPtr->getPointer(0);
   double* LinearInterpolationData = LinearInterpolationDataPtr->getPointer(0);
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
+#ifdef SIMPL_USE_PARALLEL_ALGORITHMS0
   tbb::parallel_for(tbb::blocked_range3d<int64_t, int64_t, int64_t>(0, m_Params.zpNew, 0, m_Params.ypNew, 0, m_Params.xpNew),
                     ::SampleRefFrameRotator(newIndiciesPtr, LinearInterpolationDataPtr, m_Params, m_RotationMatrix, m_InterpolationType), tbb::auto_partitioner());
 #else
@@ -1198,8 +1283,7 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
     {
       for(size_t i = 0; i < static_cast<size_t>(newNumCellTuples); i++)
       {
-        if(i >= 0)
-        {
+
           int64_t tupleIndex = i * 6;
 
           if(DataArray<int8_t>::Pointer lin = std::dynamic_pointer_cast<DataArray<int8_t>>(linPtr))
@@ -1249,16 +1333,11 @@ void ApplyTransformationToGeometry::ApplyImageTransformation()
             setErrorCondition(-45102, ss);
             return;
           }
-        }
-        else
-        {
-          int var = 0;
-          linData->initializeTuple(i, &var);
-        }
       }
       m->getAttributeMatrix(attrMatName)->insertOrAssign(linData);
     }
   }
+#endif
 }
 
 // -----------------------------------------------------------------------------
@@ -1316,7 +1395,7 @@ void ApplyTransformationToGeometry::reset()
 {
   m_RotationMatrix.setZero();
 
-  m_Params = ApplyTransformationToGeometry::RotateArgs();
+  m_Params = ImageRotationUtilities::RotateArgs();
 }
 
 // -----------------------------------------------------------------------------

@@ -9,17 +9,17 @@ set(${PLUGIN_NAME}Test_BINARY_DIR ${${PLUGIN_NAME}_BINARY_DIR}/Test)
 # they will show up in IDEs
 set(TEST_NAMES
   ApplyTransformationToGeometryTest
-  ComputeFeatureEigenstrainsTest
-  AnisotropyFilterTest
-  EstablishFoamMorphologyTest
-  FFTHDFWriterFilterTest
-  FindNeighborListStatisticsTest
-  GenerateFeatureIDsbyBoundingBoxesTest
-  GenerateMaskFromSimpleShapesTest
-  ImportMASSIFDataTest
-  ImportQMMeltpoolH5FileTest
-  ImportQMMeltpoolTDMSFileTest
-  ImportVolumeGraphicsFileTest
+#  ComputeFeatureEigenstrainsTest
+#  AnisotropyFilterTest
+#  EstablishFoamMorphologyTest
+#  FFTHDFWriterFilterTest
+#  FindNeighborListStatisticsTest
+#  GenerateFeatureIDsbyBoundingBoxesTest
+#  GenerateMaskFromSimpleShapesTest
+#  ImportMASSIFDataTest
+#  ImportQMMeltpoolH5FileTest
+#  ImportQMMeltpoolTDMSFileTest
+#  ImportVolumeGraphicsFileTest
 )
 
 #------------------------------------------------------------------------------

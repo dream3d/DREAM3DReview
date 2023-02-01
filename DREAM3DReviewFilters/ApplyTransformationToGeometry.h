@@ -41,11 +41,13 @@
 #include <Eigen/Dense>
 
 #include "DREAM3DReview/DREAM3DReviewDLLExport.h"
+#include "DREAM3DReview/DREAM3DReviewFilters/util/ImageRotationUtilities.hpp"
 
-#include "SIMPLib/SIMPLib.h"
+// #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/FilterParameters/DynamicTableData.h"
-#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
+// #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
+#include "SIMPLib/Common/SIMPLArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 /**
@@ -83,25 +85,6 @@ public:
   static Pointer NullPointer();
 
   static std::shared_ptr<ApplyTransformationToGeometry> New();
-
-  struct RotateArgs
-  {
-    int64_t xp = 0;
-    int64_t yp = 0;
-    int64_t zp = 0;
-    float xRes = 0.0f;
-    float yRes = 0.0f;
-    float zRes = 0.0f;
-    int64_t xpNew = 0;
-    int64_t ypNew = 0;
-    int64_t zpNew = 0;
-    float xResNew = 0.0f;
-    float yResNew = 0.0f;
-    float zResNew = 0.0f;
-    float xMinNew = 0.0f;
-    float yMinNew = 0.0f;
-    float zMinNew = 0.0f;
-  };
 
   using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
   using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
@@ -362,7 +345,7 @@ private:
   Matrix3fR m_RotationMatrix = Matrix3fR::Zero();
   Matrix3fR m_ScalingMatrix = Matrix3fR::Zero();
   MatrixTranslation m_TranslationMatrix = MatrixTranslation::Zero();
-  ApplyTransformationToGeometry::RotateArgs m_Params;
+  ImageRotationUtilities::RotateArgs m_Params;
 
 public:
   ApplyTransformationToGeometry(const ApplyTransformationToGeometry&) = delete;            // Copy Constructor Not Implemented
