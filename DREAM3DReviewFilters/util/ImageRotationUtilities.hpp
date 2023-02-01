@@ -8,6 +8,7 @@
 
 #include <Eigen/Dense>
 
+#include <fstream>
 #include <iostream>
 
 using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
@@ -90,7 +91,8 @@ inline size_t FindOctant(const RotateArgs& params, size_t index, FloatVec3Type c
 
   // Get the center coord of the original source voxel
   FloatVec3Type centerPoint;
-  GetPlaneCoords(params, index, centerPoint.data());
+  params.origImageGeom->getCoords(index, centerPoint.data());
+  // GetPlaneCoords(params, index, centerPoint.data());
 
   // Form the 8 corner coords for the voxel
   // clang-format off
@@ -310,7 +312,11 @@ public:
     DataArrayType& sourceArray = *(sourceArrayPtr.get());
     size_t numComps = sourceArray.getNumberOfComponents();
     DataArrayPointerType targetArrayPtr = std::dynamic_pointer_cast<DataArrayType>(m_TargetArray);
-    // DataArrayType& targetArray = *(targetArrayPtr.get());
+
+    std::ofstream originalPointsFile("/tmp/original_point_centers.csv", std::ios_base::binary);
+    originalPointsFile << "x,y,z,i,j,k,index,octant" << std::endl;
+    std::ofstream transformedPointsFile("/tmp/transformed_point_centers.csv", std::ios_base::binary);
+    transformedPointsFile << "x,y,z,index,error" << std::endl;
 
     FloatVec3Type coordsOld = {0.0f, 0.0f, 0.0f};
 
@@ -336,18 +342,15 @@ public:
           auto errorResult = m_Params.origImageGeom->computeCellIndex(coordsOld.data(), oldGeomIndices.data());
           errorResult = m_Params.origImageGeom->computeCellIndex(coordsOld.data(), oldIndex);
 
-          //          auto colOld = static_cast<int64_t>(std::nearbyint(coordsOld[0] / m_Params.xRes));
-          //          auto rowOld = static_cast<int64_t>(std::nearbyint(coordsOld[1] / m_Params.yRes));
-          //          auto planeOld = static_cast<int64_t>(std::nearbyint(coordsOld[2] / m_Params.zRes));
-
-          std::cout << coordsOld[0] << ", " << coordsOld[1] << ", " << coordsOld[2] << "," << coordsNew[0] << ", " << coordsNew[1] << ", " << coordsNew[2] << "," << oldGeomIndices[0] << ", "
-                    << oldGeomIndices[1] << ", " << oldGeomIndices[2] << "," << newIndex << "," << oldIndex << ", " << static_cast<int32_t>(errorResult) << std::endl;
+          transformedPointsFile << coordsNew[0] << "," << coordsNew[1] << "," << coordsNew[2] << "," << newIndex << "," << static_cast<int32_t>(errorResult) << std::endl;
 
           // Now we know what voxel the new cell center maps back to in the original geometry.
           if(errorResult == ImageGeom::ErrorType::NoError)
           {
 
             int octant = FindOctant(m_Params, oldIndex, {coordsOld.data()});
+            originalPointsFile << coordsOld[0] << "," << coordsOld[1] << "," << coordsOld[2] << "," << oldGeomIndices[0] << "," << oldGeomIndices[1] << "," << oldGeomIndices[2] << "," << oldIndex
+                               << "," << octant << std::endl;
             auto neighborIndices = FindNeighborIndices(m_Params, oldIndex, octant, oldGeomIndices, coordsOld, sourceArray);
             for(size_t compIndex = 0; compIndex < numComps; compIndex++)
             {
