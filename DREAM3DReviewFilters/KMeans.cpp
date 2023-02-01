@@ -46,6 +46,7 @@
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
+#include "SIMPLib/FilterParameters/UInt64FilterParameter.h"
 
 #include "util/ClusteringAlgorithms/KMeansTemplate.hpp"
 
@@ -94,6 +95,11 @@ void KMeans::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Mask", UseMask, FilterParameter::Category::Parameter, KMeans, linkedProps));
   DataArraySelectionFilterParameter::RequirementType dasReq =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
+
+  linkedProps = {"RandomSeedValue"};
+  parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Random Seed", UseRandomSeed, FilterParameter::Category::Parameter, KMeans, linkedProps));
+  parameters.push_back(SIMPL_NEW_UINT64_FP("Random Seed Value", RandomSeedValue, FilterParameter::Category::Parameter, KMeans));
+
   parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Attribute Array to Cluster", SelectedArrayPath, FilterParameter::Category::RequiredArray, KMeans, dasReq));
   dasReq = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Bool, 1, AttributeMatrix::Type::Any, IGeometry::Type::Any);
   parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Mask", MaskArrayPath, FilterParameter::Category::RequiredArray, KMeans, dasReq));
@@ -101,23 +107,6 @@ void KMeans::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_AM_WITH_LINKED_DC_FP("Cluster Attribute Matrix", FeatureAttributeMatrixName, SelectedArrayPath, FilterParameter::Category::CreatedArray, KMeans));
   parameters.push_back(SIMPL_NEW_DA_WITH_LINKED_AM_FP("Cluster Means", MeansArrayName, SelectedArrayPath, FeatureAttributeMatrixName, FilterParameter::Category::CreatedArray, KMeans));
   setFilterParameters(parameters);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void KMeans::readFilterParameters(AbstractFilterParametersReader* reader, int index)
-{
-  reader->openFilterGroup(this, index);
-  setSelectedArrayPath(reader->readDataArrayPath("SelectedArrayPath", getSelectedArrayPath()));
-  setUseMask(reader->readValue("UseMask", getUseMask()));
-  setMaskArrayPath(reader->readDataArrayPath("MaskArrayPath", getMaskArrayPath()));
-  setInitClusters(reader->readValue("InitClusters", getInitClusters()));
-  setFeatureIdsArrayName(reader->readString("FeatureIdsArrayName", getFeatureIdsArrayName()));
-  setFeatureAttributeMatrixName(reader->readString("FeatureAttributeMatrixName", getFeatureAttributeMatrixName()));
-  setMeansArrayName(reader->readString("MeansArrayName", getMeansArrayName()));
-  setDistanceMetric(reader->readValue("DistanceMetric", getDistanceMetric()));
-  reader->closeFilterGroup();
 }
 
 // -----------------------------------------------------------------------------
@@ -270,17 +259,18 @@ void KMeans::execute()
   {
     return;
   }
+  std::pair<bool, uint64_t> randomSeed = {getUseRandomSeed(), static_cast<uint64_t>(getRandomSeedValue())};
 
   if(m_UseMask)
   {
-    EXECUTE_TEMPLATE(this, KMeansTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MeansArrayPtr.lock(), m_MaskPtr.lock(), m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric)
+    EXECUTE_TEMPLATE(this, KMeansTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MeansArrayPtr.lock(), m_MaskPtr.lock(), m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric, randomSeed)
   }
   else
   {
     size_t numTuples = m_InDataPtr.lock()->getNumberOfTuples();
     BoolArrayType::Pointer tmpMask = BoolArrayType::CreateArray(numTuples, std::string("_INTERNAL_USE_ONLY_tmpMask"), true);
     tmpMask->initializeWithValue(true);
-    EXECUTE_TEMPLATE(this, KMeansTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MeansArrayPtr.lock(), tmpMask, m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric)
+    EXECUTE_TEMPLATE(this, KMeansTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MeansArrayPtr.lock(), tmpMask, m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric, randomSeed)
   }
 }
 
@@ -479,4 +469,28 @@ void KMeans::setDistanceMetric(int value)
 int KMeans::getDistanceMetric() const
 {
   return m_DistanceMetric;
+}
+
+// -----------------------------------------------------------------------------
+void KMeans::setUseRandomSeed(bool value)
+{
+  m_UseRandomSeed = value;
+}
+
+// -----------------------------------------------------------------------------
+bool KMeans::getUseRandomSeed() const
+{
+  return m_UseRandomSeed;
+}
+
+// -----------------------------------------------------------------------------
+void KMeans::setRandomSeedValue(uint64_t value)
+{
+  m_RandomSeedValue = value;
+}
+
+// -----------------------------------------------------------------------------
+uint64_t KMeans::getRandomSeedValue() const
+{
+  return m_RandomSeedValue;
 }

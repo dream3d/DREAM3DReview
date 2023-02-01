@@ -66,6 +66,8 @@ class DREAM3DReview_EXPORT KMeans : public AbstractFilter
   PYB11_PROPERTY(int InitClusters READ getInitClusters WRITE setInitClusters)
   PYB11_PROPERTY(QString FeatureAttributeMatrixName READ getFeatureAttributeMatrixName WRITE setFeatureAttributeMatrixName)
   PYB11_PROPERTY(int DistanceMetric READ getDistanceMetric WRITE setDistanceMetric)
+  PYB11_PROPERTY(bool UseRandomSeed READ getUseRandomSeed WRITE setUseRandomSeed)
+  PYB11_PROPERTY(uint64_t RandomSeedValue READ getRandomSeedValue WRITE setRandomSeedValue)
   PYB11_END_BINDINGS()
   // End Python bindings declarations
 
@@ -179,6 +181,22 @@ public:
   Q_PROPERTY(int DistanceMetric READ getDistanceMetric WRITE setDistanceMetric)
 
   /**
+   * @brief Setter property for UseRandomSeed*/
+  void setUseRandomSeed(bool value);
+  /**
+   * @brief Getter property for UseRandomSeed@return Value of UseRandomSeed*/
+  bool getUseRandomSeed() const;
+  Q_PROPERTY(bool UseRandomSeed READ getUseRandomSeed WRITE setUseRandomSeed)
+
+  /**
+   * @brief Setter property for RandomSeedValue*/
+  void setRandomSeedValue(uint64_t value);
+  /**
+   * @brief Getter property for RandomSeedValue@return Value of RandomSeedValue*/
+  uint64_t getRandomSeedValue() const;
+  Q_PROPERTY(uint64_t RandomSeedValue READ getRandomSeedValue WRITE setRandomSeedValue)
+
+  /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
    */
   QString getCompiledLibraryName() const override;
@@ -229,11 +247,6 @@ public:
   void setupFilterParameters() override;
 
   /**
-   * @brief readFilterParameters Reimplemented from @see AbstractFilter class
-   */
-  void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
-
-  /**
    * @brief execute Reimplemented from @see AbstractFilter class
    */
   void execute() override;
@@ -270,6 +283,8 @@ private:
   int m_InitClusters = {1};
   QString m_FeatureAttributeMatrixName = {"ClusterData"};
   int m_DistanceMetric = {0};
+  bool m_UseRandomSeed = false;
+  uint64_t m_RandomSeedValue = 0;
 
 public:
   KMeans(const KMeans&) = delete;            // Copy Constructor Not Implemented

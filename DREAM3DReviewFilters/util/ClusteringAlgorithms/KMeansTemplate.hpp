@@ -39,6 +39,7 @@
 #include <random>
 
 #include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 
@@ -77,12 +78,8 @@ public:
     return QString("KMeansTemplate");
   }
 
-  KMeansTemplate()
-  {
-  }
-  virtual ~KMeansTemplate()
-  {
-  }
+  KMeansTemplate() = default;
+  virtual ~KMeansTemplate() = default;
 
   // -----------------------------------------------------------------------------
   //
@@ -96,7 +93,7 @@ public:
   //
   // -----------------------------------------------------------------------------
   void Execute(AbstractFilter* filter, IDataArray::Pointer inputIDataArray, DoubleArrayType::Pointer outputDataArray, BoolArrayType::Pointer maskDataArray, size_t numClusters,
-               Int32ArrayType::Pointer fIds, int distMetric)
+               Int32ArrayType::Pointer fIds, int distMetric, std::pair<bool, uint64_t> randomSeed)
   {
     typename DataArray<T>::Pointer inputDataPtr = std::dynamic_pointer_cast<DataArray<T>>(inputIDataArray);
     T* inputData = inputDataPtr->getPointer(0);
@@ -108,6 +105,10 @@ public:
     size_t rangeMin = 0;
     size_t rangeMax = numTuples - 1;
     std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
+    if(randomSeed.first)
+    {
+      seed = static_cast<std::mt19937_64::result_type>(randomSeed.second);
+    }
     std::mt19937_64 gen(seed);
     std::uniform_int_distribution<size_t> dist(rangeMin, rangeMax);
 
