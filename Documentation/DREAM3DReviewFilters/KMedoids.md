@@ -45,6 +45,8 @@ This **Filter** will store the medoids for the final clusters within the created
 | Number of Clusters | int32_t | The number of clusters in which to partition the array |
 | Distance Metric | Enumeration | The metric used to determine the distances between points |
 | Use Mask | bool | Whether to use a boolean mask array to ignore certain points flagged as _false_ from the algorithm |
+| Use Random Seed | bool | Use a user defined random seed value |
+| Random Seed Value | uint64 | The random seed to use |
 
 ## Required Geometry ###
 

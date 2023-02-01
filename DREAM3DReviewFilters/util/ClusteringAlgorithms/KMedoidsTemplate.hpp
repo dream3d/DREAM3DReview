@@ -39,6 +39,7 @@
 #include <random>
 
 #include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "DREAM3DReview/DREAM3DReviewFilters/util/DistanceTemplate.hpp"
@@ -91,7 +92,7 @@ public:
   //
   // -----------------------------------------------------------------------------
   void Execute(AbstractFilter* filter, IDataArray::Pointer inputIDataArray, IDataArray::Pointer outputIDataArray, BoolArrayType::Pointer maskDataArray, size_t numClusters,
-               Int32ArrayType::Pointer fIds, int32_t distMetric)
+               Int32ArrayType::Pointer fIds, int32_t distMetric, std::pair<bool, uint64_t> randomSeed)
   {
     typename DataArray<T>::Pointer inputDataPtr = std::dynamic_pointer_cast<DataArray<T>>(inputIDataArray);
     typename DataArray<T>::Pointer outputDataPtr = std::dynamic_pointer_cast<DataArray<T>>(outputIDataArray);
@@ -104,6 +105,10 @@ public:
     size_t rangeMin = 0;
     size_t rangeMax = numTuples - 1;
     std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
+    if(randomSeed.first)
+    {
+      seed = static_cast<std::mt19937_64::result_type>(randomSeed.second);
+    }
     std::mt19937_64 gen(seed);
     std::uniform_int_distribution<size_t> dist(rangeMin, rangeMax);
 
@@ -139,7 +144,7 @@ public:
 
     costs = optimizeClusters(filter, mask, inputData, outputData, fPtr, numTuples, numClusters, numCompDims, clusterIdxs, distMetric);
 
-    bool update = optClusterIdxs == clusterIdxs ? false : true;
+    bool update = optClusterIdxs != clusterIdxs;
     size_t iteration = 1;
 
     while(update)
@@ -150,7 +155,7 @@ public:
 
       costs = optimizeClusters(filter, mask, inputData, outputData, fPtr, numTuples, numClusters, numCompDims, clusterIdxs, distMetric);
 
-      update = optClusterIdxs == clusterIdxs ? false : true;
+      update = optClusterIdxs != clusterIdxs;
 
       double sum = std::accumulate(std::begin(costs), std::end(costs), 0.0);
       QString ss = QObject::tr("Clustering Data || Iteration %1 || Total Cost: %2").arg(iteration).arg(sum);
@@ -249,6 +254,9 @@ private:
     return minCosts;
   }
 
-  KMedoidsTemplate(const KMedoidsTemplate&); // Copy Constructor Not Implemented
-  void operator=(const KMedoidsTemplate&);   // Move assignment Not Implemented
+public:
+  KMedoidsTemplate(const KMedoidsTemplate&) = delete;            // Copy Constructor Not Implemented
+  KMedoidsTemplate(KMedoidsTemplate&&) = delete;                 // Move Constructor Not Implemented
+  KMedoidsTemplate& operator=(const KMedoidsTemplate&) = delete; // Copy Assignment Not Implemented
+  KMedoidsTemplate& operator=(KMedoidsTemplate&&) = delete;      // Move Assignment Not Implemented
 };

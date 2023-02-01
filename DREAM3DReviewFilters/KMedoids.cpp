@@ -40,12 +40,13 @@
 #include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
-#include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
+#include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedPathCreationFilterParameter.h"
+#include "SIMPLib/FilterParameters/UInt64FilterParameter.h"
 
 #include "util/ClusteringAlgorithms/KMedoidsTemplate.hpp"
 
@@ -93,6 +94,11 @@ void KMedoids::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Mask", UseMask, FilterParameter::Category::Parameter, KMedoids, linkedProps));
   DataArraySelectionFilterParameter::RequirementType dasReq =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, SIMPL::Defaults::AnyComponentSize, AttributeMatrix::Type::Any, IGeometry::Type::Any);
+
+  linkedProps = {"RandomSeedValue"};
+  parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Random Seed", UseRandomSeed, FilterParameter::Category::Parameter, KMedoids, linkedProps));
+  parameters.push_back(SIMPL_NEW_UINT64_FP("Random Seed Value", RandomSeedValue, FilterParameter::Category::Parameter, KMedoids));
+
   parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Attribute Array to Cluster", SelectedArrayPath, FilterParameter::Category::RequiredArray, KMedoids, dasReq));
   dasReq = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Bool, 1, AttributeMatrix::Type::Any, IGeometry::Type::Any);
   parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Mask", MaskArrayPath, FilterParameter::Category::RequiredArray, KMedoids, dasReq));
@@ -100,23 +106,6 @@ void KMedoids::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_AM_WITH_LINKED_DC_FP("Cluster Attribute Matrix", FeatureAttributeMatrixName, SelectedArrayPath, FilterParameter::Category::CreatedArray, KMedoids));
   parameters.push_back(SIMPL_NEW_DA_WITH_LINKED_AM_FP("Cluster Medoids", MedoidsArrayName, SelectedArrayPath, FeatureAttributeMatrixName, FilterParameter::Category::CreatedArray, KMedoids));
   setFilterParameters(parameters);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void KMedoids::readFilterParameters(AbstractFilterParametersReader* reader, int index)
-{
-  reader->openFilterGroup(this, index);
-  setSelectedArrayPath(reader->readDataArrayPath("SelectedArrayPath", getSelectedArrayPath()));
-  setUseMask(reader->readValue("UseMask", getUseMask()));
-  setMaskArrayPath(reader->readDataArrayPath("MaskArrayPath", getMaskArrayPath()));
-  setFeatureIdsArrayName(reader->readString("FeatureIdsArrayName", getFeatureIdsArrayName()));
-  setMedoidsArrayName(reader->readString("MedoidsArrayName", getMedoidsArrayName()));
-  setFeatureAttributeMatrixName(reader->readString("FeatureAttributeMatrixName", getFeatureAttributeMatrixName()));
-  setInitClusters(reader->readValue("InitClusters", getInitClusters()));
-  setDistanceMetric(reader->readValue("DistanceMetric", getDistanceMetric()));
-  reader->closeFilterGroup();
 }
 
 // -----------------------------------------------------------------------------
@@ -266,16 +255,19 @@ void KMedoids::execute()
     return;
   }
 
+  std::pair<bool, uint64_t> randomSeed = {getUseRandomSeed(), static_cast<uint64_t>(getRandomSeedValue())};
+
   if(m_UseMask)
   {
-    EXECUTE_TEMPLATE(this, KMedoidsTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MedoidsArrayPtr.lock(), m_MaskPtr.lock(), m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric)
+    EXECUTE_TEMPLATE(this, KMedoidsTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MedoidsArrayPtr.lock(), m_MaskPtr.lock(), m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric,
+                     randomSeed)
   }
   else
   {
     size_t numTuples = m_InDataPtr.lock()->getNumberOfTuples();
     BoolArrayType::Pointer tmpMask = BoolArrayType::CreateArray(numTuples, std::string("_INTERNAL_USE_ONLY_tmpMask"), true);
     tmpMask->initializeWithValue(true);
-    EXECUTE_TEMPLATE(this, KMedoidsTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MedoidsArrayPtr.lock(), tmpMask, m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric)
+    EXECUTE_TEMPLATE(this, KMedoidsTemplate, m_InDataPtr.lock(), this, m_InDataPtr.lock(), m_MedoidsArrayPtr.lock(), tmpMask, m_InitClusters, m_FeatureIdsPtr.lock(), m_DistanceMetric, randomSeed)
   }
 }
 
@@ -474,4 +466,28 @@ void KMedoids::setDistanceMetric(int value)
 int KMedoids::getDistanceMetric() const
 {
   return m_DistanceMetric;
+}
+
+// -----------------------------------------------------------------------------
+void KMedoids::setUseRandomSeed(bool value)
+{
+  m_UseRandomSeed = value;
+}
+
+// -----------------------------------------------------------------------------
+bool KMedoids::getUseRandomSeed() const
+{
+  return m_UseRandomSeed;
+}
+
+// -----------------------------------------------------------------------------
+void KMedoids::setRandomSeedValue(uint64_t value)
+{
+  m_RandomSeedValue = value;
+}
+
+// -----------------------------------------------------------------------------
+uint64_t KMedoids::getRandomSeedValue() const
+{
+  return m_RandomSeedValue;
 }
