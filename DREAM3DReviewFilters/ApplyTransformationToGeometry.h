@@ -298,7 +298,7 @@ protected:
   /**
    * @brief applyTransformation
    */
-  void applyTransformation();
+  void applyNodeGeometryTransformation();
 
   /**
    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
@@ -309,7 +309,7 @@ protected:
    * @brief ApplyImageTransformation
    */
 
-  void ApplyImageTransformation();
+  void applyImageGeometryTransformation();
 
   /**
    * @brief resets the rotation matrix to zeros and the m_Params to a default state.

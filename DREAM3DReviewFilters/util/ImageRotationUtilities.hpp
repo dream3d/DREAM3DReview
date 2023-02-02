@@ -166,112 +166,43 @@ inline size_t FindOctant(const RotateArgs& params, size_t index, FloatVec3Type c
   return minIndex;
 }
 
+using OctantOffsetArrayType = std::array<Int64Vec3Type, 8>;
+
+static const OctantOffsetArrayType k_IndexOffset0 = {Int64Vec3Type{-1, -1, -1}, Int64Vec3Type{0, -1, -1}, Int64Vec3Type{0, 0, -1}, Int64Vec3Type{-1, 0, -1},
+                                                     Int64Vec3Type{-1, -1, 0},  Int64Vec3Type{0, -1, 0},  Int64Vec3Type{0, 0, 0},  Int64Vec3Type{-1, 0, 0}};
+static const OctantOffsetArrayType k_IndexOffset1 = {Int64Vec3Type{0, -1, -1}, Int64Vec3Type{1, -1, -1}, Int64Vec3Type{1, 0, -1}, Int64Vec3Type{0, 0, -1},
+                                                     Int64Vec3Type{0, -1, 0},  Int64Vec3Type{1, -1, 0},  Int64Vec3Type{1, 0, 0},  Int64Vec3Type{0, 0, 0}};
+static const OctantOffsetArrayType k_IndexOffset2 = {Int64Vec3Type{0, 0, -1}, Int64Vec3Type{1, 0, -1}, Int64Vec3Type{1, 1, -1}, Int64Vec3Type{0, 1, -1},
+                                                     Int64Vec3Type{0, 0, 0},  Int64Vec3Type{1, 0, 0},  Int64Vec3Type{1, 1, 0},  Int64Vec3Type{0, 1, 0}};
+static const OctantOffsetArrayType k_IndexOffset3 = {Int64Vec3Type{-1, 0, -1}, Int64Vec3Type{0, 0, -1}, Int64Vec3Type{0, 1, -1}, Int64Vec3Type{-1, 1, -1},
+                                                     Int64Vec3Type{-1, 0, 0},  Int64Vec3Type{0, 0, 0},  Int64Vec3Type{0, 1, 0},  Int64Vec3Type{-1, 1, 0}};
+static const OctantOffsetArrayType k_IndexOffset4 = {Int64Vec3Type{-1, -1, 0}, Int64Vec3Type{0, -1, 0}, Int64Vec3Type{0, 0, 0}, Int64Vec3Type{-1, 0, 0},
+                                                     Int64Vec3Type{-1, -1, 1}, Int64Vec3Type{0, -1, 1}, Int64Vec3Type{0, 0, 1}, Int64Vec3Type{-1, 0, 1}};
+static const OctantOffsetArrayType k_IndexOffset5 = {Int64Vec3Type{0, -1, 0}, Int64Vec3Type{1, -1, 0}, Int64Vec3Type{1, 0, 0}, Int64Vec3Type{0, 0, 0},
+                                                     Int64Vec3Type{0, -1, 1}, Int64Vec3Type{1, -1, 1}, Int64Vec3Type{1, 0, 1}, Int64Vec3Type{0, 0, 1}};
+static const OctantOffsetArrayType k_IndexOffset6 = {Int64Vec3Type{0, 0, 0}, Int64Vec3Type{1, 0, 0}, Int64Vec3Type{1, 1, 0}, Int64Vec3Type{0, 1, 0},
+                                                     Int64Vec3Type{0, 0, 1}, Int64Vec3Type{1, 0, 1}, Int64Vec3Type{1, 1, 1}, Int64Vec3Type{0, 1, 1}};
+static const OctantOffsetArrayType k_IndexOffset7 = {Int64Vec3Type{-1, 0, 0}, Int64Vec3Type{0, 0, 0}, Int64Vec3Type{0, 1, 0}, Int64Vec3Type{-1, -1, 0},
+                                                     Int64Vec3Type{-1, 0, 1}, Int64Vec3Type{0, 0, 1}, Int64Vec3Type{0, 1, 1}, Int64Vec3Type{-1, -1, 1}};
+
+static const std::array<OctantOffsetArrayType, 8> k_AllOctantOffsets{k_IndexOffset0, k_IndexOffset1, k_IndexOffset2, k_IndexOffset3, k_IndexOffset4, k_IndexOffset5, k_IndexOffset6, k_IndexOffset7};
+
+/**
+ * @brief FindInterpolationValues
+ * @param params
+ * @param index
+ * @param octant
+ * @param oldIndicesU
+ * @param oldCoords
+ * @param sourceArray
+ * @param pValues
+ * @param uvw
+ */
 template <typename T>
 inline void FindInterpolationValues(const RotateArgs& params, size_t index, size_t octant, std::array<size_t, 3> oldIndicesU, FloatVec3Type& oldCoords, DataArray<T>& sourceArray,
                                     std::vector<T>& pValues, FloatVec3Type& uvw)
 {
-  std::array<Int64Vec3Type, 8> indexOffset;
-
-  switch(octant)
-  {
-  case 0:
-    // clang-format off
-    indexOffset = {Int64Vec3Type{-1, -1, -1},
-                    Int64Vec3Type{0, -1, -1},
-                    Int64Vec3Type{0, 0, -1},
-                    Int64Vec3Type{-1, 0, -1},
-                    Int64Vec3Type{-1, -1, 0},
-                    Int64Vec3Type{0, -1, 0},
-                    Int64Vec3Type{0, 0, 0},
-                    Int64Vec3Type{-1, 0, 0}};
-    // clang-format on
-
-    break;
-  case 1:
-    // clang-format off
-    indexOffset = {Int64Vec3Type{0, -1, -1},
-                   Int64Vec3Type{1, -1, -1},
-                   Int64Vec3Type{1, 0, -1},
-                   Int64Vec3Type{0, 0, -1},
-                   Int64Vec3Type{0, -1, 0},
-                   Int64Vec3Type{1, -1, 0},
-                   Int64Vec3Type{1, 0, 0},
-                   Int64Vec3Type{0, 0, 0}};
-    // clang-format on
-    break;
-  case 2:
-    // clang-format off
-    indexOffset = {Int64Vec3Type{0, 0, -1},
-                   Int64Vec3Type{1, 0, -1},
-                   Int64Vec3Type{1, 1, -1},
-                   Int64Vec3Type{0, 1, -1},
-                   Int64Vec3Type{0, 0, 0},
-                   Int64Vec3Type{1, 0, 0},
-                   Int64Vec3Type{1, 1, 0},
-                   Int64Vec3Type{0, 1, 0}};
-    // clang-format on
-    break;
-  case 3:
-    // clang-format off
-    indexOffset = {Int64Vec3Type{-1, 0, -1},
-                   Int64Vec3Type{0, 0, -1},
-                   Int64Vec3Type{0, 1, -1},
-                   Int64Vec3Type{-1, 1, -1},
-                   Int64Vec3Type{-1, 0, 0},
-                   Int64Vec3Type{0, 0, 0},
-                   Int64Vec3Type{0, 1, 0},
-                   Int64Vec3Type{-1, 1, 0}};
-    // clang-format on
-    break;
-  case 4:
-    // clang-format off
-    indexOffset = {Int64Vec3Type{-1, -1, 0},
-                    Int64Vec3Type{0, -1, 0},
-                    Int64Vec3Type{0, 0, 0},
-                    Int64Vec3Type{-1, 0, 0},
-                    Int64Vec3Type{-1, -1, 1},
-                    Int64Vec3Type{0, -1, 1},
-                    Int64Vec3Type{0, 0, 1},
-                    Int64Vec3Type{-1, 0, 1}};
-    // clang-format on
-    break;
-  case 5:
-    // clang-format off
-    indexOffset = {Int64Vec3Type{0, -1, 0},
-                   Int64Vec3Type{1, -1, 0},
-                   Int64Vec3Type{1, 0, 0},
-                   Int64Vec3Type{0, 0, 0},
-                   Int64Vec3Type{0, -1, 1},
-                   Int64Vec3Type{1, -1, 1},
-                   Int64Vec3Type{1, 0, 1},
-                   Int64Vec3Type{0, 0, 1}};
-    // clang-format on
-    break;
-  case 6:
-    // clang-format off
-    indexOffset = {Int64Vec3Type{0, 0, 0},
-                   Int64Vec3Type{1, 0, 0},
-                   Int64Vec3Type{1, 1, 0},
-                   Int64Vec3Type{0, 1, 0},
-                   Int64Vec3Type{0, 0, 1},
-                   Int64Vec3Type{1, 0, 1},
-                   Int64Vec3Type{1, 1, 1},
-                   Int64Vec3Type{0, 1, 1}};
-    // clang-format on
-    break;
-  case 7:
-    // clang-format off
-    indexOffset = {Int64Vec3Type{-1, 0, 0},
-                   Int64Vec3Type{0, 0, 0},
-                   Int64Vec3Type{0, 1, 0},
-                   Int64Vec3Type{-1, -1, 0},
-                   Int64Vec3Type{-1, 0, 1},
-                   Int64Vec3Type{0, 0, 1},
-                   Int64Vec3Type{0, 1, 1},
-                   Int64Vec3Type{-1, -1, 1}};
-    // clang-format on
-  }
-
+  const std::array<Int64Vec3Type, 8>& indexOffset = k_AllOctantOffsets[octant];
 
   Int64Vec3Type oldIndices(static_cast<int64_t>(oldIndicesU[0]), static_cast<int64_t>(oldIndicesU[1]), static_cast<int64_t>(oldIndicesU[2]));
   size_t numComps = sourceArray.getNumberOfComponents();
@@ -279,17 +210,20 @@ inline void FindInterpolationValues(const RotateArgs& params, size_t index, size
   Int64Vec3Type pIndices;
   FloatVec3Type p1Coord;
 
+  auto origin = params.origImageGeom->getOrigin();
+
   for(size_t i = 0; i < 8; i++)
   {
     Vec3Add<int64_t>(oldIndices, indexOffset[i], pIndices);
     for(size_t compIndex = 0; compIndex < numComps; compIndex++)
     {
-      pValues[i * numComps + compIndex] = GetValue<T>(params, pIndices, sourceArray, index, compIndex);
+      T value = GetValue<T>(params, pIndices, sourceArray, index, compIndex);
+      pValues[i * numComps + compIndex] = value;
     }
     if(i == 0)
     {
-      p1Coord = {pIndices[0] * params.xRes + (0.5F * params.xRes), pIndices[1] * params.yRes + (0.5F * params.yRes), 
-      pIndices[2] * params.zRes + (0.5F * params.zRes)};
+      p1Coord = {pIndices[0] * params.xRes + (0.5F * params.xRes) + origin[0], pIndices[1] * params.yRes + (0.5F * params.yRes) + origin[1],
+                 pIndices[2] * params.zRes + (0.5F * params.zRes) + origin[2]};
     }
   }
   uvw[0] = oldCoords[0] - p1Coord[0];
@@ -297,10 +231,11 @@ inline void FindInterpolationValues(const RotateArgs& params, size_t index, size
   uvw[2] = oldCoords[2] - p1Coord[2];
 }
 
-#define INDEX_VALID(P) (P >= 0 && P < numTuples)
-
+/**
+ * @brief The RotateImageGeometryWithTrilinearInterpolation class
+ */
 template <typename T>
-class RotateWithInterpolation
+class RotateImageGeometryWithTrilinearInterpolation
 {
 private:
   AbstractFilter* m_Filter = nullptr;
@@ -310,7 +245,7 @@ private:
   ImageRotationUtilities::RotateArgs m_Params;
 
 public:
-  RotateWithInterpolation(AbstractFilter* filter, IDataArray::Pointer& sourceArray, IDataArray::Pointer& targetArray, RotateArgs& rotateArgs, Matrix3fR& rotationMatrix)
+  RotateImageGeometryWithTrilinearInterpolation(AbstractFilter* filter, IDataArray::Pointer& sourceArray, IDataArray::Pointer& targetArray, RotateArgs& rotateArgs, Matrix3fR& rotationMatrix)
   : m_Filter(filter)
   , m_SourceArray(sourceArray)
   , m_TargetArray(targetArray)
@@ -382,7 +317,6 @@ public:
                 pValues[P5 * numComps + compIndex] + pValues[P6 * numComps + compIndex] - pValues[P7 * numComps + compIndex] + pValues[P8 * numComps + compIndex]);
     }
     // clang-format on
-
     return value;
   }
 
@@ -403,10 +337,10 @@ public:
     }
     DataArrayPointerType targetArrayPtr = std::dynamic_pointer_cast<DataArrayType>(m_TargetArray);
 
-    // std::ofstream originalPointsFile("/tmp/original_point_centers.csv", std::ios_base::binary);
-    // originalPointsFile << "x,y,z,i,j,k,index,octant" << std::endl;
-    // std::ofstream transformedPointsFile("/tmp/transformed_point_centers.csv", std::ios_base::binary);
-    // transformedPointsFile << "x,y,z,index,error" << std::endl;
+    std::ofstream originalPointsFile("/tmp/original_point_centers.csv", std::ios_base::binary);
+    originalPointsFile << "x,y,z,i,j,k,index,octant" << std::endl;
+    std::ofstream transformedPointsFile("/tmp/transformed_point_centers.csv", std::ios_base::binary);
+    transformedPointsFile << "x,y,z,index,error" << std::endl;
 
     FloatVec3Type coordsOld = {0.0f, 0.0f, 0.0f};
     SizeVec3Type origImageGeomDims = m_Params.origImageGeom->getDimensions();
@@ -437,20 +371,21 @@ public:
           MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coordsNew.data(), coordsOld.data());
 
           auto errorResult = m_Params.origImageGeom->computeCellIndex(coordsOld.data(), oldGeomIndices.data());
-          // transformedPointsFile << coordsNew[0] << "," << coordsNew[1] << "," << coordsNew[2] << "," << newIndex << "," << static_cast<int32_t>(errorResult) << std::endl;
+          transformedPointsFile << coordsNew[0] << "," << coordsNew[1] << "," << coordsNew[2] << "," << newIndex << "," << static_cast<int32_t>(errorResult) << std::endl;
 
           // Now we know what voxel the new cell center maps back to in the original geometry.
           if(errorResult == ImageGeom::ErrorType::NoError)
           {
             oldIndex = (origImageGeomDims[0] * origImageGeomDims[1] * oldGeomIndices[2]) + (origImageGeomDims[0] * oldGeomIndices[1]) + oldGeomIndices[0];
             int octant = FindOctant(m_Params, oldIndex, {coordsOld.data()});
-            // originalPointsFile << coordsOld[0] << "," << coordsOld[1] << "," << coordsOld[2] << "," << oldGeomIndices[0] << "," << oldGeomIndices[1] << "," << oldGeomIndices[2] << "," << oldIndex
-            //                    << "," << octant << std::endl;
+
             FindInterpolationValues(m_Params, oldIndex, octant, oldGeomIndices, coordsOld, sourceArray, pValues, uvw);
             for(size_t compIndex = 0; compIndex < numComps; compIndex++)
             {
               T value = CalculateInterpolatedValue(pValues, uvw, numComps, compIndex);
               targetArrayPtr->setComponent(newIndex, compIndex, value);
+              originalPointsFile << coordsOld[0] << "," << coordsOld[1] << "," << coordsOld[2] << "," << oldGeomIndices[0] << "," << oldGeomIndices[1] << "," << oldGeomIndices[2] << "," << oldIndex
+                                 << "," << value << std::endl;
             }
           }
           else
