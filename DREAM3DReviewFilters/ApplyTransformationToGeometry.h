@@ -87,6 +87,7 @@ public:
   static std::shared_ptr<ApplyTransformationToGeometry> New();
 
   using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
+  using Matrix4fR = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
   using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
   using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
 
@@ -319,12 +320,8 @@ protected:
 private:
   DataArrayPath m_CellAttributeMatrixPath = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
 
-  std::weak_ptr<DataArray<float>> m_TransformationMatrixPtr;
-  float* m_TransformationMatrix = nullptr;
-
   DynamicTableData m_ManualTransformationMatrix = {};
   DataArrayPath m_ComputedTransformationMatrix = {"", "", "TransformationMatrix"};
-  //  DataArrayPath m_GeometryToTransform = {"", "", ""};
   int m_TransformationMatrixType = {1};
   int m_InterpolationType = {1};
   FloatVec3Type m_RotationAxis = {};
@@ -335,16 +332,17 @@ private:
   std::vector<DataArrayPath> m_DataArraySelection = {};
   bool m_SliceBySlice = false;
 
-  FloatArrayType::Pointer m_TransformationReference;
+  Matrix4fR m_TransformationMatrix;
+  // FloatArrayType::Pointer m_TransformationReference;
 
   // Thread safe Progress Message
   mutable std::mutex m_ProgressMessage_Mutex;
   size_t m_InstanceIndex = {0};
   int64_t m_TotalElements = {};
 
-  Matrix3fR m_RotationMatrix = Matrix3fR::Zero();
-  Matrix3fR m_ScalingMatrix = Matrix3fR::Zero();
-  MatrixTranslation m_TranslationMatrix = MatrixTranslation::Zero();
+  //  Matrix3fR m_RotationMatrix = Matrix3fR::Zero();
+  //  Matrix3fR m_ScalingMatrix = Matrix3fR::Zero();
+  //  MatrixTranslation m_TranslationMatrix = MatrixTranslation::Zero();
   ImageRotationUtilities::RotateArgs m_Params;
 
 public:

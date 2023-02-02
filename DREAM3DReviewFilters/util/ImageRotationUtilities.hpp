@@ -12,6 +12,7 @@
 #include <iostream>
 
 using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
+using Matrix4fR = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
 using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
 using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
 
@@ -245,17 +246,17 @@ private:
   ImageRotationUtilities::RotateArgs m_Params;
 
 public:
-  RotateImageGeometryWithTrilinearInterpolation(AbstractFilter* filter, IDataArray::Pointer& sourceArray, IDataArray::Pointer& targetArray, RotateArgs& rotateArgs, Matrix3fR& rotationMatrix)
+  RotateImageGeometryWithTrilinearInterpolation(AbstractFilter* filter, IDataArray::Pointer& sourceArray, IDataArray::Pointer& targetArray, RotateArgs& rotateArgs, Matrix4fR& transformationMatrix)
   : m_Filter(filter)
   , m_SourceArray(sourceArray)
   , m_TargetArray(targetArray)
   , m_Params(rotateArgs)
   {
-    // We have to inline the 3x3 Maxtrix transpose here because of the "const" nature of the 'convert' function
-    Matrix3fR transpose = rotationMatrix.transpose();
-    // Need to use row based Eigen matrix so that the values get mapped to the right place in the raw array
-    // Raw array is faster than Eigen
-    Eigen::Map<Matrix3fR>(&m_RotMatrixInv[0][0], transpose.rows(), transpose.cols()) = transpose;
+    //    // We have to inline the 3x3 Maxtrix transpose here because of the "const" nature of the 'convert' function
+    //    Matrix3fR transpose = rotationMatrix.transpose();
+    //    // Need to use row based Eigen matrix so that the values get mapped to the right place in the raw array
+    //    // Raw array is faster than Eigen
+    //    Eigen::Map<Matrix3fR>(&m_RotMatrixInv[0][0], transpose.rows(), transpose.cols()) = transpose;
   }
 
   /**

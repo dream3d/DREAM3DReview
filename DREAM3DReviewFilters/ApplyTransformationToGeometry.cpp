@@ -149,12 +149,25 @@ OutputType ax2om(const InputType& a)
 }
 } // namespace OrientationTransformation
 
+namespace
+{
+constexpr int32_t k_NearestNeighborInterpolation = 0;
+constexpr int32_t k_LinearInterpolation = 1;
+
+constexpr int32_t k_NoTransform = 0;
+constexpr int32_t k_PrecomputedTransform = 1;
+constexpr int32_t k_ManualTransform = 2;
+constexpr int32_t k_RotationTransform = 3;
+constexpr int32_t k_TranslationTransform = 4;
+constexpr int32_t k_ScaleTransform = 5;
+
+} // namespace
 const Eigen::Vector3f k_XAxis = Eigen::Vector3f::UnitX();
 const Eigen::Vector3f k_YAxis = Eigen::Vector3f::UnitY();
 const Eigen::Vector3f k_ZAxis = Eigen::Vector3f::UnitZ();
 
 // Function for determining new ImageGeom dimensions after transformation
-FloatVec6Type determineMinMax(const ApplyTransformationToGeometry::Matrix3fR& rotationMatrix, const ImageGeom& imageGeometry)
+FloatVec6Type determineMinMax(const ImageGeom& imageGeometry, const ApplyTransformationToGeometry::Matrix4fR& transformationMatrix)
 {
   auto origImageGeomBox = imageGeometry.getBoundingBox();
   // clang-format off
@@ -170,11 +183,13 @@ FloatVec6Type determineMinMax(const ApplyTransformationToGeometry::Matrix3fR& ro
   FloatVec6Type minMaxValues = {std::numeric_limits<float>::max(),  -std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
                                 -std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),  -std::numeric_limits<float>::max()};
 
+  Matrix3fR transform3x3 = transformationMatrix.block(0, 0, 3, 3);
+
   for(size_t i = 0; i < 8; i++)
   {
     Eigen::Vector3f coords(imageGeomCornerCoords[i].data());
 
-    Eigen::Vector3f newCoords = rotationMatrix * coords;
+    Eigen::Vector3f newCoords = transform3x3 * coords;
 
     minMaxValues[0] = std::min(newCoords[0], minMaxValues[0]);
     minMaxValues[1] = std::max(newCoords[0], minMaxValues[1]);
@@ -218,18 +233,18 @@ float determineSpacing(const FloatVec3Type& spacing, const Eigen::Vector3f& axis
 }
 
 // Determines paramaters for image rotation
-ImageRotationUtilities::RotateArgs createRotateParams(const ImageGeom& imageGeom, const ApplyTransformationToGeometry::Transform3f transformationMatrix)
+ImageRotationUtilities::RotateArgs createRotateParams(const ImageGeom& imageGeom, const ApplyTransformationToGeometry::Matrix4fR& transformationMatrix)
 {
   const SizeVec3Type origDims = imageGeom.getDimensions();
   const FloatVec3Type spacing = imageGeom.getSpacing();
   const FloatVec3Type origOrigin = imageGeom.getOrigin();
 
-  ApplyTransformationToGeometry::Matrix3fR rotationMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
-  ApplyTransformationToGeometry::Matrix3fR scaleMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
+  ApplyTransformationToGeometry::Matrix3fR rotationMatrix = transformationMatrix.block(0, 0, 3, 3);
+  //  ApplyTransformationToGeometry::Matrix3fR scaleMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
 
-  transformationMatrix.computeRotationScaling(&rotationMatrix, &scaleMatrix);
+  //  transformationMatrix.computeRotationScaling(&rotationMatrix, &scaleMatrix);
 
-  FloatVec6Type minMaxCoords = determineMinMax(rotationMatrix, imageGeom);
+  FloatVec6Type minMaxCoords = determineMinMax(imageGeom, transformationMatrix);
 
   Eigen::Vector3f xAxisNew = rotationMatrix * k_XAxis;
   Eigen::Vector3f yAxisNew = rotationMatrix * k_YAxis;
@@ -276,20 +291,19 @@ ImageRotationUtilities::RotateArgs createRotateParams(const ImageGeom& imageGeom
 }
 
 // Alters image parameters, scales and translates
-void updateGeometry(ImageGeom& imageGeom, const ImageRotationUtilities::RotateArgs& params, const ApplyTransformationToGeometry::Matrix3fR& scalingMatrix,
-                    const ApplyTransformationToGeometry::Matrix3fR& rotationMatrix, const ApplyTransformationToGeometry::MatrixTranslation translationMatrix)
+void UpdateImageGeometry2(ImageGeom& imageGeom, const ImageRotationUtilities::RotateArgs& params, const ApplyTransformationToGeometry::Matrix4fR& transformationMatrix)
 {
-  float m_ScalingMatrix[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  float m_TranslationMatrix[3] = {0.0f, 0.0f, 0.0f};
-  Eigen::Map<ApplyTransformationToGeometry::Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
+  //  float m_ScalingMatrix[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  //  float m_TranslationMatrix[3] = {0.0f, 0.0f, 0.0f};
+  //  Eigen::Map<ApplyTransformationToGeometry::Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
 
-  Eigen::Map<ApplyTransformationToGeometry::MatrixTranslation>(m_TranslationMatrix, translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
-  FloatVec3Type origin = imageGeom.getOrigin();
+  //  Eigen::Map<ApplyTransformationToGeometry::MatrixTranslation>(m_TranslationMatrix, translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
+  //  FloatVec3Type origin = imageGeom.getOrigin();
 
-  Eigen::Vector3f original_translation(m_TranslationMatrix[0], m_TranslationMatrix[1], m_TranslationMatrix[2]);
+  //  Eigen::Vector3f original_translation(m_TranslationMatrix[0], m_TranslationMatrix[1], m_TranslationMatrix[2]);
 
-  Eigen::Vector3f original_origin(origin[0], origin[1], origin[2]);
-  Eigen::Vector3f original_origin_rot = rotationMatrix * original_origin;
+  //  Eigen::Vector3f original_origin(origin[0], origin[1], origin[2]);
+  //  Eigen::Vector3f original_origin_rot = rotationMatrix * original_origin;
 
   //  // Applies Scaling to Image
   //  imageGeom.setSpacing(params.xResNew * m_ScalingMatrix[0][0], params.yResNew * m_ScalingMatrix[1][1], params.zResNew * m_ScalingMatrix[2][2]);
@@ -458,7 +472,7 @@ class ApplyTransformationToGeometryImpl
 {
 
 public:
-  ApplyTransformationToGeometryImpl(ApplyTransformationToGeometry& filter, float* transformationMatrix, const SharedVertexList::Pointer verticesPtr)
+  ApplyTransformationToGeometryImpl(ApplyTransformationToGeometry& filter, const Matrix4fR& transformationMatrix, const SharedVertexList::Pointer verticesPtr)
   : m_Filter(filter)
   , m_TransformationMatrix(transformationMatrix)
   , m_Vertices(verticesPtr)
@@ -466,11 +480,13 @@ public:
   }
   ~ApplyTransformationToGeometryImpl() = default;
 
+  ApplyTransformationToGeometryImpl(const ApplyTransformationToGeometryImpl&) = default;           // Copy Constructor Not Implemented
+  ApplyTransformationToGeometryImpl(ApplyTransformationToGeometryImpl&&) = delete;                 // Move Constructor Not Implemented
+  ApplyTransformationToGeometryImpl& operator=(const ApplyTransformationToGeometryImpl&) = delete; // Copy Assignment Not Implemented
+  ApplyTransformationToGeometryImpl& operator=(ApplyTransformationToGeometryImpl&&) = delete;      // Move Assignment Not Implemented
+
   void convert(size_t start, size_t end) const
   {
-    using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
-    Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
-
     int64_t progCounter = 0;
     int64_t totalElements = (end - start);
     int64_t progIncrement = static_cast<int64_t>(totalElements / 100);
@@ -483,7 +499,7 @@ public:
         return;
       }
       Eigen::Vector4f position(vertices[3 * i + 0], vertices[3 * i + 1], vertices[3 * i + 2], 1);
-      Eigen::Vector4f transformedPosition = transformation * position;
+      Eigen::Vector4f transformedPosition = m_TransformationMatrix * position;
       vertices.setTuple(i, transformedPosition.data());
 
       if(progCounter > progIncrement)
@@ -502,7 +518,7 @@ public:
 
 private:
   ApplyTransformationToGeometry& m_Filter;
-  float* m_TransformationMatrix = nullptr;
+  const Matrix4fR m_TransformationMatrix;
   SharedVertexList::Pointer m_Vertices;
 };
 
@@ -520,9 +536,9 @@ ApplyTransformationToGeometry::ApplyTransformationToGeometry()
   m_Translation[1] = 0.0f;
   m_Translation[2] = 0.0f;
 
-  m_Scale[0] = 0.0f;
-  m_Scale[1] = 0.0f;
-  m_Scale[2] = 0.0f;
+  m_Scale[0] = 1.0f;
+  m_Scale[1] = 1.0f;
+  m_Scale[2] = 1.0f;
 }
 
 // -----------------------------------------------------------------------------
@@ -680,144 +696,125 @@ void ApplyTransformationToGeometry::dataCheck()
 
   std::vector<size_t> cDims = {4, 4};
 
+  // Reset the final Transformation Matrix to all Zeros before we fill it with what the user has entered.
+  m_TransformationMatrix.fill(0.0F);
+
   switch(getTransformationMatrixType())
   {
-  case 0: // No-Op
+  case k_NoTransform: // No-Op
   {
     QString ss = QObject::tr("No transformation has been selected, so this filter will perform no operations");
     setWarningCondition(-701, ss);
   }
-  case 1: // Transformation matrix from array
+  case k_PrecomputedTransform: // Transformation matrix from array
   {
-    m_TransformationMatrixPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getComputedTransformationMatrix(), cDims);
-    if(m_TransformationMatrixPtr.lock())
+    auto precomputedTransformationMatrix = getDataContainerArray()->getPrereqArrayFromPath<FloatArrayType>(this, getComputedTransformationMatrix(), cDims);
+    if(getErrorCode() < 0)
     {
-      m_TransformationMatrix = m_TransformationMatrixPtr.lock()->getPointer(0);
+      return;
     }
     break;
   }
-  case 2: // Manual transformation matrix
+  case k_ManualTransform: // Manual transformation matrix
   {
-    if(getManualTransformationMatrix().getNumRows() != 4)
+    int numTableRows = getManualTransformationMatrix().getNumRows();
+    int numTableCols = getManualTransformationMatrix().getNumCols();
+    if(numTableRows != 4)
     {
       QString ss = QObject::tr("Manually entered transformation matrix must have exactly 4 rows");
       setErrorCondition(-702, ss);
       return;
     }
-    if(getManualTransformationMatrix().getNumCols() != 4)
+    if(numTableCols != 4)
     {
       QString ss = QObject::tr("Manually entered transformation matrix must have exactly 4 columns");
       setErrorCondition(-703, ss);
       return;
     }
     std::vector<std::vector<double>> tableData = getManualTransformationMatrix().getTableData();
-    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
-    m_TransformationReference->initializeWithZeros();
-    m_TransformationMatrixPtr = m_TransformationReference;
-    if(m_TransformationMatrixPtr.lock())
+
+    for(size_t rowIndex = 0; rowIndex < numTableRows; rowIndex++)
     {
-      m_TransformationMatrix = m_TransformationMatrixPtr.lock()->getPointer(0);
-      for(size_t i = 0; i < tableData.size(); i++)
+      std::vector<double> row = tableData[rowIndex];
+      for(size_t colIndex = 0; colIndex < numTableCols; colIndex++)
       {
-        std::vector<double> row = tableData[i];
-        for(size_t j = 0; j < row.size(); j++)
-        {
-          m_TransformationMatrix[4 * i + j] = static_cast<float>(row[j]);
-        }
+        m_TransformationMatrix(rowIndex, colIndex) = static_cast<float>(row[colIndex]);
       }
     }
+
     break;
   }
-  case 3: // Rotation via axis-angle
+  case k_RotationTransform: // Rotation via axis-angle
   {
     // Convert Degrees to Radians for the last element
     float rotAngle = m_RotationAngle * SIMPLib::Constants::k_PiOver180D;
 
-    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
-    m_TransformationReference->initializeWithZeros();
-    m_TransformationMatrixPtr = m_TransformationReference;
-    m_TransformationMatrix = m_TransformationReference->getPointer(0);
-    if(m_TransformationMatrixPtr.lock())
-    {
-      // Ensure the axis part is normalized
-      MatrixMath::Normalize3x1(m_RotationAxis.data());
+    // Ensure the axis part is normalized
+    FloatVec3Type normalizedAxis = m_RotationAxis;
+    MatrixMath::Normalize3x1(normalizedAxis.data());
 
-      float cosTheta = cos(rotAngle);
-      float oneMinusCosTheta = 1 - cosTheta;
-      float sinTheta = sin(rotAngle);
-      float l = m_RotationAxis[0];
-      float m = m_RotationAxis[1];
-      float n = m_RotationAxis[2];
+    float cosTheta = cos(rotAngle);
+    float oneMinusCosTheta = 1 - cosTheta;
+    float sinTheta = sin(rotAngle);
+    float l = normalizedAxis[0];
+    float m = normalizedAxis[1];
+    float n = normalizedAxis[2];
 
-      // First Row:
-      m_TransformationMatrix[0] = l * l * (oneMinusCosTheta) + cosTheta;
-      m_TransformationMatrix[1] = m * l * (oneMinusCosTheta) - (n * sinTheta);
-      m_TransformationMatrix[2] = n * l * (oneMinusCosTheta) + (m * sinTheta);
-      m_TransformationMatrix[3] = 0.0F;
+    // First Row:
+    m_TransformationMatrix(0) = l * l * (oneMinusCosTheta) + cosTheta;
+    m_TransformationMatrix(1) = m * l * (oneMinusCosTheta) - (n * sinTheta);
+    m_TransformationMatrix(2) = n * l * (oneMinusCosTheta) + (m * sinTheta);
+    m_TransformationMatrix(3) = 0.0F;
 
-      // Second Row:
-      m_TransformationMatrix[4] = l * m * (oneMinusCosTheta) + (n * sinTheta);
-      m_TransformationMatrix[5] = m * m * (oneMinusCosTheta) + cosTheta;
-      m_TransformationMatrix[6] = n * m * (oneMinusCosTheta) - (l * sinTheta);
-      m_TransformationMatrix[7] = 0.0F;
+    // Second Row:
+    m_TransformationMatrix(4) = l * m * (oneMinusCosTheta) + (n * sinTheta);
+    m_TransformationMatrix(5) = m * m * (oneMinusCosTheta) + cosTheta;
+    m_TransformationMatrix(6) = n * m * (oneMinusCosTheta) - (l * sinTheta);
+    m_TransformationMatrix(7) = 0.0F;
 
-      // Third Row:
-      m_TransformationMatrix[8] = l * n * (oneMinusCosTheta) - (m * sinTheta);
-      m_TransformationMatrix[9] = m * n * (oneMinusCosTheta) + (l * sinTheta);
-      m_TransformationMatrix[10] = n * n * (oneMinusCosTheta) + cosTheta;
-      m_TransformationMatrix[11] = 0.0F;
+    // Third Row:
+    m_TransformationMatrix(8) = l * n * (oneMinusCosTheta) - (m * sinTheta);
+    m_TransformationMatrix(9) = m * n * (oneMinusCosTheta) + (l * sinTheta);
+    m_TransformationMatrix(10) = n * n * (oneMinusCosTheta) + cosTheta;
+    m_TransformationMatrix(11) = 0.0F;
 
-      // Fourth Row:
-      m_TransformationMatrix[12] = 0.0F;
-      m_TransformationMatrix[13] = 0.0F;
-      m_TransformationMatrix[14] = 0.0F;
-      m_TransformationMatrix[15] = 1.0F;
-    }
+    // Fourth Row:
+    m_TransformationMatrix(12) = 0.0F;
+    m_TransformationMatrix(13) = 0.0F;
+    m_TransformationMatrix(14) = 0.0F;
+    m_TransformationMatrix(15) = 1.0F;
+
     break;
   }
-  case 4: // Translation
+  case k_TranslationTransform: // Translation
   {
-    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
-    m_TransformationReference->initializeWithZeros();
-    m_TransformationMatrixPtr = m_TransformationReference;
-    if(m_TransformationMatrixPtr.lock())
-    {
-      m_TransformationMatrix = m_TransformationMatrixPtr.lock()->getPointer(0);
-      m_TransformationMatrix[4 * 0 + 0] = 1.0f;
-      m_TransformationMatrix[4 * 1 + 1] = 1.0f;
-      m_TransformationMatrix[4 * 2 + 2] = 1.0f;
-      m_TransformationMatrix[4 * 0 + 3] = m_Translation[0];
-      m_TransformationMatrix[4 * 1 + 3] = m_Translation[1];
-      m_TransformationMatrix[4 * 2 + 3] = m_Translation[2];
-      m_TransformationMatrix[4 * 3 + 3] = 1.0f;
-    }
+    m_TransformationMatrix(0, 0) = 1.0f;
+    m_TransformationMatrix(1, 1) = 1.0f;
+    m_TransformationMatrix(2, 2) = 1.0f;
+    m_TransformationMatrix(3, 3) = 1.0f;
+    m_TransformationMatrix(0, 3) = m_Translation[0];
+    m_TransformationMatrix(1, 3) = m_Translation[1];
+    m_TransformationMatrix(2, 3) = m_Translation[2];
     break;
   }
-  case 5: // Scale
+  case k_ScaleTransform: // Scale
   {
-    m_TransformationReference = FloatArrayType::CreateArray(1, cDims, "_INTERNAL_USE_ONLY_ManualTransformationMatrix", true);
-    m_TransformationReference->initializeWithZeros();
-    m_TransformationMatrixPtr = m_TransformationReference;
-    if(m_TransformationMatrixPtr.lock())
-    {
-      m_TransformationMatrix = m_TransformationMatrixPtr.lock()->getPointer(0);
-      m_TransformationMatrix[4 * 0 + 0] = m_Scale[0];
-      m_TransformationMatrix[4 * 1 + 1] = m_Scale[1];
-      m_TransformationMatrix[4 * 2 + 2] = m_Scale[2];
-      m_TransformationMatrix[4 * 3 + 3] = 1.0f;
-    }
+    m_TransformationMatrix(0, 0) = m_Scale[0];
+    m_TransformationMatrix(1, 1) = m_Scale[1];
+    m_TransformationMatrix(2, 2) = m_Scale[2];
+    m_TransformationMatrix(3, 3) = 1.0f;
     break;
   }
   default:
   {
     QString ss = QObject::tr("Invalid selection for transformation type");
     setErrorCondition(-701, ss);
-    break;
+    return;
   }
   }
 
-  // if ImageGeom found:
-  if(std::dynamic_pointer_cast<ImageGeom>(igeom) && m_TransformationMatrix != nullptr)
+  // if ImageGeom was selected to be transformed:
+  if(std::dynamic_pointer_cast<ImageGeom>(igeom))
   {
     DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
     QList<QString> voxelArrayNames;
@@ -825,7 +822,7 @@ void ApplyTransformationToGeometry::dataCheck()
     {
       voxelArrayNames = attriPtr->getAttributeArrayNames();
     }
-    if(getInterpolationType() == 1)
+    if(getInterpolationType() == k_LinearInterpolation)
     {
       if(m_UseDataArraySelection)
       {
@@ -839,44 +836,37 @@ void ApplyTransformationToGeometry::dataCheck()
       for(const auto& attrArrayName : voxelArrayNames)
       {
         IDataArray::Pointer p = attriPtr->getAttributeArray(attrArrayName);
-        if(p->getTypeAsString().compare("bool") == 0)
+        if(p->getTypeAsString() == "bool" || p->getTypeAsString() == "StringDataArray" || p->getTypeAsString() == "StatsDataArray")
         {
-          QString ss = QObject::tr("Input Type Error, cannot run linear interpolation on a boolean array");
+          QString ss = QObject::tr("Input Type Error, cannot run linear interpolation on a boolean, stirngs or StatsData arrays");
           setErrorCondition(-704, ss);
         }
       }
     }
     ImageGeom::Pointer imageGeom = std::dynamic_pointer_cast<ImageGeom>(igeom);
-    Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
 
-    // Column Major can convert if needed
-    Eigen::Transform<float, 3, Eigen::Affine> transform = Eigen::Transform<float, 3, Eigen::Affine>(transformation);
-    ApplyTransformationToGeometry::Matrix3fR rotationMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
-    ApplyTransformationToGeometry::Matrix3fR scaleMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
-    ApplyTransformationToGeometry::MatrixTranslation translationMatrix = ApplyTransformationToGeometry::MatrixTranslation::Zero();
+    m_Params = ::createRotateParams(*imageGeom, m_TransformationMatrix);
 
-    transform.computeRotationScaling(&rotationMatrix, &scaleMatrix);
-
-    translationMatrix(0, 0) = transform.data()[12];
-    translationMatrix(0, 1) = transform.data()[13];
-    translationMatrix(0, 2) = transform.data()[14];
-
-    m_RotationMatrix = rotationMatrix;
-    m_ScalingMatrix = scaleMatrix;
-    m_TranslationMatrix = translationMatrix;
-
-    m_Params = ::createRotateParams(*imageGeom, transform);
-    ::updateGeometry(*imageGeom, m_Params, scaleMatrix, rotationMatrix, translationMatrix);
-
-    // Resize attribute matrix
-    std::vector<size_t> tDims(3);
-    tDims[0] = m_Params.xpNew;
-    tDims[1] = m_Params.ypNew;
-    tDims[2] = m_Params.zpNew;
-
-    if(!this->getInPreflight())
+    // If the user is purely doing a translation then just adjust the origin and be done.
+    if(getTransformationMatrixType() == k_TranslationTransform)
     {
-      attriPtr->resizeAttributeArrays(tDims);
+      imageGeom->setOrigin(m_Params.origImageGeom->getOrigin() + m_Translation);
+    }
+    else
+    {
+      imageGeom->setDimensions(m_Params.transformedImageGeom->getDimensions());
+      imageGeom->setOrigin(m_Params.transformedImageGeom->getOrigin());
+      imageGeom->setSpacing(m_Params.transformedImageGeom->getSpacing());
+      // Resize attribute matrix
+      std::vector<size_t> tDims(3);
+      tDims[0] = m_Params.xpNew;
+      tDims[1] = m_Params.ypNew;
+      tDims[2] = m_Params.zpNew;
+
+      if(!this->getInPreflight())
+      {
+        attriPtr->resizeAttributeArrays(tDims);
+      }
     }
   }
 }
@@ -888,17 +878,19 @@ void ApplyTransformationToGeometry::dataCheck()
 void ApplyTransformationToGeometry::applyImageGeometryTransformation()
 {
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-  ImageGeom::Pointer imageGeom = m->getGeometryAs<ImageGeom>();
-
-  // Keep this here as we need to temp set the origin to (0,0,0);
-  //  FloatVec3Type originalGeometryOrigin = imageGeom->getOrigin();
-  //  m_Params.origImageGeom->setOrigin(0.0F, 0.0F, 0.0F);
-  //  imageGeom->setOrigin(0.0F, 0.0F, 0.0F);
 
   if(m == nullptr)
   {
     QString ss = QObject::tr("Failed to get DataContainer '%1'").arg(getCellAttributeMatrixPath().getDataContainerName());
     setErrorCondition(-45101, ss);
+    return;
+  }
+
+  ImageGeom::Pointer imageGeom = m->getGeometryAs<ImageGeom>();
+  // If we are doing a pure translation then adjust the origin and be done.
+  if(getTransformationMatrixType() == k_TranslationTransform)
+  {
+    imageGeom->setOrigin(m_Params.origImageGeom->getOrigin() + m_Translation);
     return;
   }
 
@@ -940,7 +932,7 @@ void ApplyTransformationToGeometry::applyImageGeometryTransformation()
     else if(m_InterpolationType == 1)
     {
       ImageRotationUtilities::ExecuteParallelFunction<ImageRotationUtilities::RotateImageGeometryWithTrilinearInterpolation>(sourceArray, taskRunner, this, sourceArray, targetArray, m_Params,
-                                                                                                                             m_RotationMatrix);
+                                                                                                                             m_TransformationMatrix);
     }
 
     m->getAttributeMatrix(attrMatName)->insertOrAssign(targetArray);
@@ -980,9 +972,9 @@ void ApplyTransformationToGeometry::applyNodeGeometryTransformation()
     return;
   }
 
-  using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
-  Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
-  m_TotalElements = vertexList->getNumberOfTuples();
+  //  using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
+  //  Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
+  //  m_TotalElements = vertexList->getNumberOfTuples();
   // Allow data-based parallelization
   ParallelDataAlgorithm dataAlg;
   dataAlg.setRange(0, m_TotalElements);
@@ -992,8 +984,6 @@ void ApplyTransformationToGeometry::applyNodeGeometryTransformation()
 // -----------------------------------------------------------------------------
 void ApplyTransformationToGeometry::reset()
 {
-  m_RotationMatrix.setZero();
-
   m_Params = ImageRotationUtilities::RotateArgs();
 }
 
