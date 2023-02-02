@@ -96,6 +96,24 @@ void inline GetPlaneCoords(const RotateArgs& params, size_t idx, float coords[3]
   coords[2] = plane * params.zRes;
 }
 
+
+template<typename T>
+inline void Vec3Add(const IVec3<T>& a, const IVec3<T>& b, IVec3<T>& c)
+{
+  c[0] = a[0] + b[0];
+  c[1] = a[1] + b[1];
+  c[2] = a[2] + b[2];
+}
+
+template<typename T>
+inline void Vec3Subtract(const IVec3<T>& a, const IVec3<T>& b, IVec3<T>& c)
+{
+  c[0] = a[0] - b[0];
+  c[1] = a[1] - b[1];
+  c[2] = a[2] - b[2];
+}
+
+
 /**
  * @brief FindOctant
  * @param params
@@ -118,24 +136,26 @@ inline size_t FindOctant(const RotateArgs& params, size_t index, FloatVec3Type c
   // Form the 8 corner coords for the voxel
   // clang-format off
   std::array<FloatVec3Type, 8> unitSquareCoords = {
-  /* P1 */ centerPoint + FloatVec3Type(-xResHalf, -yResHalf, -zResHalf),
-  /* P2 */ centerPoint + FloatVec3Type(xResHalf, -yResHalf, -zResHalf),
-  /* P3 */ centerPoint + FloatVec3Type(xResHalf, yResHalf, -zResHalf),
-  /* P4 */ centerPoint + FloatVec3Type(-xResHalf, yResHalf, -zResHalf),
-  /* P5 */ centerPoint + FloatVec3Type(-xResHalf, -yResHalf, zResHalf),
-  /* P6 */ centerPoint + FloatVec3Type(xResHalf, -yResHalf, zResHalf),
-  /* P7 */ centerPoint + FloatVec3Type(xResHalf, yResHalf, zResHalf),
-  /* P8 */ centerPoint + FloatVec3Type(-xResHalf, yResHalf, zResHalf),
+  /* P1 */ FloatVec3Type(centerPoint[0]-xResHalf, centerPoint[1]-yResHalf, centerPoint[2]-zResHalf),
+  /* P2 */ FloatVec3Type(centerPoint[0]+xResHalf, centerPoint[1]-yResHalf, centerPoint[2]-zResHalf),
+  /* P3 */ FloatVec3Type(centerPoint[0]+xResHalf, centerPoint[1]+yResHalf, centerPoint[2]-zResHalf),
+  /* P4 */ FloatVec3Type(centerPoint[0]-xResHalf, centerPoint[1]+yResHalf, centerPoint[2]-zResHalf),
+  /* P5 */ FloatVec3Type(centerPoint[0]-xResHalf, centerPoint[1]-yResHalf, centerPoint[2]+zResHalf),
+  /* P6 */ FloatVec3Type(centerPoint[0]+xResHalf, centerPoint[1]-yResHalf, centerPoint[2]+zResHalf),
+  /* P7 */ FloatVec3Type(centerPoint[0]+xResHalf, centerPoint[1]+yResHalf, centerPoint[2]+zResHalf),
+  /* P8 */ FloatVec3Type(centerPoint[0]-xResHalf, centerPoint[1]+yResHalf, centerPoint[2]+zResHalf),
   };
   // clang-format on
 
+  FloatVec3Type temp;
   // Now figure out which corner the inverse transformed point is closest to
   // this will give us which octant the point lies.
   float minDistance = std::numeric_limits<float>::max();
   size_t minIndex = 0;
   for(size_t i = 0; i < 8; i++)
   {
-    float distance = (unitSquareCoords[i] - coord).norm();
+    Vec3Subtract<float>(unitSquareCoords[i], coord, temp);
+    float distance = temp.norm();
     if(distance < minDistance)
     {
       minDistance = distance;
@@ -146,25 +166,10 @@ inline size_t FindOctant(const RotateArgs& params, size_t index, FloatVec3Type c
   return minIndex;
 }
 
-// template<typename T>
-// void Vec3Add(const IVec3<T>& a, const I)
-
-
 template <typename T>
-inline TrilinearInterpolationData<T> FindInterpolationValues(const RotateArgs& params, size_t index, size_t octant, std::array<size_t, 3> oldIndicesU, FloatVec3Type& oldCoords,
-                                                             DataArray<T>& sourceArray)
+inline void FindInterpolationValues(const RotateArgs& params, size_t index, size_t octant, std::array<size_t, 3> oldIndicesU, FloatVec3Type& oldCoords, DataArray<T>& sourceArray,
+                                    std::vector<T>& pValues, FloatVec3Type& uvw)
 {
-  Int64Vec3Type oldIndices(static_cast<int64_t>(oldIndicesU[0]), static_cast<int64_t>(oldIndicesU[1]), static_cast<int64_t>(oldIndicesU[2]));
-
-  std::array<float, 3> res = {params.xRes, params.yRes, params.zRes};
-
-  std::array<Int64Vec3Type, 8> pIndices;
-
-  FloatVec3Type p1Coord;
-
-  FloatVec3Type uvw;
-  size_t numComps = sourceArray.getNumberOfComponents();
-  std::vector<T> pValues(8 * numComps);
   std::array<Int64Vec3Type, 8> indexOffset;
 
   switch(octant)
@@ -267,17 +272,29 @@ inline TrilinearInterpolationData<T> FindInterpolationValues(const RotateArgs& p
     // clang-format on
   }
 
+
+  Int64Vec3Type oldIndices(static_cast<int64_t>(oldIndicesU[0]), static_cast<int64_t>(oldIndicesU[1]), static_cast<int64_t>(oldIndicesU[2]));
+  size_t numComps = sourceArray.getNumberOfComponents();
+
+  Int64Vec3Type pIndices;
+  FloatVec3Type p1Coord;
+
   for(size_t i = 0; i < 8; i++)
   {
-    pIndices[i] = oldIndices + indexOffset[i];
+    Vec3Add<int64_t>(oldIndices, indexOffset[i], pIndices);
     for(size_t compIndex = 0; compIndex < numComps; compIndex++)
     {
-      pValues[i * numComps + compIndex] = GetValue<T>(params, pIndices[i], sourceArray, index, compIndex);
+      pValues[i * numComps + compIndex] = GetValue<T>(params, pIndices, sourceArray, index, compIndex);
+    }
+    if(i == 0)
+    {
+      p1Coord = {pIndices[0] * params.xRes + (0.5F * params.xRes), pIndices[1] * params.yRes + (0.5F * params.yRes), 
+      pIndices[2] * params.zRes + (0.5F * params.zRes)};
     }
   }
-  p1Coord = {pIndices[0][0] * res[0] + (0.5F * res[0]), pIndices[0][1] * res[1] + (0.5F * res[1]), pIndices[0][2] * res[2] + (0.5F * res[2])};
-  uvw = oldCoords - p1Coord;
-  return {std::move(pValues), std::move(uvw)};
+  uvw[0] = oldCoords[0] - p1Coord[0];
+  uvw[1] = oldCoords[1] - p1Coord[1];
+  uvw[2] = oldCoords[2] - p1Coord[2];
 }
 
 #define INDEX_VALID(P) (P >= 0 && P < numTuples)
@@ -315,7 +332,7 @@ public:
    * @param indices
    * @return
    */
-  T CalculateInterpolatedValue(TrilinearInterpolationData<T>& interpolationData, size_t numComps, size_t compIndex) const
+  T CalculateInterpolatedValue(std::vector<T>& pValues, FloatVec3Type& uvw, size_t numComps, size_t compIndex) const
   {
     constexpr size_t P1 = 0;
     constexpr size_t P2 = 1;
@@ -326,11 +343,9 @@ public:
     constexpr size_t P7 = 6;
     constexpr size_t P8 = 7;
 
-    const float u = interpolationData.uvw[0];
-    const float v = interpolationData.uvw[1];
-    const float w = interpolationData.uvw[2];
-
-    std::vector<T>& pValues = interpolationData.pValues;
+    const float u = uvw[0];
+    const float v = uvw[1];
+    const float w = uvw[2];
 
     T value = pValues[0];
 
@@ -381,7 +396,11 @@ public:
 
     DataArrayPointerType sourceArrayPtr = std::dynamic_pointer_cast<DataArrayType>(m_SourceArray);
     DataArrayType& sourceArray = *(sourceArrayPtr.get());
-    size_t numComps = sourceArray.getNumberOfComponents();
+    const size_t numComps = sourceArray.getNumberOfComponents();
+    if(numComps == 0)
+    {
+      exit(1);
+    }
     DataArrayPointerType targetArrayPtr = std::dynamic_pointer_cast<DataArrayType>(m_TargetArray);
 
     // std::ofstream originalPointsFile("/tmp/original_point_centers.csv", std::ios_base::binary);
@@ -390,10 +409,12 @@ public:
     // transformedPointsFile << "x,y,z,index,error" << std::endl;
 
     FloatVec3Type coordsOld = {0.0f, 0.0f, 0.0f};
-
-    TrilinearInterpolationData<T> interpolationValues;
+    SizeVec3Type origImageGeomDims = m_Params.origImageGeom->getDimensions();
+    // TrilinearInterpolationData<T> interpolationValues;
     std::array<size_t, 3> oldGeomIndices = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
     std::array<float, 3> coordsNew;
+    std::vector<T> pValues(8 * numComps);
+    FloatVec3Type uvw;
     for(int64_t k = 0; k < m_Params.zpNew; k++)
     {
       int64_t ktot = (m_Params.xpNew * m_Params.ypNew) * k;
@@ -416,21 +437,19 @@ public:
           MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coordsNew.data(), coordsOld.data());
 
           auto errorResult = m_Params.origImageGeom->computeCellIndex(coordsOld.data(), oldGeomIndices.data());
-          errorResult = m_Params.origImageGeom->computeCellIndex(coordsOld.data(), oldIndex);
-
-         // transformedPointsFile << coordsNew[0] << "," << coordsNew[1] << "," << coordsNew[2] << "," << newIndex << "," << static_cast<int32_t>(errorResult) << std::endl;
+          // transformedPointsFile << coordsNew[0] << "," << coordsNew[1] << "," << coordsNew[2] << "," << newIndex << "," << static_cast<int32_t>(errorResult) << std::endl;
 
           // Now we know what voxel the new cell center maps back to in the original geometry.
           if(errorResult == ImageGeom::ErrorType::NoError)
           {
-
+            oldIndex = (origImageGeomDims[0] * origImageGeomDims[1] * oldGeomIndices[2]) + (origImageGeomDims[0] * oldGeomIndices[1]) + oldGeomIndices[0];
             int octant = FindOctant(m_Params, oldIndex, {coordsOld.data()});
             // originalPointsFile << coordsOld[0] << "," << coordsOld[1] << "," << coordsOld[2] << "," << oldGeomIndices[0] << "," << oldGeomIndices[1] << "," << oldGeomIndices[2] << "," << oldIndex
             //                    << "," << octant << std::endl;
-            interpolationValues = FindInterpolationValues(m_Params, oldIndex, octant, oldGeomIndices, coordsOld, sourceArray);
+            FindInterpolationValues(m_Params, oldIndex, octant, oldGeomIndices, coordsOld, sourceArray, pValues, uvw);
             for(size_t compIndex = 0; compIndex < numComps; compIndex++)
             {
-              T value = CalculateInterpolatedValue(interpolationValues, numComps, compIndex);
+              T value = CalculateInterpolatedValue(pValues, uvw, numComps, compIndex);
               targetArrayPtr->setComponent(newIndex, compIndex, value);
             }
           }
