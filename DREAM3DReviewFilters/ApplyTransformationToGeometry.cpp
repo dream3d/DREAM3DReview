@@ -551,6 +551,18 @@ void ApplyTransformationToGeometry::dataCheck()
     {
       return;
     }
+    if(!getInPreflight())
+    {
+      std::vector<size_t> cDims = {4, 4};
+      auto precomputedTransformationMatrix = getDataContainerArray()->getPrereqArrayFromPath<FloatArrayType>(this, getComputedTransformationMatrix(), cDims);
+      for(size_t r = 0; r < 4; r++)
+      {
+        for(size_t c = 0; c < 4; c++)
+        {
+          m_TransformationMatrix(r, c) = (*precomputedTransformationMatrix)[r * 4 + c];
+        }
+      }
+    }
     break;
   }
   case k_ManualTransform: // Manual transformation matrix
@@ -780,7 +792,10 @@ void ApplyTransformationToGeometry::applyImageGeometryTransformation()
                                                                                                                              m_TransformationMatrix);
     }
 
-    // m->getAttributeMatrix(attrMatName)->insertOrAssign(targetArray);
+    if(getCancel())
+    {
+      break;
+    }
   }
   taskRunner.wait();
 }
@@ -836,7 +851,7 @@ void ApplyTransformationToGeometry::execute()
     return;
   }
 
-  if(m_TransformationMatrixType == 0)
+  if(m_TransformationMatrixType == k_NoTransform)
   {
     return;
   }

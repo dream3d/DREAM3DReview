@@ -182,7 +182,8 @@ static const std::array<OctantOffsetArrayType, 8> k_AllOctantOffsets{k_IndexOffs
  * @param uvw
  */
 template <typename T>
-inline void FindInterpolationValues(const RotateArgs& params, size_t index, size_t octant, std::array<size_t, 3> oldIndicesU, Eigen::Array4f& oldCoords, DataArray<T>& sourceArray,
+inline void FindInterpolationValues(const RotateArgs& params, size_t index, size_t octant, std::array<size_t, 3> oldIndicesU, 
+Eigen::Array4f& oldCoords, DataArray<T>& sourceArray,
                                     std::vector<T>& pValues, FloatVec3Type& uvw)
 {
   const std::array<Int64Vec3Type, 8>& indexOffset = k_AllOctantOffsets[octant];
@@ -197,7 +198,9 @@ inline void FindInterpolationValues(const RotateArgs& params, size_t index, size
 
   for(size_t i = 0; i < 8; i++)
   {
-    Vec3Add<int64_t>(oldIndices, indexOffset[i], pIndices);
+    //Vec3Add<int64_t>(oldIndices, indexOffset[i], pIndices); // Fast: everything is preallocated
+
+    auto pIndices = oldIndices + indexOffset[i]; // SLOW: Allocated on the stack
     for(size_t compIndex = 0; compIndex < numComps; compIndex++)
     {
       T value = GetSourceArrayValue<T>(params, pIndices, sourceArray, compIndex);
@@ -276,9 +279,11 @@ public:
     return value;
   }
 
-/**
- * 
-*/
+  /**
+   * @brief This is the main algorithm to perform the interpolation and get a final value that is placed into the transformed
+   * voxel. This uses Trilinear interpolation which will devolve into Bilinear and Linear interpolation depending on the
+   * values of U, V and W.
+   */
   void operator()() const
   {
     using DataArrayType = DataArray<T>;
@@ -311,8 +316,11 @@ public:
 
     for(int64_t k = 0; k < m_Params.zpNew; k++)
     {
+      if(m_Filter->getCancel())
+      {
+        break;
+      }
       int64_t ktot = (m_Params.xpNew * m_Params.ypNew) * k;
-
 
       m_Filter->notifyStatusMessage(QString("Transforming Slice '%1'").arg(k));
       for(int64_t j = 0; j < m_Params.ypNew; j++)
