@@ -35,20 +35,20 @@
 
 #pragma once
 
+#include "DREAM3DReview/DREAM3DReviewDLLExport.h"
+#include "DREAM3DReview/DREAM3DReviewFilters/util/ImageRotationUtilities.hpp"
+
+#include "SIMPLib/DataArrays/DataArray.hpp"
+#include "SIMPLib/FilterParameters/DynamicTableData.h"
+#include "SIMPLib/Common/SIMPLArray.hpp"
+#include "SIMPLib/Filtering/AbstractFilter.h"
+
+#include <QtCore/QDateTime>
+
 #include <memory>
 #include <mutex>
 
 #include <Eigen/Dense>
-
-#include "DREAM3DReview/DREAM3DReviewDLLExport.h"
-#include "DREAM3DReview/DREAM3DReviewFilters/util/ImageRotationUtilities.hpp"
-
-// #include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/FilterParameters/DynamicTableData.h"
-// #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
-#include "SIMPLib/Common/SIMPLArray.hpp"
-#include "SIMPLib/Filtering/AbstractFilter.h"
 
 /**
  * @brief The ApplyTransformationToGeometry class. See [Filter documentation](@ref applytransformationtogeometry) for details.
@@ -293,6 +293,12 @@ public:
    */
   void sendThreadSafeProgressMessage(int64_t counter);
 
+  /**
+   * @brief sendThreadSafeProgressMessage
+   * @param message
+   */
+  void sendThreadSafeProgressMessage(const QString& message);
+
 protected:
   ApplyTransformationToGeometry();
 
@@ -333,19 +339,17 @@ private:
   bool m_SliceBySlice = false;
 
   Matrix4fR m_TransformationMatrix;
-  // FloatArrayType::Pointer m_TransformationReference;
 
   // Thread safe Progress Message
   mutable std::mutex m_ProgressMessage_Mutex;
   size_t m_InstanceIndex = {0};
   int64_t m_TotalElements = {};
 
-  //  Matrix3fR m_RotationMatrix = Matrix3fR::Zero();
-  //  Matrix3fR m_ScalingMatrix = Matrix3fR::Zero();
-  //  MatrixTranslation m_TranslationMatrix = MatrixTranslation::Zero();
   ImageRotationUtilities::RotateArgs m_Params;
 
   AttributeMatrix::Pointer m_SourceAttributeMatrix = nullptr;
+
+  qint64 m_Millis = QDateTime::currentMSecsSinceEpoch();
 
 public:
   ApplyTransformationToGeometry(const ApplyTransformationToGeometry&) = delete;            // Copy Constructor Not Implemented

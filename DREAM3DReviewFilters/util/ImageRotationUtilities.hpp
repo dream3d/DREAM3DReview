@@ -12,8 +12,11 @@
 
 using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
 using Matrix4fR = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
-//using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
-//using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
+
+// typedef Array<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> MyArrayType;
+
+using Vector3s = Eigen::Array<size_t, 1, 3>;
+using Vector3i64 = Eigen::Array<int64_t, 1, 3>;
 
 using Int64Vec3Type = IVec3<int64_t>;
 
@@ -43,9 +46,8 @@ struct RotateArgs
   float zMinNew = 0.0f;
 };
 
-
 template <typename T>
-T inline GetSourceArrayValue(const RotateArgs& params, Int64Vec3Type xyzIndex, DataArray<T>& sourceArray, size_t compIndex)
+T inline GetSourceArrayValue(const RotateArgs& params, Vector3i64 xyzIndex, DataArray<T>& sourceArray, size_t compIndex)
 {
   if(xyzIndex[0] < 0)
   {
@@ -76,26 +78,8 @@ T inline GetSourceArrayValue(const RotateArgs& params, Int64Vec3Type xyzIndex, D
 
   // Now just compute the proper index
   size_t index = (xyzIndex[2] * params.xp * params.yp) + (xyzIndex[1] * params.xp) + xyzIndex[0];
-  return sourceArray.getComponent(index, compIndex);
+  return sourceArray[index * sourceArray.getNumberOfComponents() + compIndex];
 }
-
-
-template<typename T>
-inline void Vec3Add(const IVec3<T>& a, const IVec3<T>& b, IVec3<T>& c)
-{
-  c[0] = a[0] + b[0];
-  c[1] = a[1] + b[1];
-  c[2] = a[2] + b[2];
-}
-
-template<typename T>
-inline void Vec3Subtract(const IVec3<T>& a, const IVec3<T>& b, IVec3<T>& c)
-{
-  c[0] = a[0] - b[0];
-  c[1] = a[1] - b[1];
-  c[2] = a[2] - b[2];
-}
-
 
 /**
  * @brief FindOctant
@@ -112,9 +96,8 @@ inline size_t FindOctant(const RotateArgs& params, size_t index, FloatVec3Type c
   float zResHalf = params.zRes * 0.5;
 
   // Get the center coord of the original source voxel
-  FloatVec3Type centerPoint;
+  Eigen::Vector3f centerPoint;
   params.origImageGeom->getCoords(index, centerPoint.data());
-  // GetPlaneCoords(params, index, centerPoint.data());
 
   // Form the 8 corner coords for the voxel
   // clang-format off
@@ -137,8 +120,7 @@ inline size_t FindOctant(const RotateArgs& params, size_t index, FloatVec3Type c
   size_t minIndex = 0;
   for(size_t i = 0; i < 8; i++)
   {
-    Vec3Subtract<float>(unitSquareCoords[i], coord, temp);
-    float distance = temp.norm();
+    float distance = (unitSquareCoords[i] - coord).norm();
     if(distance < minDistance)
     {
       minDistance = distance;
@@ -149,25 +131,24 @@ inline size_t FindOctant(const RotateArgs& params, size_t index, FloatVec3Type c
   return minIndex;
 }
 
-using OctantOffsetArrayType = std::array<Int64Vec3Type, 8>;
+using OctantOffsetArrayType = std::array<Vector3i64, 8>;
 
-static const OctantOffsetArrayType k_IndexOffset0 = {Int64Vec3Type{-1, -1, -1}, Int64Vec3Type{0, -1, -1}, Int64Vec3Type{0, 0, -1}, Int64Vec3Type{-1, 0, -1},
-                                                     Int64Vec3Type{-1, -1, 0},  Int64Vec3Type{0, -1, 0},  Int64Vec3Type{0, 0, 0},  Int64Vec3Type{-1, 0, 0}};
-static const OctantOffsetArrayType k_IndexOffset1 = {Int64Vec3Type{0, -1, -1}, Int64Vec3Type{1, -1, -1}, Int64Vec3Type{1, 0, -1}, Int64Vec3Type{0, 0, -1},
-                                                     Int64Vec3Type{0, -1, 0},  Int64Vec3Type{1, -1, 0},  Int64Vec3Type{1, 0, 0},  Int64Vec3Type{0, 0, 0}};
-static const OctantOffsetArrayType k_IndexOffset2 = {Int64Vec3Type{0, 0, -1}, Int64Vec3Type{1, 0, -1}, Int64Vec3Type{1, 1, -1}, Int64Vec3Type{0, 1, -1},
-                                                     Int64Vec3Type{0, 0, 0},  Int64Vec3Type{1, 0, 0},  Int64Vec3Type{1, 1, 0},  Int64Vec3Type{0, 1, 0}};
-static const OctantOffsetArrayType k_IndexOffset3 = {Int64Vec3Type{-1, 0, -1}, Int64Vec3Type{0, 0, -1}, Int64Vec3Type{0, 1, -1}, Int64Vec3Type{-1, 1, -1},
-                                                     Int64Vec3Type{-1, 0, 0},  Int64Vec3Type{0, 0, 0},  Int64Vec3Type{0, 1, 0},  Int64Vec3Type{-1, 1, 0}};
-static const OctantOffsetArrayType k_IndexOffset4 = {Int64Vec3Type{-1, -1, 0}, Int64Vec3Type{0, -1, 0}, Int64Vec3Type{0, 0, 0}, Int64Vec3Type{-1, 0, 0},
-                                                     Int64Vec3Type{-1, -1, 1}, Int64Vec3Type{0, -1, 1}, Int64Vec3Type{0, 0, 1}, Int64Vec3Type{-1, 0, 1}};
-static const OctantOffsetArrayType k_IndexOffset5 = {Int64Vec3Type{0, -1, 0}, Int64Vec3Type{1, -1, 0}, Int64Vec3Type{1, 0, 0}, Int64Vec3Type{0, 0, 0},
-                                                     Int64Vec3Type{0, -1, 1}, Int64Vec3Type{1, -1, 1}, Int64Vec3Type{1, 0, 1}, Int64Vec3Type{0, 0, 1}};
-static const OctantOffsetArrayType k_IndexOffset6 = {Int64Vec3Type{0, 0, 0}, Int64Vec3Type{1, 0, 0}, Int64Vec3Type{1, 1, 0}, Int64Vec3Type{0, 1, 0},
-                                                     Int64Vec3Type{0, 0, 1}, Int64Vec3Type{1, 0, 1}, Int64Vec3Type{1, 1, 1}, Int64Vec3Type{0, 1, 1}};
-static const OctantOffsetArrayType k_IndexOffset7 = {Int64Vec3Type{-1, 0, 0}, Int64Vec3Type{0, 0, 0}, Int64Vec3Type{0, 1, 0}, Int64Vec3Type{-1, -1, 0},
-                                                     Int64Vec3Type{-1, 0, 1}, Int64Vec3Type{0, 0, 1}, Int64Vec3Type{0, 1, 1}, Int64Vec3Type{-1, -1, 1}};
-
+static const OctantOffsetArrayType k_IndexOffset0 = {Vector3i64{-1, -1, -1}, Vector3i64{0, -1, -1}, Vector3i64{0, 0, -1}, Vector3i64{-1, 0, -1},
+                                                     Vector3i64{-1, -1, 0},  Vector3i64{0, -1, 0},  Vector3i64{0, 0, 0},  Vector3i64{-1, 0, 0}};
+static const OctantOffsetArrayType k_IndexOffset1 = {Vector3i64{0, -1, -1}, Vector3i64{1, -1, -1}, Vector3i64{1, 0, -1}, Vector3i64{0, 0, -1},
+                                                     Vector3i64{0, -1, 0},  Vector3i64{1, -1, 0},  Vector3i64{1, 0, 0},  Vector3i64{0, 0, 0}};
+static const OctantOffsetArrayType k_IndexOffset2 = {Vector3i64{0, 0, -1}, Vector3i64{1, 0, -1}, Vector3i64{1, 1, -1}, Vector3i64{0, 1, -1},
+                                                     Vector3i64{0, 0, 0},  Vector3i64{1, 0, 0},  Vector3i64{1, 1, 0},  Vector3i64{0, 1, 0}};
+static const OctantOffsetArrayType k_IndexOffset3 = {Vector3i64{-1, 0, -1}, Vector3i64{0, 0, -1}, Vector3i64{0, 1, -1}, Vector3i64{-1, 1, -1},
+                                                     Vector3i64{-1, 0, 0},  Vector3i64{0, 0, 0},  Vector3i64{0, 1, 0},  Vector3i64{-1, 1, 0}};
+static const OctantOffsetArrayType k_IndexOffset4 = {Vector3i64{-1, -1, 0}, Vector3i64{0, -1, 0}, Vector3i64{0, 0, 0}, Vector3i64{-1, 0, 0},
+                                                     Vector3i64{-1, -1, 1}, Vector3i64{0, -1, 1}, Vector3i64{0, 0, 1}, Vector3i64{-1, 0, 1}};
+static const OctantOffsetArrayType k_IndexOffset5 = {Vector3i64{0, -1, 0}, Vector3i64{1, -1, 0}, Vector3i64{1, 0, 0}, Vector3i64{0, 0, 0},
+                                                     Vector3i64{0, -1, 1}, Vector3i64{1, -1, 1}, Vector3i64{1, 0, 1}, Vector3i64{0, 0, 1}};
+static const OctantOffsetArrayType k_IndexOffset6 = {Vector3i64{0, 0, 0}, Vector3i64{1, 0, 0}, Vector3i64{1, 1, 0}, Vector3i64{0, 1, 0},
+                                                     Vector3i64{0, 0, 1}, Vector3i64{1, 0, 1}, Vector3i64{1, 1, 1}, Vector3i64{0, 1, 1}};
+static const OctantOffsetArrayType k_IndexOffset7 = {Vector3i64{-1, 0, 0}, Vector3i64{0, 0, 0}, Vector3i64{0, 1, 0}, Vector3i64{-1, -1, 0},
+                                                     Vector3i64{-1, 0, 1}, Vector3i64{0, 0, 1}, Vector3i64{0, 1, 1}, Vector3i64{-1, -1, 1}};
 static const std::array<OctantOffsetArrayType, 8> k_AllOctantOffsets{k_IndexOffset0, k_IndexOffset1, k_IndexOffset2, k_IndexOffset3, k_IndexOffset4, k_IndexOffset5, k_IndexOffset6, k_IndexOffset7};
 
 /**
@@ -182,25 +163,22 @@ static const std::array<OctantOffsetArrayType, 8> k_AllOctantOffsets{k_IndexOffs
  * @param uvw
  */
 template <typename T>
-inline void FindInterpolationValues(const RotateArgs& params, size_t index, size_t octant, std::array<size_t, 3> oldIndicesU, 
-Eigen::Array4f& oldCoords, DataArray<T>& sourceArray,
-                                    std::vector<T>& pValues, FloatVec3Type& uvw)
+inline void FindInterpolationValues(const RotateArgs& params, size_t index, size_t octant, Vector3s oldIndicesU, Eigen::Array4f& oldCoords, DataArray<T>& sourceArray, std::vector<T>& pValues,
+                                    Eigen::Vector3f& uvw)
 {
-  const std::array<Int64Vec3Type, 8>& indexOffset = k_AllOctantOffsets[octant];
+  const std::array<Vector3i64, 8>& indexOffset = k_AllOctantOffsets[octant];
 
-  Int64Vec3Type oldIndices(static_cast<int64_t>(oldIndicesU[0]), static_cast<int64_t>(oldIndicesU[1]), static_cast<int64_t>(oldIndicesU[2]));
+  Vector3i64 oldIndices(static_cast<int64_t>(oldIndicesU[0]), static_cast<int64_t>(oldIndicesU[1]), static_cast<int64_t>(oldIndicesU[2]));
   size_t numComps = sourceArray.getNumberOfComponents();
 
-  Int64Vec3Type pIndices;
-  FloatVec3Type p1Coord;
+  Vector3i64 pIndices;
+  Eigen::Vector3f p1Coord;
 
   auto origin = params.origImageGeom->getOrigin();
 
   for(size_t i = 0; i < 8; i++)
   {
-    //Vec3Add<int64_t>(oldIndices, indexOffset[i], pIndices); // Fast: everything is preallocated
-
-    auto pIndices = oldIndices + indexOffset[i]; // SLOW: Allocated on the stack
+    auto pIndices = oldIndices + indexOffset[i];
     for(size_t compIndex = 0; compIndex < numComps; compIndex++)
     {
       T value = GetSourceArrayValue<T>(params, pIndices, sourceArray, compIndex);
@@ -220,17 +198,17 @@ Eigen::Array4f& oldCoords, DataArray<T>& sourceArray,
 /**
  * @brief The RotateImageGeometryWithTrilinearInterpolation class
  */
-template <typename T>
+template <typename T, class FilterType>
 class RotateImageGeometryWithTrilinearInterpolation
 {
 private:
-  AbstractFilter* m_Filter = nullptr;
+  FilterType* m_Filter = nullptr;
   IDataArray::Pointer m_SourceArray;
   IDataArray::Pointer m_TargetArray;
   ImageRotationUtilities::RotateArgs m_Params;
   Matrix4fR m_TransformationMatrix;
 public:
-  RotateImageGeometryWithTrilinearInterpolation(AbstractFilter* filter, IDataArray::Pointer& sourceArray, IDataArray::Pointer& targetArray, RotateArgs& rotateArgs, Matrix4fR& transformationMatrix)
+  RotateImageGeometryWithTrilinearInterpolation(FilterType* filter, IDataArray::Pointer& sourceArray, IDataArray::Pointer& targetArray, RotateArgs& rotateArgs, Matrix4fR& transformationMatrix)
   : m_Filter(filter)
   , m_SourceArray(sourceArray)
   , m_TargetArray(targetArray)
@@ -248,7 +226,7 @@ public:
    * @param indices
    * @return
    */
-  T CalculateInterpolatedValue(std::vector<T>& pValues, FloatVec3Type& uvw, size_t numComps, size_t compIndex) const
+  T CalculateInterpolatedValue(std::vector<T>& pValues, Eigen::Vector3f& uvw, size_t numComps, size_t compIndex) const
   {
     constexpr size_t P1 = 0;
     constexpr size_t P2 = 1;
@@ -294,8 +272,13 @@ public:
     const size_t numComps = sourceArray.getNumberOfComponents();
     if(numComps == 0)
     {
-      exit(1);
+      m_Filter->setErrorCondition(-1000, "Invalid DataArray with ZERO components");
+      m_Filter->sendThreadSafeProgressMessage(QString("%1: Number of Components was Zero for array. Exiting Transform.").arg(sourceArray.getName()));
+      return;
     }
+
+    m_Filter->sendThreadSafeProgressMessage(QString("%1: Transform Starting").arg(sourceArray.getName()));
+
     DataArrayPointerType targetArrayPtr = std::dynamic_pointer_cast<DataArrayType>(m_TargetArray);
 
     //    std::ofstream originalPointsFile("/tmp/original_point_centers.csv", std::ios_base::binary);
@@ -303,26 +286,27 @@ public:
     //    std::ofstream transformedPointsFile("/tmp/transformed_point_centers.csv", std::ios_base::binary);
     //    transformedPointsFile << "x,y,z,index,error" << std::endl;
 
-    FloatVec3Type coordsOld = {0.0f, 0.0f, 0.0f};
-    SizeVec3Type origImageGeomDims = m_Params.origImageGeom->getDimensions();
+    Vector3s origImageGeomDims(m_Params.origImageGeom->getDimensions().data());
+    Eigen::Vector3f coordsOld(0.0F, 0.0F, 0.0F);
+
     // TrilinearInterpolationData<T> interpolationValues;
-    std::array<size_t, 3> oldGeomIndices = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
-    // std::array<float, 3> coordsNew;
+    Vector3s oldGeomIndices = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
+
     Eigen::Vector4f coordsNew;
     std::vector<T> pValues(8 * numComps);
-    FloatVec3Type uvw;
+    Eigen::Vector3f uvw;
 
     Matrix4fR inverseTransform = m_TransformationMatrix.inverse();
 
     for(int64_t k = 0; k < m_Params.zpNew; k++)
     {
-      if(m_Filter->getCancel())
+      if(m_Filter->getCancel() || m_Filter->getErrorCode() < 0)
       {
         break;
       }
       int64_t ktot = (m_Params.xpNew * m_Params.ypNew) * k;
 
-      m_Filter->notifyStatusMessage(QString("Transforming Slice '%1'").arg(k));
+      m_Filter->sendThreadSafeProgressMessage(QString("%1: Interpolating values for slice '%2/%3'").arg(m_SourceArray->getName()).arg(k).arg(m_Params.zpNew));
       for(int64_t j = 0; j < m_Params.ypNew; j++)
       {
         int64_t jtot = (m_Params.xpNew) * j;
@@ -367,6 +351,8 @@ public:
     }
 
     m_SourceArray->resizeTuples(0);
+
+    m_Filter->sendThreadSafeProgressMessage(QString("%1: Transform Ending").arg(sourceArray.getName()));
   }
 };
 
@@ -376,49 +362,49 @@ public:
  * @param runner
  * @param args
  */
-template <template <class> class ClassT, class ParallelRunnerT, class... ArgsT>
-auto ExecuteParallelFunction(IDataArray::Pointer& sourceArray, ParallelRunnerT&& runner, ArgsT&&... args)
+template <template <class, class> class ClassT, class ParallelRunnerT, class FilterType, class... ArgsT>
+auto ExecuteParallelFunction(IDataArray::Pointer& sourceArray, ParallelRunnerT&& runner, FilterType* filter, ArgsT&&... args)
 {
 
   if(DataArray<int8_t>::Pointer array = std::dynamic_pointer_cast<DataArray<int8_t>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<int8_t>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<int8_t, FilterType>(std::forward<ArgsT>(args)...));
   }
   if(DataArray<int16_t>::Pointer array = std::dynamic_pointer_cast<DataArray<int16_t>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<int16_t>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<int16_t, FilterType>(std::forward<ArgsT>(args)...));
   }
   if(DataArray<int32_t>::Pointer array = std::dynamic_pointer_cast<DataArray<int32_t>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<int32_t>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<int32_t, FilterType>(std::forward<ArgsT>(args)...));
   }
   if(DataArray<int64_t>::Pointer array = std::dynamic_pointer_cast<DataArray<int64_t>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<int64_t>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<int64_t, FilterType>(std::forward<ArgsT>(args)...));
   }
   if(DataArray<uint8_t>::Pointer array = std::dynamic_pointer_cast<DataArray<uint8_t>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<uint8_t>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<uint8_t, FilterType>(std::forward<ArgsT>(args)...));
   }
   if(DataArray<uint16_t>::Pointer array = std::dynamic_pointer_cast<DataArray<uint16_t>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<uint16_t>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<uint16_t, FilterType>(std::forward<ArgsT>(args)...));
   }
   if(DataArray<uint32_t>::Pointer array = std::dynamic_pointer_cast<DataArray<uint32_t>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<uint32_t>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<uint32_t, FilterType>(std::forward<ArgsT>(args)...));
   }
   if(DataArray<uint64_t>::Pointer array = std::dynamic_pointer_cast<DataArray<uint64_t>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<uint64_t>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<uint64_t, FilterType>(std::forward<ArgsT>(args)...));
   }
   if(DataArray<float>::Pointer array = std::dynamic_pointer_cast<DataArray<float>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<float>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<float, FilterType>(std::forward<ArgsT>(args)...));
   }
   if(DataArray<double>::Pointer array = std::dynamic_pointer_cast<DataArray<double>>(sourceArray))
   {
-    return runner.template execute<>(ClassT<double>(std::forward<ArgsT>(args)...));
+    return runner.template execute<>(ClassT<double, FilterType>(std::forward<ArgsT>(args)...));
   }
 
   throw std::runtime_error("Can not interpolate data type. Bool, String, StatsData?");

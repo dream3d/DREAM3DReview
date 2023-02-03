@@ -713,7 +713,7 @@ void ApplyTransformationToGeometry::dataCheck()
 
       // Resize attribute matrix
       std::vector<size_t> tDims = {static_cast<size_t>(m_Params.xpNew), static_cast<size_t>(m_Params.ypNew), static_cast<size_t>(m_Params.zpNew)};
-      size_t numTuples = tDims[0] * tDims[1] * tDims[2];
+      // size_t numTuples = tDims[0] * tDims[1] * tDims[2];
 
       QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
       // Get the List of Array Names FIRST
@@ -772,8 +772,6 @@ void ApplyTransformationToGeometry::applyImageGeometryTransformation()
 
   for(const auto& attrArrayName : selectedCellArrayNames)
   {
-    notifyStatusMessage(QString("Rotating DataArray '%1'").arg(attrArrayName));
-
     // Get the source array from our "cached" Cell AttributeMatrix
     IDataArray::Pointer sourceArray = m_SourceAttributeMatrix->getAttributeArray(attrArrayName);
     // Get the target attribute array from our destination Cell AttributeMatrix which has *NOT* been allocated yet.
@@ -788,11 +786,10 @@ void ApplyTransformationToGeometry::applyImageGeometryTransformation()
     }
     else if(m_InterpolationType == k_LinearInterpolation)
     {
-      ImageRotationUtilities::ExecuteParallelFunction<ImageRotationUtilities::RotateImageGeometryWithTrilinearInterpolation>(sourceArray, taskRunner, this, sourceArray, targetArray, m_Params,
+      ImageRotationUtilities::ExecuteParallelFunction<ImageRotationUtilities::RotateImageGeometryWithTrilinearInterpolation>(sourceArray, taskRunner, this, this, sourceArray, targetArray, m_Params,
                                                                                                                              m_TransformationMatrix);
     }
-
-    if(getCancel())
+    if(getCancel() || getErrorCode() < 0)
     {
       break;
     }
@@ -880,7 +877,7 @@ void ApplyTransformationToGeometry::sendThreadSafeProgressMessage(int64_t counte
   progCounter += counter;
   int64_t progressInt = static_cast<int64_t>((static_cast<float>(progCounter) / m_TotalElements) * 100.0f);
 
-  int64_t progIncrement = m_TotalElements / 100;
+  // int64_t progIncrement = m_TotalElements / 100;
   int64_t& lastProgressInt = ::s_LastProgressInt[m_InstanceIndex];
 
   if(lastProgressInt != progressInt)
@@ -890,6 +887,18 @@ void ApplyTransformationToGeometry::sendThreadSafeProgressMessage(int64_t counte
   }
 
   lastProgressInt = progressInt;
+}
+
+void ApplyTransformationToGeometry::sendThreadSafeProgressMessage(const QString& message)
+{
+  static std::mutex mutex;
+  std::lock_guard<std::mutex> lock(mutex);
+  qint64 currentMillis = QDateTime::currentMSecsSinceEpoch();
+  if(currentMillis - m_Millis > 1000)
+  {
+    notifyStatusMessage(message);
+    m_Millis = QDateTime::currentMSecsSinceEpoch();
+  }
 }
 
 // -----------------------------------------------------------------------------
