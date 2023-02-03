@@ -345,6 +345,8 @@ private:
   //  MatrixTranslation m_TranslationMatrix = MatrixTranslation::Zero();
   ImageRotationUtilities::RotateArgs m_Params;
 
+  AttributeMatrix::Pointer m_SourceAttributeMatrix = nullptr;
+
 public:
   ApplyTransformationToGeometry(const ApplyTransformationToGeometry&) = delete;            // Copy Constructor Not Implemented
   ApplyTransformationToGeometry(ApplyTransformationToGeometry&&) = delete;                 // Move Constructor Not Implemented

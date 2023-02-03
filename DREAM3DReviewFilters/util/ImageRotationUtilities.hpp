@@ -4,7 +4,6 @@
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
-#include "SIMPLib/Math/MatrixMath.h"
 
 #include <Eigen/Dense>
 
@@ -13,8 +12,8 @@
 
 using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
 using Matrix4fR = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
-using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
-using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
+//using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
+//using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
 
 using Int64Vec3Type = IVec3<int64_t>;
 
@@ -44,15 +43,9 @@ struct RotateArgs
   float zMinNew = 0.0f;
 };
 
-template <typename T>
-struct TrilinearInterpolationData
-{
-  std::vector<T> pValues;
-  FloatVec3Type uvw;
-};
 
 template <typename T>
-T inline GetValue(const RotateArgs& params, Int64Vec3Type xyzIndex, DataArray<T>& sourceArray, size_t exemplarIndex, size_t compIndex)
+T inline GetSourceArrayValue(const RotateArgs& params, Int64Vec3Type xyzIndex, DataArray<T>& sourceArray, size_t compIndex)
 {
   if(xyzIndex[0] < 0)
   {
@@ -84,17 +77,6 @@ T inline GetValue(const RotateArgs& params, Int64Vec3Type xyzIndex, DataArray<T>
   // Now just compute the proper index
   size_t index = (xyzIndex[2] * params.xp * params.yp) + (xyzIndex[1] * params.xp) + xyzIndex[0];
   return sourceArray.getComponent(index, compIndex);
-}
-
-void inline GetPlaneCoords(const RotateArgs& params, size_t idx, float coords[3])
-{
-  size_t column = idx % params.xp;
-  size_t row = (idx / params.xp) % params.yp;
-  size_t plane = idx / (params.xp * params.yp);
-
-  coords[0] = column * params.xRes;
-  coords[1] = row * params.yRes;
-  coords[2] = plane * params.zRes;
 }
 
 
@@ -200,7 +182,7 @@ static const std::array<OctantOffsetArrayType, 8> k_AllOctantOffsets{k_IndexOffs
  * @param uvw
  */
 template <typename T>
-inline void FindInterpolationValues(const RotateArgs& params, size_t index, size_t octant, std::array<size_t, 3> oldIndicesU, FloatVec3Type& oldCoords, DataArray<T>& sourceArray,
+inline void FindInterpolationValues(const RotateArgs& params, size_t index, size_t octant, std::array<size_t, 3> oldIndicesU, Eigen::Array4f& oldCoords, DataArray<T>& sourceArray,
                                     std::vector<T>& pValues, FloatVec3Type& uvw)
 {
   const std::array<Int64Vec3Type, 8>& indexOffset = k_AllOctantOffsets[octant];
@@ -218,7 +200,7 @@ inline void FindInterpolationValues(const RotateArgs& params, size_t index, size
     Vec3Add<int64_t>(oldIndices, indexOffset[i], pIndices);
     for(size_t compIndex = 0; compIndex < numComps; compIndex++)
     {
-      T value = GetValue<T>(params, pIndices, sourceArray, index, compIndex);
+      T value = GetSourceArrayValue<T>(params, pIndices, sourceArray, compIndex);
       pValues[i * numComps + compIndex] = value;
     }
     if(i == 0)
@@ -242,21 +224,16 @@ private:
   AbstractFilter* m_Filter = nullptr;
   IDataArray::Pointer m_SourceArray;
   IDataArray::Pointer m_TargetArray;
-  float m_RotMatrixInv[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
   ImageRotationUtilities::RotateArgs m_Params;
-
+  Matrix4fR m_TransformationMatrix;
 public:
   RotateImageGeometryWithTrilinearInterpolation(AbstractFilter* filter, IDataArray::Pointer& sourceArray, IDataArray::Pointer& targetArray, RotateArgs& rotateArgs, Matrix4fR& transformationMatrix)
   : m_Filter(filter)
   , m_SourceArray(sourceArray)
   , m_TargetArray(targetArray)
   , m_Params(rotateArgs)
+  , m_TransformationMatrix(transformationMatrix)
   {
-    //    // We have to inline the 3x3 Maxtrix transpose here because of the "const" nature of the 'convert' function
-    //    Matrix3fR transpose = rotationMatrix.transpose();
-    //    // Need to use row based Eigen matrix so that the values get mapped to the right place in the raw array
-    //    // Raw array is faster than Eigen
-    //    Eigen::Map<Matrix3fR>(&m_RotMatrixInv[0][0], transpose.rows(), transpose.cols()) = transpose;
   }
 
   /**
@@ -284,39 +261,17 @@ public:
     const float w = uvw[2];
 
     T value = pValues[0];
+    // clang-format off
+    value += u * (pValues[P2 * numComps + compIndex] - pValues[P1 * numComps + compIndex]);
+    value += v * (pValues[P4 * numComps + compIndex] - pValues[P1 * numComps + compIndex]);
+    value += w * (pValues[P5 * numComps + compIndex] - pValues[P1 * numComps + compIndex]);
+    value += u * v * (pValues[P1 * numComps + compIndex] - pValues[P2 * numComps + compIndex] + pValues[P3 * numComps + compIndex] - pValues[P4 * numComps + compIndex]);
+    value += u * w * (pValues[P1 * numComps + compIndex] - pValues[P2 * numComps + compIndex] - pValues[P5 * numComps + compIndex] + pValues[P6 * numComps + compIndex]);
+    value += v * w * (pValues[P1 * numComps + compIndex] - pValues[P4 * numComps + compIndex] - pValues[P5 * numComps + compIndex] + pValues[P8 * numComps + compIndex]);
+    value += u * v * w *
+             (-pValues[P1 * numComps + compIndex] + pValues[P2 * numComps + compIndex] - pValues[P3 * numComps + compIndex] + pValues[P4 * numComps + compIndex] -
+              pValues[P5 * numComps + compIndex] + pValues[P6 * numComps + compIndex] - pValues[P7 * numComps + compIndex] + pValues[P8 * numComps + compIndex]);
 
-    //  if(INDEX_VALID(indices[0]) && INDEX_VALID(indices[1]))
-    {
-      value += u * (pValues[P2 * numComps + compIndex] - pValues[P1 * numComps + compIndex]);
-    }
-    //   if(INDEX_VALID(indices[3]) && INDEX_VALID(indices[0]))
-    {
-      value += v * (pValues[P4 * numComps + compIndex] - pValues[P1 * numComps + compIndex]);
-    }
-    //  if(INDEX_VALID(indices[4]) && INDEX_VALID(indices[0]))
-    {
-      value += w * (pValues[P5 * numComps + compIndex] - pValues[P1 * numComps + compIndex]);
-    }
-    //  if(INDEX_VALID(indices[0]) && INDEX_VALID(indices[1]) && INDEX_VALID(indices[2]) && INDEX_VALID(indices[3]))
-    {
-      value += u * v * (pValues[P1 * numComps + compIndex] - pValues[P2 * numComps + compIndex] + pValues[P3 * numComps + compIndex] - pValues[P4 * numComps + compIndex]);
-    }
-    //   if(INDEX_VALID(indices[0]) && INDEX_VALID(indices[1]) && INDEX_VALID(indices[4]) && INDEX_VALID(indices[5]))
-    {
-      value += u * w * (pValues[P1 * numComps + compIndex] - pValues[P2 * numComps + compIndex] - pValues[P5 * numComps + compIndex] + pValues[P6 * numComps + compIndex]);
-    }
-    //   if(INDEX_VALID(indices[0]) && INDEX_VALID(indices[3]) && INDEX_VALID(indices[4]) && INDEX_VALID(indices[7]))
-    {
-      value += v * w * (pValues[P1 * numComps + compIndex] - pValues[P4 * numComps + compIndex] - pValues[P5 * numComps + compIndex] + pValues[P8 * numComps + compIndex]);
-    }
-
-    //  if(INDEX_VALID(indices[0]) && INDEX_VALID(indices[1]) && INDEX_VALID(indices[2]) && INDEX_VALID(indices[3]) && INDEX_VALID(indices[4]) && INDEX_VALID(indices[5]) && INDEX_VALID(indices[6]) &&
-    //     INDEX_VALID(indices[7]))
-    {
-      value += u * v * w *
-               (-pValues[P1 * numComps + compIndex] + pValues[P2 * numComps + compIndex] - pValues[P3 * numComps + compIndex] + pValues[P4 * numComps + compIndex] -
-                pValues[P5 * numComps + compIndex] + pValues[P6 * numComps + compIndex] - pValues[P7 * numComps + compIndex] + pValues[P8 * numComps + compIndex]);
-    }
     // clang-format on
     return value;
   }
@@ -338,18 +293,22 @@ public:
     }
     DataArrayPointerType targetArrayPtr = std::dynamic_pointer_cast<DataArrayType>(m_TargetArray);
 
-    std::ofstream originalPointsFile("/tmp/original_point_centers.csv", std::ios_base::binary);
-    originalPointsFile << "x,y,z,i,j,k,index,octant" << std::endl;
-    std::ofstream transformedPointsFile("/tmp/transformed_point_centers.csv", std::ios_base::binary);
-    transformedPointsFile << "x,y,z,index,error" << std::endl;
+    //    std::ofstream originalPointsFile("/tmp/original_point_centers.csv", std::ios_base::binary);
+    //    originalPointsFile << "x,y,z" << std::endl;
+    //    std::ofstream transformedPointsFile("/tmp/transformed_point_centers.csv", std::ios_base::binary);
+    //    transformedPointsFile << "x,y,z,index,error" << std::endl;
 
     FloatVec3Type coordsOld = {0.0f, 0.0f, 0.0f};
     SizeVec3Type origImageGeomDims = m_Params.origImageGeom->getDimensions();
     // TrilinearInterpolationData<T> interpolationValues;
     std::array<size_t, 3> oldGeomIndices = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
-    std::array<float, 3> coordsNew;
+    // std::array<float, 3> coordsNew;
+    Eigen::Vector4f coordsNew;
     std::vector<T> pValues(8 * numComps);
     FloatVec3Type uvw;
+
+    Matrix4fR inverseTransform = m_TransformationMatrix.inverse();
+
     for(int64_t k = 0; k < m_Params.zpNew; k++)
     {
       int64_t ktot = (m_Params.xpNew * m_Params.ypNew) * k;
@@ -361,23 +320,26 @@ public:
         int64_t jtot = (m_Params.xpNew) * j;
         for(int64_t i = 0; i < m_Params.xpNew; i++)
         {
-
           int64_t newIndex = ktot + jtot + i;
-          size_t oldIndex = std::numeric_limits<size_t>::max();
 
           coordsNew[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew + 0.5F * m_Params.xResNew;
           coordsNew[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew + 0.5F * m_Params.yResNew;
           coordsNew[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew + 0.5F * m_Params.zResNew;
+          coordsNew[3] = 1.0F; // We take translation into account
 
-          MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coordsNew.data(), coordsOld.data());
+          Eigen::Array4f coordsOld = inverseTransform * coordsNew;
 
           auto errorResult = m_Params.origImageGeom->computeCellIndex(coordsOld.data(), oldGeomIndices.data());
-          transformedPointsFile << coordsNew[0] << "," << coordsNew[1] << "," << coordsNew[2] << "," << newIndex << "," << static_cast<int32_t>(errorResult) << std::endl;
-
+          //          transformedPointsFile << coordsNew[0] << "," << coordsNew[1] << "," << coordsNew[2] << "," << newIndex << "," << static_cast<int32_t>(errorResult) << std::endl;
+          //          originalPointsFile << coordsOld[0] << "," << coordsOld[1] << "," << coordsOld[2]
+          //          << ","
+          //                             << oldIndex
+          /* << "," << value */
+          //                             << std::endl;
           // Now we know what voxel the new cell center maps back to in the original geometry.
           if(errorResult == ImageGeom::ErrorType::NoError)
           {
-            oldIndex = (origImageGeomDims[0] * origImageGeomDims[1] * oldGeomIndices[2]) + (origImageGeomDims[0] * oldGeomIndices[1]) + oldGeomIndices[0];
+            size_t oldIndex = (origImageGeomDims[0] * origImageGeomDims[1] * oldGeomIndices[2]) + (origImageGeomDims[0] * oldGeomIndices[1]) + oldGeomIndices[0];
             int octant = FindOctant(m_Params, oldIndex, {coordsOld.data()});
 
             FindInterpolationValues(m_Params, oldIndex, octant, oldGeomIndices, coordsOld, sourceArray, pValues, uvw);
@@ -385,8 +347,6 @@ public:
             {
               T value = CalculateInterpolatedValue(pValues, uvw, numComps, compIndex);
               targetArrayPtr->setComponent(newIndex, compIndex, value);
-              originalPointsFile << coordsOld[0] << "," << coordsOld[1] << "," << coordsOld[2] << "," << oldGeomIndices[0] << "," << oldGeomIndices[1] << "," << oldGeomIndices[2] << "," << oldIndex
-                                 << "," << value << std::endl;
             }
           }
           else

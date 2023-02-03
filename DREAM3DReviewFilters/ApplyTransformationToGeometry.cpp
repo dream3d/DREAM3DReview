@@ -34,12 +34,6 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 #include "ApplyTransformationToGeometry.h"
 
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
-#include <tbb/blocked_range3d.h>
-#include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
-#endif
-
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
@@ -105,15 +99,11 @@ OutputType ax2om(const InputType& a)
 {
   OutputType res(9);
   using value_type = typename OutputType::value_type;
-  value_type q = 0.0L;
-  value_type c = 0.0L;
-  value_type s = 0.0L;
-  value_type omc = 0.0L;
 
-  c = cos(a[3]);
-  s = sin(a[3]);
+  value_type c = cos(a[3]);
+  value_type s = sin(a[3]);
 
-  omc = static_cast<value_type>(1.0 - c);
+  value_type omc = static_cast<value_type>(1.0 - c);
 
   res[0] = a[0] * a[0] * omc + c;
   res[4] = a[1] * a[1] * omc + c;
@@ -135,7 +125,7 @@ OutputType ax2om(const InputType& a)
     _20 = 2;
   }
 
-  q = omc * a[0] * a[1];
+  value_type q = omc * a[0] * a[1];
   res[_01] = q + s * a[2];
   res[_10] = q - s * a[2];
   q = omc * a[1] * a[2];
@@ -161,13 +151,17 @@ constexpr int32_t k_RotationTransform = 3;
 constexpr int32_t k_TranslationTransform = 4;
 constexpr int32_t k_ScaleTransform = 5;
 
-} // namespace
 const Eigen::Vector3f k_XAxis = Eigen::Vector3f::UnitX();
 const Eigen::Vector3f k_YAxis = Eigen::Vector3f::UnitY();
 const Eigen::Vector3f k_ZAxis = Eigen::Vector3f::UnitZ();
 
-// Function for determining new ImageGeom dimensions after transformation
-FloatVec6Type determineMinMax(const ImageGeom& imageGeometry, const ApplyTransformationToGeometry::Matrix4fR& transformationMatrix)
+/**
+ * @brief Function to determine the min and max coordinates (bounding box) of the transformed Image Geometry.
+ * @param imageGeometry
+ * @param transformationMatrix
+ * @return
+ */
+FloatVec6Type DetermineMinMaxCoords(const ImageGeom& imageGeometry, const ApplyTransformationToGeometry::Matrix4fR& transformationMatrix)
 {
   auto origImageGeomBox = imageGeometry.getBoundingBox();
   // clang-format off
@@ -183,13 +177,11 @@ FloatVec6Type determineMinMax(const ImageGeom& imageGeometry, const ApplyTransfo
   FloatVec6Type minMaxValues = {std::numeric_limits<float>::max(),  -std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
                                 -std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),  -std::numeric_limits<float>::max()};
 
-  Matrix3fR transform3x3 = transformationMatrix.block(0, 0, 3, 3);
-
   for(size_t i = 0; i < 8; i++)
   {
-    Eigen::Vector3f coords(imageGeomCornerCoords[i].data());
+    Eigen::Vector4f coords(imageGeomCornerCoords[i][0], imageGeomCornerCoords[i][1], imageGeomCornerCoords[i][2], 1.0F);
 
-    Eigen::Vector3f newCoords = transform3x3 * coords;
+    Eigen::Vector4f newCoords = transformationMatrix * coords;
 
     minMaxValues[0] = std::min(newCoords[0], minMaxValues[0]);
     minMaxValues[1] = std::max(newCoords[0], minMaxValues[1]);
@@ -203,7 +195,13 @@ FloatVec6Type determineMinMax(const ImageGeom& imageGeometry, const ApplyTransfo
   return minMaxValues;
 }
 
-float cosBetweenVectors(const Eigen::Vector3f& a, const Eigen::Vector3f& b)
+/**
+ * @brief Finds the Cosine of the angle between 2 vectors
+ * @param a
+ * @param b
+ * @return
+ */
+float CosBetweenVectors(const Eigen::Vector3f& a, const Eigen::Vector3f& b)
 {
   float normA = a.norm();
   float normB = b.norm();
@@ -216,12 +214,17 @@ float cosBetweenVectors(const Eigen::Vector3f& a, const Eigen::Vector3f& b)
   return a.dot(b) / (normA * normB);
 }
 
-// Function for determining new ImageGeom Spacing between points for scaling
-float determineSpacing(const FloatVec3Type& spacing, const Eigen::Vector3f& axisNew)
+/**
+ * @brief Function for determining new ImageGeom Spacing between points for scaling
+ * @param spacing
+ * @param axisNew
+ * @return spacing for a given axis.
+ */
+float DetermineSpacing(const FloatVec3Type& spacing, const Eigen::Vector3f& axisNew)
 {
-  float xAngle = std::abs(cosBetweenVectors(k_XAxis, axisNew));
-  float yAngle = std::abs(cosBetweenVectors(k_YAxis, axisNew));
-  float zAngle = std::abs(cosBetweenVectors(k_ZAxis, axisNew));
+  float xAngle = std::abs(CosBetweenVectors(k_XAxis, axisNew));
+  float yAngle = std::abs(CosBetweenVectors(k_YAxis, axisNew));
+  float zAngle = std::abs(CosBetweenVectors(k_ZAxis, axisNew));
 
   std::array<float, 3> axes = {xAngle, yAngle, zAngle};
 
@@ -232,27 +235,28 @@ float determineSpacing(const FloatVec3Type& spacing, const Eigen::Vector3f& axis
   return spacing[index];
 }
 
-// Determines paramaters for image rotation
-ImageRotationUtilities::RotateArgs createRotateParams(const ImageGeom& imageGeom, const ApplyTransformationToGeometry::Matrix4fR& transformationMatrix)
+/**
+ * @brief Determines paramaters for image rotation
+ * @param imageGeom
+ * @param transformationMatrix
+ * @return New RotateArgs object
+ */
+ImageRotationUtilities::RotateArgs CreateRotationArgs(const ImageGeom& imageGeom, const ApplyTransformationToGeometry::Matrix4fR& transformationMatrix)
 {
   const SizeVec3Type origDims = imageGeom.getDimensions();
   const FloatVec3Type spacing = imageGeom.getSpacing();
-  const FloatVec3Type origOrigin = imageGeom.getOrigin();
 
   ApplyTransformationToGeometry::Matrix3fR rotationMatrix = transformationMatrix.block(0, 0, 3, 3);
-  //  ApplyTransformationToGeometry::Matrix3fR scaleMatrix = ApplyTransformationToGeometry::Matrix3fR::Zero();
 
-  //  transformationMatrix.computeRotationScaling(&rotationMatrix, &scaleMatrix);
-
-  FloatVec6Type minMaxCoords = determineMinMax(imageGeom, transformationMatrix);
+  FloatVec6Type minMaxCoords = DetermineMinMaxCoords(imageGeom, transformationMatrix);
 
   Eigen::Vector3f xAxisNew = rotationMatrix * k_XAxis;
   Eigen::Vector3f yAxisNew = rotationMatrix * k_YAxis;
   Eigen::Vector3f zAxisNew = rotationMatrix * k_ZAxis;
 
-  float xResNew = determineSpacing(spacing, xAxisNew);
-  float yResNew = determineSpacing(spacing, yAxisNew);
-  float zResNew = determineSpacing(spacing, zAxisNew);
+  float xResNew = DetermineSpacing(spacing, xAxisNew);
+  float yResNew = DetermineSpacing(spacing, yAxisNew);
+  float zResNew = DetermineSpacing(spacing, zAxisNew);
 
   MeshIndexType xpNew = static_cast<int64_t>(std::nearbyint((minMaxCoords[1] - minMaxCoords[0]) / xResNew));
   MeshIndexType ypNew = static_cast<int64_t>(std::nearbyint((minMaxCoords[3] - minMaxCoords[2]) / yResNew));
@@ -290,184 +294,18 @@ ImageRotationUtilities::RotateArgs createRotateParams(const ImageGeom& imageGeom
   return params;
 }
 
-// Alters image parameters, scales and translates
-void UpdateImageGeometry2(ImageGeom& imageGeom, const ImageRotationUtilities::RotateArgs& params, const ApplyTransformationToGeometry::Matrix4fR& transformationMatrix)
-{
-  //  float m_ScalingMatrix[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  //  float m_TranslationMatrix[3] = {0.0f, 0.0f, 0.0f};
-  //  Eigen::Map<ApplyTransformationToGeometry::Matrix3fR>(&m_ScalingMatrix[0][0], scalingMatrix.rows(), scalingMatrix.cols()) = scalingMatrix;
-
-  //  Eigen::Map<ApplyTransformationToGeometry::MatrixTranslation>(m_TranslationMatrix, translationMatrix.rows(), translationMatrix.cols()) = translationMatrix;
-  //  FloatVec3Type origin = imageGeom.getOrigin();
-
-  //  Eigen::Vector3f original_translation(m_TranslationMatrix[0], m_TranslationMatrix[1], m_TranslationMatrix[2]);
-
-  //  Eigen::Vector3f original_origin(origin[0], origin[1], origin[2]);
-  //  Eigen::Vector3f original_origin_rot = rotationMatrix * original_origin;
-
-  //  // Applies Scaling to Image
-  //  imageGeom.setSpacing(params.xResNew * m_ScalingMatrix[0][0], params.yResNew * m_ScalingMatrix[1][1], params.zResNew * m_ScalingMatrix[2][2]);
-
-  //  imageGeom.setDimensions(params.xpNew, params.ypNew, params.zpNew);
-
-  //  // Applies Translation to Image
-  //  origin[0] = params.xMinNew * m_ScalingMatrix[0][0] + original_translation[0] + original_origin_rot[0] * params.xResNew * m_ScalingMatrix[0][0] / params.xRes;
-  //  origin[1] = params.yMinNew * m_ScalingMatrix[1][1] + original_translation[1] + original_origin_rot[1] * params.yResNew * m_ScalingMatrix[1][1] / params.yRes;
-  //  origin[2] = params.zMinNew * m_ScalingMatrix[2][2] + original_translation[2] + original_origin_rot[2] * params.zResNew * m_ScalingMatrix[2][2] / params.zRes;
-  //  imageGeom.setOrigin(origin);
-
-  imageGeom.setDimensions(params.transformedImageGeom->getDimensions());
-  imageGeom.setOrigin(params.transformedImageGeom->getOrigin());
-  imageGeom.setSpacing(params.transformedImageGeom->getSpacing());
-}
+} // namespace
 
 /**
- * @brief The RotateSampleRefFrameImpl class implements a threaded algorithm to do the
- * actual computation of the rotation by applying the rotation to each Euler angle
+ * @brief Used to transform node based geometries (Vertex, Edge, Triangle... )
  */
-class SampleRefFrameRotator
-{
-  DataArray<int64_t>::Pointer m_NewIndicesPtr;
-  DataArray<double>::Pointer m_LinearInterpolationDataPtr;
-  float m_RotMatrixInv[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  ImageRotationUtilities::RotateArgs m_Params;
-  int interpolationType;
-
-public:
-  SampleRefFrameRotator(DataArray<int64_t>::Pointer newindices, DataArray<double>::Pointer linearInterpolationDataPtr, const ImageRotationUtilities::RotateArgs& args,
-                        const ApplyTransformationToGeometry::Matrix3fR& rotationMatrix, int interpType)
-  : m_NewIndicesPtr(newindices)
-  , m_LinearInterpolationDataPtr(linearInterpolationDataPtr)
-  , m_Params(args)
-  , interpolationType(interpType)
-  {
-    // We have to inline the 3x3 Maxtrix transpose here because of the "const" nature of the 'convert' function
-    ApplyTransformationToGeometry::Matrix3fR transpose = rotationMatrix.transpose();
-    // Need to use row based Eigen matrix so that the values get mapped to the right place in the raw array
-    // Raw array is faster than Eigen
-    Eigen::Map<ApplyTransformationToGeometry::Matrix3fR>(&m_RotMatrixInv[0][0], transpose.rows(), transpose.cols()) = transpose;
-  }
-
-  ~SampleRefFrameRotator() = default;
-
-  void convert(int64_t zStart, int64_t zEnd, int64_t yStart, int64_t yEnd, int64_t xStart, int64_t xEnd) const
-  {
-    int64_t* newindicies = m_NewIndicesPtr->getPointer(0);
-    double* linearInterpolationDataPtr = m_LinearInterpolationDataPtr->getPointer(0);
-
-    // Loop over the Transformed Image Geometry
-    for(int64_t k = zStart; k < zEnd; k++)
-    {
-      int64_t ktot = (m_Params.xpNew * m_Params.ypNew) * k;
-      for(int64_t j = yStart; j < yEnd; j++)
-      {
-        int64_t jtot = (m_Params.xpNew) * j;
-        for(int64_t i = xStart; i < xEnd; i++)
-        {
-          int64_t index = ktot + jtot + i;
-          newindicies[index] = -1;
-
-          // Get the voxel center coordinate
-          // clang-format off
-          float coordsTransformed[3] = {(static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew,
-                                        (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew,
-                                        (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew};
-          // clang-format on
-
-          float coordsOriginal[3] = {0.0f, 0.0f, 0.0f};
-          // Map the transformed coordinate back to the original voxel from the original image geometry
-          MatrixMath::Multiply3x3with3x1(m_RotMatrixInv, coordsTransformed, coordsOriginal);
-
-          int64_t colOldIndex = static_cast<int64_t>(std::nearbyint(coordsOriginal[0] / m_Params.xRes));
-          int64_t rowOldIndex = static_cast<int64_t>(std::nearbyint(coordsOriginal[1] / m_Params.yRes));
-          int64_t planeOldIndex = static_cast<int64_t>(std::nearbyint(coordsOriginal[2] / m_Params.zRes));
-
-          if(colOldIndex >= 0 && colOldIndex < m_Params.xp && colOldIndex >= 0 && colOldIndex < m_Params.xp && rowOldIndex >= 0 && rowOldIndex < m_Params.yp && planeOldIndex >= 0 &&
-             planeOldIndex < m_Params.zp)
-          {
-            newindicies[index] = ((m_Params.xp * m_Params.yp * planeOldIndex) + (m_Params.xp * rowOldIndex) + colOldIndex);
-          }
-
-          if(interpolationType == 1)
-          {
-            linearInterpolationDataPtr[index * 6] = -1;
-            linearInterpolationDataPtr[index * 6 + 1] = -1;
-            linearInterpolationDataPtr[index * 6 + 2] = -1;
-            linearInterpolationDataPtr[index * 6 + 3] = -1;
-            linearInterpolationDataPtr[index * 6 + 4] = -1;
-            linearInterpolationDataPtr[index * 6 + 5] = -1;
-
-            // Get the min/max axis index based on the coordinate
-            double x0 = static_cast<float>(std::floor(coordsOriginal[0] / m_Params.xRes));
-            double x1 = static_cast<float>(std::ceil(coordsOriginal[0] / m_Params.xRes));
-
-            double y0 = static_cast<float>(std::floor(coordsOriginal[1] / m_Params.yRes));
-            double y1 = static_cast<float>(std::ceil(coordsOriginal[1] / m_Params.yRes));
-
-            double z0 = static_cast<float>(std::floor(coordsOriginal[2] / m_Params.zRes));
-            double z1 = static_cast<float>(std::ceil(coordsOriginal[2] / m_Params.zRes));
-
-            double colOld = static_cast<double>(coordsOriginal[0] / m_Params.xRes);
-            double rowOld = static_cast<double>(coordsOriginal[1] / m_Params.yRes);
-            double planeOld = static_cast<double>(coordsOriginal[2] / m_Params.zRes);
-
-            double xt = 0.5;
-            double yt = 0.5;
-            double zt = 0.5;
-
-            if(x0 == x1)
-            {
-              xt = 0;
-            }
-            else
-            {
-              xt = (colOld - x0) / (x1 - x0);
-            }
-
-            if(y0 == y1)
-            {
-              yt = 0;
-            }
-            else
-            {
-              yt = (rowOld - y0) / (y1 - y0);
-            }
-            if(z0 == z1)
-            {
-              zt = 0;
-            }
-            else
-            {
-              zt = (planeOld - z0) / (z1 - z0);
-            }
-
-            if(colOld >= 0 && colOld < m_Params.xp && colOld >= 0 && colOld < m_Params.xp && rowOld >= 0 && rowOld < m_Params.yp && planeOld >= 0 && planeOld < m_Params.zp)
-            {
-              linearInterpolationDataPtr[index * 6] = xt;
-              linearInterpolationDataPtr[index * 6 + 1] = yt;
-              linearInterpolationDataPtr[index * 6 + 2] = zt;
-              linearInterpolationDataPtr[index * 6 + 3] = colOld;
-              linearInterpolationDataPtr[index * 6 + 4] = rowOld;
-              linearInterpolationDataPtr[index * 6 + 5] = planeOld;
-            }
-          }
-        }
-      }
-    }
-  }
-
-#ifdef SIMPL_USE_PARALLEL_ALGORITHMS
-  void operator()(const tbb::blocked_range3d<int64_t, int64_t, int64_t>& r) const
-  {
-    convert(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
-  }
-#endif
-};
-
 static size_t s_InstanceIndex = 0;
 static std::map<size_t, int64_t> s_ProgressValues;
 static std::map<size_t, int64_t> s_LastProgressInt;
 
+/**
+ * @brief The ApplyTransformationToGeometryImpl class will apply a transformation to a node based geometry.
+ */
 class ApplyTransformationToGeometryImpl
 {
 
@@ -664,7 +502,7 @@ void ApplyTransformationToGeometry::readFilterParameters(AbstractFilterParameter
 
 void ApplyTransformationToGeometry::dataCheck()
 {
-  using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
+  // using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
 
   clearErrorCode();
   clearWarningCode();
@@ -805,8 +643,7 @@ void ApplyTransformationToGeometry::dataCheck()
     m_TransformationMatrix(3, 3) = 1.0f;
     break;
   }
-  default:
-  {
+  default: {
     QString ss = QObject::tr("Invalid selection for transformation type");
     setErrorCondition(-701, ss);
     return;
@@ -816,36 +653,38 @@ void ApplyTransformationToGeometry::dataCheck()
   // if ImageGeom was selected to be transformed:
   if(std::dynamic_pointer_cast<ImageGeom>(igeom))
   {
-    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
-    QList<QString> voxelArrayNames;
-    if(!this->getInPreflight())
-    {
-      voxelArrayNames = attriPtr->getAttributeArrayNames();
-    }
+    // DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
+    // For nearest neighbor we can use any data array as we are only going to copy from a hit cell, no interpolation
+    QList<QString> selectedCellArrayNames = attriPtr->getAttributeArrayNames();
+
     if(getInterpolationType() == k_LinearInterpolation)
     {
       if(m_UseDataArraySelection)
       {
-        voxelArrayNames.clear();
+        selectedCellArrayNames.clear();
         for(const auto& dataArrayPath : m_DataArraySelection)
         {
-          voxelArrayNames.append(dataArrayPath.getDataArrayName());
+          selectedCellArrayNames.append(dataArrayPath.getDataArrayName());
         }
       }
+      else
+      {
+        setWarningCondition(-705, "Interpolation has been selected but no Cell arrays are selected to be interpolated. No data will be transferred to the new geometry");
+      }
 
-      for(const auto& attrArrayName : voxelArrayNames)
+      for(const auto& attrArrayName : selectedCellArrayNames)
       {
         IDataArray::Pointer p = attriPtr->getAttributeArray(attrArrayName);
         if(p->getTypeAsString() == "bool" || p->getTypeAsString() == "StringDataArray" || p->getTypeAsString() == "StatsDataArray")
         {
           QString ss = QObject::tr("Input Type Error, cannot run linear interpolation on a boolean, stirngs or StatsData arrays");
-          setErrorCondition(-704, ss);
+          setErrorCondition(-706, ss);
         }
       }
     }
     ImageGeom::Pointer imageGeom = std::dynamic_pointer_cast<ImageGeom>(igeom);
 
-    m_Params = ::createRotateParams(*imageGeom, m_TransformationMatrix);
+    m_Params = ::CreateRotationArgs(*imageGeom, m_TransformationMatrix);
 
     // If the user is purely doing a translation then just adjust the origin and be done.
     if(getTransformationMatrixType() == k_TranslationTransform)
@@ -857,24 +696,38 @@ void ApplyTransformationToGeometry::dataCheck()
       imageGeom->setDimensions(m_Params.transformedImageGeom->getDimensions());
       imageGeom->setOrigin(m_Params.transformedImageGeom->getOrigin());
       imageGeom->setSpacing(m_Params.transformedImageGeom->getSpacing());
-      // Resize attribute matrix
-      std::vector<size_t> tDims(3);
-      tDims[0] = m_Params.xpNew;
-      tDims[1] = m_Params.ypNew;
-      tDims[2] = m_Params.zpNew;
 
-      if(!this->getInPreflight())
+      DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
+
+      // Resize attribute matrix
+      std::vector<size_t> tDims = {static_cast<size_t>(m_Params.xpNew), static_cast<size_t>(m_Params.ypNew), static_cast<size_t>(m_Params.zpNew)};
+      size_t numTuples = tDims[0] * tDims[1] * tDims[2];
+
+      QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
+      // Get the List of Array Names FIRST
+      // QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
+      // Now remove the current Cell Attribute Matrix and store it in the instance variable
+      m_SourceAttributeMatrix = m->removeAttributeMatrix(attrMatName);
+      // Now create a new Attribute Matrix that has the correct Tuple Dims.
+      AttributeMatrix::Pointer targetAttributeMatrix = m->createNonPrereqAttributeMatrix(this, attrMatName, tDims, AttributeMatrix::Type::Cell);
+      // Loop over all of the original cell data arrays and create new ones and insert that into the new Attribute Matrix.
+      // DO NOT ALLOCATE the arrays, even during execute as this could potentially be a LARGE memory hog. Wait until
+      // execute to allocate the arrays one at a time, do the copy, then deallocate the old array. This will keep the memory
+      // consumption to a minimum.
+      for(const auto& attrArrayName : selectedCellArrayNames)
       {
-        attriPtr->resizeAttributeArrays(tDims);
+        IDataArray::Pointer p = m_SourceAttributeMatrix->getAttributeArray(attrArrayName);
+        auto compDims = p->getComponentDimensions();
+        IDataArray::Pointer targetArray = p->createNewArray(tDims[0] * tDims[1] * tDims[2], compDims, p->getName(), false);
+        targetAttributeMatrix->addOrReplaceAttributeArray(targetArray);
       }
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-
+/**
+ * @brief ApplyTransformationToGeometry::applyImageGeometryTransformation
+ */
 void ApplyTransformationToGeometry::applyImageGeometryTransformation()
 {
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName());
@@ -895,57 +748,46 @@ void ApplyTransformationToGeometry::applyImageGeometryTransformation()
   }
 
   int64_t newNumCellTuples = m_Params.xpNew * m_Params.ypNew * m_Params.zpNew;
+  m_TotalElements = newNumCellTuples;
 
   QString attrMatName = getCellAttributeMatrixPath().getAttributeMatrixName();
-  AttributeMatrix::Pointer targetAttributeMatrix = m->getAttributeMatrix(attrMatName);
+  // AttributeMatrix::Pointer targetAttributeMatrix = m->getAttributeMatrix(attrMatName);
 
-  QList<QString> voxelArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
-
-  if(m_UseDataArraySelection)
-  {
-    voxelArrayNames.clear();
-    for(const auto& dataArrayPath : m_DataArraySelection)
-    {
-      voxelArrayNames.append(dataArrayPath.getDataArrayName());
-    }
-  }
+  QList<QString> selectedCellArrayNames = m->getAttributeMatrix(attrMatName)->getAttributeArrayNames();
 
   ParallelTaskAlgorithm taskRunner;
   taskRunner.setParallelizationEnabled(true);
 
-  for(const auto& attrArrayName : voxelArrayNames)
+  for(const auto& attrArrayName : selectedCellArrayNames)
   {
-    m_TotalElements = newNumCellTuples;
-
     notifyStatusMessage(QString("Rotating DataArray '%1'").arg(attrArrayName));
 
-    IDataArray::Pointer sourceArray = m->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
-    IDataArray::Pointer targetArray = sourceArray->createNewArray(newNumCellTuples, sourceArray->getComponentDimensions(), sourceArray->getName());
+    // Get the source array from our "cached" Cell AttributeMatrix
+    IDataArray::Pointer sourceArray = m_SourceAttributeMatrix->getAttributeArray(attrArrayName);
+    // Get the target attribute array from our destination Cell AttributeMatrix which has *NOT* been allocated yet.
+    IDataArray::Pointer targetArray = m->getAttributeMatrix(attrMatName)->getAttributeArray(attrArrayName);
 
     // So this little work-around is because if we just try to resize the DataArray<T> will think the sizes are the same
     // and never actually allocate the data. So we just resize to 1 tuple, and then to the real size.
     targetArray->resizeTuples(1);                // Allocate the memory for this data array
     targetArray->resizeTuples(newNumCellTuples); // Allocate the memory for this data array
-    if(m_InterpolationType == 0)
+    if(m_InterpolationType == k_NearestNeighborInterpolation)
     {
     }
-    else if(m_InterpolationType == 1)
+    else if(m_InterpolationType == k_LinearInterpolation)
     {
       ImageRotationUtilities::ExecuteParallelFunction<ImageRotationUtilities::RotateImageGeometryWithTrilinearInterpolation>(sourceArray, taskRunner, this, sourceArray, targetArray, m_Params,
                                                                                                                              m_TransformationMatrix);
     }
 
-    m->getAttributeMatrix(attrMatName)->insertOrAssign(targetArray);
+    // m->getAttributeMatrix(attrMatName)->insertOrAssign(targetArray);
   }
   taskRunner.wait();
-
-  // reset the origin back to its original state
-  //  imageGeom->setOrigin(originalGeometryOrigin);
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
+/**
+ * @brief ApplyTransformationToGeometry::applyNodeGeometryTransformation
+ */
 void ApplyTransformationToGeometry::applyNodeGeometryTransformation()
 {
   IGeometry::Pointer igeom = getDataContainerArray()->getDataContainer(getCellAttributeMatrixPath().getDataContainerName())->getGeometry();
@@ -971,10 +813,8 @@ void ApplyTransformationToGeometry::applyNodeGeometryTransformation()
   {
     return;
   }
+  m_TotalElements = vertexList->getNumberOfTuples();
 
-  //  using ProjectiveMatrix = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
-  //  Eigen::Map<ProjectiveMatrix> transformation(m_TransformationMatrix);
-  //  m_TotalElements = vertexList->getNumberOfTuples();
   // Allow data-based parallelization
   ParallelDataAlgorithm dataAlg;
   dataAlg.setRange(0, m_TotalElements);
@@ -987,8 +827,6 @@ void ApplyTransformationToGeometry::reset()
   m_Params = ImageRotationUtilities::RotateArgs();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void ApplyTransformationToGeometry::execute()
 {
@@ -1028,15 +866,12 @@ void ApplyTransformationToGeometry::sendThreadSafeProgressMessage(int64_t counte
   int64_t progressInt = static_cast<int64_t>((static_cast<float>(progCounter) / m_TotalElements) * 100.0f);
 
   int64_t progIncrement = m_TotalElements / 100;
-  int64_t prog = 1;
-
   int64_t& lastProgressInt = ::s_LastProgressInt[m_InstanceIndex];
 
-  if(progCounter > prog && lastProgressInt != progressInt)
+  if(lastProgressInt != progressInt)
   {
     QString ss = QObject::tr("Transforming || %1% Completed").arg(progressInt);
     notifyStatusMessage(ss);
-    prog += progIncrement;
   }
 
   lastProgressInt = progressInt;
