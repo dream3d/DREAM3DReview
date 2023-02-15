@@ -35,18 +35,20 @@
 
 #pragma once
 
+#include "DREAM3DReview/DREAM3DReviewDLLExport.h"
+#include "DREAM3DReview/DREAM3DReviewFilters/util/ImageRotationUtilities.hpp"
+
+#include "SIMPLib/DataArrays/DataArray.hpp"
+#include "SIMPLib/FilterParameters/DynamicTableData.h"
+#include "SIMPLib/Common/SIMPLArray.hpp"
+#include "SIMPLib/Filtering/AbstractFilter.h"
+
+#include <QtCore/QDateTime>
+
 #include <memory>
 #include <mutex>
 
 #include <Eigen/Dense>
-
-#include "DREAM3DReview/DREAM3DReviewDLLExport.h"
-
-#include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/FilterParameters/DynamicTableData.h"
-#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
-#include "SIMPLib/Filtering/AbstractFilter.h"
 
 /**
  * @brief The ApplyTransformationToGeometry class. See [Filter documentation](@ref applytransformationtogeometry) for details.
@@ -84,26 +86,8 @@ public:
 
   static std::shared_ptr<ApplyTransformationToGeometry> New();
 
-  struct RotateArgs
-  {
-    int64_t xp = 0;
-    int64_t yp = 0;
-    int64_t zp = 0;
-    float xRes = 0.0f;
-    float yRes = 0.0f;
-    float zRes = 0.0f;
-    int64_t xpNew = 0;
-    int64_t ypNew = 0;
-    int64_t zpNew = 0;
-    float xResNew = 0.0f;
-    float yResNew = 0.0f;
-    float zResNew = 0.0f;
-    float xMinNew = 0.0f;
-    float yMinNew = 0.0f;
-    float zMinNew = 0.0f;
-  };
-
   using Matrix3fR = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
+  using Matrix4fR = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
   using Transform3f = Eigen::Transform<float, 3, Eigen::Affine>;
   using MatrixTranslation = Eigen::Matrix<float, 1, 3, Eigen::RowMajor>;
 
@@ -309,13 +293,19 @@ public:
    */
   void sendThreadSafeProgressMessage(int64_t counter);
 
+  /**
+   * @brief sendThreadSafeProgressMessage
+   * @param message
+   */
+  void sendThreadSafeProgressMessage(const QString& message);
+
 protected:
   ApplyTransformationToGeometry();
 
   /**
    * @brief applyTransformation
    */
-  void applyTransformation();
+  void applyNodeGeometryTransformation();
 
   /**
    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
@@ -326,7 +316,7 @@ protected:
    * @brief ApplyImageTransformation
    */
 
-  void ApplyImageTransformation();
+  void applyImageGeometryTransformation();
 
   /**
    * @brief resets the rotation matrix to zeros and the m_Params to a default state.
@@ -336,12 +326,8 @@ protected:
 private:
   DataArrayPath m_CellAttributeMatrixPath = {SIMPL::Defaults::DataContainerName, SIMPL::Defaults::CellAttributeMatrixName, ""};
 
-  std::weak_ptr<DataArray<float>> m_TransformationMatrixPtr;
-  float* m_TransformationMatrix = nullptr;
-
   DynamicTableData m_ManualTransformationMatrix = {};
   DataArrayPath m_ComputedTransformationMatrix = {"", "", "TransformationMatrix"};
-  //  DataArrayPath m_GeometryToTransform = {"", "", ""};
   int m_TransformationMatrixType = {1};
   int m_InterpolationType = {1};
   FloatVec3Type m_RotationAxis = {};
@@ -352,17 +338,18 @@ private:
   std::vector<DataArrayPath> m_DataArraySelection = {};
   bool m_SliceBySlice = false;
 
-  FloatArrayType::Pointer m_TransformationReference;
+  Matrix4fR m_TransformationMatrix;
 
   // Thread safe Progress Message
   mutable std::mutex m_ProgressMessage_Mutex;
   size_t m_InstanceIndex = {0};
   int64_t m_TotalElements = {};
 
-  Matrix3fR m_RotationMatrix = Matrix3fR::Zero();
-  Matrix3fR m_ScalingMatrix = Matrix3fR::Zero();
-  MatrixTranslation m_TranslationMatrix = MatrixTranslation::Zero();
-  ApplyTransformationToGeometry::RotateArgs m_Params;
+  ImageRotationUtilities::RotateArgs m_Params;
+
+  AttributeMatrix::Pointer m_SourceAttributeMatrix = nullptr;
+
+  qint64 m_Millis = QDateTime::currentMSecsSinceEpoch();
 
 public:
   ApplyTransformationToGeometry(const ApplyTransformationToGeometry&) = delete;            // Copy Constructor Not Implemented
