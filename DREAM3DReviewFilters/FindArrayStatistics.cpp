@@ -461,6 +461,10 @@ public:
   {
     for(size_t i = start; i < end; i++)
     {
+      if(m_FeatureDataMap.find(i) == m_FeatureDataMap.end())
+      {
+        continue;
+      }
       if(m_Length)
       {
         if(m_Arrays[0])
@@ -762,34 +766,42 @@ void FindArrayStatistics::execute()
     if(m_FindLength)
     {
       arrays[0] = m_LengthPtr.lock();
+      arrays[0]->initializeWithZeros();
     }
     if(m_FindMin)
     {
       arrays[1] = m_MinimumPtr.lock();
+      arrays[1]->initializeWithZeros();
     }
     if(m_FindMax)
     {
       arrays[2] = m_MaximumPtr.lock();
+      arrays[2]->initializeWithZeros();
     }
     if(m_FindMean)
     {
       arrays[3] = m_MeanPtr.lock();
+      arrays[3]->initializeWithZeros();
     }
     if(m_FindMedian)
     {
       arrays[4] = m_MedianPtr.lock();
+      arrays[4]->initializeWithZeros();
     }
     if(m_FindStdDeviation)
     {
       arrays[5] = m_StandardDeviationPtr.lock();
+      arrays[5]->initializeWithZeros();
     }
     if(m_FindSummation)
     {
       arrays[6] = m_SummationPtr.lock();
+      arrays[6]->initializeWithZeros();
     }
     if(m_FindHistogram)
     {
       arrays[7] = m_HistogramListPtr.lock();
+      arrays[7]->initializeWithZeros();
     }
   }
 
