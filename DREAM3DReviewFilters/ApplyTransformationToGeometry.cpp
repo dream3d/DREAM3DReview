@@ -32,6 +32,13 @@
  *    United States Prime Contract Navy N00173-07-C-2068
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+// Stops Compiler error C2338 on MSVC compilers since we are trying to allocate
+// something big and aligned?
+#ifdef _MSC_VER
+#define _ENABLE_EXTENDED_ALIGNED_STORAGE
+#endif
+
+
 #include "ApplyTransformationToGeometry.h"
 
 #include <QtCore/QTextStream>

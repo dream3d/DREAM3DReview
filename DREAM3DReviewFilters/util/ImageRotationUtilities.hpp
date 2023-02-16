@@ -221,6 +221,12 @@ public:
    * @brief CalculateInterpolatedValue
    *
    * This comes from https://www.cs.purdue.edu/homes/cs530/slides/04.DataStructure.pdf, page 36.
+   *
+   * Note in the codes below the equations have been changed to do all of the additions first, then
+   * the subtractions. This should hopefully alleviate issue with trying to subtract unsigned integers
+   * and ending up with what should have been a negative number but since it is unsigned the value
+   * that the compiler will compute would be vastly different.
+   *
    * @param sourceArray
    * @param oldIndex
    * @param indices
@@ -246,12 +252,18 @@ public:
     value += u * (pValues[P2 * numComps + compIndex] - pValues[P1 * numComps + compIndex]);
     value += v * (pValues[P4 * numComps + compIndex] - pValues[P1 * numComps + compIndex]);
     value += w * (pValues[P5 * numComps + compIndex] - pValues[P1 * numComps + compIndex]);
-    value += u * v * (pValues[P1 * numComps + compIndex] - pValues[P2 * numComps + compIndex] + pValues[P3 * numComps + compIndex] - pValues[P4 * numComps + compIndex]);
-    value += u * w * (pValues[P1 * numComps + compIndex] - pValues[P2 * numComps + compIndex] - pValues[P5 * numComps + compIndex] + pValues[P6 * numComps + compIndex]);
-    value += v * w * (pValues[P1 * numComps + compIndex] - pValues[P4 * numComps + compIndex] - pValues[P5 * numComps + compIndex] + pValues[P8 * numComps + compIndex]);
+    value += u * v * (pValues[P1 * numComps + compIndex] + pValues[P3 * numComps + compIndex] - pValues[P2 * numComps + compIndex] - pValues[P4 * numComps + compIndex]);
+    value += u * w * (pValues[P1 * numComps + compIndex] + pValues[P6 * numComps + compIndex] - pValues[P2 * numComps + compIndex] - pValues[P5 * numComps + compIndex]);
+    value += v * w * (pValues[P1 * numComps + compIndex] + pValues[P8 * numComps + compIndex] - pValues[P4 * numComps + compIndex] - pValues[P5 * numComps + compIndex]);
     value += u * v * w *
-             (-pValues[P1 * numComps + compIndex] + pValues[P2 * numComps + compIndex] - pValues[P3 * numComps + compIndex] + pValues[P4 * numComps + compIndex] -
-              pValues[P5 * numComps + compIndex] + pValues[P6 * numComps + compIndex] - pValues[P7 * numComps + compIndex] + pValues[P8 * numComps + compIndex]);
+             ( pValues[P4 * numComps + compIndex]
+              + pValues[P2 * numComps + compIndex]
+              + pValues[P8 * numComps + compIndex]
+              + pValues[P6 * numComps + compIndex]
+              - pValues[P1 * numComps + compIndex]
+              - pValues[P3 * numComps + compIndex]
+              - pValues[P5 * numComps + compIndex]
+              - pValues[P7 * numComps + compIndex] );
 
     // clang-format on
     return value;
