@@ -710,6 +710,10 @@ void ApplyTransformationToGeometry::dataCheck()
     {
       imageGeom->setOrigin(m_Params.origImageGeom->getOrigin() + m_Translation);
     }
+    else if(getTransformationMatrixType() == k_ScaleTransform)
+    {
+      imageGeom->setSpacing(m_Params.origImageGeom->getSpacing() * m_Scale);
+    }
     else
     {
       imageGeom->setDimensions(m_Params.transformedImageGeom->getDimensions());
@@ -765,6 +769,11 @@ void ApplyTransformationToGeometry::applyImageGeometryTransformation()
     imageGeom->setOrigin(m_Params.origImageGeom->getOrigin() + m_Translation);
     return;
   }
+  if(getTransformationMatrixType() == k_ScaleTransform)
+  {
+    imageGeom->setSpacing(m_Params.origImageGeom->getSpacing() * m_Scale);
+    return;
+  }
 
   int64_t newNumCellTuples = m_Params.xpNew * m_Params.ypNew * m_Params.zpNew;
   m_TotalElements = newNumCellTuples;
@@ -790,6 +799,8 @@ void ApplyTransformationToGeometry::applyImageGeometryTransformation()
     targetArray->resizeTuples(newNumCellTuples); // Allocate the memory for this data array
     if(m_InterpolationType == k_NearestNeighborInterpolation)
     {
+      ImageRotationUtilities::ExecuteParallelFunction<ImageRotationUtilities::RotateImageGeometryWithNearestNeighbor>(sourceArray, taskRunner, this, this, sourceArray, targetArray, m_Params,
+                                                                                                                      m_TransformationMatrix);
     }
     else if(m_InterpolationType == k_LinearInterpolation)
     {

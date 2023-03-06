@@ -199,6 +199,122 @@ inline void FindInterpolationValues(const RotateArgs& params, size_t index, size
  * @brief The RotateImageGeometryWithTrilinearInterpolation class
  */
 template <typename T, class FilterType>
+class RotateImageGeometryWithNearestNeighbor
+{
+private:
+  FilterType* m_Filter = nullptr;
+  IDataArray::Pointer m_SourceArray;
+  IDataArray::Pointer m_TargetArray;
+  ImageRotationUtilities::RotateArgs m_Params;
+  Matrix4fR m_TransformationMatrix;
+
+public:
+  RotateImageGeometryWithNearestNeighbor(FilterType* filter, IDataArray::Pointer& sourceArray, IDataArray::Pointer& targetArray, RotateArgs& rotateArgs, Matrix4fR& transformationMatrix)
+  : m_Filter(filter)
+  , m_SourceArray(sourceArray)
+  , m_TargetArray(targetArray)
+  , m_Params(rotateArgs)
+  , m_TransformationMatrix(transformationMatrix)
+  {
+  }
+
+  /**
+   * @brief This is the main algorithm to perform the interpolation and get a final value that is placed into the transformed
+   * voxel. This uses Trilinear interpolation which will devolve into Bilinear and Linear interpolation depending on the
+   * values of U, V and W.
+   */
+  void operator()() const
+  {
+    using DataArrayType = DataArray<T>;
+    using DataArrayPointerType = typename DataArrayType::Pointer;
+
+    DataArrayPointerType sourceArrayPtr = std::dynamic_pointer_cast<DataArrayType>(m_SourceArray);
+    DataArrayType& sourceArray = *(sourceArrayPtr.get());
+    const size_t numComps = sourceArray.getNumberOfComponents();
+    if(numComps == 0)
+    {
+      m_Filter->setErrorCondition(-1000, "Invalid DataArray with ZERO components");
+      m_Filter->sendThreadSafeProgressMessage(QString("%1: Number of Components was Zero for array. Exiting Transform.").arg(sourceArray.getName()));
+      return;
+    }
+
+    m_Filter->sendThreadSafeProgressMessage(QString("%1: Transform Starting").arg(sourceArray.getName()));
+
+    DataArrayPointerType targetArrayPtr = std::dynamic_pointer_cast<DataArrayType>(m_TargetArray);
+
+    //    std::ofstream originalPointsFile("/tmp/original_point_centers.csv", std::ios_base::binary);
+    //    originalPointsFile << "x,y,z" << std::endl;
+    //    std::ofstream transformedPointsFile("/tmp/transformed_point_centers.csv", std::ios_base::binary);
+    //    transformedPointsFile << "x,y,z,index,error" << std::endl;
+
+    Vector3s origImageGeomDims(m_Params.origImageGeom->getDimensions().data());
+    Eigen::Vector3f coordsOld(0.0F, 0.0F, 0.0F);
+
+    // TrilinearInterpolationData<T> interpolationValues;
+    Vector3s oldGeomIndices = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
+
+    Eigen::Vector4f coordsNew;
+    std::vector<T> pValues(8 * numComps);
+    Eigen::Vector3f uvw;
+
+    Matrix4fR inverseTransform = m_TransformationMatrix.inverse();
+
+    for(int64_t k = 0; k < m_Params.zpNew; k++)
+    {
+      if(m_Filter->getCancel() || m_Filter->getErrorCode() < 0)
+      {
+        break;
+      }
+      int64_t ktot = (m_Params.xpNew * m_Params.ypNew) * k;
+
+      m_Filter->sendThreadSafeProgressMessage(QString("%1: Interpolating values for slice '%2/%3'").arg(m_SourceArray->getName()).arg(k).arg(m_Params.zpNew));
+      for(int64_t j = 0; j < m_Params.ypNew; j++)
+      {
+        int64_t jtot = (m_Params.xpNew) * j;
+        for(int64_t i = 0; i < m_Params.xpNew; i++)
+        {
+          int64_t newIndex = ktot + jtot + i;
+
+          coordsNew[0] = (static_cast<float>(i) * m_Params.xResNew) + m_Params.xMinNew + 0.5F * m_Params.xResNew;
+          coordsNew[1] = (static_cast<float>(j) * m_Params.yResNew) + m_Params.yMinNew + 0.5F * m_Params.yResNew;
+          coordsNew[2] = (static_cast<float>(k) * m_Params.zResNew) + m_Params.zMinNew + 0.5F * m_Params.zResNew;
+          coordsNew[3] = 1.0F; // We take translation into account
+
+          Eigen::Array4f coordsOld = inverseTransform * coordsNew;
+
+          auto errorResult = m_Params.origImageGeom->computeCellIndex(coordsOld.data(), oldGeomIndices.data());
+
+          if(errorResult == ImageGeom::ErrorType::NoError)
+          {
+            size_t oldIndex = (origImageGeomDims[0] * origImageGeomDims[1] * oldGeomIndices[2]) + (origImageGeomDims[0] * oldGeomIndices[1]) + oldGeomIndices[0];
+
+            if(!m_TargetArray->copyFromArray(newIndex, m_SourceArray, oldIndex, 1))
+            {
+              std::cout << "Array copy failed:\n    Source Array Name: '" << m_SourceArray->getName().toStdString() << "' Source Tuple Index: " << oldIndex << "\n    Dest Array Name:   '"
+                        << m_SourceArray->getName().toStdString() << "'   Dest. Tuple Index " << newIndex << "\n"
+                        << std::endl;
+              break;
+            }
+          }
+          else
+          {
+            T value = static_cast<T>(0);
+            targetArrayPtr->fillTuple(newIndex, value);
+          }
+        }
+      }
+    }
+
+    m_SourceArray->resizeTuples(0);
+
+    m_Filter->sendThreadSafeProgressMessage(QString("%1: Transform Ending").arg(sourceArray.getName()));
+  }
+};
+
+/**
+ * @brief The RotateImageGeometryWithTrilinearInterpolation class
+ */
+template <typename T, class FilterType>
 class RotateImageGeometryWithTrilinearInterpolation
 {
 private:
