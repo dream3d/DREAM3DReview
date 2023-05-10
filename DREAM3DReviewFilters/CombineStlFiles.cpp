@@ -171,7 +171,7 @@ void CombineStlFiles::execute()
     QVariant var;
     var.setValue(file.canonicalFilePath());
     reader->setProperty("StlFilePath", var);
-    var.setValue(file.baseName());
+    var.setValue(DataArrayPath(file.baseName()));
     reader->setProperty("SurfaceMeshDataContainerName", var);
     var.setValue(SIMPL::Defaults::FaceAttributeMatrixName);
     reader->setProperty("FaceAttributeMatrixName", var);
