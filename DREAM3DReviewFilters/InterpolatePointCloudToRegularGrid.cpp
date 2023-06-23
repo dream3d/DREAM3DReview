@@ -573,7 +573,7 @@ void InterpolatePointCloudToRegularGrid::execute()
     index = m_VoxelIndices[i];
     if(index > maxImageIndex)
     {
-      QString ss = QObject::tr("Index present in the selected Voxel Indices array that falls outside the selected Image Geometry for interpolation.\n Index = %1\n Max Image Index = %2\n")
+      QString ss = QObject::tr("Index present in the selected Voxel Indices array falls outside the selected Image Geometry for interpolation.\n Index = %1\n Max Image Index = %2\n")
                        .arg(index)
                        .arg(maxImageIndex);
       setErrorCondition(-1, ss);
