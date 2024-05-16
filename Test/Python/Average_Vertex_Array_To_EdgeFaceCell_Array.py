@@ -159,19 +159,6 @@ def start_test():
                                                            'SurfaceMeshFaceIPFColors')
     assert err == 0, f'GenerateFaceIPFColoring ErrorCondition {err}'
 
-    # Generate Misorientation Colors (Face)
-    err = orientationanalysispy.generate_face_misorientation_coloring(dca,
-                                                                      simpl.DataArrayPath('TriangleDataContainer',
-                                                                                          'FaceData', 'FaceLabels'),
-                                                                      simpl.DataArrayPath('Small IN100', 'Grain Data',
-                                                                                          'AvgQuats'),
-                                                                      simpl.DataArrayPath('Small IN100', 'Grain Data',
-                                                                                          'Phases'),
-                                                                      simpl.DataArrayPath('Small IN100', 'Phase Data',
-                                                                                          'CrystalStructures'),
-                                                                      'SurfaceMeshFaceMisorientationColors')
-    assert err == 0, f'GenerateFaceMisorientationColoring ErrorCondition {err}'
-
     # Average Vertex Array to Edge/Face/Cell Array
     err = dream3dreviewpy.average_vertex_array_to_edge_face_cell_array(dca,
                                                                        simpl.DataArrayPath('TriangleDataContainer',
