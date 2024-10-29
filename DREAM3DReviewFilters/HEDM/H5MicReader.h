@@ -102,8 +102,18 @@ class H5MicReader : public MicReader
 public:
   EBSD_SHARED_POINTERS(H5MicReader)
   EBSD_STATIC_NEW_MACRO(H5MicReader)
-  EBSD_TYPE_MACRO(H5MicReader)
+
   ~H5MicReader() override;
+
+  /**
+   * @brief Returns the name of the class for EbsdReader
+   */
+   std::string getNameOfClass() const override;
+
+  /**
+   * @brief Returns the name of the class for EbsdReader
+   */
+  static std::string ClassName();
 
   /**
    * @brief The HDF5 path to find the EBSD data
