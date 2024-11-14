@@ -1,0 +1,26 @@
+name: bar
+channels:
+  - conda-forge
+  - nodefaults
+  - https://dream3d.bluequartz.net/binaries/conda
+dependencies:
+  - python=3.9
+  - hdf5=1.10.6
+  - zarr
+  - xarray
+  - Pillow>=8.2.0
+  - tqdm=4.60.0
+  - lxml=4.6.3
+  - pyevtk
+  - scikit-image
+  - matplotlib
+  - ipyparallel
+  - pathlib>=1.0.1
+  - h5py>=3.2.1
+  - dream3d-conda>=1.4.2
+  - pip
+  - pip:
+    - aicspylibczi
+    - itk==5.1.2
+
+

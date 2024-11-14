@@ -58,14 +58,17 @@ MultiInputFileFilterParameter"""
 
 
 from typing import List, Tuple, Union
-from dream3d.Filter import Filter, FilterDelegatePy
-from dream3d.simpl import BooleanFilterParameter, DataContainerArray, StringFilterParameter, InputFileFilterParameter, FilterDelegateCpp, FilterParameter, IntFilterParameter, DataArraySelectionFilterParameter, DataArrayPath
-from dream3d.simpl import InputPathFilterParameter, FloatFilterParameter
 
-class D3DReviewTestFilter(Filter):
+from dream3d.Filter import Filter as SIMPLFilter
+from dream3d.Filter import FilterDelegatePy as SIMPLFilterDelegatePy
+from dream3d.simpl import *
+import dream3d.simpl as simpl
+
+
+class D3DReviewTestFilter(SIMPLFilter):
   def __init__(self) -> None:
     self.int_param: int = 5
-    self.dap_param: DataArrayPath = DataArrayPath('', '', '')
+    self.dap_param: simpl.DataArrayPath = simpl.DataArrayPath('', '', '')
     self.str_param: str = "Something"
     self.bool_param:bool = False
     self.input_file_param:str = "/No/Path/anywhere.txt"
@@ -74,6 +77,7 @@ class D3DReviewTestFilter(Filter):
 
   def _set_float_param(self, value: float) -> None:
       self.float_param = value
+
   def _get_float_param(self) -> float:
       return self.float_param
 
@@ -83,10 +87,10 @@ class D3DReviewTestFilter(Filter):
   def _get_int(self) -> int:
     return self.int_param
 
-  def _set_dap(self, value: DataArrayPath) -> None:
+  def _set_dap(self, value: simpl.DataArrayPath) -> None:
     self.dap_param = value
 
-  def _get_dap(self) -> DataArrayPath:
+  def _get_dap(self) -> simpl.DataArrayPath:
     return self.dap_param
 
   def _get_str(self) -> str:
@@ -113,7 +117,6 @@ class D3DReviewTestFilter(Filter):
   def _set_input_path_param(self, value: str) -> None:
       self.input_path_param = value
 
-  
   @staticmethod
   def name() -> str:
     return 'D3DReviewTestFilter'
@@ -142,34 +145,59 @@ class D3DReviewTestFilter(Filter):
   def compiled_lib_name() -> str:
     return 'DREAM3DReview [Python]'
 
-  def setup_parameters(self) -> List[FilterParameter]:
-    req = DataArraySelectionFilterParameter.RequirementType()
+
+  def setup_parameters(self) -> List[simpl.FilterParameter]:
+
+    """
+    inline const QString Bool("bool");
+    inline const QString Float("float");
+    inline const QString Double("double");
+    inline const QString Int8("int8_t");
+    inline const QString UInt8("uint8_t");
+    inline const QString Int16("int16_t");
+    inline const QString UInt16("uint16_t");
+    inline const QString Int32("int32_t");
+    inline const QString UInt32("uint32_t");
+    inline const QString Int64("int64_t");
+    inline const QString UInt64("uint64_t");
+    """
+    # Create a DataArraySelectionFilterParameter Requirement Type that only takes the following:
+    # Image Geometry
+    # AttributeMatrix must be a CellType
+    # DataArrayTypes are only float, double, int32_t  # See the list from above
+    # DataArray Component dimensions are 1 or 3, i.e., a scalar or vector of size 3 only
+    req = simpl.DataArraySelectionFilterParameter.RequirementType()
+    req.dcGeometryTypes = [simpl.IGeometry.Type.Image]
+    req.amTypes = [simpl.AttributeMatrix.Type.Cell]
+    req.daTypes = ["float", "double", "int32_t"]
+    req.componentDimensions = [VectorSizeT([1]), VectorSizeT([3])]
+
     return [
-        IntFilterParameter('Integer', 'int_param', self.int_param, FilterParameter.Category.Parameter, self._set_int, self._get_int, -1),
-        DataArraySelectionFilterParameter('Data Array Path Selection', 'dap_param', self.dap_param, FilterParameter.Category.RequiredArray, self._set_dap, self._get_dap, req, -1),
-        StringFilterParameter('String', 'str_param', self.str_param, FilterParameter.Category.Parameter, self._set_str, self._get_str, -1),
-        BooleanFilterParameter('Boolean', 'bool_param', self.bool_param, FilterParameter.Category.Parameter, self._set_bool, self._get_bool, -1),
-        InputFileFilterParameter('Input File', 'input_file_param', self.input_file_param, 
-                                    FilterParameter.Category.Parameter, self._set_input_file, self._get_input_file,'*.ang', 'EDAX Ang', -1),
-        InputPathFilterParameter('Input Directory', 'input_path_param', self.input_path_param, 
-                                    FilterParameter.Category.Parameter, self._set_input_path_param, self._get_input_path_param, -1)
+        simpl.IntFilterParameter('Integer', 'int_param', self.int_param, simpl.FilterParameter.Category.Parameter, self._set_int, self._get_int, -1),
+        simpl.DataArraySelectionFilterParameter('Data Array Path Selection', 'dap_param', self.dap_param, simpl.FilterParameter.Category.RequiredArray, self._set_dap, self._get_dap, req, -1),
+        simpl.StringFilterParameter('String', 'str_param', self.str_param, simpl.FilterParameter.Category.Parameter, self._set_str, self._get_str, -1),
+        simpl.BooleanFilterParameter('Boolean', 'bool_param', self.bool_param, simpl.FilterParameter.Category.Parameter, self._set_bool, self._get_bool, -1),
+        simpl.InputFileFilterParameter('Input File', 'input_file_param', self.input_file_param,
+                                    simpl.FilterParameter.Category.Parameter, self._set_input_file, self._get_input_file,'*.ang', 'EDAX Ang', -1),
+        simpl.InputPathFilterParameter('Input Directory', 'input_path_param', self.input_path_param,
+                                    simpl.FilterParameter.Category.Parameter, self._set_input_path_param, self._get_input_path_param, -1)
     ]
 
-  def data_check(self, dca: DataContainerArray, delegate: Union[FilterDelegateCpp, FilterDelegatePy] = FilterDelegatePy()) -> Tuple[int, str]:
+  def data_check(self, dca: simpl.DataContainerArray, delegate: Union[simpl.FilterDelegateCpp, SIMPLFilterDelegatePy] = SIMPLFilterDelegatePy()) -> Tuple[int, str]:
     am = dca.getAttributeMatrix(self.dap_param)
 
     if am is None:
-      return (-1, 'AttributeMatrix is None')
+      return -1, 'AttributeMatrix is None'
 
     da = am.getAttributeArray(self.dap_param)
     if da is None:
-      return (-2, 'DataArray is None')
+      return -2, 'DataArray is None'
 
     delegate.notifyStatusMessage('data_check finished!')
 
-    return (0, 'Success')
+    return 0, 'Success'
 
-  def _execute_impl(self, dca: DataContainerArray, delegate: Union[FilterDelegateCpp, FilterDelegatePy] = FilterDelegatePy()) -> Tuple[int, str]:
+  def _execute_impl(self, dca: simpl.DataContainerArray, delegate: Union[simpl.FilterDelegateCpp, SIMPLFilterDelegatePy] = SIMPLFilterDelegatePy()) -> Tuple[int, str]:
     delegate.notifyStatusMessage(f'int_param = {self.int_param}')
 
     da = dca.getAttributeMatrix(self.dap_param).getAttributeArray(self.dap_param)
@@ -180,6 +208,6 @@ class D3DReviewTestFilter(Filter):
     delegate.notifyStatusMessage(f'after = {data}')
 
     delegate.notifyStatusMessage('execute finished!')
-    return (0, 'Success')
+    return 0, 'Success'
 
 filters = [D3DReviewTestFilter]
